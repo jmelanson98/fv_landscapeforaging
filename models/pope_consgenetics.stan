@@ -31,7 +31,7 @@ transformed parameters {
   
   tau_sqrt <- sqrt(tau); 
   sigma_sqrt <- sqrt(sigma); 
-  eps_scale <- eps*sigma_sqrt; #multiply eps by standard deviation of dist it was drawn from??
+  eps_scale <- eps*sigma_sqrt; #multiply eps by standard deviation of dist it was drawn from?? (because eps prior is N(0,1) and the true variance is not 1, it's eps)...is this to make the model run better? like a more efficient parametrization?
   zeta_scale <- zeta*tau_sqrt; #multiply zeta by standard deviation of dist it was drawn from??
   
   }
