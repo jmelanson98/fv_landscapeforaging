@@ -23,19 +23,34 @@
 
 
 ##### Define landscape bounds, number of bees & traps #####
-landscape_lower = 0
-landscape_upper = 500
-num_col = 100
-num_bees = 2000
+colony_lower = 0
+colony_upper = 3500
+trap_upper = 1000
+trap_lower = 2500
+num_col = 1000
+num_bees = 20000
 num_traps = 30
 
 ##### Define parameters #####
+
 #what is a reasonable value for beta??
-x = 1:500
-y = exp(-0.005*x)
-plot(x, y)
-#this is really small but gives a reasonab
-inv_beta = 200
+x = 1:1000
+y = exp(-(1/300)*x)
+plot(x, y, xlab = "distance from nest", ylab = "visitation rate")
+#this is really small but gives a reasonable decay of foraging distance?
+#might be better to fit 1/beta? not sure if this makes any difference....
+inv_beta = 300
+
+#what is a reasonable value for theta? (increased visitation to high floral quality)
+#how many more bees would visit the *best* flower patch compared to an average patch?
+y = exp(-1/inv_beta*x + (1)*-2)
+plot(x, y, xlab = "distance from nest", ylab = "visitation rate")
+####(realizing that this function form does not modulate floral attractiveness as a fxn
+#### of distance...e.g., the ratio of bees on a good compared vs bees on a bad patch
+#### stays the same regardless of distance from the nest)
+#### Not sure if this is the best assumption but let's fly with it for now...
+theta = 1
+
 
 ##### Define colony characteristics #####
 col_id = 1:num_col
