@@ -25,8 +25,8 @@
 ##### Define landscape bounds, number of bees & traps #####
 colony_lower = 0
 colony_upper = 3500
-trap_upper = 1000
-trap_lower = 2500
+trap_lower = 1000
+trap_upper = 2500
 num_col = 1000
 num_bees = 20000
 num_traps = 30
@@ -55,8 +55,8 @@ theta = 1
 ##### Define colony characteristics #####
 col_id = 1:num_col
 colsize = rep(num_bees/num_col, num_col)
-col_xcoord = runif(num_col, landscape_lower, landscape_upper)
-col_ycoord = runif(num_col, landscape_lower, landscape_upper)
+col_xcoord = runif(num_col, colony_lower, colony_upper)
+col_ycoord = runif(num_col, colony_lower, colony_upper)
 
 colony_data = as.data.frame(cbind(col_id, colsize, col_xcoord, col_ycoord))
 
@@ -66,10 +66,15 @@ landscape = plot(colony_data$col_xcoord, colony_data$col_ycoord)
 ##### Define trap characteristics #####
 trap_id = 1:num_traps
 trap_quality = rnorm(num_traps, 0, 1)
-trap_xcoord = runif(num_traps, landscape_lower, landscape_upper)
-trap_ycoord = runif(num_traps, landscape_lower, landscape_upper)
+trap_xcoord = runif(num_traps, trap_lower, trap_upper)
+trap_ycoord = runif(num_traps, trap_lower, trap_upper)
 
 trap_data = as.data.frame(cbind(trap_id, trap_quality, trap_xcoord, trap_ycoord))
 
 #plot traps
 landscape = landscape + plot(trap_data$trap_xcoord, trap_data$trap_ycoord, col = "red")
+
+
+##### Simulate data #####
+
+
