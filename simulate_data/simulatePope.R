@@ -29,6 +29,14 @@ num_col = 100
 num_bees = 2000
 num_traps = 30
 
+##### Define parameters #####
+#what is a reasonable value for beta??
+x = 1:500
+y = exp(-0.005*x)
+plot(x, y)
+#this is really small but gives a reasonab
+inv_beta = 200
+
 ##### Define colony characteristics #####
 col_id = 1:num_col
 colsize = rep(num_bees/num_col, num_col)
