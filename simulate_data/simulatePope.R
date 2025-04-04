@@ -3,6 +3,11 @@
 # By: Jenna Melanson
 # Goal: reproduce simulated data from 2017 Conservation Genetics Paper
 
+##### Load packages #####
+library(matrixStats)
+
+##### Load source code #####
+source("/simulation/sim_src")
 
 ##### Required Data #####
 ### number of colonies (num_col)
@@ -76,5 +81,18 @@ landscape = landscape + plot(trap_data$trap_xcoord, trap_data$trap_ycoord, col =
 
 
 ##### Simulate data #####
+distance_mat = allocMatrix(nrow = num_col, ncol = num_traps, value = 0)
+lambda = allocMatrix(nrow = num_col, ncol = num_traps, value = 0)
 
+for (k in trap_data$trap_id){
+  for (i in colony_data$col_id){
+    distance_mat = dist
+    lambda = 
+      
+      dis[i, k] <- distance(delta[i], trap[k]); #is distance a function in stan??
+    lambda[i, k] <- -beta*dis[i, k] + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+    
+  }
+}
+lambda = exp(-1/inv_beta)
 
