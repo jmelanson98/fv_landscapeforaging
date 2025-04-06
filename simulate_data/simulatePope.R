@@ -7,6 +7,8 @@
 library(matrixStats)
 library(sp)
 library(gstat)
+library(ggplot2)
+library(reshape2)
 
 ##### Load source code #####
 source("simulate_data/sim_src.R")
@@ -30,12 +32,12 @@ source("simulate_data/sim_src.R")
 
 
 ##### Define landscape bounds, number of bees & traps #####
-colony_lower = 0
+colony_lower = 1
 colony_upper = 3500
 trap_lower = 1000
 trap_upper = 2500
-num_col = 1000
-num_bees = 20000
+num_col = 10
+num_bees = 200
 num_traps = 30
 
 ##### Define parameters #####
@@ -72,8 +74,8 @@ landscape = plot(colony_data$col_xcoord, colony_data$col_ycoord)
 
 ##### Define trap locations #####
 trap_id = 1:num_traps
-trap_xcoord = runif(num_traps, trap_lower, trap_upper)
-trap_ycoord = runif(num_traps, trap_lower, trap_upper)
+trap_xcoord = round(runif(num_traps, trap_lower, trap_upper))
+trap_ycoord = round(runif(num_traps, trap_lower, trap_upper))
 trap_data = as.data.frame(cbind(trap_id, trap_xcoord, trap_ycoord))
 
 #plot traps
@@ -84,8 +86,9 @@ landscape = landscape + plot(trap_data$trap_xcoord, trap_data$trap_ycoord, col =
 # this block of code (until "Simulate Data") modified from ChatGPT suggestion
 
 # create a regular grid of points to simulate over
-x.range <- seq(colony_lower, colony_upper, by = 2)  # X coordinates
-y.range <- seq(colony_lower, colony_upper, by = 2)  # Y coordinates
+grid_spacing = 2
+x.range <- seq(colony_lower, colony_upper, by = grid_spacing)  # X coordinates
+y.range <- seq(colony_lower, colony_upper, by = grid_spacing)  # Y coordinates
 
 grid <- expand.grid(x = x.range, y = y.range)
 coordinates(grid) <- ~x + y
@@ -101,16 +104,64 @@ simulated <- gstat(formula = z ~ 1, locations = ~x + y, dummy = TRUE,
 
 simulated_field <- predict(simulated, newdata = grid, nsim = 1) #change nsim to make multiple landscapes
 simulated_field2 <- predict(simulated, newdata = grid, nsim = 1) #change nsim to make multiple landscapes
-
-
 # this takes a while for a landscape of my size ... 
 
 # plot the simulated resource distribution
 spplot(simulated_field, zcol = "sim1", main = "Simulated Resource Distribution (Brownian variogram)")
-View(simulated_field)
+
+# make a matrix of floral quality values
+sim_values <- simulated_field$sim1
+n_cells <- length(x.range)
+coarse_mat <- matrix(sim_values, nrow = n_cells, ncol = n_cells)
+
+# if you don't have sim values for every map unit, then expand (duplicate) each 
+# coarse cell into 2x2 block in a fine grid using Kronecker product
+fine_mat <- kronecker(coarse_mat, matrix(1, nrow = grid_spacing, ncol = grid_spacing))
+
 
 
 ##### Simulate data #####
+
+# uncorrelated floral quality for now
+fq = matrix(data = rnorm(colony_upper^2, 0, 1), nrow = colony_upper, ncol = colony_upper)
+colony_data$total_visitation = NA
+colonyxtrap = allocMatrix(0, nrow = num_col, ncol = num_traps)
+
+for (i in colony_data$col_id){
+  colony_data$total_visitation[colony_data$col_id == i] = 0
+  print(paste("colony id = ", i))
+  for (x in colony_lower:colony_upper){
+    print(paste("Current xcoord = ", x))
+    for (y in colony_lower:colony_upper){
+      dist = calculate_dist(colony_coords = list(colony_data$col_xcoord[colony_data$col_id == i], 
+                                                 colony_data$col_ycoord[colony_data$col_id == i]),
+                            trap_coords = list(x, y))
+      visitation_rate = exp(-1/inv_beta*dist + theta*fq[x, y])
+      #add visitation rate to total visitation rate for that colony
+      colony_data$total_visitation[colony_data$col_id == i] = colony_data$total_visitation[colony_data$col_id == i]  + visitation_rate
+      
+      #is the site a trap?
+      target = list(x = x, y = y)
+      if (any(trap_data$trap_xcoord == target$x & trap_data$trap_ycoord == target$y)){
+        print("It's a trap!!") #hahaha get it? i'm so funny
+        trap_id = trap_data$trap_id[trap_data$trap_xcoord == x & trap_data$trap_ycoord == y]
+        print(paste("Specifically it's trap", trap_id))
+        
+        colonyxtrap[i, trap_id] = visitation_rate
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 # create lambda_full -> a landscape-wide visitation table (visitation rate between each pair of pixels based on distance and floral quality)
 
