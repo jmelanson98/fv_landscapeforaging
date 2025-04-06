@@ -93,21 +93,21 @@ gridded(grid) <- TRUE
 
 # define a Brownian variogram model
 # "nugget" = 0, "sill" = total variance
-vgm_model <- vgm(psill = 1, model = "Lin", nugget = 0, range = 1) #range is not actually used in a Lin model but we need it as a place holder so gstat doesn't get mad
+vgm_model <- vgm(psill = 100, model = "Lin", nugget = 0, range = 1) #range is not actually used in a Lin model but we need it as a place holder so gstat doesn't get mad
 
 # simulate one realization of a Gaussian random field
 simulated <- gstat(formula = z ~ 1, locations = ~x + y, dummy = TRUE, 
                    beta = 0, model = vgm_model, nmax = 20)
 
 simulated_field <- predict(simulated, newdata = grid, nsim = 1) #change nsim to make multiple landscapes
-# this takes a little while for a landscape of my size ... 
+simulated_field2 <- predict(simulated, newdata = grid, nsim = 1) #change nsim to make multiple landscapes
+
+
+# this takes a while for a landscape of my size ... 
 
 # plot the simulated resource distribution
 spplot(simulated_field, zcol = "sim1", main = "Simulated Resource Distribution (Brownian variogram)")
-
-# OR
-r <- raster(simulated_field["sim1"])
-plot(r, main = "Brownian Variogram (Linear) Simulation")
+View(simulated_field)
 
 
 ##### Simulate data #####
