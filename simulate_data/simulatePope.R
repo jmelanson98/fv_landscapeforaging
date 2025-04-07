@@ -143,52 +143,32 @@ png("figures/simfigs/foragingkernel_single.png", width = 3500, height = 3500, re
 levelplot(r, col.regions = viridis::viridis(100))
 dev.off()
 
-ggsave("figures/simfigs/foragingkernel_single.jpg", 
-       plot = forasinglecolony, 
-       width = 7000, height = 7000,
-       units = "px",
-       dpi = 600)
-
-
 # calculate D_i for each colony (total visitation over all cells)
 D_i <- sapply(visitation_rates, function(x) sum(x))
 
-# compute probabilities of sampling for each trap k in kappa
+# compute probabilities of sampling from each trap k in kappa
 colony_data$w_i = colony_data$colsize/num_bees
 
-
+# e.g., Pr(s = k)
+# sum over C:
+#### lambda_ik * w_i / D_i
 # IN PROGRESS
-for (k in trap_data$trap_id){
-  #Pr(s = k)
-  numerator <- sum(w_i * sapply(visitation_rates, function(x) x[trap_data$trap_xcoord[trap_data$trap_id ==k],
-                                                                trap_data$trap_ycoord[trap_data$trap_id == k]]))
-  trap_data$
+lambda_ik = allocMatrix(nrow = num_col, ncol = num_traps, value = 0)
+
+for (i in colony_data$col_id){
+  for (k in trap_data$trap_id){
+    lambda_ik[i,k] = visitation_rates[[i]][trap_data$trap_xcoord[trap_data$trap_id == k],
+                                           trap_data$trap_ycoord[trap_data$trap_id == k]]
+  }
 }
 
-# Numerator for a specific trap k
-numerator <- sum(w_i * sapply(visitation_rates, function(x) x[trap_data$trap_xcoord[trap_data$trap_id ==k],
-                                                              trap_data$trap_ycoord[trap_data$trap_id == k]]))
+trap_data$prob_s_eq_k = colSums(lambda_ik*colony_data$w_i/D_i)
 
-# Denominator for all traps in kappa (we assume kappa = 1:3500 here for simplicity)
-kappa <- 1:(landscape_size[1] * landscape_size[2])
-denominator <- sum(w_i * sapply(visitation_rates, function(x) sum(x[kappa])))
+# calculate prob of sampling from any trap kappa
+prob_kappa = sum(rowSums(lambda_ik)*colony_data$w_i/D_i)
 
-# Final probability of sampling at k
-probability_k <- numerator / denominator
+# prob of sampling from a particular trap given k in kappa
+trap_data$conditional_prob = trap_data$prob_s_eq_k/prob_kappa
+# sanity check: conditional probs sum to 1!! yay :)
 
-print(probability_k)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# next up: draw a value of c from Pr(c = i | s = k)
