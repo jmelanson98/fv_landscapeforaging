@@ -9,6 +9,8 @@ library(sp)
 library(gstat)
 library(ggplot2)
 library(reshape2)
+library(raster)
+library(rasterVis)
 
 ##### Load source code #####
 source("simulate_data/sim_src.R")
@@ -118,73 +120,75 @@ coarse_mat <- matrix(sim_values, nrow = n_cells, ncol = n_cells)
 # coarse cell into 2x2 block in a fine grid using Kronecker product
 fine_mat <- kronecker(coarse_mat, matrix(1, nrow = grid_spacing, ncol = grid_spacing))
 
-
-
 ##### Simulate data #####
-
 # uncorrelated floral quality for now
 fq = matrix(data = rnorm(colony_upper^2, 0, 1), nrow = colony_upper, ncol = colony_upper)
-colony_data$total_visitation = NA
-colonyxtrap = allocMatrix(0, nrow = num_col, ncol = num_traps)
 
-for (i in colony_data$col_id){
-  colony_data$total_visitation[colony_data$col_id == i] = 0
-  print(paste("colony id = ", i))
-  for (x in colony_lower:colony_upper){
-    print(paste("Current xcoord = ", x))
-    for (y in colony_lower:colony_upper){
-      dist = calculate_dist(colony_coords = list(colony_data$col_xcoord[colony_data$col_id == i], 
-                                                 colony_data$col_ycoord[colony_data$col_id == i]),
-                            trap_coords = list(x, y))
-      visitation_rate = exp(-1/inv_beta*dist + theta*fq[x, y])
-      #add visitation rate to total visitation rate for that colony
-      colony_data$total_visitation[colony_data$col_id == i] = colony_data$total_visitation[colony_data$col_id == i]  + visitation_rate
-      
-      #is the site a trap?
-      target = list(x = x, y = y)
-      if (any(trap_data$trap_xcoord == target$x & trap_data$trap_ycoord == target$y)){
-        print("It's a trap!!") #hahaha get it? i'm so funny
-        trap_id = trap_data$trap_id[trap_data$trap_xcoord == x & trap_data$trap_ycoord == y]
-        print(paste("Specifically it's trap", trap_id))
-        
-        colonyxtrap[i, trap_id] = visitation_rate
-      }
-    }
-  }
-}
+# efficient calculation of Pr(s = k | s in Kappa) via convolution
+# with help from ChatGPT
+
+# compute visitation rates for each colony at each grid cell using nested functions,
+# compute_distances and compute_visitation_rates 
+visitation_rates <- compute_visitation_rates(colonies = colony_data, 
+                                             resource_quality = fq, 
+                                             beta = -1/inv_beta, 
+                                             theta = theta, 
+                                             landscape_size = c(3500, 3500))
+
+# quick visual check of one foraging kernel
+# create a large raster object from the matrix
+r <- raster(visitation_rates[[1]])
+
+png("figures/simfigs/foragingkernel_single.png", width = 3500, height = 3500, res = 300)
+levelplot(r, col.regions = viridis::viridis(100))
+dev.off()
+
+ggsave("figures/simfigs/foragingkernel_single.jpg", 
+       plot = forasinglecolony, 
+       width = 7000, height = 7000,
+       units = "px",
+       dpi = 600)
 
 
+# calculate D_i for each colony (total visitation over all cells)
+D_i <- sapply(visitation_rates, function(x) sum(x))
+
+# compute probabilities of sampling for each trap k in kappa
+colony_data$w_i = colony_data$colsize/num_bees
 
 
-
-
-
-
-
-
-
-# create lambda_full -> a landscape-wide visitation table (visitation rate between each pair of pixels based on distance and floral quality)
-
-# start = starting location (xs, ys)
-# end = ending location (xe, ye, fe) (fqe = floral quality)
-
-lambda_full = allocMatrix(nrow = length(colony_lower:colony_upper), ncol = length(colony_lower:colony_upper), value = 0)
-
-
-
-distance_mat = allocMatrix(nrow = num_col, ncol = num_traps, value = 0)
-lambda = allocMatrix(nrow = num_col, ncol = num_traps, value = 0)
-ypred = allocMatrix(nrow = num_col, ncol = num_traps, value = 0)
-
+# IN PROGRESS
 for (k in trap_data$trap_id){
-  for (i in colony_data$col_id){
-    distance_mat[i, k] = calculate_dist(colony_coords = list(colony_data$col_xcoord[i], colony_data$col_ycoord[i]),
-                                  trap_coords = list(trap_data$trap_xcoord[k], trap_data$trap_ycoord[k]))
-    lambda[i, k] = exp(-1/inv_beta*distance_mat[i, k] + theta*trap_data$trap_quality[k])
-    
-    #draw trap number using eqn 3
-    
-    ypred[i, k] = rpois(1, lambda[i, k])
-  }
+  #Pr(s = k)
+  numerator <- sum(w_i * sapply(visitation_rates, function(x) x[trap_data$trap_xcoord[trap_data$trap_id ==k],
+                                                                trap_data$trap_ycoord[trap_data$trap_id == k]]))
+  trap_data$
 }
+
+# Numerator for a specific trap k
+numerator <- sum(w_i * sapply(visitation_rates, function(x) x[trap_data$trap_xcoord[trap_data$trap_id ==k],
+                                                              trap_data$trap_ycoord[trap_data$trap_id == k]]))
+
+# Denominator for all traps in kappa (we assume kappa = 1:3500 here for simplicity)
+kappa <- 1:(landscape_size[1] * landscape_size[2])
+denominator <- sum(w_i * sapply(visitation_rates, function(x) sum(x[kappa])))
+
+# Final probability of sampling at k
+probability_k <- numerator / denominator
+
+print(probability_k)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
