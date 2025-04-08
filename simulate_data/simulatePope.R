@@ -68,7 +68,7 @@ draw_N_bees = function(sample_size, # number of bees to sample
                        trapgrid_size, # will be centered within landscape
                        resource_range, # integer for variogram range parameter (e.g., 100)
                        number_traps, # integer
-                       number_colonies, # integer
+                       number_colonies, # a square number
                        colony_sizes, #vector of length number_colonies
                        beta, # set param value
                        theta # set param value
@@ -82,13 +82,13 @@ draw_N_bees = function(sample_size, # number of bees to sample
   
   ##### Define trap characteristics #####
   trapid = 1:number_traps
-  trap_x = round(runif(number_traps, 
-                       (landscape_size[1] - trapgrid_size[1])/2, 
-                       ((landscape_size[1] - trapgrid_size[1])/2) + trapgrid_size[1]))
-  trap_y = round(runif(number_traps, 
-                       (landscape_size[2] - trapgrid_size[2])/2, 
-                       ((landscape_size[2] - trapgrid_size[2])/2) + trapgrid_size[2]))
-  trap_data = as.data.frame(cbind(trap_id, trap_x, trap_y)) 
+  grid_size = sqrt(number_traps)
+  x_step = trapgrid_size[1]/(grid_size-1)
+  y_step = trapgrid_size[2]/(grid_size-1)
+  trap_x = (landscape_size[1] - trapgrid_size[1])/2 + x_step*(0:(grid_size-1))
+  trap_y = (landscape_size[2] - trapgrid_size[2])/2 + y_step*(0:(grid_size-1))
+  coords = expand.grid(trap_x = trap_x, trap_y = trap_y)
+  trap_data = as.data.frame(cbind(trapid, coords)) 
   
   # optional plotting step to visualize traps and colonies
   plot(colony_data$colony_x, colony_data$colony_y, col = "black", xlab = "Long", ylab = "Lat", main = "Colonies (black) and Traps (red)")
@@ -138,7 +138,7 @@ draw_N_bees = function(sample_size, # number of bees to sample
   N = numbees_start
   colony_data$ni = colony_sizes
   
-  while(sum(yik < sample_size)){
+  while(sum(yik) < sample_size){
     # set weights based on colony sizes
     colony_data$w_i = colony_data$ni/N
     
@@ -171,16 +171,17 @@ draw_N_bees = function(sample_size, # number of bees to sample
     }
     
     trap_data$prob_s_eq_k = colSums(lambda_ik*colony_data$w_i/colony_data$D_i)
+    trap_data$prob_s_eq_k[is.na(trap_data$prob_s_eq_k)] = 0
     
     # calculate prob of sampling from any trap kappa (Pr(s in kappa))
-    prob_kappa = sum(rowSums(lambda_ik)*colony_data$w_i/D_i)
+    prob_kappa = sum(rowSums(lambda_ik)*colony_data$w_i/colony_data$D_i)
     
     # prob of sampling from a particular trap given k in kappa
     trap_data$trap_prob = trap_data$prob_s_eq_k/prob_kappa
     # sanity check: conditional probs sum to 1!! yay :)
     
     #draw a trap_id
-    trap = sample(trap_data$trap_id, size = 1, prob = trap_data$trap_prob)
+    trap = sample(trap_data$trapid, size = 1, prob = trap_data$trap_prob)
     
     # next up: draw a value of c from Pr(c = i | s = k)
     colony_data$colony_prob = ((lambda_ik[,trap]/colony_data$D_i)*colony_data$w_i)/trap_data$prob_s_eq_k[trap_data$trapid == trap]
@@ -194,11 +195,26 @@ draw_N_bees = function(sample_size, # number of bees to sample
     #update ni and N
     N = N-1
     colony_data$ni[colony_data$colonyid == colony] = colony_data$ni[colony_data$colonyid == colony] - 1
+    
+    print(paste("Now sampling bee number", sum(yik)+1))
   }
   
   return(yik)
 }
 
+
+
+# Simulate 10 draws
+obs = draw_N_bees(sample_size = 10,
+                  landscape_size = c(700,700),
+                  trapgrid_size = c(300,300),
+                  resource_range = 10,
+                  number_traps = 25,
+                  number_colonies = 10,
+                  colony_sizes = rep(20, 10),
+                  beta = -1/50,
+                  theta = 0.5)
+                                        
 
 
 # for plotting of a foraging kernel
