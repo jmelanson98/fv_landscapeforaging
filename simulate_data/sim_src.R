@@ -17,8 +17,8 @@ compute_distances <- function(colonies, landscape_size) {
   dist_matrix <- list()
   
   for (i in 1:nrow(colonies)) {
-    colony_x <- colonies$col_xcoord[i]
-    colony_y <- colonies$col_ycoord[i]
+    colony_x <- colonies$colony_x[i]
+    colony_y <- colonies$colony_y[i]
     
     # Create a grid of coordinates for the landscape
     x_coords <- 1:landscape_size[1]
