@@ -173,3 +173,5 @@ trap_id = sample(trap_data$trap_id, size = 1, prob = trap_data$conditional_prob)
 
 # next up: draw a value of c from Pr(c = i | s = k)
 colony = 
+  
+# then: make code iterative (with updates to ni and N)
