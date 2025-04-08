@@ -34,23 +34,24 @@ source("simulate_data/sim_src.R")
 
 
 ##### Define landscape bounds, number of bees & traps #####
+# pretend that each map unit = 5 meters
 colony_lower = 1
-colony_upper = 3500
-trap_lower = 1000
-trap_upper = 2500
-num_col = 10
-num_bees = 200
+colony_upper = 700
+trap_lower = 200
+trap_upper = 500
+num_col = 100
+num_bees = 2000
 num_traps = 30
 
 ##### Define parameters #####
 
 #what is a reasonable value for beta??
-x = 1:1000
-y = exp(-(1/300)*x)
+x = 1:200
+y = exp(-(1/60)*x)
 plot(x, y, xlab = "distance from nest", ylab = "visitation rate")
 #this is really small but gives a reasonable decay of foraging distance?
 #might be better to fit 1/beta? not sure if this makes any difference....
-inv_beta = 300
+inv_beta = 50
 
 #what is a reasonable value for theta? (increased visitation to high floral quality)
 #how many more bees would visit the *best* flower patch compared to an average patch?
@@ -60,7 +61,7 @@ plot(x, y, xlab = "distance from nest", ylab = "visitation rate")
 #### of distance...e.g., the ratio of bees on a good compared vs bees on a bad patch
 #### stays the same regardless of distance from the nest)
 #### Not sure if this is the best assumption but let's fly with it for now...
-theta = 1
+theta = 0.5
 
 
 ##### Define colony characteristics #####
@@ -68,8 +69,9 @@ col_id = 1:num_col
 colsize = rep(num_bees/num_col, num_col)
 col_xcoord = round(runif(num_col, colony_lower, colony_upper)) #colony locations are integers (e.g., round to nearest meter)
 col_ycoord = round(runif(num_col, colony_lower, colony_upper)) #colony locations are integers (e.g., round to nearest meter)
+w_i = colsize/num_bees
 
-colony_data = as.data.frame(cbind(col_id, colsize, col_xcoord, col_ycoord))
+colony_data = as.data.frame(cbind(col_id, colsize, w_i, col_xcoord, col_ycoord))
 
 #plot colonies
 landscape = plot(colony_data$col_xcoord, colony_data$col_ycoord)
@@ -88,7 +90,7 @@ landscape = landscape + plot(trap_data$trap_xcoord, trap_data$trap_ycoord, col =
 # this block of code (until "Simulate Data") modified from ChatGPT suggestion
 
 # create a regular grid of points to simulate over
-grid_spacing = 2
+grid_spacing = 1
 x.range <- seq(colony_lower, colony_upper, by = grid_spacing)  # X coordinates
 y.range <- seq(colony_lower, colony_upper, by = grid_spacing)  # Y coordinates
 
@@ -98,15 +100,13 @@ gridded(grid) <- TRUE
 
 # define a Brownian variogram model
 # "nugget" = 0, "sill" = total variance
-vgm_model <- vgm(psill = 100, model = "Lin", nugget = 0, range = 1) #range is not actually used in a Lin model but we need it as a place holder so gstat doesn't get mad
+vgm_model <- vgm(psill = 10, model = "Lin", nugget = 0, range = 10) #range is not actually used in a Lin model but we need it as a place holder so gstat doesn't get mad
 
 # simulate one realization of a Gaussian random field
 simulated <- gstat(formula = z ~ 1, locations = ~x + y, dummy = TRUE, 
                    beta = 0, model = vgm_model, nmax = 20)
 
 simulated_field <- predict(simulated, newdata = grid, nsim = 1) #change nsim to make multiple landscapes
-simulated_field2 <- predict(simulated, newdata = grid, nsim = 1) #change nsim to make multiple landscapes
-# this takes a while for a landscape of my size ... 
 
 # plot the simulated resource distribution
 spplot(simulated_field, zcol = "sim1", main = "Simulated Resource Distribution (Brownian variogram)")
@@ -114,26 +114,26 @@ spplot(simulated_field, zcol = "sim1", main = "Simulated Resource Distribution (
 # make a matrix of floral quality values
 sim_values <- simulated_field$sim1
 n_cells <- length(x.range)
-coarse_mat <- matrix(sim_values, nrow = n_cells, ncol = n_cells)
+fq <- matrix(sim_values, nrow = n_cells, ncol = n_cells)
 
 # if you don't have sim values for every map unit, then expand (duplicate) each 
 # coarse cell into 2x2 block in a fine grid using Kronecker product
-fine_mat <- kronecker(coarse_mat, matrix(1, nrow = grid_spacing, ncol = grid_spacing))
+fq <- kronecker(coarse_mat, matrix(1, nrow = grid_spacing, ncol = grid_spacing))
+
+# normalize / z-score the floral quality values
+fq_norm = fq/sd(fq)
 
 ##### Simulate data #####
-# uncorrelated floral quality for now
-fq = matrix(data = rnorm(colony_upper^2, 0, 1), nrow = colony_upper, ncol = colony_upper)
-
 # efficient calculation of Pr(s = k | s in Kappa) via convolution
 # with help from ChatGPT
 
 # compute visitation rates for each colony at each grid cell using nested functions,
 # compute_distances and compute_visitation_rates 
 visitation_rates <- compute_visitation_rates(colonies = colony_data, 
-                                             resource_quality = fq, 
+                                             resource_quality = fq_norm, 
                                              beta = -1/inv_beta, 
                                              theta = theta, 
-                                             landscape_size = c(3500, 3500))
+                                             landscape_size = c(700, 700))
 
 # quick visual check of one foraging kernel
 # create a large raster object from the matrix
@@ -144,15 +144,12 @@ levelplot(r, col.regions = viridis::viridis(100))
 dev.off()
 
 # calculate D_i for each colony (total visitation over all cells)
-D_i <- sapply(visitation_rates, function(x) sum(x))
+colony_data$D_i <- sapply(visitation_rates, function(x) sum(x))
 
 # compute probabilities of sampling from each trap k in kappa
-colony_data$w_i = colony_data$colsize/num_bees
-
 # e.g., Pr(s = k)
 # sum over C:
 #### lambda_ik * w_i / D_i
-# IN PROGRESS
 lambda_ik = allocMatrix(nrow = num_col, ncol = num_traps, value = 0)
 
 for (i in colony_data$col_id){
@@ -162,7 +159,7 @@ for (i in colony_data$col_id){
   }
 }
 
-trap_data$prob_s_eq_k = colSums(lambda_ik*colony_data$w_i/D_i)
+trap_data$prob_s_eq_k = colSums(lambda_ik*colony_data$w_i/colony_data$D_i)
 
 # calculate prob of sampling from any trap kappa
 prob_kappa = sum(rowSums(lambda_ik)*colony_data$w_i/D_i)
@@ -171,4 +168,8 @@ prob_kappa = sum(rowSums(lambda_ik)*colony_data$w_i/D_i)
 trap_data$conditional_prob = trap_data$prob_s_eq_k/prob_kappa
 # sanity check: conditional probs sum to 1!! yay :)
 
+#draw a trap_id
+trap_id = sample(trap_data$trap_id, size = 1, prob = trap_data$conditional_prob)
+
 # next up: draw a value of c from Pr(c = i | s = k)
+colony = 
