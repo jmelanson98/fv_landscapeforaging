@@ -172,6 +172,13 @@ trap_data$conditional_prob = trap_data$prob_s_eq_k/prob_kappa
 trap_id = sample(trap_data$trap_id, size = 1, prob = trap_data$conditional_prob)
 
 # next up: draw a value of c from Pr(c = i | s = k)
-colony = 
-  
-# then: make code iterative (with updates to ni and N)
+colony_data$colony_prob = ((lambda_ik[,trap_id]/colony_data$D_i)*colony_data$w_i)/trap_data$prob_s_eq_k[trap_data$trap_id == trap_id]
+
+colony = sample(colony_data$col_id, size = 1, prob = colony_data$colony_prob)
+
+#update ni and N
+N = N-1
+colony_data$colsize[colony_data$col_id == colony] = colony_data$colsize[colony_data$col_id == colony] - 1
+
+
+# next: make code iterative (repeat these steps until reaching a stopping point)
