@@ -257,7 +257,7 @@ result <- draw_N_bees(
 )
 
 # Save output
-outfile <- sprintf("results/sim_result_%03d.rds", task_id)
+outfile <- sprintf("data/popesim2017/sim_result_%03d.rds", task_id)
 saveRDS(result, outfile)
 
 
