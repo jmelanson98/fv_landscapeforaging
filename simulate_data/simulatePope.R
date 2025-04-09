@@ -71,7 +71,8 @@ draw_N_bees = function(sample_size, # number of bees to sample
                        number_colonies, # a square number
                        colony_sizes, #vector of length number_colonies
                        beta, # set param value
-                       theta # set param value
+                       theta, # set param value
+                       batch_size # number of bees to draw before updating ni/N
 ){
   ##### Define colony characteristics #####
   colonyid = 1:number_colonies
@@ -139,6 +140,9 @@ draw_N_bees = function(sample_size, # number of bees to sample
   colony_data$ni = colony_sizes
   
   while(sum(yik) < sample_size){
+    remaining = sample_size - sum(yik)
+    n_draws = min(batch_size, remaining)
+    
     # set weights based on colony sizes
     colony_data$w_i = colony_data$ni/N
     
@@ -170,7 +174,9 @@ draw_N_bees = function(sample_size, # number of bees to sample
       lambda_ik[i, ] <- mapply(function(x, y) visit_mat[x, y], trap_data$trap_x, trap_data$trap_y)
     }
   
-    trap_data$prob_s_eq_k = colSums(lambda_ik*colony_data$w_i/colony_data$D_i)
+    # save Pr(s = k)
+    lambda_ik_scaled <- sweep(lambda_ik, 1, colony_data$w_i / colony_data$D_i, "*")  # elementwise scale by w_i / D_i
+    trap_data$prob_s_eq_k <- colSums(lambda_ik_scaled)
     trap_data$prob_s_eq_k[is.na(trap_data$prob_s_eq_k)] = 0
     
     # calculate prob of sampling from any trap kappa (Pr(s in kappa))
@@ -180,23 +186,29 @@ draw_N_bees = function(sample_size, # number of bees to sample
     trap_data$trap_prob = trap_data$prob_s_eq_k/prob_kappa
     # sanity check: conditional probs sum to 1!! yay :)
     
-    #draw a trap_id
-    trap = sample(trap_data$trapid, size = 1, prob = trap_data$trap_prob)
+    # sample traps
+    traps = sample(trap_data$trapid, size = n_draws, replace = TRUE, prob = trap_data$trap_prob)
     
-    # next up: draw a value of c from Pr(c = i | s = k)
-    colony_data$colony_prob = ((lambda_ik[,trap]/colony_data$D_i)*colony_data$w_i)/trap_data$prob_s_eq_k[trap_data$trapid == trap]
-    # sanity check: conditional probs sum to 1!! yay :)
-    
-    colony = sample(colony_data$colonyid, size = 1, prob = colony_data$colony_prob)
-    
-    # record visitation event to yik
-    yik[colony, trap] = yik[colony, trap] + 1
-    
-    #update ni and N
-    N = N-1
-    colony_data$ni[colony_data$colonyid == colony] = colony_data$ni[colony_data$colonyid == colony] - 1
-    
-    print(paste("Now sampling bee number", sum(yik)+1))
+    # sample bees
+    for (draw in seq_len(n_draws)) {
+      trap = traps[draw]
+      
+      # calculate Pr(c = i | s = k)
+      numer = (lambda_ik[, trap] / colony_data$D_i) * colony_data4w_i
+      denom = trap_data$prob_s_eq_k[trap_data$trapid == trap]
+      colony_probs <- numer / denom
+      colony_probs[is.na(colony_probs)] <- 0
+      
+      colony = sample(colony_data$colonyid, size = 1, prob = colony_probs)
+      
+      # record visitation event to yik
+      yik[colony, trap] = yik[colony, trap] + 1
+      
+      #update ni and N
+      N = N-1
+      colony_data$ni[colony_data$colonyid == colony] = colony_data$ni[colony_data$colonyid == colony] - 1
+    }
+    print(paste("Now sampled", sum(yik), "of", sample_size, "bees"))
   }
   
   return(yik)
