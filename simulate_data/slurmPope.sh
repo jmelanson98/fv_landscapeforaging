@@ -8,7 +8,7 @@
 #SBATCH --mem=4G
 #SBATCH --time=12:00:00
 
-module load r/4.3.1
+module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
 # List of required packages
 packages=("matrixStats" "sp" "gstat" "ggplot2" "reshape2" "raster" "rasterVis" "parallel" "future" "furrr")
