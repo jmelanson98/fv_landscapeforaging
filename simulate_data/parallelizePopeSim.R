@@ -14,6 +14,7 @@ library(rasterVis)
 library(parallel)
 library(future)
 library(furrr)
+library(gstat)
 
 ##### Required Functions #####
 

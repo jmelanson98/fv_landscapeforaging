@@ -8,7 +8,16 @@
 #SBATCH --mem=4G
 #SBATCH --time=12:00:00
 
-module load r/4.3.1  # Adjust version as needed
+module load r/4.3.1
+
+# List of required packages
+packages=("matrixStats" "sp" "gstat" "ggplot2" "reshape2" "raster" "rasterVis" "parallel" "future" "furrr")
+
+
+# Loop through the list of packages and install them if missing
+for package in "${packages[@]}"; do
+  Rscript -e "if (!require('$package')) install.packages('$package', repos='https://cloud.r-project.org/')"
+done
 
 Rscript parallelizePopeSim.R
 
