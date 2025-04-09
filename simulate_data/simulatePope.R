@@ -163,13 +163,13 @@ draw_N_bees = function(sample_size, # number of bees to sample
     #### lambda_ik * w_i / D_i
     lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
     
-    for (i in colony_data$colonyid){
-      for (k in trap_data$trapid){
-        lambda_ik[i,k] = visitation_rates[[i]][trap_data$trap_x[trap_data$trapid == k],
-                                               trap_data$trap_y[trap_data$trapid == k]]
-      }
+    for (i in seq_len(number_colonies)) {
+      visit_mat <- visitation_rates[[i]]  # each is a matrix of size [xmax x ymax]
+      
+      # pull out all trap visitation values in one vectorized step
+      lambda_ik[i, ] <- mapply(function(x, y) visit_mat[x, y], trap_data$trap_x, trap_data$trap_y)
     }
-    
+  
     trap_data$prob_s_eq_k = colSums(lambda_ik*colony_data$w_i/colony_data$D_i)
     trap_data$prob_s_eq_k[is.na(trap_data$prob_s_eq_k)] = 0
     
@@ -205,12 +205,12 @@ draw_N_bees = function(sample_size, # number of bees to sample
 
 
 # Simulate 10 draws
-obs = draw_N_bees(sample_size = 10,
+obs500 = draw_N_bees(sample_size = 500,
                   landscape_size = c(700,700),
                   trapgrid_size = c(300,300),
                   resource_range = 10,
                   number_traps = 25,
-                  number_colonies = 10,
+                  number_colonies = 500,
                   colony_sizes = rep(20, 10),
                   beta = -1/50,
                   theta = 0.5)
@@ -223,8 +223,3 @@ r <- raster(visitation_rates[[1]])
 png("figures/simfigs/foragingkernel_single.png", width = 3500, height = 3500, res = 300)
 levelplot(r, col.regions = viridis::viridis(100))
 dev.off()
-
-
-
-
-# next: make code iterative (repeat these steps until reaching a stopping point)
