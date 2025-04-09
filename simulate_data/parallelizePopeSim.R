@@ -29,12 +29,12 @@ compute_distances <- function(colonies, landscape_size) {
     colony_y <- colonies$colony_y[i]
     
     # Create a grid of coordinates for the landscape
-    x_coords <- 1:landscape_size[1]
-    y_coords <- 1:landscape_size[2]
+    x_coords <- 1:landscape_size
+    y_coords <- 1:landscape_size
     
     # Compute the distance matrix for this colony (distance from colony to all grid cells)
-    dist_x <- outer(x_coords, rep(colony_x, landscape_size[2]), "-")  # Distance in x-direction
-    dist_y <- outer(rep(colony_y, landscape_size[1]), y_coords, "-")  # Distance in y-direction
+    dist_x <- outer(x_coords, rep(colony_x, landscape_size), "-")  # Distance in x-direction
+    dist_y <- outer(rep(colony_y, landscape_size), y_coords, "-")  # Distance in y-direction
     
     # Compute Euclidean distance
     dist_matrix[[i]] <- sqrt(dist_x^2 + dist_y^2)
@@ -128,10 +128,9 @@ draw_N_bees = function(sample_size, # number of bees to sample
   ##### Define trap characteristics #####
   trapid = 1:number_traps
   grid_size = sqrt(number_traps)
-  x_step = trapgrid_size[1]/(grid_size-1)
-  y_step = trapgrid_size[2]/(grid_size-1)
-  trap_x = (landscape_size - trapgrid_size)/2 + x_step*(0:(grid_size-1))
-  trap_y = (landscape_size - trapgrid_size)/2 + y_step*(0:(grid_size-1))
+  step = trapgrid_size/(grid_size-1)
+  trap_x = (landscape_size - trapgrid_size)/2 + step*(0:(grid_size-1))
+  trap_y = (landscape_size - trapgrid_size)/2 + step*(0:(grid_size-1))
   coords = expand.grid(trap_x = trap_x, trap_y = trap_y)
   trap_data = as.data.frame(cbind(trapid, coords)) 
   
@@ -151,20 +150,21 @@ draw_N_bees = function(sample_size, # number of bees to sample
                                                landscape_size = landscape_size)
   
   
+  
   ##### Compute fixed values lambda_ik and D_i #####
   # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
   lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
+  colony_data$D_i = rep(0, number_colonies)
   
   for (i in seq_len(number_colonies)) {
     visit_mat <- visitation_rates[[i]]  # each is a matrix of size [xmax x ymax]
     
+    # calculate D_i for each colony (total visitation over all cells)
+    colony_data$D_i[i] <- sum(visit_mat)
+    
     # pull out all trap visitation values in one vectorized step
     lambda_ik[i, ] <- mapply(function(x, y) visit_mat[x, y], trap_data$trap_x, trap_data$trap_y)
   }
-  
-  # calculate D_i for each colony (total visitation over all cells)
-  colony_data$D_i <- sapply(visitation_rates, function(x) sum(x))
-  print(paste("Total visitation of each colony = ", colony_data$D_i))
   
 
   ##### Start sampling #####
@@ -242,9 +242,25 @@ params <- param_grid[task_id, ]
 saveRDS(param_grid, "param_grid.rds")
 
 # Simulate landscape based on landscape_id
-fq <- simulateLandscape(landscape_size = c(700, 700), resource_range = 10)
+fq <- simulateLandscape(landscape_size = 1100, resource_range = 10)
 
 # Run simulation
+result <- draw_N_bees(
+  sample_size     = 100,
+  landscape_size  = 1100,
+  colonygrid_size = 700,
+  trapgrid_size   = 300,
+  number_traps    = 25,
+  number_colonies = 100,
+  colony_sizes    = rep(100, 100),
+  beta            = -1/50,
+  theta           = 0.5,
+  resource_landscape = fq,
+  batch_size = 1
+)
+
+
+
 result <- draw_N_bees(
   sample_size     = params$sample_size,
   landscape_size  = c(700, 700),
