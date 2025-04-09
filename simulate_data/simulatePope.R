@@ -194,7 +194,7 @@ draw_N_bees = function(sample_size, # number of bees to sample
       trap = traps[draw]
       
       # calculate Pr(c = i | s = k)
-      numer = (lambda_ik[, trap] / colony_data$D_i) * colony_data4w_i
+      numer = (lambda_ik[, trap] / colony_data$D_i) * colony_data$w_i
       denom = trap_data$prob_s_eq_k[trap_data$trapid == trap]
       colony_probs <- numer / denom
       colony_probs[is.na(colony_probs)] <- 0
@@ -225,7 +225,8 @@ obs500 = draw_N_bees(sample_size = 500,
                   number_colonies = 500,
                   colony_sizes = rep(20, 10),
                   beta = -1/50,
-                  theta = 0.5)
+                  theta = 0.5,
+                  batch_size = 10)
                                         
 
 
