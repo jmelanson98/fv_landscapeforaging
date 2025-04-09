@@ -65,7 +65,7 @@ compute_visitation_rates <- function(colonies, resource_quality, beta, theta, la
 
 
 ##### Simulate floral quality landscapes #####
-simulateLandscape = function(landscape_size,
+simulateLandscape = function(landscape_size, # integer, same for x and y
                              resource_range,
                              grid_spacing = 1) {
   # use Brownian variogram to simulate spatial distribution of resources (as in Pope & Jha)
@@ -73,8 +73,8 @@ simulateLandscape = function(landscape_size,
   
   # create a regular grid of points to simulate over
   grid_spacing = 1
-  x.range <- seq(1, landscape_size[1], by = grid_spacing)  # x coordinates
-  y.range <- seq(1, landscape_size[2], by = grid_spacing)  # y coordinates
+  x.range <- seq(1, landscape_size, by = grid_spacing)  # x coordinates
+  y.range <- seq(1, landscape_size, by = grid_spacing)  # y coordinates
   
   grid <- expand.grid(x = x.range, y = y.range)
   coordinates(grid) <- ~x + y
@@ -107,8 +107,9 @@ simulateLandscape = function(landscape_size,
 
 ##### Simulate bee draws #####
 draw_N_bees = function(sample_size, # number of bees to sample
-                       landscape_size, # vector of two values (xmax and ymax)
-                       trapgrid_size, # will be centered within landscape
+                       landscape_size, # integer, size of full resource landscape
+                       colonygrid_size, # integer, size of colony distribution
+                       trapgrid_size, # integer, size of trap grid
                        resource_landscape, # matrix containing floral quality across landscape
                        number_traps, # integer
                        number_colonies, # a square number
@@ -120,8 +121,8 @@ draw_N_bees = function(sample_size, # number of bees to sample
   ##### Define colony characteristics #####
   colonyid = 1:number_colonies
   numbees_start = sum(colony_sizes)
-  colony_x = round(runif(number_colonies, 1, landscape_size[1])) #colony locations are integers
-  colony_y = round(runif(number_colonies, 1, landscape_size[2])) #colony locations are integers
+  colony_x = round(runif(number_colonies, (landscape_size-colonygrid_size)/2, (landscape_size-colonygrid_size)/2 + colonygrid_size)) #colony locations are integers
+  colony_y = round(runif(number_colonies, (landscape_size-colonygrid_size)/2, (landscape_size-colonygrid_size)/2 + colonygrid_size)) #colony locations are integers
   colony_data = as.data.frame(cbind(colonyid, colony_sizes, colony_x, colony_y))
   
   ##### Define trap characteristics #####
@@ -129,14 +130,41 @@ draw_N_bees = function(sample_size, # number of bees to sample
   grid_size = sqrt(number_traps)
   x_step = trapgrid_size[1]/(grid_size-1)
   y_step = trapgrid_size[2]/(grid_size-1)
-  trap_x = (landscape_size[1] - trapgrid_size[1])/2 + x_step*(0:(grid_size-1))
-  trap_y = (landscape_size[2] - trapgrid_size[2])/2 + y_step*(0:(grid_size-1))
+  trap_x = (landscape_size - trapgrid_size)/2 + x_step*(0:(grid_size-1))
+  trap_y = (landscape_size - trapgrid_size)/2 + y_step*(0:(grid_size-1))
   coords = expand.grid(trap_x = trap_x, trap_y = trap_y)
   trap_data = as.data.frame(cbind(trapid, coords)) 
   
   # optional plotting step to visualize traps and colonies
   plot(colony_data$colony_x, colony_data$colony_y, col = "black", xlab = "Long", ylab = "Lat", main = "Colonies (black) and Traps (red)")
   points(trap_data$trap_x, trap_data$trap_y, col = "red")
+  
+  
+  
+  ##### Create landscape-wide visitation matrix #####
+  # compute visitation rates for each colony at each grid cell using nested functions,
+  # compute_distances and compute_visitation_rates 
+  visitation_rates <- compute_visitation_rates(colonies = colony_data, 
+                                               resource_quality = resource_landscape, 
+                                               beta = beta, 
+                                               theta = theta, 
+                                               landscape_size = landscape_size)
+  
+  
+  ##### Compute fixed values lambda_ik and D_i #####
+  # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
+  lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
+  
+  for (i in seq_len(number_colonies)) {
+    visit_mat <- visitation_rates[[i]]  # each is a matrix of size [xmax x ymax]
+    
+    # pull out all trap visitation values in one vectorized step
+    lambda_ik[i, ] <- mapply(function(x, y) visit_mat[x, y], trap_data$trap_x, trap_data$trap_y)
+  }
+  
+  # calculate D_i for each colony (total visitation over all cells)
+  colony_data$D_i <- sapply(visitation_rates, function(x) sum(x))
+  print(paste("Total visitation of each colony = ", colony_data$D_i))
   
 
   ##### Start sampling #####
@@ -151,45 +179,19 @@ draw_N_bees = function(sample_size, # number of bees to sample
     # set weights based on colony sizes
     colony_data$w_i = colony_data$ni/N
     
-    # calculate Pr(s = k | s in kappa) via matrix convolution
-    # code with help from chatgpt
+    # calculate Pr(s = k | s in kappa)
     
-    # compute visitation rates for each colony at each grid cell using nested functions,
-    # compute_distances and compute_visitation_rates 
-    visitation_rates <- compute_visitation_rates(colonies = colony_data, 
-                                                 resource_quality = resource_landscape, 
-                                                 beta = beta, 
-                                                 theta = theta, 
-                                                 landscape_size = landscape_size)
-    
-    
-    # calculate D_i for each colony (total visitation over all cells)
-    colony_data$D_i <- sapply(visitation_rates, function(x) sum(x))
-    
-    # compute probabilities of sampling from each trap k in kappa
-    # e.g., Pr(s = k)
-    # sum over C:
+    #  first compute Pr(s = k)
+    # to do this, sum over C:
     #### lambda_ik * w_i / D_i
-    lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
-    
-    for (i in seq_len(number_colonies)) {
-      visit_mat <- visitation_rates[[i]]  # each is a matrix of size [xmax x ymax]
-      
-      # pull out all trap visitation values in one vectorized step
-      lambda_ik[i, ] <- mapply(function(x, y) visit_mat[x, y], trap_data$trap_x, trap_data$trap_y)
-    }
-    
-    # save Pr(s = k)
     lambda_ik_scaled <- sweep(lambda_ik, 1, colony_data$w_i / colony_data$D_i, "*")  # elementwise scale by w_i / D_i
     trap_data$prob_s_eq_k <- colSums(lambda_ik_scaled)
-    trap_data$prob_s_eq_k[is.na(trap_data$prob_s_eq_k)] = 0
     
     # calculate prob of sampling from any trap kappa (Pr(s in kappa))
-    prob_kappa = sum(rowSums(lambda_ik)*colony_data$w_i/colony_data$D_i)
+    prob_kappa = sum(trap_data$prob_s_eq_k)
     
     # prob of sampling from a particular trap given k in kappa
     trap_data$trap_prob = trap_data$prob_s_eq_k/prob_kappa
-    # sanity check: conditional probs sum to 1!! yay :)
     
     # sample traps
     traps = sample(trap_data$trapid, size = n_draws, replace = TRUE, prob = trap_data$trap_prob)
@@ -202,7 +204,6 @@ draw_N_bees = function(sample_size, # number of bees to sample
       numer = (lambda_ik[, trap] / colony_data$D_i) * colony_data$w_i
       denom = trap_data$prob_s_eq_k[trap_data$trapid == trap]
       colony_probs <- numer / denom
-      colony_probs[is.na(colony_probs)] <- 0
       
       colony = sample(colony_data$colonyid, size = 1, prob = colony_probs)
       
