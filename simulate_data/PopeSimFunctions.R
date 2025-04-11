@@ -4,50 +4,44 @@
 # By: Jenna Melanson
 # Goal: reproduce simulated data from 2017 Conservation Genetics Paper
 
-##### helper function 1 #####
-compute_distances <- function(colonies, landscape_size) {
-  # function to compute distance matrix for each colony to each grid cell
-  # via ChatGPT
-  dist_matrix <- list()
+compute_visitation_rates_and_avg_distance <- function(colonies, resource_quality, beta, theta, landscape_size) {
+  x_coords <- 1:landscape_size
+  y_coords <- 1:landscape_size
+  
+  visitation_rates <- list()
+  avg_distances <- numeric(nrow(colonies))
+  total_vis <- numeric(nrow(colonies))
   
   for (i in 1:nrow(colonies)) {
     colony_x <- colonies$colony_x[i]
     colony_y <- colonies$colony_y[i]
     
-    # Create a grid of coordinates for the landscape
-    x_coords <- 1:landscape_size
-    y_coords <- 1:landscape_size
+    # Efficiently generate coordinate grids
+    dist_x <- outer(x_coords, rep(colony_x, landscape_size), "-")
+    dist_y <- outer(rep(colony_y, landscape_size), y_coords, "-")
+    dist <- sqrt(dist_x^2 + dist_y^2)
     
-    # Compute the distance matrix for this colony (distance from colony to all grid cells)
-    dist_x <- outer(x_coords, rep(colony_x, landscape_size), "-")  # Distance in x-direction
-    dist_y <- outer(rep(colony_y, landscape_size), y_coords, "-")  # Distance in y-direction
+    # Compute visitation matrix
+    visitation <- exp(beta * dist + theta * resource_quality)
     
-    # Compute Euclidean distance
-    dist_matrix[[i]] <- sqrt(dist_x^2 + dist_y^2)
+    # Compute weighted average distance
+    total_visitation <- sum(visitation)
+    avg_distance <- if (total_visitation > 0) {
+      sum(visitation * dist) / total_visitation
+    } else {
+      NA_real_
+    }
+    
+    visitation_rates[[i]] <- visitation
+    avg_distances[i] <- avg_distance
+    total_vis[i] = total_visitation
   }
   
-  return(dist_matrix)
+  return(list(visitation_rates = visitation_rates,
+              avg_distances = avg_distances,
+              total_vis = total_vis))
 }
 
-
-##### helper function 2 #####
-compute_visitation_rates <- function(colonies, resource_quality, beta, theta, landscape_size) {
-  # compute visitation rates for each colony
-  # via ChatGPT
-  dist_matrix <- compute_distances(colonies, landscape_size)
-  
-  visitation_rates <- list()
-  
-  for (i in 1:nrow(colonies)) {
-    dist <- dist_matrix[[i]]
-    resource <- resource_quality
-    
-    # Apply the kernel function to compute visitation rates
-    visitation_rates[[i]] <- exp(beta * dist + theta * resource)
-  }
-  
-  return(visitation_rates)
-}
 
 
 ##### Simulate floral quality landscapes #####
@@ -127,26 +121,23 @@ draw_N_bees = function(sample_size, # number of bees to sample
   
   
   ##### Create landscape-wide visitation matrix #####
-  # compute visitation rates for each colony at each grid cell using nested functions,
-  # compute_distances and compute_visitation_rates 
-  visitation_rates <- compute_visitation_rates(colonies = colony_data, 
+  # compute visitation rates for each colony at each grid cell, total visitation, and average foraging range
+  visitation_and_foraging_range <- compute_visitation_rates_and_avg_distance(colonies = colony_data, 
                                                resource_quality = resource_landscape, 
                                                beta = beta, 
                                                theta = theta, 
                                                landscape_size = landscape_size)
   
-  
-  
-  ##### Compute fixed values lambda_ik and D_i #####
+  visitation_rates = visitation_and_foraging_range[[1]]
+  colony_data$foraging_range = visitation_and_foraging_range[[2]]
+  colony_data$D_i = visitation_and_foraging_range[[3]]
+
+  ##### Compute fixed values lambda_ik #####
   # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
   lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
-  colony_data$D_i = rep(0, number_colonies)
   
   for (i in seq_len(number_colonies)) {
     visit_mat <- visitation_rates[[i]]  # each is a matrix of size [xmax x ymax]
-    
-    # calculate D_i for each colony (total visitation over all cells)
-    colony_data$D_i[i] <- sum(visit_mat)
     
     # pull out all trap visitation values in one vectorized step
     lambda_ik[i, ] <- mapply(function(x, y) visit_mat[x, y], trap_data$trap_x, trap_data$trap_y)
