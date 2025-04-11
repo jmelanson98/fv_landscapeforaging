@@ -113,7 +113,8 @@ draw_N_bees = function(sample_size, # number of bees to sample
   trap_y = (landscape_size - trapgrid_size)/2 + step*(0:(grid_size-1))
   coords = expand.grid(trap_x = trap_x, trap_y = trap_y)
   trap_data = as.data.frame(cbind(trapid, coords))
-  trap_data$fq = resource_landscape[trap_data$trap_x, trap_data$trap_y]
+  trap_data$fq <- mapply(function(x, y) resource_landscape[x, y], trap_data$trap_x, trap_data$trap_y)
+ 
   
   # optional plotting step to visualize traps and colonies
   plot(colony_data$colony_x, colony_data$colony_y, col = "black", xlab = "Long", ylab = "Lat", main = "Colonies (black) and Traps (red)")
