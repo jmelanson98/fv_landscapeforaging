@@ -19,4 +19,8 @@ for package in "${packages[@]}"; do
   Rscript -e "if (!require('$package')) install.packages('$package', repos='https://cloud.r-project.org/')"
 done
 
+#Make directory to store outputs
+mkdir -p landscapes/random_field_range10
+
+#Run landscape simulation script
 Rscript parallelizeSimulateLandscape.R
