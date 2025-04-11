@@ -42,7 +42,7 @@ task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 params <- param_grid[task_id, ]
 
 # Get landscape from saved file
-fq <- readRDS(paste0("landscapes/random_field_range10/landscape_", params$landscape_id, ".rds"))
+fq <- readRDS(paste0(sprintf("landscapes/random_field_range10/landscape_%03d", params$landscape_id), ".rds"))
 
 # Run simulation
 result <- draw_N_bees(
