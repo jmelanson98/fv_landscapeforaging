@@ -17,7 +17,7 @@ library(future)
 library(furrr)
 
 ##### Source Helper Functions #####
-source("simulate_data/PopeSimFunctions.R")
+source("PopeSimFunctions.R")
 
 ##### Prepare to run in parallel ! #####
 
