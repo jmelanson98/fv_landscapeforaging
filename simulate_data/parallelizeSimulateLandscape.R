@@ -22,6 +22,8 @@ source("PopeSimFunctions.R")
 ##### Prepare to run in parallel ! #####
 
 #simulate landscapes and save them
+dir.create("landscapes/random_field_range10", recursive = TRUE, showWarnings = FALSE)
+
 landscape_ids  = 1:10
 for (i in landscape_ids) {
   fq <- simulateLandscape(landscape_size = 1100, resource_range = 10)
