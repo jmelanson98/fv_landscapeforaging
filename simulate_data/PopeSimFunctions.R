@@ -194,5 +194,6 @@ draw_N_bees = function(sample_size, # number of bees to sample
     print(paste("Now sampled", sum(yik), "of", sample_size, "bees"))
   }
   
-  return(yik)
+  output = list(yik, colony_data, trap_data)
+  return(output)
 }
