@@ -34,7 +34,7 @@ param_grid <- expand.grid(
   sample_size = sample_sizes,
   stringsAsFactors = FALSE
 )
-saveRDS(param_grid, "param_grid.rds")
+saveRDS(param_grid, "batch_sim1/param_grid.rds")
 
 ##### Set up run #####
 # Get task ID from SLURM environment variable
@@ -60,7 +60,7 @@ result <- draw_N_bees(
 )
 
 # Save output
-outfile <- sprintf("data/popesim2017/sim_result_%03d.rds", task_id)
+outfile <- sprintf("batch_sim1/data/sim_result_%03d.rds", task_id)
 saveRDS(result, outfile)
 
 
