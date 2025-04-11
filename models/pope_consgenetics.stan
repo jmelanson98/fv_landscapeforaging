@@ -4,7 +4,7 @@ data {
 int<lower=1> C; // number of colonies 
 int<lower=1> K; // number of traps
 matrix[K, 2] trap; // trap coordinates 
-matrix[C, K] y; // counts of bees in traps
+int y[C, K]; // counts of bees in traps
 real lowerbound; // uniform prior on colony location 
 real upperbound; // uniform prior on colony location
 vector[K] floral; // floral quality at traps
@@ -24,6 +24,8 @@ vector[C] zeta;
 // matrix <lower=lowerbound , upper=upperbound >[C,2] delta; }
 // change to:
 array [C] vector<lower=lowerbound, upper=upperbound>[2] delta;
+
+}
 
 
 transformed parameters { 
@@ -62,15 +64,15 @@ for(k in 1:K){
   for(i in 1:C){
     dis[i, k] = sqrt(square(delta[i][1] - trap[k,1]) + square(delta[i][2] - trap[k,2]));
     lambda[i, k] = -beta*dis[i, k] + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+    y[i, k] ~ poisson_log(lambda[i, k]);
   } 
 }
-  
+
+}  
   
 // log likelihood
 // this bit changed...
 //increment_log_prob( -exp(lambda) ); //increment_log_prob: deprecated? use: target += exp(lambda); ?
 //increment_log_prob( y .* lambda ); }
-
-//because i'm not that fancy
-y ~ poisson_log(lambda);
-}
+// because i'm not that fancy
+// also added the likelihood calculation to the above for-loop, because Stan does not like taking a matrix in poisson_log()
