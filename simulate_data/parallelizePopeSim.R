@@ -61,6 +61,7 @@ result <- draw_N_bees(
 
 # Save output
 outfilepath <- sprintf("batch_sim1/data/sim_result_%03d", task_id)
+dir.create(outfilepath, recursive = TRUE, showWarnings = FALSE)
 saveRDS(result[[1]], paste(outfilepath, "/yobs.RDS", sep = ""))
 saveRDS(result[[2]], paste(outfilepath, "/colonydata.RDS", sep = ""))
 saveRDS(result[[3]], paste(outfilepath, "/trapdata.RDS", sep = ""))
