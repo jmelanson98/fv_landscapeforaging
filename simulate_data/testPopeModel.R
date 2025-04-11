@@ -56,4 +56,12 @@ data$priorCo = 5
 ##### Fit Stan Model ! #####
 oneIterFit = stan(file = "models/pope_consgenetics.stan",
                   data = data, seed = 5838299,
-                  warmup = 1000, iter = 2025, refresh = 0)
+                  warmup = 1000, iter = 2025,
+                  verbose = TRUE)
+
+summary(oneIterFit)
+# damn that beta estimate is scary accurate
+# theta is good too!
+# not sure RE the random intercepts, colony locations & etc.
+# NEXT STEPS: implement a transformed parameters block for posterior predictive checks?
+# also: think about what else I might need in the model to reproduce the posterior manipulations as in Pope & Jha
