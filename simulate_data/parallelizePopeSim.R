@@ -20,7 +20,7 @@ library(furrr)
 library(gstat)
 
 ##### Source Helper Functions #####
-source("simulate_data/sim_src.R")
+source("simulate_data/PopeSimFunctions.R")
 
 ##### Prepare to run in parallel ! #####
 # set parameter combinations
@@ -72,3 +72,4 @@ saveRDS(result[[3]], paste(outfilepath, "/trapdata.RDS", sep = ""))
 # param_grid <- readRDS("param_grid.rds")
 # 
 # full_results <- bind_cols(param_grid, tibble(result = results))
+
