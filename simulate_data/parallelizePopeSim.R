@@ -20,7 +20,7 @@ library(furrr)
 library(gstat)
 
 ##### Source Helper Functions #####
-source("simulate_data/PopeSimFunctions.R")
+source("PopeSimFunctions.R")
 
 ##### Prepare to run in parallel ! #####
 # set parameter combinations
