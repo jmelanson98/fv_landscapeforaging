@@ -19,13 +19,16 @@ library(furrr)
 ##### Source Helper Functions #####
 source("PopeSimFunctions.R")
 
-##### Prepare to run in parallel ! #####
-
-#simulate landscapes and save them
+##### Create directory to save landscapes #####
 dir.create("landscapes/random_field_range10", recursive = TRUE, showWarnings = FALSE)
 
-landscape_ids  = 1:10
-for (i in landscape_ids) {
-  fq <- simulateLandscape(landscape_size = 1100, resource_range = 10)
-  saveRDS(fq, file = paste0("landscapes/random_field_range10/landscape_", i, ".rds"))
-}
+##### Set up run #####
+# Get task ID from SLURM environment variable
+task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
+
+# Simulate landscape
+fq <- simulateLandscape(landscape_size = 1100, resource_range = 10)
+
+# Save landscape
+saveRDS(fq, file = paste(sprintf("landscapes/random_field_range10/landscape_%03d", task_id), ".rds", sep = ""))
+
