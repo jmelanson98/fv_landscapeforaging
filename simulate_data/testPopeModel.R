@@ -21,6 +21,8 @@ library(rasterVis)
 library(parallel)
 library(future)
 library(furrr)
+library(dplyr)
+library(tidyr)
 
 ##### Source functions #####
 source("simulate_data/PopeSimFunctions.R")
@@ -128,10 +130,51 @@ sim4 = draw_N_bees(sample_size = 1000,
 ##### Plot visitation rates + traps + true colony location #####
 
 # first, chose a colony to track
-colony_chosen = 1
+colony_chosen = 10
+#3 is pretty good and so is 7
 
-vraster1 = sim1[[4]]
-ggplot(data = iter1[[3]], aes(x = trap_x, y = trap_y, size = iter1[[2]][colony_chosen,])) +
+# make visitation matrix into a df
+visitationdf1 = as.data.frame(sim1[[4]][[colony_chosen]]) %>%
+  mutate(x = 1:nrow(sim1[[4]][[colony_chosen]])) %>%  # Create y coordinate
+  pivot_longer(-x, names_to = "y", values_to = "value") %>%
+  mutate(y = as.integer(gsub("V", "", y))) %>% # Convert column names to integer x
+  filter(x > 300 & x < 800 & y > 300 & y < 800)
+
+# plot
+sim1plot = ggplot() +
+  geom_tile(data = visitationdf1, aes(x = x, y = y, fill = value)) +
+  coord_equal() +
+  scale_fill_continuous() +
+  geom_point(data = sim1[[2]][colony_chosen,], aes(x = colony_x, y = colony_y, colour = "red")) +
+  geom_point(data = sim1[[3]], aes(x = trap_x, y = trap_y, size = sim1[[1]][colony_chosen,])) +
+  labs(y = "Northing", x = "Easting", colour = "Colony Location", size = "Number of captures", fill = "Visitation Rate") +
+  theme_minimal() +
+  theme(legend.position = "right")
+  
+      
+  
+#save legend for plot grid
+g <- ggplotGrob(sim1plot)
+legend_index <- which(g$layout$name == "guide-box-right")
+interaction_legend <- g$grobs[[legend_index]]
+  
+# remove legend from plot
+sim1plot <- sim1plot + theme(legend.position = "none")
+
+
+# make visitation matrix into a df
+visitationdf1 = as.data.frame(sim1[[4]][[colony_chosen]]) %>%
+  mutate(y = nrow(sim1[[4]][[colony_chosen]]):1) %>%             # Create y coordinate (flip y-axis)
+  pivot_longer(-y, names_to = "x", values_to = "value") %>%
+  mutate(x = as.integer(gsub("V", "", x))) %>% # Convert column names to integer x
+  filter(x > 300 & x < 800 & y > 300 & y < 800)
+
+# plot
+sim1plot = ggplot(data = sim1[[3]], aes(x = trap_x, y = trap_y, size = sim1[[1]][colony_chosen,])) +
   geom_point() +
-  geom_point(data = iter[[2]][colony_chosen], aes(x = colony_x, y = colony_y, colour = "red") +
-  geom_raster(vraster1)
+  geom_point(data = sim1[[2]][colony_chosen,], aes(x = colony_x, y = colony_y, colour = "red", size = 1)) +
+  labs(y = "Northing", x = "Easting", colour = "Colony Location", size = "Number of captures") +
+  theme(legend.position = "right") +
+  geom_tile(data = visitationdf1, aes(x = x, y = y, fill = value)) +
+  coord_equal() +
+  scale_fill_viridis_c() 
