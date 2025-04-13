@@ -80,7 +80,7 @@ generated quantities {
   int y_rep[C, K];        // Posterior predictive samples
   for (k in 1:K) {
     for (i in 1:C){
-      y_rep[i, k] = poisson_rng(exp(lambda[i, k]));  // Simulate new data points
+      y_rep[i, k] = poisson_log_rng(lambda[i, k]);  // Simulate new data points
     }
   }
 }
