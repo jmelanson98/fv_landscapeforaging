@@ -8,7 +8,7 @@
 
 ##### Set Environment #####
 #setwd("~/Documents/UBC/bombus_project/fvlandscape_foraging") # local
-setwd("~/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
+setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 ##### Load packages #####
 library(rstan)
 library(matrixStats)
