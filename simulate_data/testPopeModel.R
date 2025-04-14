@@ -28,48 +28,6 @@ library(gridExtra)
 ##### Source functions #####
 source("simulate_data/PopeSimFunctions.R")
 
-
-##### Generate One Iteration #####
-landscape = simulateLandscape(1100, 10)
-iter1 = draw_N_bees(sample_size = 1000,
-                    landscape_size = 1100,
-                    colonygrid_size = 700,
-                    trapgrid_size = 300,
-                    number_traps = 25,
-                    number_colonies = 500,
-                    colony_sizes = rep(100,500),
-                    beta = -1/50,
-                    theta = 0.5,
-                    resource_landscape = landscape,
-                    batch_size = 1)
-
-
-##### Format Data #####
-data = list()
-data$C = 500
-data$K = 25
-data$trap = as.matrix(cbind(iter1[[3]]$trap_x, iter1[[3]]$trap_y))
-data$y = iter1[[1]]
-data$lowerbound = 200
-data$upperbound = 900
-data$floral = iter1[[3]]$fq
-data$priorVa = 1
-data$priorCo = 5
-
-##### Fit Stan Model ! #####
-one_iter_fit = stan(file = "models/popeModified.stan",
-                  data = data, seed = 5838299,
-                  warmup = 1000, iter = 2025,
-                  chains = 4, cores = 4,
-                  verbose = TRUE)
-
-summary(one_iter_fit)
-traceplot(one_iter_fit)
-
-##### Run Posterior Predictive Check #####
-draws = rstan::extract(one_iter_fit, pars = "y_rep")$y_rep
-pp_check(data$y, yrep = y_rep, fun = "dens_overlay")
-
 ####Replicate Figure 1A from Pope & Jha #####
 
 # Make 4 simulations: 
@@ -267,3 +225,59 @@ popefig1A = grid.arrange(popefig1A, legend,
 # save plot
 ggsave("figures/simfigs/popeFig1A.jpg", popefig1A,
        width = 3500, height = 2500, units = "px")
+
+
+
+##### Replicate Figures 3 & 4 #####
+
+## this must be run on server because my computer doesn't have the memory, RIP
+
+# modify this bit to take the 150 simulated datasets from the server!!
+# do all the posterior wrangling on the server and save the model output as a .Rdata file
+# only push the resulting data frames and plots
+
+##### Generate One Iteration #####
+landscape = simulateLandscape(1100, 10)
+iter1 = draw_N_bees(sample_size = 1000,
+                    landscape_size = 1100,
+                    colonygrid_size = 700,
+                    trapgrid_size = 300,
+                    number_traps = 25,
+                    number_colonies = 500,
+                    colony_sizes = rep(100,500),
+                    beta = -1/50,
+                    theta = 0.5,
+                    resource_landscape = landscape,
+                    batch_size = 1)
+
+
+##### Format Data #####
+data = list()
+data$C = 500
+data$K = 25
+data$trap = as.matrix(cbind(iter1[[3]]$trap_x, iter1[[3]]$trap_y))
+data$y = iter1[[1]]
+data$lowerbound = 200
+data$upperbound = 900
+data$floral = iter1[[3]]$fq
+data$priorVa = 1
+data$priorCo = 5
+
+##### Fit Stan Model ! #####
+one_iter_fit = stan(file = "models/popeModified.stan",
+                    data = data, seed = 5838299,
+                    warmup = 1000, iter = 2025,
+                    chains = 4, cores = 4,
+                    verbose = TRUE)
+
+summary(one_iter_fit)
+traceplot(one_iter_fit)
+
+##### Run Posterior Predictive Check #####
+draws = rstan::extract(one_iter_fit, pars = "y_rep")$y_rep
+pp_check(data$y, yrep = y_rep, fun = "dens_overlay")
+
+##### Plot the posterior of some colony locations? #####
+
+
+
