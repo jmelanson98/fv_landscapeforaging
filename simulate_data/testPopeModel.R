@@ -7,8 +7,8 @@
     ### Generate figures analagous to figs 1 + 3 from Pope conservation genetics paper
 
 ##### Set Environment #####
-setwd("~/Documents/UBC/bombus_project/fvlandscape_foraging")
-
+#setwd("~/Documents/UBC/bombus_project/fvlandscape_foraging") # local
+setwd("~/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 ##### Load packages #####
 library(rstan)
 library(matrixStats)
