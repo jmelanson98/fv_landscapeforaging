@@ -8,7 +8,7 @@
 
 ##### Set Environment #####
 #setwd("~/Documents/UBC/bombus_project/fvlandscape_foraging") # local
-setwd("~/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
+setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 ##### Load packages #####
 library(rstan)
 library(matrixStats)
@@ -19,7 +19,7 @@ library(reshape2)
 library(raster)
 library(rasterVis)
 library(parallel)
-library(future)
+libcrary(future)
 library(furrr)
 library(dplyr)
 library(tidyr)
@@ -235,9 +235,9 @@ source("simulate_data/PopeSimFunctions.R")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 param_grid = readRDS("simulate_data/batch_sim1/param_grid.rds")
 results_path = sprintf("simulate_data/batch_sim1/data/sim_result_%03d", task_id)
-colony_data = readRDS(paste(results_path, "/colonydata.rds", sep =""))
-trap_data = readRDS(paste(results_path, "/trapdata.rds", sep = ""))
-yobs = readRDS(paste(results_path, "/yobs.rds", sep=""))
+colony_data = readRDS(paste(results_path, "/colonydata.RDS", sep =""))
+trap_data = readRDS(paste(results_path, "/trapdata.RDS", sep = ""))
+yobs = readRDS(paste(results_path, "/yobs.RDS", sep=""))
 
 # Then, format data for stan
 data = list()
