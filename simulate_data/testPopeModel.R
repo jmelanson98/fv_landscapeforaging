@@ -267,8 +267,10 @@ print("Model saved.")
 #Plot the posteriors of ten colonies
 plot_list = list()
 poscols = colony_data$colonyid[rowSums(yobs) > 1]
+numplots = 12
+legends = list()
   
-for (i in 1:4){
+for (i in 1:numplots){
   c_id = poscols[i]
   delta_draws = as.data.frame(rstan::extract(stanFit, pars = "delta")$delta[, c_id,])
   colnames(delta_draws) = c("x","y")
@@ -282,19 +284,33 @@ for (i in 1:4){
     
     #plot trap locations / sizes / quality
     geom_point(data = trap_data, aes(x = trap_x, y = trap_y, size = trap_count, colour = fq)) +
-    scale_colour_gradient(low = "lightpink", high = "red") +
-    scale_size_continuous(limits = c(0,20), range = c(1, 8)) +
+    scale_colour_gradient(low = "white", high = "red") +
+    scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
     
     #miscellaneous
     ggtitle(paste("Colony", c_id)) +
+    labs(title = paste("Colony", c_id), 
+         size = "Number of Captures", 
+         gradient = "Trap Floral Quality",
+         level = "Colony Location & Posterior Distribution") +
     coord_equal() +
     theme_minimal()
   
+  # save legend
+  g <- ggplotGrob(p)
+  legend_index <- which(g$layout$name == "guide-box-right")
+  legend <- g$grobs[[legend_index]]
+   
+  # remove legend from plot
+  p <- p + theme(legend.position = "none")
+  
   #save plot
   plot_list[[i]] = p
+  legends[[1]] = legend
 }
 
-fig = grid.arrange(grobs = plot_list, ncol = 2)
-ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 10000, width = 5000, units = "px")
+fig = grid.arrange(grobs = plot_list, ncol = 3)
+fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
+ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 3000, width = 4000, units = "px")
 
 
