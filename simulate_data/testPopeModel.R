@@ -9,6 +9,9 @@
 ##### Set Environment #####
 #setwd("~/Documents/UBC/bombus_project/fvlandscape_foraging") # local
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
+rstan_options(auto_write = TRUE) 
+options(mc.cores = parallel::detectCores())
+
 ##### Load packages #####
 library(rstan)
 library(matrixStats)
