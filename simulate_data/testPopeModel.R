@@ -255,7 +255,7 @@ data$priorVa = 1
 data$priorCo = 5
 
 # Fit Stan model!
-stanFit = stan(file = "models/popeModified.stan",
+stanFit = stan(file = "models/pope_consgenetics.stan",
                     data = data, seed = 5838299,
                     warmup = 1000, iter = 2025,
                     chains = 4, cores = 4,
@@ -263,12 +263,6 @@ stanFit = stan(file = "models/popeModified.stan",
 print("Model complete.")
 saveRDS(stanFit, file=paste(results_path,"stanFit.RDS", sep =""))
 print("Model saved.")
-
-
-# Run posterior predictive check
-draws = rstan::extract(stanFit, pars = "y_rep")$y_rep
-dens_plot = pp_check(data$y, yrep = y_rep, fun = "dens_overlay")
-ggsave(paste(results_path, "ppc.jpg", sep = ""), dens_plot, height = 1000, width = 1000, units = "px")
 
 #Plot the posteriors of ten colonies
 plot_list = list()
