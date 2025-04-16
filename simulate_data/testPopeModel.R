@@ -6,12 +6,6 @@
     ### Test on 10 landscapes x 5 beta values x 3 sampling intensities
     ### Generate figures analagous to figs 1 + 3 from Pope conservation genetics paper
 
-##### Set Environment #####
-#setwd("~/Documents/UBC/bombus_project/fvlandscape_foraging") # local
-setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
-rstan_options(auto_write = TRUE) 
-options(mc.cores = parallel::detectCores())
-
 ##### Load packages #####
 library(rstan)
 library(matrixStats)
@@ -27,6 +21,12 @@ library(furrr)
 library(dplyr)
 library(tidyr)
 library(gridExtra)
+
+##### Set Environment #####
+#setwd("~/Documents/UBC/bombus_project/fvlandscape_foraging") # local
+setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
+rstan_options(auto_write = TRUE) 
+options(mc.cores = parallel::detectCores())
 
 ##### Source functions #####
 source("simulate_data/PopeSimFunctions.R")
