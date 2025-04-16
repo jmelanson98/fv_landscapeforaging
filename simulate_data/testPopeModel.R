@@ -261,26 +261,32 @@ stanFit = stan(file = "models/pope_consgenetics.stan",
                     chains = 4, cores = 4,
                     verbose = TRUE)
 print("Model complete.")
-saveRDS(stanFit, file=paste(results_path,"stanFit.RDS", sep =""))
+saveRDS(stanFit, file=paste(results_path,"/stanFit.RDS", sep =""))
 print("Model saved.")
 
 #Plot the posteriors of ten colonies
 plot_list = list()
-for (i in 1:10){
-  delta_draws = rstan::extract(stanFit, pars = "delta")$delta[, i,]
-  colnames(delta_draws = x,y)
+poscols = colony_data$colonyid[rowSums(yobs) > 1]
+  
+for (i in 1:4){
+  c_id = poscols[i]
+  delta_draws = as.data.frame(rstan::extract(stanFit, pars = "delta")$delta[, c_id,])
+  colnames(delta_draws) = c("x","y")
+  trap_data$trap_count = yobs[c_id, ]
   
   p = ggplot(delta_draws, aes(x = x, y = y)) +
     geom_density_2d_filled(alpha = 0.8) +
     
     #plot colony location
-    geom_point(data = colony_data[i,], aes(x = colony_x, y = colony_y), colour = "lightgreen", show.legend = TRUE) +
+    geom_point(data = colony_data[c_id,], aes(x = colony_x, y = colony_y), colour = "lightgreen", show.legend = TRUE) +
     
     #plot trap locations / sizes / quality
-    geom_point(data = trap_data, aes(x = trap_x, y = trap_y, size = yobs[i,], colour = fq)) +
+    geom_point(data = trap_data, aes(x = trap_x, y = trap_y, size = trap_count, colour = fq)) +
     scale_colour_gradient(low = "lightpink", high = "red") +
     scale_size_continuous(limits = c(0,20), range = c(1, 8)) +
     
+    #miscellaneous
+    ggtitle(paste("Colony", c_id)) +
     coord_equal() +
     theme_minimal()
   
@@ -289,6 +295,6 @@ for (i in 1:10){
 }
 
 fig = grid.arrange(grobs = plot_list, ncol = 2)
-ggsave(paste(results_path, "colony_posteriors.jpg", sep = ""), fit, height = 5000, width = 2000, units = "px")
+ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 10000, width = 5000, units = "px")
 
 
