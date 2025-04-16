@@ -260,7 +260,9 @@ stanFit = stan(file = "models/popeModified.stan",
                     warmup = 1000, iter = 2025,
                     chains = 4, cores = 4,
                     verbose = TRUE)
-save(stanFit, file=paste(results_path,"stanFit.Rdata", sep =""))
+print("Model complete.")
+saveRDS(stanFit, file=paste(results_path,"stanFit.RDS", sep =""))
+print("Model saved.")
 
 
 # Run posterior predictive check
