@@ -257,10 +257,10 @@ data$priorCo = 5
 # Fit Stan model!
 stanFit = stan(file = "models/pope_consgenetics.stan",
                     data = data, seed = 5838299,
-                    warmup = 1000, iter = 2025,
+                    warmup = 1000, iter = 10000,
                     chains = 4, cores = 4,
                     verbose = TRUE)
-print("Model complete.")
+sprint("Model complete.")
 saveRDS(stanFit, file=paste(results_path,"/stanFit.RDS", sep =""))
 print("Model saved.")
 
