@@ -1,10 +1,11 @@
-##### Test Pope Stan code on simulated data #####
+##### Fit Pope Stan code to simulated data #####
 # Script Initiated: April 10, 2025
 # By: Jenna Melanson
 # Goals:
-    ### Test Pope Stan code using a single iteration of simulated data
-    ### Test on 10 landscapes x 5 beta values x 3 sampling intensities
-    ### Generate figures analagous to figs 1 + 3 from Pope conservation genetics paper
+    ### Fit Pope Stan code using a multiple iterations of simulated data
+    ### 10 landscapes x 5 beta values x 3 sampling intensities
+    ### Generate figure analogous to fig 1A + plots of colony posterior distributions
+    ### Generate figures analogous to fig 3 + 4 from Pope & Jha
 
 ##### Load packages #####
 library(rstan)
@@ -314,3 +315,73 @@ fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
 ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 3000, width = 4000, units = "px")
 
 
+##### Recreate Figure 3 from Pope & Jha #####
+
+# for each iteration, draw:
+    ## delta
+    ## beta
+    ## theta
+
+# this is a 3D array: dim 1 = iteration, dim 2 = colony, dim 3 = x and y coordinates
+deltas = rstan::extract(stanFit, pars = "delta")$delta
+
+# these are 1D arrays: one per iteration
+betas = rstan::extract(stanFit, pars = "beta")$beta
+thetas = rstan::extract(stanFit, pars = "theta")$theta
+
+# number of iterations
+t = length(betas)
+
+# observed colony sizes
+colony_sizes = rowSums(yobs)
+
+# initialize vector to record estimated foraging distance for each colony
+estimated_foraging = c()
+
+for (i in colony_data$colonyid){
+  # initialize sum of foraging distance for all iterations
+  d_i = 0
+  
+  for (iter in 1:t){
+    #initialize foraging dist + normalizing factor for a single iteration and single colony
+    d_it = 0
+    udV = 0
+    
+    # calculate d_i for a single iteration and a single colony
+    for (k in trap_data$trapid){
+      dist_x = deltas[iter, colony, 1] - trap_data$trap_x[k]
+      dist_y = deltas[iter, colony, 2] - trap_data$trap_y[k]
+      dist = sqrt(dist_x^2 + dist_y^2)
+      
+      lambdaik = betas[iter]*dist + thetas[iter]*trap_data$fq[k]
+      
+      d_it = d_it + dist*lambdaik
+      udV = udV + lambdaik
+    }
+    
+    #normalize by big lambda
+    d_it = d_it/udV
+    
+    # sum over t
+    d_i = d_i + d_it
+  }
+  
+  # compute average d_i
+  d_i = d_i/t
+  
+  #add to vector
+  estimated_foraging = c(estimated_foraging, d_i)
+}
+
+
+
+# Check if all_sim_df has been created yet; if not, initialize it
+
+if (!file.exists("simulate_data/batch_sim1/all_sim_df.RDS")){
+  all_sim_df = param_grid
+  all_sim_df$colony_foraging_estimates = rep(NA,150)
+  all_sim_df$colony_sizes = rep(NA,150)
+  all_sim_df$average_foraging = rep(NA,150)
+}
+
+all_sim_df$colony_foraging_estimates[50] = estimated_foraging
