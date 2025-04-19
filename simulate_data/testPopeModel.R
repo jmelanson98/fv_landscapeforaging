@@ -1,10 +1,11 @@
-##### Test Pope Stan code on simulated data #####
+##### Fit Pope Stan code to simulated data #####
 # Script Initiated: April 10, 2025
 # By: Jenna Melanson
 # Goals:
-    ### Test Pope Stan code using a single iteration of simulated data
-    ### Test on 10 landscapes x 5 beta values x 3 sampling intensities
-    ### Generate figures analagous to figs 1 + 3 from Pope conservation genetics paper
+    ### Fit Pope Stan code using a multiple iterations of simulated data
+    ### 10 landscapes x 5 beta values x 3 sampling intensities
+    ### Generate figure analogous to fig 1A + plots of colony posterior distributions
+    ### Generate figures analogous to fig 3 + 4 from Pope & Jha
 
 ##### Load packages #####
 library(rstan)
@@ -242,9 +243,13 @@ colony_data = readRDS(paste(results_path, "/colonydata.RDS", sep =""))
 trap_data = readRDS(paste(results_path, "/trapdata.RDS", sep = ""))
 yobs = readRDS(paste(results_path, "/yobs.RDS", sep=""))
 
+# Remove all colonies from which ZERO bees were sampled
+colony_data = colony_data[rowSums(yobs) > 0,]
+yobs = yobs[rowSums(yobs) > 0,]
+
 # Then, format data for stan
 data = list()
-data$C = 1000
+data$C = nrow(yobs)
 data$K = 25
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
 data$y = yobs
@@ -260,18 +265,17 @@ stanFit = stan(file = "models/pope_consgenetics.stan",
                     warmup = 1000, iter = 10000,
                     chains = 4, cores = 4,
                     verbose = TRUE)
-print("Model complete.")
+sprint("Model complete.")
 saveRDS(stanFit, file=paste(results_path,"/stanFit.RDS", sep =""))
 print("Model saved.")
 
 #Plot the posteriors of ten colonies
 plot_list = list()
-poscols = colony_data$colonyid[rowSums(yobs) > 1]
 numplots = 12
 legends = list()
   
 for (i in 1:numplots){
-  c_id = poscols[i]
+  c_id = colony_data$colonyid[i]
   delta_draws = as.data.frame(rstan::extract(stanFit, pars = "delta")$delta[, c_id,])
   colnames(delta_draws) = c("x","y")
   trap_data$trap_count = yobs[c_id, ]
@@ -314,3 +318,149 @@ fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
 ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 3000, width = 4000, units = "px")
 
 
+##### Store data to recreate Figure 3 from Pope & Jha #####
+
+# for each iteration, draw:
+    ## delta
+    ## beta
+    ## theta
+# this is a 3D array: dim 1 = iteration, dim 2 = colony, dim 3 = x and y coordinates
+deltas = rstan::extract(stanFit, pars = "delta")$delta
+
+# these are 1D arrays: one per iteration
+betas = rstan::extract(stanFit, pars = "beta")$beta
+thetas = rstan::extract(stanFit, pars = "theta")$theta
+
+# tracker for iterations, thinned to 1000
+t = 1:1000*(length(betas)/1000)
+
+# observed colony sizes
+colony_sizes = rowSums(yobs)
+
+# initialize vector to record estimated foraging distance for each colony
+colony_foraging = data.frame(row.names = colony_data$colonyid)
+colony_foraging_t = c()
+
+# outer loop: for each iteration
+for (iter in t){
+  
+  # middle loop: for each colony
+  for(colony in 1:nrow(yobs)){
+    # set a var to sum V_i for each colony (total visitation of colony to all traps)
+    V_i = 0
+    
+    # set a var to sum d_i for each colony (estimated foraging dist for each colony)
+    d_i = 0
+    
+    #inner loop: for each trap
+    for(k in 1:ncol(yobs)){
+      dist_x = deltas[iter, colony, 1] - trap_data$trap_x[k]
+      dist_y = deltas[iter, colony, 2] - trap_data$trap_y[k]
+      dist = sqrt(dist_x^2 + dist_y^2)
+      
+      #compute colony visitation to a single trap
+      lambdaik = exp(betas[iter]*dist + thetas[iter]*trap_data$fq[k])
+      
+      # compute estimated foraging distance for a colony
+      # in a given iteration, before normalization with V_i
+      d_i = d_i + dist*lambdaik
+      
+      # add to V_i for given trap
+      V_i = V_i + lambdaik
+    }
+    
+    # compute foraging for a given colony in a given iteration (normalized!)
+    colony_foraging_t[colony] = d_i/V_i
+  }
+  
+  #add estimates to colony foraging dataframe (one column per iteration)
+  colony_foraging[,iter/(length(betas)/1000)] = colony_foraging_t
+}
+
+colony_foraging_average = rowSums(colony_foraging)/ncol(colony_foraging)
+
+
+##### Store data to recreate Figure 4 from Pope & Jha #####
+# e.g., average landscape foraging distance (1 per simulation)
+
+#foraging estimate per iteration
+landscape_foraging = c()
+
+# outer loop: for each iteration
+for (iter in t){
+  # visitation rate summed across all traps and colonies
+  V = 0
+  
+  # estimated foraging distance summed across all traps and colonies
+  d = 0
+  
+  # middle loop: for each colony
+  for(colony in 1:nrow(yobs)){
+    
+    #inner loop: for each trap
+    for(k in 1:ncol(yobs)){
+      dist_x = deltas[iter, colony, 1] - trap_data$trap_x[k]
+      dist_y = deltas[iter, colony, 2] - trap_data$trap_y[k]
+      dist = sqrt(dist_x^2 + dist_y^2)
+      
+      #compute colony visitation to a single trap
+      lambdaik = exp(betas[iter]*dist + thetas[iter]*trap_data$fq[k])
+      
+      # compute estimated foraging distance for a colony
+      # in a given iteration, before normalization with V_i
+      d = d + dist*lambdaik
+      
+      # add to V for a given trap and colony
+      V = V + lambdaik
+    }
+  }
+  
+  #add estimates to landscape foraging vector
+  landscape_foraging = c(landscape_foraging, d/V)
+}
+
+avg_landscape_foraging = mean(landscape_foraging)
+
+
+# Check if all_sim_df has been created yet; if not, initialize it
+
+if (!file.exists("simulate_data/batch_sim1/all_sim_df.RDS")){
+  all_sim_df = param_grid
+  all_sim_df$true_colony_foraging = vector("list", nrow(all_sim_df))
+  all_sim_df$colony_foraging_estimates = vector("list", nrow(all_sim_df))
+  all_sim_df$colony_sizes = vector("list", nrow(all_sim_df))
+  all_sim_df$average_foraging = vector("list", nrow(all_sim_df))
+  
+  saveRDS(all_sim_df, file = "simulate_data/batch_sim1/all_sim_df.RDS")
+} else{
+  all_sim_df = readRDS(file = "simulate_data/batch_sim1/all_sim_df.RDS")
+}
+
+# Add colony foraging estimates, colony sizes, and average foraging to correct task id
+all_sim_df$true_colony_foraging[[task_id]] = colony_data$foraging_range
+all_sim_df$colony_foraging_estimates[[task_id]] = colony_foraging_average
+all_sim_df$colony_sizes[[task_id]] = colony_sizes
+all_sim_df$average_foraging[[task_id]] = avg_landscape_foraging
+
+# save all_sim_df
+saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
+
+
+# # Check if all simulations have been computed (e.g., are we on the last task id??)
+# if(){
+#   master = data.frame(row.names = c("landscape_id", "beta", "sample_size", "colony_size", "colony_foraging", "average_foraging"))
+#   for(row in 1:nrow(all_sim_df)){
+#     rbind(master, data.frame(landscape_id = rep(all_sim_df$landscape_id[row], length(all_sim_df$colony_sizes)),
+#                              beta = rep(all_sim_df$beta[row], length(all_sim_df$colony_sizes)),
+#                              sample_size = rep(all_sim_df$sample_size[row], length(all_sim_df$colony_sizes)),
+#                              colony_size = all_sim_df$colony_sizes[row],
+#                              colony_foraging = all_sim_df$colony_foraging_estimates[row]
+#                                ))
+#   }
+#   
+#   # Plot figure 4
+#   fig4 = ggplot(all_sim_df, aes(x = mean(true_colony_foraging), y = avg_landscape_foraging)) +
+#     geom_point() +
+#     geom_errorbar()
+#   
+# }
