@@ -265,7 +265,7 @@ stanFit = stan(file = "models/pope_consgenetics.stan",
                     warmup = 1000, iter = 10000,
                     chains = 4, cores = 4,
                     verbose = TRUE)
-sprint("Model complete.")
+print("Model complete.")
 saveRDS(stanFit, file=paste(results_path,"/stanFit.RDS", sep =""))
 print("Model saved.")
 
