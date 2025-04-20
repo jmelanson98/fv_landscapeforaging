@@ -8,8 +8,9 @@ int y[C, K]; // counts of bees in traps
 real lowerbound; // uniform prior on colony location 
 real upperbound; // uniform prior on colony location
 vector[K] floral; // floral quality at traps
-real<lower=0> priorVa; // prior variance on coefficients 
-real<lower=0> priorCo; // prior variance on std deviations
+real<lower=0> priorVa; // prior variance on std deviations 
+real<lower=0> priorBe; // prior variance on beta
+real<lower=0> priorCo; // prior variance on other coefficients
 }
 
 parameters { // see text for definitions
@@ -51,7 +52,7 @@ matrix[C,K] lambda; //rate of captures for colony C at trap K?
 // priors
 sigma ~ normal(0, priorVa);
 tau ~ normal(0, priorVa); 
-beta ~ normal(0, priorCo);
+beta ~ normal(0, priorBe);
 mu ~ normal(0, priorCo); 
 theta ~ normal(0, priorCo);
 
