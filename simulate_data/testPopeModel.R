@@ -447,63 +447,63 @@ all_sim_df$average_foraging[[task_id]] = avg_landscape_foraging
 saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 
 
-# load all_sim_df
-all_sim_df = readRDS("simulate_data/batch_sim1/all_sim_df.RDS")
-
-# check for errors in stan fit
-err_dir <- "simulate_data/logs"  # <- change this
-
-# List all .err files
-err_files <- list.files(err_dir, pattern = "\\.err$", full.names = TRUE)
-
-# Function to check each file
-check_err_file <- function(file) {
-  lines <- readLines(file, warn = FALSE)
-  
-  list(
-    file = basename(file),
-    has_divergent = any(grepl("divergent", lines, ignore.case = TRUE)),
-    has_low_ess = any(grepl("Effective Samples Size", lines, ignore.case = TRUE)),
-    has_error = any(grepl("error", lines, ignore.case = TRUE))
-  )
-}
-
-# Apply to all files
-results <- lapply(err_files, check_err_file)
-
-# Convert to a data frame
-error_summary <- do.call(rbind, lapply(results, as.data.frame))
-
-# Join with all_sim_df
-all_sim_df$id = as.integer(rownames(all_sim_df))
-error_summary$id = as.integer(sapply(strsplit(error_summary$file, "[_.]"), function(x) x[3]))
-error_summary = left_join(error_summary, all_sim_df, by = "id")
-error_summary$true_avg <- sapply(error_summary$true_colony_foraging, function(x) {
-  if (length(x) == 0 || all(is.na(x))) {
-    NA_real_
-  } else {
-    mean(unlist(x), na.rm = TRUE)
-  }
-})
-
-
-# Print or inspect
-print(error_summary)
-samplesize = ggplot(error_summary, aes(x = sample_size, colour = has_divergent)) +
-  geom_histogram() +
-  theme_minimal() +
-  labs(title = "Divergent Transitions x Sample Size")
-
-beta = ggplot(error_summary, aes(x = true_avg*5, colour = has_divergent)) +
-  geom_histogram() +
-  theme_minimal() +
-  labs(title = "Divergent Transitions x Simulated Foraging Distance")
-
-ggsave("figures/simfigs/divergenttransitions_samplesize.jpg",
-       samplesize, width = 1500, height = 1000, units = "px")
-
-ggsave("figures/simfigs/divergenttransitions_foragingdist.jpg",
-       beta, width = 1500, height = 1000, units = "px")
+# # load all_sim_df
+# all_sim_df = readRDS("simulate_data/batch_sim1/all_sim_df.RDS")
+# 
+# # check for errors in stan fit
+# err_dir <- "simulate_data/logs"  # <- change this
+# 
+# # List all .err files
+# err_files <- list.files(err_dir, pattern = "\\.err$", full.names = TRUE)
+# 
+# # Function to check each file
+# check_err_file <- function(file) {
+#   lines <- readLines(file, warn = FALSE)
+#   
+#   list(
+#     file = basename(file),
+#     has_divergent = any(grepl("divergent", lines, ignore.case = TRUE)),
+#     has_low_ess = any(grepl("Effective Samples Size", lines, ignore.case = TRUE)),
+#     has_error = any(grepl("error", lines, ignore.case = TRUE))
+#   )
+# }
+# 
+# # Apply to all files
+# results <- lapply(err_files, check_err_file)
+# 
+# # Convert to a data frame
+# error_summary <- do.call(rbind, lapply(results, as.data.frame))
+# 
+# # Join with all_sim_df
+# all_sim_df$id = as.integer(rownames(all_sim_df))
+# error_summary$id = as.integer(sapply(strsplit(error_summary$file, "[_.]"), function(x) x[3]))
+# error_summary = left_join(error_summary, all_sim_df, by = "id")
+# error_summary$true_avg <- sapply(error_summary$true_colony_foraging, function(x) {
+#   if (length(x) == 0 || all(is.na(x))) {
+#     NA_real_
+#   } else {
+#     mean(unlist(x), na.rm = TRUE)
+#   }
+# })
+# 
+# 
+# # Print or inspect
+# print(error_summary)
+# samplesize = ggplot(error_summary, aes(x = sample_size, colour = has_divergent)) +
+#   geom_histogram() +
+#   theme_minimal() +
+#   labs(title = "Divergent Transitions x Sample Size")
+# 
+# beta = ggplot(error_summary, aes(x = true_avg*5, colour = has_divergent)) +
+#   geom_histogram() +
+#   theme_minimal() +
+#   labs(title = "Divergent Transitions x Simulated Foraging Distance")
+# 
+# ggsave("figures/simfigs/divergenttransitions_samplesize.jpg",
+#        samplesize, width = 1500, height = 1000, units = "px")
+# 
+# ggsave("figures/simfigs/divergenttransitions_foragingdist.jpg",
+#        beta, width = 1500, height = 1000, units = "px")
 
 # # Check if all simulations have been computed (e.g., are we on the last task id??)
 # if(){
