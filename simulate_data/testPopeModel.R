@@ -451,7 +451,7 @@ saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 # all_sim_df = readRDS("simulate_data/batch_sim1/all_sim_df.RDS")
 # 
 # # check for errors in stan fit
-# err_dir <- "simulate_data/logs"  # <- change this
+# err_dir <- "simulate_data/logs"
 # 
 # # List all .err files
 # err_files <- list.files(err_dir, pattern = "\\.err$", full.names = TRUE)
@@ -459,7 +459,7 @@ saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 # # Function to check each file
 # check_err_file <- function(file) {
 #   lines <- readLines(file, warn = FALSE)
-#   
+# 
 #   list(
 #     file = basename(file),
 #     has_divergent = any(grepl("divergent", lines, ignore.case = TRUE)),
@@ -499,12 +499,12 @@ saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 #   theme_minimal() +
 #   labs(title = "Divergent Transitions x Simulated Foraging Distance")
 # 
-# ggsave("figures/simfigs/divergenttransitions_samplesize.jpg",
+# ggsave("figures/simfigs/divergenttransitions_samplesize_informativebeta.jpg",
 #        samplesize, width = 1500, height = 1000, units = "px")
 # 
-# ggsave("figures/simfigs/divergenttransitions_foragingdist.jpg",
+# ggsave("figures/simfigs/divergenttransitions_foragingdist_informativebeta.jpg",
 #        beta, width = 1500, height = 1000, units = "px")
-
+# 
 # # Check if all simulations have been computed (e.g., are we on the last task id??)
 # if(){
 #   master = data.frame(row.names = c("landscape_id", "beta", "sample_size", "colony_size", "colony_foraging", "average_foraging"))
@@ -516,10 +516,10 @@ saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 #                              colony_foraging = all_sim_df$colony_foraging_estimates[row]
 #                                ))
 #   }
-#   
+# 
 #   # Plot figure 4
 #   fig4 = ggplot(all_sim_df, aes(x = mean(true_colony_foraging), y = avg_landscape_foraging)) +
 #     geom_point() +
 #     geom_errorbar()
-#   
+# 
 # }
