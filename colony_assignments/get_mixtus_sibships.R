@@ -1,9 +1,16 @@
 ########
-## Get colony IDs from microsatellite genotyping results
+## Get colony IDs from microsatellite genotyping results--Bombus mixtus
+## Started by J Melanson
+## July 10, 2024
 ########
+
+# prep workspace
 rm(list = ls())
+setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 # first, load in packages
+source('colony_assignments/src/init.R')
+source('colony_assignments/src/joinFunctions.R')
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -15,49 +22,57 @@ library(raster)
 
 
 # next; load in specimen data and allele tables
-#load field data
-specimenData2022 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/2022specimendata.csv", sep = ",", header = T))
-specimenData2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/2023specimendata.csv", sep = ",", header = T, fill = TRUE))
-samplePoints = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/allsamplepoints.csv", sep = ","))
+#load specimen field data
+specimenData2022 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2022specimendata.csv", sep = ",", header = T))
+specimenData2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2023specimendata.csv", sep = ",", header = T, fill = TRUE))
+sampleEffort2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2023sampledata.csv", sep = ","))
+samplePoints = as.data.frame(read.table("/Users/jenna1/Documents/UBC/bombus_project/raw_data/allsamplepoints.csv", sep = ","))
 colnames(samplePoints) = c("sample_pt", "gps","landowner","subsite")
 
-#load allele tables
-alleles_plex1_all = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus_allelestable_plex1.csv", sep = ",", header = T))
-alleles_plex2_all = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus_allelestable_plex2.csv", sep = ",", header = T))
+# load allele tables
+alleles_plex1_all = as.data.frame(read.table("data/from_geneious/mixtus_plex1.csv", sep = ",", header = T))
+alleles_plex2_all = as.data.frame(read.table("data/from_geneious/mixtus_plex2.csv", sep = ",", header = T))
 
-#modify specimen table for merging
+# modify specimen table for merging
 specimenData2022$location = str_remove_all(paste(specimenData2022$plate, specimenData2022$well), "_| ")
 specimenData2023$plate[specimenData2023$plate == "mixtus_queen_DNA"] = "mixtusQueen"
 specimenData2023$location = str_remove_all(paste(specimenData2023$plate, specimenData2023$well), "_| ")
+
+# make a dataframe that tells us where each barcode is located (in which plate / well location)
 barcodesubset = rbind(specimenData2022[,colnames(specimenData2022) %in% c("barcode_id", "location")],
                    specimenData2023[,colnames(specimenData2023) %in% c("barcode_id", "location")])
 
-#split allele table into originals and reruns
+# split allele table into originals and reruns
+# originals are named by location (plate / well), reruns are named by barcode
 alleles_plex1_original = alleles_plex1_all[str_detect(alleles_plex1_all$Name, "mixtus"),]
 alleles_plex1_rerun = alleles_plex1_all[!str_detect(alleles_plex1_all$Name, "mixtus"),]
 
 alleles_plex2_original = alleles_plex2_all[str_detect(alleles_plex2_all$Name, "mixtus"),]
 alleles_plex2_rerun = alleles_plex2_all[!str_detect(alleles_plex2_all$Name, "mixtus"),]
 
-#modify allele table "name" value to match specimen data frame "plate" and "well" (for originals)
-alleles_plex1_original %>% separate(Name, sep = "-", c(NA, "plate", "well"), extra = "merge", fill = "left") -> alleles_plex1_original                                         
+# for originals, modify allele table "name" value to match specimen data frame "plate" and "well"
+alleles_plex1_original = alleles_plex1_original %>% 
+  separate(Name, sep = "-", c(NA, "plate", "well"), extra = "merge", fill = "left")                                       
 alleles_plex1_original$location = str_remove_all(paste(alleles_plex1_original$plate, alleles_plex1_original$well), "-| ")
 alleles_plex1_original = alleles_plex1_original[,!colnames(alleles_plex1_original) %in% c("plate", "well")]
 
-alleles_plex2_original %>% separate(Name, sep = "-", c(NA, "plate", "well"), extra = "merge", fill = "left") -> alleles_plex2_original                                         
+alleles_plex2_original = alleles_plex2_original %>% 
+  separate(Name, sep = "-", c(NA, "plate", "well"), extra = "merge", fill = "left")                                         
 alleles_plex2_original$location = str_remove_all(paste(alleles_plex2_original$plate, alleles_plex2_original$well), "-| ")
 alleles_plex2_original = alleles_plex2_original[,!colnames(alleles_plex2_original) %in% c("plate", "well")]
 
-#merge original dataframes to barcodesubset so that all four contain barcode_id (remove location)
+# merge original dataframes to barcode subset and remove location column
 alleles_plex1_wbarcode = left_join(alleles_plex1_original, barcodesubset, by = "location")
 alleles_plex1_wbarcode = alleles_plex1_wbarcode[,!colnames(alleles_plex1_wbarcode) %in% c("location")]
-alleles_plex1_wbarcode %>% filter(!is.na(barcode_id)) -> alleles_plex1_wbarcode
+alleles_plex1_wbarcode = alleles_plex1_wbarcode %>% 
+  filter(!is.na(barcode_id))
 
 alleles_plex2_wbarcode = left_join(alleles_plex2_original, barcodesubset, by = "location")
 alleles_plex2_wbarcode = alleles_plex2_wbarcode[,!colnames(alleles_plex2_wbarcode) %in% c("location")]
-alleles_plex2_wbarcode %>% filter(!is.na(barcode_id)) -> alleles_plex2_wbarcode
+alleles_plex2_wbarcode = alleles_plex2_wbarcode %>% 
+  filter(!is.na(barcode_id))
 
-#modify allele table name value of re-runs to match barcode_id
+# modify reruns to contain just barcode
 alleles_plex1_rerun$barcode_id = gsub("^.{0,6}", "", alleles_plex1_rerun$Name)
 alleles_plex1_rerun$barcode_id = gsub("-","_",alleles_plex1_rerun$barcode_id)
 alleles_plex1_rerun = alleles_plex1_rerun[,!colnames(alleles_plex1_rerun) %in% c("Name")]
@@ -66,7 +81,7 @@ alleles_plex2_rerun$barcode_id = gsub("^.{0,6}", "", alleles_plex2_rerun$Name)
 alleles_plex2_rerun$barcode_id = gsub("-","_",alleles_plex2_rerun$barcode_id)
 alleles_plex2_rerun = alleles_plex2_rerun[,!colnames(alleles_plex2_rerun) %in% c("Name")]
 
-#reorder columns so that we can rbind originals to reruns
+#order columns so that we can rbind originals to reruns
 correctorderp1 = colnames(alleles_plex1_wbarcode)
 correctorderp2 = colnames(alleles_plex2_wbarcode)
 
@@ -100,14 +115,20 @@ plex2_unique <- alleles_plex2[!duplicated(alleles_plex2$barcode_id), ]
 #merge plexes
 microsat_scores = full_join(plex1_unique, plex2_unique, by = "barcode_id")
 
-#make a specimen subset that include year and notes (to filter 2022 vs 2023, plus queens)
-rowsToKeep = c("barcode_id", "year", "notes", "final_id")
+# filter by year and caste
+# make a specimen dataframe that inclues year and notes
+rowsToKeep = c("sample_id", "barcode_id", "year", "notes", "final_id")
 specsubset = rbind(specimenData2022[,colnames(specimenData2022) %in% rowsToKeep],
                       specimenData2023[,colnames(specimenData2023) %in% rowsToKeep])
 specimens_withscores = left_join(microsat_scores, specsubset, by = "barcode_id")
 
-mixtus2022 = filter(specimens_withscores, year == "2022" | str_detect(notes, "queen"))
-mixtus2023 = filter(specimens_withscores, year == "2023" & !str_detect(notes, "queen"))
+# join to sample effort df to get julian dates (only need for 2023)
+specimens_withdates = joinJulianDates(specimens_withscores, sampleEffort2023)
+
+# split by year, including early season 2023 queens with 2022 subset
+# julian date cutoff based on script "queen_phenology.R"
+mixtus2022 = filter(specimens_withdates, year == "2022" | (str_detect(notes, "queen") & julian_date < 160))
+mixtus2023 = filter(specimens_withdates, year == "2023" & (!str_detect(notes, "queen") | julian_date > 160))
 
 
 #check which bees are unscored
@@ -116,23 +137,33 @@ mixtus = filter(specimens, final_id == "B. mixtus" & barcode_id != "N/A")
 unscoredmixtus = mixtus[rowSums(is.na(mixtus)) >10,]
 
 
-##### 
+##################################
 # Prep genotype data for COLONY
-#####
+##################################
 
 #remove all columns except barcode and scores
-colsToRemove = c("year", "final_id", "notes")
+# also remove loci with high error rates
+colsToRemove = c("year", 
+                 "final_id", 
+                 "notes", 
+                 "sample_id", 
+                 "date", 
+                 "julian_date", 
+                 "BL15...1", 
+                 "BL15...2", 
+                 "BTMS0072...1", 
+                 "BTMS0072...2")
 mixtus2022 = mixtus2022[, !colnames(mixtus2022) %in% colsToRemove]
 mixtus2023 = mixtus2023[, !colnames(mixtus2023) %in% colsToRemove]
 
-#relocate barcode and remove rows with more than 10 NAs, replace NAs with 0's
-mixtus2022 %>% relocate(barcode_id) -> mixtus2022
+#relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
+mixtus2022 = mixtus2022 %>% relocate(barcode_id)
 mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) < 10,]
-mixtus2022_forcolony[is.na(mixtus2022_forcolony)] <- 0
+mixtus2022_forcolony[is.na(mixtus2022_forcolony)] = 0
 
-mixtus2023 %>% relocate(barcode_id) -> mixtus2023
+mixtus2023 = mixtus2023 %>% relocate(barcode_id)
 mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) < 10,]
-mixtus2023_forcolony[is.na(mixtus2023_forcolony)] <- 0
+mixtus2023_forcolony[is.na(mixtus2023_forcolony)] = 0
 
 #write csvs for upload to colony
 write.csv(mixtus2022_forcolony, "mixtus_2022_scores.csv")
@@ -150,6 +181,7 @@ write.csv(mixtus2023_forcolony, "mixtus_2023_scores.csv")
 ####
 # run colony
 ####
+# must run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
 #this code is not working; use windows GUI on lab computer
 build.colony.input(wd=getwd(), name="Colony2.DAT", delim=",")
 
