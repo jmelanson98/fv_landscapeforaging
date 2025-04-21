@@ -166,16 +166,114 @@ mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) < 10,]
 mixtus2023_forcolony[is.na(mixtus2023_forcolony)] = 0
 
 #write csvs for upload to colony
-write.csv(mixtus2022_forcolony, "mixtus_2022_scores.csv")
-write.csv(mixtus2023_forcolony, "mixtus_2023_scores.csv")
+column_names = colnames(mixtus2022_forcolony)
 
-##### 
+write.table(mixtus2022_forcolony, "data/merged_by_year/mixtus2022_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixtus2023_forcolony, "data/merged_by_year/mixtus2023_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+
+
+write.csv(mixtus2022_forcolony, "data/merged_by_year/mixtus_2022_scores.csv")
+write.csv(mixtus2023_forcolony, "data/merged_by_year/mixtus_2023_scores.csv")
+
+
+###########################################
+# Prep microsat error rates for COLONY
+###########################################
+
+# first value per column: marker name
+# second value per column: marker type (codominant for microsats -> 0)
+# third value per column: allelic dropout rate ?? (set to 0)
+# fourth value per column: error/mutation rate (empirically derived, see check_microsat_error_rates.R)
+mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
+                         c("BTMS0104", 0, 0, 0.01),
+                         c("BTMS0057", 0, 0, 0.01),
+                         c("BTMS0086", 0, 0, 0.01),
+                         c("BTMS0066", 0, 0, 0.01),
+                         c("BTMS0062", 0, 0, 0.01),
+                         c("BTMS0136", 0, 0, 0.01),
+                         c("BTERN01", 0, 0, 0.01),
+                         c("BTMS0126", 0, 0, 0.01),
+                         c("BTMS0059", 0, 0, 0.01),
+                         c("BL13", 0, 0, 0.01),
+                         c("BTMS0083", 0, 0, 0.01),
+                         c("B126", 0, 0, 0.01))
+write.table(mixtus_error_rates, "data/merged_by_year/mixtus_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+
+
+###########################################
 # Prep sibship exclusion data for COLONY
-#####
+###########################################
 #basically -- we want to exclude sibships from different regions, as they are 
 #quite far apart and therefore very unlikely to be genuine
 
+# each row is excluded sibships for an individual; 
+# column 1 is the focal sibling, column 2 is number of excluded sibs, additional columns are excluded sibs
+sites = c("W", "SD", "ED", "NR", "HR", "PM")
+excluded_sibships_2022 = list()
+excluded_sibships_2023 = list()
+sample.names.2022 = mixtus2022_forcolony[,1]
+sample.names.2023 = mixtus2023_forcolony[,1]
+'%!in%' <- function(x,y)!('%in%'(x,y))
 
+for (i in 1:6){
+  site = sites[i]
+  
+  # grep names for focal site
+  site.names.2022 = sample.names.2022[grep(site, sample.names.2022)]
+  site.names.2023 = sample.names.2022[grep(site, sample.names.2023)]
+  
+  # list of excluded siblings
+  excluded.2022 = sample.names.2022[sample.names.2022 %!in% site.names.2022]
+  numex_2022 = length(excluded.2022)
+  excluded.2023 = sample.names.2023[sample.names.2023 %!in% site.names.2023]
+  numex_2023 = length(excluded.2023)
+  
+  # make a matrix of excluded samples
+  excluded.matrix.2022 <- matrix(rep(excluded.2022, times = length(site.names.2022)),
+                            nrow = length(site.names.2022), byrow = TRUE)
+  colnames(excluded.matrix.2022) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2022)))
+  
+  excluded.matrix.2023 <- matrix(rep(excluded.2023, times = length(site.names.2023)),
+                                 nrow = length(site.names.2023), byrow = TRUE)
+  colnames(excluded.matrix.2023) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023)))
+  
+  # create full df
+  sitedf2022 = data.frame(focal = site.names.2022,
+                          num_exc = numex_2022,
+                          excluded.matrix.2022,
+                          stringsAsFactors = FALSE
+  )
+  
+  sitedf2023 = data.frame(focal = site.names.2023,
+                          num_exc = numex_2023,
+                          excluded.matrix.2023,
+                          stringsAsFactors = FALSE
+  )
+  
+  # save exclusion dfs to list
+  excluded_sibships_2022[[i]] = sitedf2022
+  excluded_sibships_2023[[i]] = sitedf2023
+}
+
+# make exclusion tables!
+sibexclusions_2022 = bind_rows(excluded_sibships_2022)
+sibexclusions_2023 = bind_rows(excluded_sibships_2023)
+
+# collapse tables, remove NAs, write to text file
+sibexclusions_2022$excluded_all <- apply(sibexclusions_2022[ , grepl("excluded_", names(sibexclusions_2022))], 1, function(x) {
+  paste(na.omit(x), collapse = "\t")
+})
+write_df_2022 = sibexclusions_2022[, c("focal", "num_exc", "excluded_all")]
+write.table(write_df_2022, file = "data/merged_by_year/mixtus_sibexclusions_2022.txt", 
+            sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+
+# again for 2023...
+sibexclusions_2023$excluded_all <- apply(sibexclusions_2023[ , grepl("excluded_", names(sibexclusions_2023))], 1, function(x) {
+  paste(na.omit(x), collapse = "\t")
+})
+write_df_2023 = sibexclusions_2023[, c("focal", "num_exc", "excluded_all")]
+write.table(write_df_2023, file = "data/merged_by_year/mixtus_sibexclusions_2023.txt", 
+            sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 
 ####
