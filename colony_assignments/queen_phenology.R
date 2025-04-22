@@ -1,14 +1,18 @@
-##
+##############################################################
 # Create phenology plots of queen observations to determine
 # "breakpoint" between mother queens and daughter queens
-##
+# Started by J Melanson
+# July 30, 2024
+##############################################################
 
+# set up workspace
 rm(list=ls())
+setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 #load packages
-source('microsatellitecode/src/init.R')
+source('colony_assignments/src/init.R')
+source('colony_assignments/src/joinFunctions.R')
 load.packages()
-source('microsatellitecode/src/joinFunctions.R')
 
 
 ## **********************************************************
@@ -16,13 +20,13 @@ source('microsatellitecode/src/joinFunctions.R')
 ## **********************************************************
 #load bombus survey data (2023)
 specimenData2023 = filter(
-  as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/2023specimendata.csv"), 
+  as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2023specimendata.csv"), 
                 sep = ",", header = T, fill = TRUE),
   !is.na(round))
-samplePoints = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/allsamplepoints.csv", sep = ","))
+samplePoints = as.data.frame(read.table("/Users/jenna1/Documents/UBC/bombus_project/raw_data/allsamplepoints.csv", sep = ","))
 colnames(samplePoints) = c("sample_pt", "gps","landowner","subsite")
-sampleEffort2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/2023sampledata.csv", sep = ","))
-vegData2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/2023vegetationdata.csv", sep = ","))
+sampleEffort2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2023sampledata.csv", sep = ","))
+vegData2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2023vegetationdata.csv", sep = ","))
 
 
 ## **********************************************************
