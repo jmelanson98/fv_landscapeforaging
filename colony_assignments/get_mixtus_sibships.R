@@ -187,17 +187,18 @@ write.csv(mixtus2023_forcolony, "data/merged_by_year/mixtus_2023_scores.csv")
 mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
                          c("BTMS0104", 0, 0, 0.01),
                          c("BTMS0057", 0, 0, 0.01),
-                         c("BTMS0086", 0, 0, 0.01),
+                         c("BTMS0086", 0, 0, 0.015),
                          c("BTMS0066", 0, 0, 0.01),
-                         c("BTMS0062", 0, 0, 0.01),
+                         c("BTMS0062", 0, 0, 0.015),
                          c("BTMS0136", 0, 0, 0.01),
-                         c("BTERN01", 0, 0, 0.01),
-                         c("BTMS0126", 0, 0, 0.01),
+                         c("BTERN01", 0, 0, 0.0215),
+                         c("BTMS0126", 0, 0, 0.0162),
                          c("BTMS0059", 0, 0, 0.01),
-                         c("BL13", 0, 0, 0.01),
+                         c("BL13", 0, 0, 0.0159),
                          c("BTMS0083", 0, 0, 0.01),
                          c("B126", 0, 0, 0.01))
 write.table(mixtus_error_rates, "data/merged_by_year/mixtus_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixtus_error_rates, "colony_assignments/Colony2/mixtus_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 
 ###########################################
@@ -259,31 +260,32 @@ for (i in 1:6){
 sibexclusions_2022 = bind_rows(excluded_sibships_2022)
 sibexclusions_2023 = bind_rows(excluded_sibships_2023)
 
-# collapse tables, remove NAs, write to text file
-sibexclusions_2022$excluded_all <- apply(sibexclusions_2022[ , grepl("excluded_", names(sibexclusions_2022))], 1, function(x) {
-  paste(na.omit(x), collapse = "\t")
-})
-write_df_2022 = sibexclusions_2022[, c("focal", "num_exc", "excluded_all")]
-write.table(write_df_2022, file = "data/merged_by_year/mixtus_sibexclusions_2022.txt", 
-            sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+sib2022_reduced = sibexclusions_2022[,!colnames(sibexclusions_2022) %in% c("num_exc")]
 
-# again for 2023...
-sibexclusions_2023$excluded_all <- apply(sibexclusions_2023[ , grepl("excluded_", names(sibexclusions_2023))], 1, function(x) {
-  paste(na.omit(x), collapse = "\t")
-})
-write_df_2023 = sibexclusions_2023[, c("focal", "num_exc", "excluded_all")]
-write.table(write_df_2023, file = "data/merged_by_year/mixtus_sibexclusions_2023.txt", 
-            sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(
+  sib2022_reduced,
+  file = "data/merged_by_year/mixtus_sibexclusions_2022.txt",
+  sep = ",",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = FALSE,
+  na = ""
+)
 
-
-####
-# run colony
-####
+########################################
+# Generate .DAT file and run colony
+########################################
 # must run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
 #this code is not working; use windows GUI on lab computer
-build.colony.input(wd=getwd(), name="Colony2.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", name="mixtus2022.DAT", delim=",")
 
+# note: rcolony is a bit out of date and is missing some important arguments
 
+# line 8 (after dioecious/monoecious): 0/1 for inbreeding (recommended for dioecious: no inbreeding (0))
+# line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
+# line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
+
+# for known paternity/maternity -- must include exclusion threshold even if the number of known parentages is 0
 
 ####
 ## load in results from colony
