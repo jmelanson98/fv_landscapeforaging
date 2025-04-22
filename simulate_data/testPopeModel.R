@@ -24,7 +24,7 @@ library(tidyr)
 library(gridExtra)
 
 ##### Set Environment #####
-#setwd("~/Documents/UBC/bombus_project/fvlandscape_foraging") # local
+#setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
@@ -450,7 +450,7 @@ all_sim_df$average_foraging[[task_id]] = avg_landscape_foraging
 saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 
 
-# # load all_sim_df
+# load all_sim_df
 # all_sim_df = readRDS("simulate_data/batch_sim1/all_sim_df.RDS")
 # 
 # # check for errors in stan fit
@@ -465,6 +465,7 @@ saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 # 
 #   list(
 #     file = basename(file),
+#     unfinished = any(grepl("DUE TO TIME LIMIT", lines, ignore.case = TRUE)),
 #     has_divergent = any(grepl("divergent", lines, ignore.case = TRUE)),
 #     has_low_ess = any(grepl("Effective Samples Size", lines, ignore.case = TRUE)),
 #     has_error = any(grepl("error", lines, ignore.case = TRUE))
