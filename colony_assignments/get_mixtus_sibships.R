@@ -198,8 +198,6 @@ mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
                          c("BTMS0083", 0, 0, 0.01),
                          c("B126", 0, 0, 0.01))
 write.table(mixtus_error_rates, "data/merged_by_year/mixtus_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(mixtus_error_rates, "colony_assignments/Colony2/mixtus_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-
 
 ###########################################
 # Prep sibship exclusion data for COLONY
@@ -261,6 +259,7 @@ sibexclusions_2022 = bind_rows(excluded_sibships_2022)
 sibexclusions_2023 = bind_rows(excluded_sibships_2023)
 
 sib2022_reduced = sibexclusions_2022[,!colnames(sibexclusions_2022) %in% c("num_exc")]
+sib2023_reduced = sibexclusions_2023[,!colnames(sibexclusions_2023) %in% c("num_exc")]
 
 write.table(
   sib2022_reduced,
@@ -272,24 +271,55 @@ write.table(
   na = ""
 )
 
+write.table(
+  sib2023_reduced,
+  file = "data/merged_by_year/mixtus_sibexclusions_2023.txt",
+  sep = ",",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = FALSE,
+  na = ""
+)
+
 ########################################
 # Generate .DAT file and run colony
 ########################################
-# must run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
-#this code is not working; use windows GUI on lab computer
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", name="mixtus2022.DAT", delim=",")
+# A few important notes!
+# For MacOS users: run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
 
-# note: rcolony is a bit out of date and is missing some important arguments
+# Rcolony (a wrapper package for creating the .dat input file for COLONY2) is a 
+#bit out of date and is missing some important arguments. For this reason I have 
+# made some small updates to the package, available at https://github.com/jmelanson98/rcolony
+# Forked from the excellent original package at https://github.com/jonesor/rcolony
 
+# Changes include:
+# - Modification to the writing of siblingship exclusion table (remove excess padding of 
+# space at the end of lines)
+# - Addition of several arguments required by the latest version of COLONY2:
 # line 8 (after dioecious/monoecious): 0/1 for inbreeding (recommended for dioecious: no inbreeding (0))
 # line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
 # line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
+# - Addition of exclusion threshold (0) for known paternity/maternity in cases wehre the number of known parentages is 0
 
-# for known paternity/maternity -- must include exclusion threshold even if the number of known parentages is 0
 
-####
-## load in results from colony
-####
+# build .DAT files for both datasets
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2022.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2023.DAT", delim=",")
+
+# navigate to COLONY2 sub folder and run the following in terminal
+#NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
+
+# cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
+# ./colony2s.out IFN=mixtus2022.DAT
+# ./colony2s.out IFN=mixtus2023.DAT
+
+
+
+#####################################
+## Load in results from colony
+#####################################
 sibships2022 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus_sibships.csv", sep = ",", header = T))
 sibships2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus2023siblings.csv", sep = ",", header = T))
 
