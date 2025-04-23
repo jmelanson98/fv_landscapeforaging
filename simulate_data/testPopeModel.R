@@ -363,7 +363,7 @@ for (iter in t){
       dist = sqrt(dist_x^2 + dist_y^2)
       
       #compute colony visitation to a single trap
-      lambdaik = exp(betas[iter]*dist + thetas[iter]*trap_data$fq[k])
+      lambdaik = exp(-betas[iter]*dist + thetas[iter]*trap_data$fq[k])
       
       # compute estimated foraging distance for a colony
       # in a given iteration, before normalization with V_i
@@ -408,7 +408,7 @@ for (iter in t){
       dist = sqrt(dist_x^2 + dist_y^2)
       
       #compute colony visitation to a single trap
-      lambdaik = exp(betas[iter]*dist + thetas[iter]*trap_data$fq[k])
+      lambdaik = exp(-betas[iter]*dist + thetas[iter]*trap_data$fq[k])
       
       # compute estimated foraging distance for a colony
       # in a given iteration, before normalization with V_i
@@ -450,7 +450,7 @@ all_sim_df$average_foraging[[task_id]] = avg_landscape_foraging
 saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 
 
-# load all_sim_df
+# #load all_sim_df
 # all_sim_df = readRDS("simulate_data/batch_sim1/all_sim_df.RDS")
 # 
 # # check for errors in stan fit
