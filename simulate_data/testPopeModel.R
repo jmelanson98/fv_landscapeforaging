@@ -520,7 +520,7 @@ saveRDS(all_sim_df, "simulate_data/batch_sim1/all_sim_df.RDS")
 #                              colony_foraging = all_sim_df$colony_foraging_estimates[row]
 #                                ))
 #   }
-# 
+#
 #   # Plot figure 4
 #   fig4 = ggplot(all_sim_df, aes(x = mean(true_colony_foraging), y = avg_landscape_foraging)) +
 #     geom_point() +
