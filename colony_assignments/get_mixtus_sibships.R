@@ -356,7 +356,6 @@ for (i in 1:length(nrow(bestconfig2023))){
 
 
 
-
 ############################################
 # Remove siblings before running genepop
 ############################################
@@ -475,6 +474,26 @@ test_LD("data/genepop/ms_genepop_format_2022.txt","data/genepop/outputLD2022.txt
 # some of this code is not for getting sibships...
 #######################
 
+sibships2022 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus_sibships.csv", sep = ",", header = T))
+sibships2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus2023siblings.csv", sep = ",", header = T))
+
+sib_long_filtered2022 <- sibships2022 %>% 
+  pivot_longer(
+    cols = `sib_1`:`sib_4`, 
+    names_to = "sib",
+    values_to = "barcode_id") %>%
+  filter(barcode_id != "",
+         prob_inc > 0.95)
+
+sibships2023$fullsibshipindex = sibships2023$fullsibshipindex + max(sibships2022$fullsib_index)
+sib_long_filtered2023 <- sibships2023 %>% 
+  pivot_longer(
+    cols = `sib1`:`sib5`, 
+    names_to = "sib",
+    values_to = "barcode_id") %>%
+  filter(barcode_id != "",
+         prob_inc > 0.95)
+
 #combine 2022 and 2023 sibs
 colnames(sib_long_filtered2023) = colnames(sib_long_filtered2022)
 sib_long_filtered2023$barcode_id = gsub("_", "", sib_long_filtered2023$barcode_id)
@@ -583,8 +602,6 @@ search_list %>%
 search_list %>%
   group_by(fullsibshipindex) %>%
   summarize(num_sibs = n()) -> sibgroups
-
-
 
 
 ######################
