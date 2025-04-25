@@ -1,9 +1,16 @@
 ########
-## Get colony IDs from microsatellite genotyping results
+## Get colony IDs from microsatellite genotyping results--Bombus impatiens
+## Started by J Melanson
+## February 13, 2025
 ########
+
+# prep workspace
 rm(list = ls())
+setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 # first, load in packages
+source('colony_assignments/src/init.R')
+source('colony_assignments/src/joinFunctions.R')
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -13,106 +20,34 @@ library(data.table)
 library(cowplot)
 library(raster)
 
-
 # next; load in specimen data and allele tables
 #load field data
-specimenData2022 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/2022specimendata.csv", sep = ",", header = T))
-specimenData2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/2023specimendata.csv", sep = ",", header = T, fill = TRUE))
-samplePoints = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/allsamplepoints.csv", sep = ","))
-colnames(samplePoints) = c("sample_pt", "gps","landowner","subsite", "twosub")
+specimenData2022 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2022specimendata.csv", sep = ",", header = T))
+specimenData2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2023specimendata.csv", sep = ",", header = T, fill = TRUE))
+sampleEffort2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/bombus_project/raw_data/2023sampledata.csv", sep = ","))
+samplePoints = as.data.frame(read.table("/Users/jenna1/Documents/UBC/bombus_project/raw_data/allsamplepoints.csv", sep = ","))
+colnames(samplePoints) = c("sample_pt", "gps","landowner","subsite")
 
-#load error tables
-plex1_init = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/checkerrors/36plex1.csv", sep = ",", header = T))
-plex2_init = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/checkerrors/36plex2.csv", sep = ",", header = T))
-plex1_rerun = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/checkerrors/36rerunplex1.csv", sep = ",", header = T))
-plex2_rerun = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/checkerrors/36rerunplex2.csv", sep = ",", header = T))
+# load allele tables
+alleles_plex1_all = as.data.frame(read.table("data/from_geneious/impatiens_plex1.csv", sep = ",", header = T))
+alleles_plex2_all = as.data.frame(read.table("data/from_geneious/impatiens_plex2.csv", sep = ",", header = T))
 
-#check error rates
-
-plex1merged = inner_join(plex1_init, plex1_rerun, by = "Name", suffix = c("_init", "_rerun"))
-plex2merged = inner_join(plex2_init, plex2_rerun, by = "Name", suffix = c("_init", "_rerun"))
-
-# Function to calculate match percentage per column
-compare_metrics <- function(df, metrics) {
-  results <- metrics %>%
-    map_df(~ {
-      col1 <- sym(paste0(.x, "_init"))
-      col2 <- sym(paste0(.x, "_rerun"))
-      
-      valid_cases <- df %>% filter(!is.na(!!col1) & !is.na(!!col2))
-      mismatches <- valid_cases %>% filter(!!col1 != !!col2)
-      
-      matches <- nrow(valid_cases) - nrow(mismatches)
-      total <- nrow(valid_cases)
-      mismatch_names <- mismatches$Name
-      
-      tibble(
-        Metric = .x, 
-        Matches = matches, 
-        Total_Comparisons = total, 
-        Match_Percentage = ifelse(total > 0, (matches / total) * 100, NA),
-        Mismatch_Names = ifelse(length(mismatch_names) > 0, paste(mismatch_names, collapse = ", "), "None")
-      )
-    })
-  return(results)
-}
-
-# Identify metric columns (excluding "Name")
-metric_columns1 <- setdiff(names(plex1_init), "Name")
-metric_columns2 <- setdiff(names(plex2_init), "Name")
-
-# Compute match summary
-summary_table1 <- compare_metrics(plex1merged, metric_columns1)
-summary_table2 <- compare_metrics(plex2merged, metric_columns2)
-
-print(summary_table2)
+# create barcode id for allele tables
+alleles_plex1_all$barcode_id = strsplit()
 
 
 
+############################
+# Cleaning
+############################
+# at some point during processing, impatiensQueens02 and impatiensDNA14 (all on
+# the same plate) were SWAPPED with impatiensQueens01 -- so I'll start by fixing that!
 
-
-#load full allele tables
-alleles_plex1_all = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus_allelestable_plex1.csv", sep = ",", header = T))
-alleles_plex2_all = as.data.frame(read.table("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus_allelestable_plex2.csv", sep = ",", header = T))
-
-
-
-#modify allele table "name" value to match specimen data frame "plate" and "well" (for originals)
-alleles_plex1_original %>% separate(Name, sep = "-", c(NA, "plate", "well"), extra = "merge", fill = "left") -> alleles_plex1_original                                         
-alleles_plex1_original$location = str_remove_all(paste(alleles_plex1_original$plate, alleles_plex1_original$well), "-| ")
-alleles_plex1_original = alleles_plex1_original[,!colnames(alleles_plex1_original) %in% c("plate", "well")]
-
-alleles_plex2_original %>% separate(Name, sep = "-", c(NA, "plate", "well"), extra = "merge", fill = "left") -> alleles_plex2_original                                         
-alleles_plex2_original$location = str_remove_all(paste(alleles_plex2_original$plate, alleles_plex2_original$well), "-| ")
-alleles_plex2_original = alleles_plex2_original[,!colnames(alleles_plex2_original) %in% c("plate", "well")]
-
-#merge original dataframes to barcodesubset so that all four contain barcode_id (remove location)
-alleles_plex1_wbarcode = left_join(alleles_plex1_original, barcodesubset, by = "location")
-alleles_plex1_wbarcode = alleles_plex1_wbarcode[,!colnames(alleles_plex1_wbarcode) %in% c("location")]
-alleles_plex1_wbarcode %>% filter(!is.na(barcode_id)) -> alleles_plex1_wbarcode
-
-alleles_plex2_wbarcode = left_join(alleles_plex2_original, barcodesubset, by = "location")
-alleles_plex2_wbarcode = alleles_plex2_wbarcode[,!colnames(alleles_plex2_wbarcode) %in% c("location")]
-alleles_plex2_wbarcode %>% filter(!is.na(barcode_id)) -> alleles_plex2_wbarcode
-
-#modify allele table name value of re-runs to match barcode_id
-alleles_plex1_rerun$barcode_id = gsub("^.{0,6}", "", alleles_plex1_rerun$Name)
-alleles_plex1_rerun$barcode_id = gsub("-","_",alleles_plex1_rerun$barcode_id)
-alleles_plex1_rerun = alleles_plex1_rerun[,!colnames(alleles_plex1_rerun) %in% c("Name")]
-
-alleles_plex2_rerun$barcode_id = gsub("^.{0,6}", "", alleles_plex2_rerun$Name)
-alleles_plex2_rerun$barcode_id = gsub("-","_",alleles_plex2_rerun$barcode_id)
-alleles_plex2_rerun = alleles_plex2_rerun[,!colnames(alleles_plex2_rerun) %in% c("Name")]
-
-#reorder columns so that we can rbind originals to reruns
-correctorderp1 = colnames(alleles_plex1_wbarcode)
-correctorderp2 = colnames(alleles_plex2_wbarcode)
-
-alleles_plex1_rerun <- alleles_plex1_rerun[, correctorderp1]
-alleles_plex2_rerun <- alleles_plex2_rerun[, correctorderp2]
-
-alleles_plex1 = rbind(alleles_plex1_wbarcode, alleles_plex1_rerun)
-alleles_plex2 = rbind(alleles_plex2_wbarcode, alleles_plex2_rerun)
+importantRows = c("barcode_id", "plate", "well", "final_id")
+all_samples = rbind(specimenData2022[,colnames(specimenData2022) %in% importantRows], 
+                    specimenData2023[, colnames(specimenData2023) %in% importantRows])
+all_samples_plex2 = left_join(all_samples, alleles_plex2_all, by = c("barcode_id" = "Name")) %>%
+  filter(final_id == "B. impatiens")
 
 #check for duplicates in these dataframes
 print("Number of rows in alleles 1 dataframe:")
