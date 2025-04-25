@@ -136,7 +136,6 @@ specimens = full_join(microsat_scores, specsubset, by = "barcode_id")
 mixtus = filter(specimens, final_id == "B. mixtus" & barcode_id != "N/A")
 unscoredmixtus = mixtus[rowSums(is.na(mixtus)) >10,]
 
-
 ##################################
 # Prep genotype data for COLONY
 ##################################
@@ -198,8 +197,6 @@ mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
                          c("BTMS0083", 0, 0, 0.01),
                          c("B126", 0, 0, 0.01))
 write.table(mixtus_error_rates, "data/merged_by_year/mixtus_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(mixtus_error_rates, "colony_assignments/Colony2/mixtus_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-
 
 ###########################################
 # Prep sibship exclusion data for COLONY
@@ -221,7 +218,7 @@ for (i in 1:6){
   
   # grep names for focal site
   site.names.2022 = sample.names.2022[grep(site, sample.names.2022)]
-  site.names.2023 = sample.names.2022[grep(site, sample.names.2023)]
+  site.names.2023 = sample.names.2023[grep(site, sample.names.2023)]
   
   # list of excluded siblings
   excluded.2022 = sample.names.2022[sample.names.2022 %!in% site.names.2022]
@@ -261,6 +258,7 @@ sibexclusions_2022 = bind_rows(excluded_sibships_2022)
 sibexclusions_2023 = bind_rows(excluded_sibships_2023)
 
 sib2022_reduced = sibexclusions_2022[,!colnames(sibexclusions_2022) %in% c("num_exc")]
+sib2023_reduced = sibexclusions_2023[,!colnames(sibexclusions_2023) %in% c("num_exc")]
 
 write.table(
   sib2022_reduced,
@@ -272,24 +270,210 @@ write.table(
   na = ""
 )
 
+write.table(
+  sib2023_reduced,
+  file = "data/merged_by_year/mixtus_sibexclusions_2023.txt",
+  sep = ",",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = FALSE,
+  na = ""
+)
+
 ########################################
 # Generate .DAT file and run colony
 ########################################
-# must run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
-#this code is not working; use windows GUI on lab computer
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", name="mixtus2022.DAT", delim=",")
+# A few important notes!
+# For MacOS users: run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
 
-# note: rcolony is a bit out of date and is missing some important arguments
+# Rcolony (a wrapper package for creating the .dat input file for COLONY2) is a 
+#bit out of date and is missing some important arguments. For this reason I have 
+# made some small updates to the package, available at https://github.com/jmelanson98/rcolony
+# Forked from the excellent original package at https://github.com/jonesor/rcolony
 
+# Changes include:
+# - Modification to the writing of siblingship exclusion table (remove excess padding of 
+# space at the end of lines)
+# - Addition of several arguments required by the latest version of COLONY2:
 # line 8 (after dioecious/monoecious): 0/1 for inbreeding (recommended for dioecious: no inbreeding (0))
 # line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
 # line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
+# - Addition of exclusion threshold (0) for known paternity/maternity in cases wehre the number of known parentages is 0
 
-# for known paternity/maternity -- must include exclusion threshold even if the number of known parentages is 0
 
-####
-## load in results from colony
-####
+# build .DAT files for both datasets
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2022.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2023.DAT", delim=",")
+
+# navigate to COLONY2 sub folder and run the following in terminal
+#NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
+
+# cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
+# ./colony2s.out IFN=mixtus2022.DAT
+# ./colony2s.out IFN=mixtus2023.DAT
+
+
+
+#####################################
+## Load in results from colony
+#####################################
+
+# read in and format 2022 data
+lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2022.BestCluster"))
+split_lines2022 <- strsplit(lines2022, "\\s+")
+bestconfig2022 <- do.call(rbind, split_lines2022)
+colnames(bestconfig2022) <- bestconfig2022[1, ]
+bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
+
+# read in and format 2023 data
+lines2023 <- readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2023.BestConfig")
+split_lines2023 <- strsplit(lines2023, "\\s+")
+bestconfig2023 <- do.call(rbind, split_lines2023)
+colnames(bestconfig2023) <- bestconfig2023[1, ]
+bestconfig2023 <- bestconfig2023[-1, -1]
+
+# remove sibling relationships with p < 0.95
+counter = max(bestconfig2022$ClusterIndex) + 1
+for (i in 1:length(nrow(bestconfig2022))){
+  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
+  if (bestconfig2022$Probability[i] < 0.95){
+    bestconfig2022$ClusterIndex[i] = counter
+    counter = counter + 1
+  }
+}
+
+# repeat for 2023
+counter = max(bestconfig2023$ClusterIndex) + 1
+for (i in 1:length(nrow(bestconfig2023))){
+  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
+  if (bestconfig2023$Probability[i] < 0.95){
+    bestconfig2023$ClusterIndex[i] = counter
+    counter = counter + 1
+  }
+}
+
+
+
+############################################
+# Remove siblings before running genepop
+############################################
+nonsibs2022 = left_join(specimenData2022, bestconfig2022, by = c("barcode_id" ="OffspringID")) %>%
+  filter(!is.na(ClusterIndex)) %>%
+  group_by(ClusterIndex) %>%
+  sample_n(1)
+
+testalleles2022 = mixtus2022_forcolony[mixtus2022_forcolony$barcode_id %in% nonsibs2022$barcode_id,]
+
+######################################
+# Prep alleles table for genepop
+#####################################
+
+#combine columns for each locus
+ms_new = data.table(testalleles2022)
+ms_new[ms_new ==0] <- "000"
+
+
+i1 <- seq(1, length(ms_new)-1, 2)
+i2 <- seq(2, length(ms_new)-1, 2)
+msgenepop = ms_new[, Map(paste,
+                         .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
+                         MoreArgs = list(sep="")), 
+                   by = "barcode_id"]
+colnames(msgenepop) = c("barcode_id", "BT10", "BTMS0104", "BTMS0057", "BTMS0086",
+                        "BTMS0066", "BTMS0062", "BTMS0136","BTERN01", "BTMS0126", 
+                        "BTMS0059", "BL13", "BTMS0083", "B126")
+
+
+#select and join alleles
+
+#sort allele table by barcode ID
+msgenepop <- msgenepop[order(msgenepop$barcode_id),]
+msgenepop$site = substring(msgenepop$barcode_id, 1, 1)
+
+haplotypes <- as.data.frame(paste(msgenepop$site, "_", msgenepop$barcode_id, ","," ", 
+                                  msgenepop$BT10," ", msgenepop$BTMS0104, " ",
+                                  msgenepop$BTMS0057," ", msgenepop$BTMS0086, " ",
+                                  msgenepop$BTMS0066," ", msgenepop$BTMS0062, " ",
+                                  msgenepop$BTMS0136," ", msgenepop$BTERN01, " ",
+                                  msgenepop$BTMS0126," ", msgenepop$BTMS0059," ",
+                                  msgenepop$BL13," ", msgenepop$BTMS0083, " ",
+                                  msgenepop$B126,
+                                  sep = ""))
+
+#Build the Genepop format
+sink("data/genepop/ms_genepop_format_2022.txt")
+cat("Title: B. mixtus workers (2022) \n")
+cat("BT10 \n")
+cat("BTMS0104 \n")
+cat("BTMS0057 \n")
+cat("BTMS0086 \n")
+cat("BTMS0066 \n")
+cat("BTMS0062 \n")
+cat("BTMS0136 \n")
+cat("BTERN01 \n")
+cat("BTMS0126 \n")
+cat("BTMS0059 \n")
+cat("BL13 \n")
+cat("BTMS0083 \n")
+cat("B126 \n")
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+sink()
+
+
+
+######################################
+# Run genepop on samples
+#####################################
+
+#test for HWE
+test_HW("data/genepop/ms_genepop_format_2022.txt", which="Proba", "data/genepop/outputHWE2022.txt.D")
+
+#test for LD
+test_LD("data/genepop/ms_genepop_format_2022.txt","data/genepop/outputLD2022.txt.DIS")
+
+
+# for 2022 samples
+### BTERN01 Fis values are Fis-hy (haha I'm so funny)
+### so is BL13...
+### so is BTMS0083
+
+### LD: BTMS0057 and BTMS0066
+####### BTMS0126 and BTMS0059
+####### BTMS0136 and BL13
+####### BTMS0126 and B126
+####### BTMS0066 and BTMS0136 *** across all pops?
+####### BTMS0066 and BTMS0059
+
+
+
+
+
+
+
+
+
+
+
+
+
+#######################
+# some of this code is not for getting sibships...
+#######################
+
 sibships2022 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus_sibships.csv", sep = ",", header = T))
 sibships2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus2023siblings.csv", sep = ",", header = T))
 
@@ -418,101 +602,6 @@ search_list %>%
 search_list %>%
   group_by(fullsibshipindex) %>%
   summarize(num_sibs = n()) -> sibgroups
-
-
-####
-# remove siblings 
-####
-mixtus_wsibs %>%
-  filter(!is.na(fullsibshipindex)) %>%
-  group_by(fullsibshipindex) %>%
-  sample_n(1) -> nonsibs
-
-testalleles = mixtus2023_forcolony[mixtus2023_forcolony$barcode_id %in% nonsibs$barcode_id,]
-
-####
-# prep alleles table for genepop
-####
-
-#combine columns for each locus
-ms_new = data.table(testalleles)
-ms_new[ms_new ==0] <- "000"
-
-
-i1 <- seq(1, length(ms_new)-1, 2)
-i2 <- seq(2, length(ms_new)-1, 2)
-msgenepop = ms_new[, Map(paste,
-         .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
-         MoreArgs = list(sep="")), 
-   by = "barcode_id"]
-colnames(msgenepop) = c("barcode_id", "BT10", "BTMS0104", "BTMS0057", 
-                         "BTMS0086", "BTMS0066", "BTMS0062", "BTMS0136",
-                         "BTERN01", "BTMS0126", "BTMS0072", "BTMS0059", "BL15",
-                         "BL13", "BTMS0083", "B126")
-
-
-#select and join alleles
-
-#sort allele table by barcode ID
-msgenepop <- msgenepop[order(msgenepop$barcode_id),]
-msgenepop$site = substring(msgenepop$barcode_id, 1, 1)
-
-haplotypes <- as.data.frame(paste(msgenepop$site, "_", msgenepop$barcode_id, ","," ", 
-                                  msgenepop$BT10," ", msgenepop$BTMS0104, " ",
-                                  msgenepop$BTMS0057," ", msgenepop$BTMS0086, " ",
-                                  msgenepop$BTMS0066," ", msgenepop$BTMS0062, " ",
-                                  msgenepop$BTMS0136," ", msgenepop$BTERN01, " ",
-                                  msgenepop$BTMS0126," ", msgenepop$BTMS0072, " ",
-                                  msgenepop$BTMS0059," ", msgenepop$BL15, " ",
-                                  msgenepop$BL13," ", msgenepop$BTMS0083, " ",
-                                  msgenepop$B126,
-                                  sep = ""))
-
-#Build the Genepop format
-sink("ms_genepop_format.txt")
-cat("Title: B. mixtus workers (2023) \n")
-cat("BT10 \n")
-cat("BTMS0104 \n")
-cat("BTMS0057 \n")
-cat("BTMS0086 \n")
-cat("BTMS0066 \n")
-cat("BTMS0062 \n")
-cat("BTMS0136 \n")
-cat("BTERN01 \n")
-cat("BTMS0126 \n")
-cat("BTMS0072 \n")
-cat("BTMS0059 \n")
-cat("BL15 \n")
-cat("BL13 \n")
-cat("BTMS0083 \n")
-cat("B126 \n")
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-sink()
-
-
-
-###
-#run genepop on samples
-####
-
-#test for HWE
-test_HW("ms_genepop_format.txt", which='Proba', 'outputHWE.txt.D')
-
-#test for LD
-test_LD("ms_genepop_format.txt","outputLD.txt.DIS")
-
 
 
 ######################
