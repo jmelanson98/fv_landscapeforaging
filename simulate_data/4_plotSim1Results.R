@@ -99,7 +99,43 @@ beta = ggplot(error_summary, aes(x = true_avg*5, colour = has_divergent)) +
 
 ##### Plot simulated vs model-predicted landscape average foraging distance 
 # e.g., figure 4 from Pope & Jha
-fig4 = ggplot(all_sim_df, aes(x = mean(true_colony_foraging), y = avg_landscape_foraging)) +
+all_sim_df$mean_true_foraging = sapply(all_sim_df$true_colony_foraging, mean)
+fig4 = ggplot(all_sim_df, aes(x = as.numeric(mean_true_foraging), y = as.numeric(average_foraging), color = sample_size)) +
     geom_point() +
-    geom_errorbar()
+    geom_abline(slope = 1, intercept = 0)
+fig4
 
+
+##### Plot simulated vs model-predicted colony average foraging distance
+# e.g., figure 3 from Pope & Jha
+
+# make a tible with unlisted estimates
+long_df <- pmap_dfr(
+  .l = as_tibble(all_sim_df) %>% 
+  dplyr::select(landscape_id, beta, sample_size, 
+                             average_foraging, mean_true_foraging, 
+                             true_colony_foraging, colony_foraging_estimates, 
+                             colony_sizes),
+  function(landscape_id, beta, sample_size,
+                              average_foraging, mean_true_foraging, 
+                              true_colony_foraging, colony_foraging_estimates, 
+                              colony_sizes) {
+  tibble(
+    landscape_id = landscape_id,
+    beta = beta,
+    sample_size = sample_size,
+    average_foraging = average_foraging,
+    mean_true_foraging = mean_true_foraging,
+    true_colony_foraging = true_colony_foraging,
+    colony_foraging_estimates = colony_foraging_estimates,
+    colony_sizes = colony_sizes
+  )
+})
+
+
+# plot
+partial_df = filter(long_df, colony_sizes <= 10)
+fig3 = ggplot(partial_df, aes(x = true_colony_foraging, y = colony_foraging_estimates, color = colony_sizes)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept =0)
+fig3
