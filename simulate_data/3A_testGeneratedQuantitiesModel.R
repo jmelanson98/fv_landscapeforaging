@@ -61,8 +61,13 @@ data$priorVa = 1
 data$priorCo = 1
 data$priorBe = 0.1
 
+# Function to estimate necessary RAM for model
+# estimate_stanfit_size_gb <- function(num_params, num_iters, num_chains, overhead = 2.5) {
+#   (num_params * num_iters * num_chains * 8 * overhead) / (1024^3)
+# }
+
 # Fit Stan model!
-stanFitGQ = stan(file = "models/popeModified.stan",
+stanFitGQ_new = stan(file = "models/popeModified.stan",
                data = data, seed = 5838299,
                warmup = 1000, iter = 10000,
                control = list(adapt_delta = 0.999,
