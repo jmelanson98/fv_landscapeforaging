@@ -20,7 +20,7 @@ library(furrr)
 library(gstat)
 
 ##### Source Helper Functions #####
-source("PopeSimFunctions.R")
+source("0_PopeSimFunctions.R")
 
 ##### Prepare to run in parallel ! #####
 # set parameter combinations
@@ -66,11 +66,4 @@ saveRDS(result[[1]], paste(outfilepath, "/yobs.RDS", sep = ""))
 saveRDS(result[[2]], paste(outfilepath, "/colonydata.RDS", sep = ""))
 saveRDS(result[[3]], paste(outfilepath, "/trapdata.RDS", sep = ""))
 
-
-# for later
-# files <- list.files("results", pattern = "sim_result_.*rds", full.names = TRUE)
-# results <- lapply(files, readRDS)
-# param_grid <- readRDS("param_grid.rds")
-# 
-# full_results <- bind_cols(param_grid, tibble(result = results))
 
