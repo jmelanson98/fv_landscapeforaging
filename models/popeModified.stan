@@ -47,7 +47,7 @@ matrix[C,K] lambda; //rate of captures for colony C at trap K?
   // distance and lambda
 for(k in 1:K){
   for(i in 1:C){
-    dis[i, k] = sqrt(square(delta[i][1] - trap[k,1]) + square(delta[i][2] - trap[k,2]));
+    dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i,2] - trap[k,2]));
     lambda[i, k] = -beta*dis[i, k] + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
   } 
 }
@@ -77,10 +77,25 @@ for(k in 1:K){
 
 // will this work? who knows!?
 generated quantities {
-  int y_rep[C, K];        // Posterior predictive samples
-  for (k in 1:K) {
+  vector[C] colony_dist;        // Declare estimated colony foraging distance
+  real land_dist;           // Declare estimated landscape foraging distance
+  
+  colony_dist = rep_vector(0, C);  // Initialize colony distance to 0
+  land_dist = 0;                   // Initialize landscape distance to 0
+  
+  // start anonymous scope
+  {
+    vector[C] V;     // Declare local variable for total colony visitation
+    real Vsum;       // Declare local variable for total landscape visitation
+    
     for (i in 1:C){
-      y_rep[i, k] = poisson_log_rng(lambda[i, k]);  // Simulate new data points
+      V[i] = sum(lambda[i,]);
+    }
+    Vsum = sum(V);
+    
+    for (k in 1:K){
+      colony_dist = colony_dist + dis[,k] .* lambda[,k] ./ V;
+      land_dist = land_dist + sum(dis[,k] .* lambda[,k] ./ Vsum);
     }
   }
 }

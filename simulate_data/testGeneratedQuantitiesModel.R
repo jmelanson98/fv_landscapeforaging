@@ -2,9 +2,9 @@
 # Script Initiated: April 10, 2025
 # By: Jenna Melanson
 # Goals:
-    ### Fit Pope Stan code using a multiple iterations of simulated data
-    ### 10 landscapes x 5 beta values x 3 sampling intensities
-    ### Generate figure analogous to fig 1A + plots of colony posterior distributions
+### Fit Pope Stan code using a multiple iterations of simulated data
+### 10 landscapes x 5 beta values x 3 sampling intensities
+### Generate figure analogous to fig 1A + plots of colony posterior distributions
 
 
 ##### Load packages #####
@@ -262,13 +262,13 @@ data$priorBe = 0.1
 
 # Fit Stan model!
 stanFit = stan(file = "models/pope_consgenetics.stan",
-                    data = data, seed = 5838299,
-                    warmup = 1000, iter = 10000,
-                    chains = 4, cores = 4,
-                    control = list(adapt_delta = 0.999,
+               data = data, seed = 5838299,
+               warmup = 1000, iter = 10000,
+               chains = 4, cores = 4,
+               control = list(adapt_delta = 0.999,
                               stepsize = 0.001,
                               max_treedepth = 20),
-                    verbose = TRUE)
+               verbose = TRUE)
 print("Model complete.")
 saveRDS(stanFit, file=paste(results_path,"/stanFit.RDS", sep =""))
 print("Model saved.")
@@ -277,7 +277,7 @@ print("Model saved.")
 plot_list = list()
 numplots = 12
 legends = list()
-  
+
 for (i in 1:numplots){
   c_id = colony_data$colonyid[i]
   delta_draws = as.data.frame(rstan::extract(stanFit, pars = "delta")$delta[, c_id,])
@@ -308,7 +308,7 @@ for (i in 1:numplots){
   g <- ggplotGrob(p)
   legend_index <- which(g$layout$name == "guide-box-right")
   legend <- g$grobs[[legend_index]]
-   
+  
   # remove legend from plot
   p <- p + theme(legend.position = "none")
   
@@ -325,9 +325,9 @@ ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 30
 ##### Store data to recreate Figure 3 from Pope & Jha #####
 
 # for each iteration, draw:
-    ## delta
-    ## beta
-    ## theta
+## delta
+## beta
+## theta
 # this is a 3D array: dim 1 = iteration, dim 2 = colony, dim 3 = x and y coordinates
 deltas = rstan::extract(stanFit, pars = "delta")$delta
 

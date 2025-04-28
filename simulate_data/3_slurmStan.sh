@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=fit_stan
-#SBATCH --output=logs/stan_%A_%a.out
-#SBATCH --error=logs/stan_%A_%a.err
+#SBATCH --output=logs/stanGQ_%A_%a.out
+#SBATCH --error=logs/stanGQ_%A_%a.err
 #SBATCH --array=1-150
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
@@ -19,4 +19,4 @@ for package in "${packages[@]}"; do
   Rscript -e "if (!require('$package')) install.packages('$package', repos='https://cloud.r-project.org/')"
 done
 
-Rscript testPopeModel.R
+Rscript 3A_testGeneratedQuantitiesModel.R
