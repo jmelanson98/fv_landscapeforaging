@@ -313,34 +313,230 @@ rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_la
 #NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
 
 # cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
-# ./colony2s.out IFN=mixtus2022.DAT
-# ./colony2s.out IFN=mixtus2023.DAT
+# ./colony2s.out IFN:impatiens2022.DAT
+# ./colony2s.out IFN:mixtusimpatiens.DAT
 
 
 
-####
-## load in results from colony
-####
-sibships2022 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus_sibships.csv", sep = ",", header = T))
-sibships2023 = as.data.frame(read.csv("/Users/jenna1/Documents/UBC/Bombus Project/Raw Data/mixtus2023siblings.csv", sep = ",", header = T))
+#####################################
+## Load in results from colony
+#####################################
 
-sib_long_filtered2022 <- sibships2022 %>% 
-  pivot_longer(
-    cols = `sib_1`:`sib_4`, 
-    names_to = "sib",
-    values_to = "barcode_id") %>%
-  filter(barcode_id != "",
-         prob_inc > 0.95)
+# read in and format 2022 data
+lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2022.BestCluster"))
+split_lines2022 <- strsplit(lines2022, "\\s+")
+bestconfig2022 <- do.call(rbind, split_lines2022)
+colnames(bestconfig2022) <- bestconfig2022[1, ]
+bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
 
-sibships2023$fullsibshipindex = sibships2023$fullsibshipindex + max(sibships2022$fullsib_index)
-sib_long_filtered2023 <- sibships2023 %>% 
-  pivot_longer(
-    cols = `sib1`:`sib5`, 
-    names_to = "sib",
-    values_to = "barcode_id") %>%
-  filter(barcode_id != "",
-         prob_inc > 0.95)
+# read in and format 2023 data
+lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2023.BestCluster"))
+split_lines2023 <- strsplit(lines2023, "\\s+")
+bestconfig2023 <- do.call(rbind, split_lines2023)
+colnames(bestconfig2023) <- bestconfig2023[1, ]
+bestconfig2023 <- as.data.frame(bestconfig2023[-1, ])
 
+# remove sibling relationships with p < 0.95
+counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
+for (i in 1:length(nrow(bestconfig2022))){
+  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
+  if (bestconfig2022$Probability[i] < 0.95){
+    bestconfig2022$ClusterIndex[i] = counter
+    counter = counter + 1
+  }
+}
+
+# repeat for 2023
+counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
+for (i in 1:length(nrow(bestconfig2023))){
+  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
+  if (bestconfig2023$Probability[i] < 0.95){
+    bestconfig2023$ClusterIndex[i] = counter
+    counter = counter + 1
+  }
+}
+
+
+
+############################################
+# Remove siblings before running genepop
+############################################
+
+# for 2022, join specimen dataframes from both years to include queens
+ctkeep = c("site", "round", "sample_pt", "sample_id", "year", "barcode_id", "active_flower", "final_id", "notes", "plate", "well")
+full = rbind(specimenData2022[,colnames(specimenData2022) %in% ctkeep],
+             specimenData2023[,colnames(specimenData2023) %in% ctkeep])
+nonsibs2022 = left_join(full, bestconfig2022, by = c("barcode_id" ="OffspringID")) %>%
+  filter(!is.na(ClusterIndex)) %>%
+  group_by(ClusterIndex) %>%
+  sample_n(1)
+
+testalleles2022 = impatiens2022_forcolony[impatiens2022_forcolony$barcode_id %in% nonsibs2022$barcode_id,]
+
+# repeat for 2023
+nonsibs2023 = left_join(specimenData2023, bestconfig2023, by = c("barcode_id" ="OffspringID")) %>%
+  filter(!is.na(ClusterIndex)) %>%
+  group_by(ClusterIndex) %>%
+  sample_n(1)
+
+testalleles2023 = impatiens2023_forcolony[impatiens2023_forcolony$barcode_id %in% nonsibs2023$barcode_id,]
+
+######################################
+# Prep alleles table for genepop
+#####################################
+
+### first for 2022! 
+#combine columns for each locus
+ms_i22 = data.table(testalleles2022)
+ms_i22[ms_i22 ==0] <- "000"
+
+
+i1 <- seq(1, length(ms_i22)-1, 2)
+i2 <- seq(2, length(ms_i22)-1, 2)
+msgenepop_i22 = ms_i22[, Map(paste,
+                         .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
+                         MoreArgs = list(sep="")), 
+                   by = "barcode_id"]
+colnames(msgenepop_i22) = c("barcode_id", "BT10", "B96", "BTMS0059", "BTMS0081",
+                        "BL13", "BTMS0062", "B126", "BTERN01","B124", "BTMS0057", 
+                        "BT30", "B10", "BTMS0083", "BTMS0073", "BT28")
+
+
+#select and join alleles
+
+#sort allele table by barcode ID
+msgenepop_i22 <- msgenepop_i22[order(msgenepop_i22$barcode_id),]
+msgenepop_i22$site = substring(msgenepop_i22$barcode_id, 1, 1)
+
+haplotypes_i22 <- as.data.frame(paste(msgenepop_i22$site, "_", msgenepop_i22$barcode_id, ","," ", 
+                                      msgenepop_i22$BT10," ", msgenepop_i22$B96, " ",
+                                      msgenepop_i22$BTMS0059," ", msgenepop_i22$BTMS0081, " ",
+                                      msgenepop_i22$BL13," ", msgenepop_i22$BTMS0062, " ",
+                                      msgenepop_i22$B126," ", msgenepop_i22$BTERN01, " ",
+                                      msgenepop_i22$B124," ", msgenepop_i22$BTMS0057," ",
+                                      msgenepop_i22$BT30," ", msgenepop_i22$B10, " ",
+                                      msgenepop_i22$BTMS0083," ", msgenepop_i22$BTMS0073," ",
+                                      msgenepop_i22$BT28,
+                                  sep = ""))
+
+#Build the Genepop format
+sink("data/genepop/ms_genepop_format_impatiens2022.txt")
+cat("Title: B. impatiens workers (2022) \n")
+cat("BT10 \n")
+cat("B96 \n")
+cat("BTMS0059 \n")
+cat("BTMS0081 \n")
+cat("BL13 \n")
+cat("BTMS0062 \n")
+cat("B126 \n")
+cat("BTERN01 \n")
+cat("B124 \n")
+cat("BTMS0057 \n")
+cat("BT30 \n")
+cat("B10 \n")
+cat("BTMS0083 \n")
+cat("BTMS0073 \n")
+cat("BT28 \n")
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+sink()
+
+
+# then again, for 2023!
+#combine columns for each locus
+ms_i23 = data.table(testalleles2023)
+ms_i23[ms_i23 ==0] <- "000"
+
+
+i1 <- seq(1, length(ms_i23)-1, 2)
+i2 <- seq(2, length(ms_i23)-1, 2)
+msgenepop_i23 = ms_i23[, Map(paste,
+                             .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
+                             MoreArgs = list(sep="")), 
+                       by = "barcode_id"]
+colnames(msgenepop_i23) = c("barcode_id", "BT10", "B96", "BTMS0059", "BTMS0081",
+                            "BL13", "BTMS0062", "B126", "BTERN01","B124", "BTMS0057", 
+                            "BT30", "B10", "BTMS0083", "BTMS0073", "BT28")
+
+
+#select and join alleles
+
+#sort allele table by barcode ID
+msgenepop_i23 <- msgenepop_i23[order(msgenepop_i23$barcode_id),]
+msgenepop_i23$site = substring(msgenepop_i23$barcode_id, 1, 1)
+
+haplotypes_i23 <- as.data.frame(paste(msgenepop_i23$site, "_", msgenepop_i23$barcode_id, ","," ", 
+                                      msgenepop_i23$BT10," ", msgenepop_i23$B96, " ",
+                                      msgenepop_i23$BTMS0059," ", msgenepop_i23$BTMS0081, " ",
+                                      msgenepop_i23$BL13," ", msgenepop_i23$BTMS0062, " ",
+                                      msgenepop_i23$B126," ", msgenepop_i23$BTERN01, " ",
+                                      msgenepop_i23$B124," ", msgenepop_i23$BTMS0057," ",
+                                      msgenepop_i23$BT30," ", msgenepop_i23$B10, " ",
+                                      msgenepop_i23$BTMS0083," ", msgenepop_i23$BTMS0073," ",
+                                      msgenepop_i23$BT28,
+                                      sep = ""))
+
+#Build the Genepop format
+sink("data/genepop/ms_genepop_format_impatiens2023.txt")
+cat("Title: B. impatiens workers (2023) \n")
+cat("BT10 \n")
+cat("B96 \n")
+cat("BTMS0059 \n")
+cat("BTMS0081 \n")
+cat("BL13 \n")
+cat("BTMS0062 \n")
+cat("B126 \n")
+cat("BTERN01 \n")
+cat("B124 \n")
+cat("BTMS0057 \n")
+cat("BT30 \n")
+cat("B10 \n")
+cat("BTMS0083 \n")
+cat("BTMS0073 \n")
+cat("BT28 \n")
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+sink()
+
+######################################
+# Run genepop on samples
+#####################################
+
+#test for HWE
+test_HW("data/genepop/ms_genepop_format_impatiens2022.txt", which="Proba", "data/genepop/impatiensHWE2022.txt.D")
+test_HW("data/genepop/ms_genepop_format_impatiens2023.txt", which="Proba", "data/genepop/impatiensHWE2023.txt.D")
+
+#test for LD
+test_LD("data/genepop/ms_genepop_format_impatiens2022.txt","data/genepop/impatiensLD2022.txt.DIS")
+test_LD("data/genepop/ms_genepop_format_impatiens2023.txt","data/genepop/impatiensLD2023.txt.DIS")
+
+
+
+
+
+# this code is not for getting sibship assignments but could be useful elsewhere
 #combine 2022 and 2023 sibs
 colnames(sib_long_filtered2023) = colnames(sib_long_filtered2022)
 sib_long_filtered2023$barcode_id = gsub("_", "", sib_long_filtered2023$barcode_id)
@@ -449,100 +645,6 @@ search_list %>%
 search_list %>%
   group_by(fullsibshipindex) %>%
   summarize(num_sibs = n()) -> sibgroups
-
-
-####
-# remove siblings 
-####
-mixtus_wsibs %>%
-  filter(!is.na(fullsibshipindex)) %>%
-  group_by(fullsibshipindex) %>%
-  sample_n(1) -> nonsibs
-
-testalleles = mixtus2023_forcolony[mixtus2023_forcolony$barcode_id %in% nonsibs$barcode_id,]
-
-####
-# prep alleles table for genepop
-####
-
-#combine columns for each locus
-ms_new = data.table(testalleles)
-ms_new[ms_new ==0] <- "000"
-
-
-i1 <- seq(1, length(ms_new)-1, 2)
-i2 <- seq(2, length(ms_new)-1, 2)
-msgenepop = ms_new[, Map(paste,
-                         .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
-                         MoreArgs = list(sep="")), 
-                   by = "barcode_id"]
-colnames(msgenepop) = c("barcode_id", "BT10", "BTMS0104", "BTMS0057", 
-                        "BTMS0086", "BTMS0066", "BTMS0062", "BTMS0136",
-                        "BTERN01", "BTMS0126", "BTMS0072", "BTMS0059", "BL15",
-                        "BL13", "BTMS0083", "B126")
-
-
-#select and join alleles
-
-#sort allele table by barcode ID
-msgenepop <- msgenepop[order(msgenepop$barcode_id),]
-msgenepop$site = substring(msgenepop$barcode_id, 1, 1)
-
-haplotypes <- as.data.frame(paste(msgenepop$site, "_", msgenepop$barcode_id, ","," ", 
-                                  msgenepop$BT10," ", msgenepop$BTMS0104, " ",
-                                  msgenepop$BTMS0057," ", msgenepop$BTMS0086, " ",
-                                  msgenepop$BTMS0066," ", msgenepop$BTMS0062, " ",
-                                  msgenepop$BTMS0136," ", msgenepop$BTERN01, " ",
-                                  msgenepop$BTMS0126," ", msgenepop$BTMS0072, " ",
-                                  msgenepop$BTMS0059," ", msgenepop$BL15, " ",
-                                  msgenepop$BL13," ", msgenepop$BTMS0083, " ",
-                                  msgenepop$B126,
-                                  sep = ""))
-
-#Build the Genepop format
-sink("ms_genepop_format.txt")
-cat("Title: B. mixtus workers (2023) \n")
-cat("BT10 \n")
-cat("BTMS0104 \n")
-cat("BTMS0057 \n")
-cat("BTMS0086 \n")
-cat("BTMS0066 \n")
-cat("BTMS0062 \n")
-cat("BTMS0136 \n")
-cat("BTERN01 \n")
-cat("BTMS0126 \n")
-cat("BTMS0072 \n")
-cat("BTMS0059 \n")
-cat("BL15 \n")
-cat("BL13 \n")
-cat("BTMS0083 \n")
-cat("B126 \n")
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes[substring(haplotypes[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-sink()
-
-
-
-###
-#run genepop on samples
-####
-
-#test for HWE
-test_HW("ms_genepop_format.txt", which='Proba', 'outputHWE.txt.D')
-
-#test for LD
-test_LD("ms_genepop_format.txt","outputLD.txt.DIS")
 
 
 
