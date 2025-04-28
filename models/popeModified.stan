@@ -9,8 +9,9 @@ int y[C, K]; // counts of bees in traps
 real lowerbound; // uniform prior on colony location 
 real upperbound; // uniform prior on colony location
 vector[K] floral; // floral quality at traps
-real<lower=0> priorVa; // prior variance on coefficients 
-real<lower=0> priorCo; // prior variance on std deviations
+real<lower=0> priorVa; // prior variance on std deviations 
+real<lower=0> priorBe; // prior variance on beta
+real<lower=0> priorCo; // prior variance on other coefficients
 }
 
 parameters { // see text for definitions
@@ -39,27 +40,19 @@ transformed parameters {
   sigma_sqrt = sqrt(sigma); 
   eps_scale = eps*sigma_sqrt; //non-centered parametrization
   zeta_scale = zeta*tau_sqrt; //non-centered parametrization
-  
-  // temporary declarations
-matrix[C,K] dis; //distance from colony C to trap K?
-matrix[C,K] lambda; //rate of captures for colony C at trap K?
-
-  // distance and lambda
-for(k in 1:K){
-  for(i in 1:C){
-    dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i,2] - trap[k,2]));
-    lambda[i, k] = -beta*dis[i, k] + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
-  } 
-}
 }
   
   
 model {
+  
+// temporary declarations
+matrix[C,K] dis; //distance from colony C to trap K?
+matrix[C,K] lambda; //rate of captures for colony C at trap K?
 
 // priors
 sigma ~ normal(0, priorVa);
 tau ~ normal(0, priorVa); 
-beta ~ normal(0, priorCo);
+beta ~ normal(0, priorBe);
 mu ~ normal(0, priorCo); 
 theta ~ normal(0, priorCo);
 
@@ -70,12 +63,13 @@ zeta ~ normal(0, 1);
 // calculate intensity
 for(k in 1:K){
   for(i in 1:C){
+    dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
+    lambda[i, k] = -beta*dis[i, k] + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
     y[i, k] ~ poisson_log(lambda[i, k]);
   } 
 }
 }
 
-// will this work? who knows!?
 generated quantities {
   vector[C] colony_dist;        // Declare estimated colony foraging distance
   real land_dist;           // Declare estimated landscape foraging distance
@@ -85,17 +79,35 @@ generated quantities {
   
   // start anonymous scope
   {
+    matrix[C,K] dis; //distance from colony C to trap K
+    matrix[C,K] lambda; //rate of captures for colony C at trap K
     vector[C] V;     // Declare local variable for total colony visitation
     real Vsum;       // Declare local variable for total landscape visitation
+    vector[C] V_inv; // Declare inverse (1/V) -- multiplication faster in loop than division
+    real Vsum_inv;   // Declare inverse (1/Vsum)
     
+    // Recompute lambda and dis, ugh
+    for(k in 1:K){
+      for(i in 1:C){
+        dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
+        lambda[i, k] = -beta*dis[i, k] + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+      } 
+    }
+    
+    // Compute V and Vsum for normalization
     for (i in 1:C){
       V[i] = sum(lambda[i,]);
     }
     Vsum = sum(V);
     
+    // Calculate V_inv and Vsum_inv outside the for-loop
+    V_inv = inv(V);
+    Vsum_inv = 1 / Vsum;
+    
+    // compute colony_dist and land_dist to be saved outside the anonymous scope
     for (k in 1:K){
-      colony_dist = colony_dist + dis[,k] .* lambda[,k] ./ V;
-      land_dist = land_dist + sum(dis[,k] .* lambda[,k] ./ Vsum);
+      colony_dist = colony_dist + dis[,k] .* lambda[,k] .* V_inv;
+      land_dist = land_dist + sum(dis[,k] .* lambda[,k] .* Vsum_inv);
     }
   }
 }
