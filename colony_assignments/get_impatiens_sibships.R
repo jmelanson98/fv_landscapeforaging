@@ -356,7 +356,9 @@ for (i in 1:length(nrow(bestconfig2023))){
   }
 }
 
-
+#write csvs to file
+write.csv(bestconfig2022, "data/siblingships/imp_sibships_preliminary_2022.csv")
+write.csv(bestconfig2023, "data/siblingships/imp_sibships_preliminary_2023.csv")
 
 ############################################
 # Remove siblings before running genepop

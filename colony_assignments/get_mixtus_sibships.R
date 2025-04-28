@@ -328,14 +328,14 @@ colnames(bestconfig2022) <- bestconfig2022[1, ]
 bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
 
 # read in and format 2023 data
-lines2023 <- readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2023.BestConfig")
+lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2023.BestCluster"))
 split_lines2023 <- strsplit(lines2023, "\\s+")
 bestconfig2023 <- do.call(rbind, split_lines2023)
 colnames(bestconfig2023) <- bestconfig2023[1, ]
-bestconfig2023 <- bestconfig2023[-1, -1]
+bestconfig2023 <- as.data.frame(bestconfig2023[-1, ])
 
 # remove sibling relationships with p < 0.95
-counter = max(bestconfig2022$ClusterIndex) + 1
+counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
 for (i in 1:length(nrow(bestconfig2022))){
   # if the probability of inclusion in the cluster is < 0.95, make a new cluster
   if (bestconfig2022$Probability[i] < 0.95){
@@ -345,7 +345,7 @@ for (i in 1:length(nrow(bestconfig2022))){
 }
 
 # repeat for 2023
-counter = max(bestconfig2023$ClusterIndex) + 1
+counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
 for (i in 1:length(nrow(bestconfig2023))){
   # if the probability of inclusion in the cluster is < 0.95, make a new cluster
   if (bestconfig2023$Probability[i] < 0.95){
@@ -355,6 +355,9 @@ for (i in 1:length(nrow(bestconfig2023))){
 }
 
 
+#write csvs to file
+write.csv(bestconfig2022, "data/siblingships/mix_sibships_preliminary_2022.csv")
+write.csv(bestconfig2023, "data/siblingships/mix_sibships_preliminary_2023.csv")
 
 ############################################
 # Remove siblings before running genepop
