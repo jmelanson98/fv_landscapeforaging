@@ -19,6 +19,6 @@ for package in "${packages[@]}"; do
   Rscript -e "if (!require('$package')) install.packages('$package', repos='https://cloud.r-project.org/')"
 done
 
-Rscript parallelizePopeSim.R
+Rscript 2_parallelizePopeSim.R
 
 
