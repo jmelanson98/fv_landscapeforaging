@@ -67,7 +67,7 @@ data$priorBe = 0.1
 # }
 
 # Fit Stan model!
-stanFitGQ_new = stan(file = "models/popeModified.stan",
+stanFitGQ = stan(file = "models/popeModified.stan",
                data = data, seed = 5838299,
                warmup = 1000, iter = 10000,
                control = list(adapt_delta = 0.999,
@@ -86,7 +86,7 @@ legends = list()
 
 for (i in 1:numplots){
   c_id = colony_data$colonyid[i]
-  delta_draws = as.data.frame(rstan::extract(stanFit, pars = "delta")$delta[, c_id,])
+  delta_draws = as.data.frame(rstan::extract(stanFitGQ, pars = "delta")$delta[, c_id,])
   colnames(delta_draws) = c("x","y")
   trap_data$trap_count = yobs[c_id, ]
   
