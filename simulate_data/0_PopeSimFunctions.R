@@ -117,8 +117,8 @@ draw_N_bees = function(sample_size, # number of bees to sample
  
   
   # optional plotting step to visualize traps and colonies
-  plot(colony_data$colony_x, colony_data$colony_y, col = "black", xlab = "Long", ylab = "Lat", main = "Colonies (black) and Traps (red)")
-  points(trap_data$trap_x, trap_data$trap_y, col = "red")
+  #plot(colony_data$colony_x, colony_data$colony_y, col = "black", xlab = "Long", ylab = "Lat", main = "Colonies (black) and Traps (red)")
+  #points(trap_data$trap_x, trap_data$trap_y, col = "red")
   
   
   ##### Create landscape-wide visitation matrix #####
