@@ -33,7 +33,7 @@ options(mc.cores = parallel::detectCores())
 source("simulate_data/0_PopeSimFunctions.R")
 
 ##### Load in data #####
-all_sim_df = readRDS("simulate_data/batch_sim1/all_sim_df.RDS")
+param_grid = readRDS("simulate_data/batch_sim1/param_grid.RDS")
 
 
 
@@ -63,17 +63,9 @@ results <- lapply(err_files, check_err_file)
 error_summary <- do.call(rbind, lapply(results, as.data.frame))
 
 # Join with all_sim_df
-all_sim_df$id = as.integer(rownames(all_sim_df))
+param_grid$id = as.integer(rownames(param_grid))
 error_summary$id = as.integer(sapply(strsplit(error_summary$file, "[_.]"), function(x) x[3]))
-error_summary = left_join(error_summary, all_sim_df, by = "id")
-error_summary$true_avg <- sapply(error_summary$true_colony_foraging, function(x) {
-  if (length(x) == 0 || all(is.na(x))) {
-    NA_real_
-  } else {
-    mean(unlist(x), na.rm = TRUE)
-  }
-})
-
+error_summary = left_join(error_summary, param_grid, by = "id")
 
 # plot results
 samplesize = ggplot(error_summary, aes(x = sample_size, colour = has_divergent)) +
@@ -81,10 +73,13 @@ samplesize = ggplot(error_summary, aes(x = sample_size, colour = has_divergent))
   theme_minimal() +
   labs(title = "Divergent Transitions x Sample Size")
 
-beta = ggplot(error_summary, aes(x = true_avg*5, colour = has_divergent)) +
+beta = ggplot(error_summary, aes(x = beta, colour = has_divergent)) +
   geom_histogram() +
   theme_minimal() +
   labs(title = "Divergent Transitions x Simulated Foraging Distance")
+
+# remove any sims that had errors
+param_grid = error_summary[error_summary$has_error == FALSE,]
 
 # currently the saved version of these figures are from initial model fits with 
 # divergent transitions -- before tightening prior on beta and decreasing step size
@@ -95,47 +90,96 @@ beta = ggplot(error_summary, aes(x = true_avg*5, colour = has_divergent)) +
 #        beta, width = 1500, height = 1000, units = "px")
 
 
-
-
-##### Plot simulated vs model-predicted landscape average foraging distance 
-# e.g., figure 4 from Pope & Jha
-all_sim_df$mean_true_foraging = sapply(all_sim_df$true_colony_foraging, mean)
-fig4 = ggplot(all_sim_df, aes(x = as.numeric(mean_true_foraging), y = as.numeric(average_foraging), color = sample_size)) +
-    geom_point() +
-    geom_abline(slope = 1, intercept = 0)
-fig4
-
-
 ##### Plot simulated vs model-predicted colony average foraging distance
 # e.g., figure 3 from Pope & Jha
 
-# make a tible with unlisted estimates
-long_df <- pmap_dfr(
-  .l = as_tibble(all_sim_df) %>% 
-  dplyr::select(landscape_id, beta, sample_size, 
-                             average_foraging, mean_true_foraging, 
-                             true_colony_foraging, colony_foraging_estimates, 
-                             colony_sizes),
-  function(landscape_id, beta, sample_size,
-                              average_foraging, mean_true_foraging, 
-                              true_colony_foraging, colony_foraging_estimates, 
-                              colony_sizes) {
-  tibble(
-    landscape_id = landscape_id,
-    beta = beta,
-    sample_size = sample_size,
-    average_foraging = average_foraging,
-    mean_true_foraging = mean_true_foraging,
-    true_colony_foraging = true_colony_foraging,
-    colony_foraging_estimates = colony_foraging_estimates,
-    colony_sizes = colony_sizes
-  )
-})
+#initate a data frame to store values for each simulation
+columns = c("samplesize", "beta", "landscape_id", "colony_size_bin", 
+            "true_colony_avg", "true_colony_sd", "model_colony_avg", "model_colony_sd")
+allsim_colonies = data.frame(matrix(nrow = 2*nrow(param_grid), ncol = length(columns))) 
+colnames(allsim_colonies) = columns
+allsim_colonies$id = rep(param_grid$id,2)
+allsim_colonies$colony_size_bin = c(rep(c("1-3"), nrow(param_grid)), rep(c("4+"), nrow(param_grid)))
 
 
-# plot
-partial_df = filter(long_df, colony_sizes <= 10)
-fig3 = ggplot(partial_df, aes(x = true_colony_foraging, y = colony_foraging_estimates, color = colony_sizes)) +
+for (sim in param_grid$id){
+  # load in results for sim
+  results_path = sprintf("simulate_data/batch_sim1/data/sim_result_%03d", sim)
+  colony_data = colony_data = readRDS(paste(results_path, "/colonydata.RDS", sep =""))
+  yobs = readRDS(paste(results_path, "/yobs.RDS", sep=""))
+  stanFit = readRDS(paste(results_path, "/stanFitGQ.RDS", sep=""))
+  
+  #extract model estimates
+  colony_data$model_estimate = summary(stanFitGQ, pars = c("colony_dist"))$summary[,1]
+  
+  #record observed colony sizes
+  colony_data$observed_size = rowSums(yobs)
+  
+  # create categorical variable for colony size
+  colony_data$size_bin = cut(colony_data$observed_size, breaks = c(0, 3, max(colony_data$observed_size)), labels = c("1-3", "4+"))
+  
+  for (bin in c("1-3", "4+")){
+    # add info to summary df
+    allsim_colonies$samplesize[allsim_colonies$id == sim] = param_grid$sample_size[param_grid$id == sim]
+    allsim_colonies$beta[allsim_colonies$id == sim] = param_grid$beta[param_grid$id == sim]
+    allsim_colonies$landscape_id[allsim_colonies$id == sim] = param_grid$landscape_id[param_grid$id == sim]
+    allsim_colonies$true_colony_avg[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = mean(colony_data$foraging_range[colony_data$size_bin == bin])
+    allsim_colonies$true_colony_sd[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = sd(colony_data$foraging_range[colony_data$size_bin == bin])
+    allsim_colonies$model_colony_avg[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = mean(colony_data$model_estimate[colony_data$size_bin == bin])
+    allsim_colonies$model_colony_sd[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = sd(colony_data$model_estimate[colony_data$size_bin == bin])
+  }
+}
+
+colonyplot = ggplot(data = allsim_colonies, 
+       aes(x = true_colony_avg, y = model_colony_avg, color = colony_size_bin)) +
   geom_point() +
-  geom_abline(slope = 1, intercept =0)
-fig3
+  geom_errorbar(aes(ymin=model_colony_avg-model_colony_sd, ymax=model_colony_avg+model_colony_sd)) +
+  geom_errorbarh(aes(xmin = true_colony_avg - true_colony_sd, xmax = true_colony_avg + true_colony_sd)) +
+  geom_abline(intercept = 0, slope =1) +
+  labs(x = "True colony foraging distance", y = "Model estimated colony foraging distance", color = "Number of workers per colony") +
+  theme_minimal()
+
+ggsave("figures/simfigs/Popefig3GQ.jpg", colonyplot, width = 4000, height = 1000, units= "px")
+
+
+# # make a tible with unlisted estimates
+# long_df <- pmap_dfr(
+#   .l = as_tibble(all_sim_df) %>% 
+#     dplyr::select(landscape_id, beta, sample_size, 
+#                   average_foraging, mean_true_foraging, 
+#                   true_colony_foraging, colony_foraging_estimates, 
+#                   colony_sizes),
+#   function(landscape_id, beta, sample_size,
+#            average_foraging, mean_true_foraging, 
+#            true_colony_foraging, colony_foraging_estimates, 
+#            colony_sizes) {
+#     tibble(
+#       landscape_id = landscape_id,
+#       beta = beta,
+#       sample_size = sample_size,
+#       average_foraging = average_foraging,
+#       mean_true_foraging = mean_true_foraging,
+#       true_colony_foraging = true_colony_foraging,
+#       colony_foraging_estimates = colony_foraging_estimates,
+#       colony_sizes = colony_sizes
+#     )
+#   })
+# 
+# 
+# # plot
+# partial_df = filter(long_df, colony_sizes <= 10)
+# fig3 = ggplot(partial_df, aes(x = true_colony_foraging, y = colony_foraging_estimates, color = colony_sizes)) +
+#   geom_point() +
+#   geom_abline(slope = 1, intercept =0)
+# fig3
+# 
+# 
+# ##### Plot simulated vs model-predicted landscape average foraging distance 
+# # e.g., figure 4 from Pope & Jha
+# all_sim_df$mean_true_foraging = sapply(all_sim_df$true_colony_foraging, mean)
+# fig4 = ggplot(all_sim_df, aes(x = as.numeric(mean_true_foraging), y = as.numeric(average_foraging), color = sample_size)) +
+#     geom_point() +
+#     geom_abline(slope = 1, intercept = 0)
+# fig4
+# 
+# 
