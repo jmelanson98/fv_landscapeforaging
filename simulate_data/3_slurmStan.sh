@@ -13,6 +13,11 @@ module load StdEnv/2023 gcc r/4.3.1 gdal proj
 # List of required packages
 packages=("matrixStats" "sp" "gstat" "ggplot2" "reshape2" "raster" "rasterVis" "parallel" "future" "furrr" "dplyr" "tidyr" "gridExtra")
 
+# Define your personal R library path
+export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.3
+
+# Create the personal R library directory if it doesn't exist
+mkdir -p "$R_LIBS_USER"
 
 # Loop through the list of packages and install them if missing
 for package in "${packages[@]}"; do
