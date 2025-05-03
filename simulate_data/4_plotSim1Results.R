@@ -24,8 +24,8 @@ library(tidyr)
 library(gridExtra)
 
 ##### Set Environment #####
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
-#setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
+#setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
+setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
 
@@ -33,7 +33,7 @@ options(mc.cores = parallel::detectCores())
 source("simulate_data/0_PopeSimFunctions.R")
 
 ##### Load in data #####
-param_grid = readRDS("simulate_data/batch_sim1/param_grid.RDS")
+param_grid = readRDS("simulate_data/batch_sim1/param_grid.rds")
 
 
 
@@ -101,7 +101,6 @@ colnames(allsim_colonies) = columns
 allsim_colonies$id = rep(param_grid$id,2)
 allsim_colonies$colony_size_bin = c(rep(c("1-3"), nrow(param_grid)), rep(c("4+"), nrow(param_grid)))
 
-
 for (sim in param_grid$id){
   # load in results for sim
   results_path = sprintf("simulate_data/batch_sim1/data/sim_result_%03d", sim)
@@ -109,15 +108,24 @@ for (sim in param_grid$id){
   yobs = readRDS(paste(results_path, "/yobs.RDS", sep=""))
   stanFit = readRDS(paste(results_path, "/stanFitGQ.RDS", sep=""))
   
+  # remove zero colonies
+  print(class(yobs))
+  print(dim(yobs))
+  colony_data = colony_data[rowSums(yobs)>0,]
+  yobs = yobs[rowSums(yobs) >0,]
+
   #extract model estimates
-  colony_data$model_estimate = summary(stanFitGQ, pars = c("colony_dist"))$summary[,1]
+  colony_data$model_estimate = summary(stanFit, pars = c("colony_dist"))$summary[,1]
   
   #record observed colony sizes
   colony_data$observed_size = rowSums(yobs)
   
   # create categorical variable for colony size
-  colony_data$size_bin = cut(colony_data$observed_size, breaks = c(0, 3, max(colony_data$observed_size)), labels = c("1-3", "4+"))
-  
+ if(max(colony_data$observed_size > 3)){
+ colony_data$size_bin = cut(colony_data$observed_size, breaks = c(0, 3, max(colony_data$observed_size)), labels = c("1-3", "4+"))
+  } else {
+  colony_data$size_bin = rep(c("1-3"), nrow(colony_data))
+  }
   for (bin in c("1-3", "4+")){
     # add info to summary df
     allsim_colonies$samplesize[allsim_colonies$id == sim] = param_grid$sample_size[param_grid$id == sim]
@@ -127,8 +135,7 @@ for (sim in param_grid$id){
     allsim_colonies$true_colony_sd[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = sd(colony_data$foraging_range[colony_data$size_bin == bin])
     allsim_colonies$model_colony_avg[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = mean(colony_data$model_estimate[colony_data$size_bin == bin])
     allsim_colonies$model_colony_sd[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = sd(colony_data$model_estimate[colony_data$size_bin == bin])
-  }
-}
+  }}
 
 colonyplot = ggplot(data = allsim_colonies, 
        aes(x = true_colony_avg, y = model_colony_avg, color = colony_size_bin)) +
