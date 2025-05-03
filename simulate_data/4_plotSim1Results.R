@@ -135,6 +135,7 @@ for (sim in param_grid$id){
     allsim_colonies$true_colony_sd[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = sd(colony_data$foraging_range[colony_data$size_bin == bin])
     allsim_colonies$model_colony_avg[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = mean(colony_data$model_estimate[colony_data$size_bin == bin])
     allsim_colonies$model_colony_sd[allsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin] = sd(colony_data$model_estimate[colony_data$size_bin == bin])
+    allsim_colonies$landscape_meanallsim_colonies$id == sim & allsim_colonies$colony_size_bin == bin = summary(stanFit, pars = c("land_dist"))$summary[,1]
   }}
 
 colonyplot = ggplot(data = allsim_colonies, 
@@ -147,7 +148,7 @@ colonyplot = ggplot(data = allsim_colonies,
   theme_minimal()
 
 ggsave("figures/simfigs/Popefig3GQ.jpg", colonyplot, width = 4000, height = 1000, units= "px")
-
+write.csv(allsim_colonies, "simulate_data/batch_sim1/forplotting.csv")
 
 # # make a tible with unlisted estimates
 # long_df <- pmap_dfr(
