@@ -326,6 +326,7 @@ split_lines2022 <- strsplit(lines2022, "\\s+")
 bestconfig2022 <- do.call(rbind, split_lines2022)
 colnames(bestconfig2022) <- bestconfig2022[1, ]
 bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
+bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
 
 # read in and format 2023 data
 lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2023.BestCluster"))
@@ -333,10 +334,11 @@ split_lines2023 <- strsplit(lines2023, "\\s+")
 bestconfig2023 <- do.call(rbind, split_lines2023)
 colnames(bestconfig2023) <- bestconfig2023[1, ]
 bestconfig2023 <- as.data.frame(bestconfig2023[-1, ])
+bestconfig2023$Probability = as.numeric(bestconfig2023$Probability)
 
 # remove sibling relationships with p < 0.95
 counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
-for (i in 1:length(nrow(bestconfig2022))){
+for (i in 1:nrow(bestconfig2022)){
   # if the probability of inclusion in the cluster is < 0.95, make a new cluster
   if (bestconfig2022$Probability[i] < 0.95){
     bestconfig2022$ClusterIndex[i] = counter
@@ -346,7 +348,7 @@ for (i in 1:length(nrow(bestconfig2022))){
 
 # repeat for 2023
 counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
-for (i in 1:length(nrow(bestconfig2023))){
+for (i in 1:nrow(bestconfig2023)){
   # if the probability of inclusion in the cluster is < 0.95, make a new cluster
   if (bestconfig2023$Probability[i] < 0.95){
     bestconfig2023$ClusterIndex[i] = counter
