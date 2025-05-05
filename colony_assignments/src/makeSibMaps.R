@@ -1,16 +1,17 @@
 makeSibMaps <- function(sibswcoords){
   
   # Load raster files
-  westham_basemap <- raster("/Users/jenna1/Documents/UBC/Bombus Project/FVBombus_code/landscape/zipped-clipped-rasters/westham_masked.tif")
-  sd_basemap <- raster("/Users/jenna1/Documents/UBC/Bombus Project/FVBombus_code/landscape/zipped-clipped-rasters/sd_masked.tif")
-  ed_basemap <- raster("/Users/jenna1/Documents/UBC/Bombus Project/FVBombus_code/landscape/zipped-clipped-rasters/ed_masked.tif")
-  nr_basemap <- raster("/Users/jenna1/Documents/UBC/Bombus Project/FVBombus_code/landscape/zipped-clipped-rasters/nr_masked.tif")
-  hr_basemap <- raster("/Users/jenna1/Documents/UBC/Bombus Project/FVBombus_code/landscape/zipped-clipped-rasters/hr_masked.tif")
-  pm_basemap <- raster("/Users/jenna1/Documents/UBC/Bombus Project/FVBombus_code/landscape/zipped-clipped-rasters/pm_masked.tif")
+  raster_path = "/Users/jenna1/Documents/UBC/bombus_project/landscape/rasters/zipped clipped rasters"
+  westham_basemap <- raster(paste(raster_path, "/westham_masked.tif", sep = ""))
+  sd_basemap <- raster(paste(raster_path, "/sd_masked.tif", sep = ""))
+  ed_basemap <- raster(paste(raster_path, "/ed_masked.tif", sep = ""))
+  nr_basemap <- raster(paste(raster_path, "/nr_masked.tif", sep = ""))
+  hr_basemap <- raster(paste(raster_path, "/hr_masked.tif", sep = ""))
+  pm_basemap <- raster(paste(raster_path, "/pm_masked.tif", sep = ""))
   
   
   #jitter sibs w coords
-  sibswcoords = sibswcoords %>% group_by(fullsib_index) %>% filter(n() > 1) %>% ungroup()
+  sibswcoords = sibswcoords %>% group_by(ClusterIndex) %>% filter(n() > 1) %>% ungroup()
   points_jittered <- sibswcoords %>%
     mutate(
       lat = as.numeric(lat) + runif(nrow(sibswcoords), -0.0005, 0.0005),
@@ -50,9 +51,9 @@ makeSibMaps <- function(sibswcoords){
     # Add raster
     geom_tile(data = as.data.frame(westham_downsampled, xy = TRUE), aes(x = x, y = y, fill = westham_masked)) +
     scale_fill_gradient(low = "lightgrey", high = "darkgrey", na.value = "white") +
-    geom_sf(data = westham_sf, aes(color = fullsib_index)) +
+    geom_sf(data = westham_sf, aes(color = ClusterIndex)) +
     scale_color_viridis(option = "C") +
-    geom_path(data = westham_df, aes(x = long, y = lat, group = fullsib_index, color = fullsib_index)) +
+    geom_path(data = westham_df, aes(x = long, y = lat, group = ClusterIndex, color = ClusterIndex)) +
     theme_minimal() +
     labs(x = "Longitude", y = "Latitude", title = "Westham Island") +
     theme(legend.position = "none",
@@ -71,9 +72,9 @@ makeSibMaps <- function(sibswcoords){
     # Add raster
     geom_tile(data = as.data.frame(sd_downsampled, xy = TRUE), aes(x = x, y = y, fill = sd_masked)) +
     scale_fill_gradient(low = "lightgrey", high = "darkgrey", na.value = "white") +
-    geom_sf(data = sd_sf, aes(color = fullsib_index)) +
+    geom_sf(data = sd_sf, aes(color = ClusterIndex)) +
     scale_color_viridis(option = "C") +
-    geom_path(data = sd_df, aes(x = long, y = lat, group = fullsib_index, color = fullsib_index)) +
+    geom_path(data = sd_df, aes(x = long, y = lat, group = ClusterIndex, color = ClusterIndex)) +
     theme_minimal() +
     labs(x = "Longitude", y = "Latitude", title = "South Delta") +
     theme(legend.position = "none",
@@ -93,9 +94,9 @@ makeSibMaps <- function(sibswcoords){
     # Add raster
     geom_tile(data = as.data.frame(ed_downsampled, xy = TRUE), aes(x = x, y = y, fill = ed_masked)) +
     scale_fill_gradient(low = "lightgrey", high = "darkgrey", na.value = "white") +
-    geom_sf(data = ed_sf, aes(color = fullsib_index)) +
+    geom_sf(data = ed_sf, aes(color = ClusterIndex)) +
     scale_color_viridis(option = "C") +
-    geom_path(data = ed_df, aes(x = long, y = lat, group = fullsib_index, color = fullsib_index)) +
+    geom_path(data = ed_df, aes(x = long, y = lat, group = ClusterIndex, color = ClusterIndex)) +
     theme_minimal() +
     labs(x = "Longitude", y = "Latitude", title = "East Delta") +
     theme(legend.position = "none",
@@ -115,9 +116,9 @@ makeSibMaps <- function(sibswcoords){
     # Add raster
     geom_tile(data = as.data.frame(nr_downsampled, xy = TRUE), aes(x = x, y = y, fill = nr_masked)) +
     scale_fill_gradient(low = "lightgrey", high = "darkgrey", na.value = "white") +
-    geom_sf(data = nr_sf, aes(color = fullsib_index)) +
+    geom_sf(data = nr_sf, aes(color = ClusterIndex)) +
     scale_color_viridis(option = "C") +
-    geom_path(data = nr_df, aes(x = long, y = lat, group = fullsib_index, color = fullsib_index)) +
+    geom_path(data = nr_df, aes(x = long, y = lat, group = ClusterIndex, color = ClusterIndex)) +
     theme_minimal() +
     labs(x = "Longitude", y = "Latitude", title = "Nicomekl River") +
     theme(legend.position = "none",
@@ -137,9 +138,9 @@ makeSibMaps <- function(sibswcoords){
     # Add raster
     geom_tile(data = as.data.frame(hr_downsampled, xy = TRUE), aes(x = x, y = y, fill = hr_masked)) +
     scale_fill_gradient(low = "lightgrey", high = "darkgrey", na.value = "white") +
-    geom_sf(data = hr_sf, aes(color = fullsib_index)) +
+    geom_sf(data = hr_sf, aes(color = ClusterIndex)) +
     scale_color_viridis(option = "C") +
-    geom_path(data = hr_df, aes(x = long, y = lat, group = fullsib_index, color = fullsib_index)) +
+    geom_path(data = hr_df, aes(x = long, y = lat, group = ClusterIndex, color = ClusterIndex)) +
     theme_minimal() +
     labs(x = "Longitude", y = "Latitude", title = "Harvie Road") +
     theme(legend.position = "none",
@@ -159,9 +160,9 @@ makeSibMaps <- function(sibswcoords){
     # Add raster
     geom_tile(data = as.data.frame(pm_downsampled, xy = TRUE), aes(x = x, y = y, fill = pm_masked)) +
     scale_fill_gradient(low = "lightgrey", high = "darkgrey", na.value = "white") +
-    geom_sf(data = pm_sf, aes(color = fullsib_index)) +
+    geom_sf(data = pm_sf, aes(color = ClusterIndex)) +
     scale_color_viridis(option = "C") +
-    geom_path(data = pm_df, aes(x = long, y = lat, group = fullsib_index, color = fullsib_index)) +
+    geom_path(data = pm_df, aes(x = long, y = lat, group = ClusterIndex, color = ClusterIndex)) +
     theme_minimal() +
     labs(x = "Longitude", y = "Latitude", title = "Pitt Meadows") +
     theme(legend.position = "none",
