@@ -193,19 +193,19 @@ makeSibMaps <- function(sibswcoords){
   b = ggplotGrob(blank_plot)
   
   #make grid plot of maps
-  plot_grid(
+  grid = plot_grid(
     g1, g2, g3,
     b, b, b,
     g5, g4, g6,
     ncol = 3,
     nrow = 3,
-    rel_heights = c(1, 0.1, 1),
+    rel_heights = c(1, 0.05, 1),
     rel_widths = c(1, 1, 1),
     align = "hv",
     axis = "tb"
   )
   
-  
+  return(grid)
   #final_plot <- ggdraw() +
   #  draw_plot(interactiongrid, 0.015, 0, 1, 1) +
   #  draw_plot_label(c("a", "b", "c"), 

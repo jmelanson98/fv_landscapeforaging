@@ -22,6 +22,8 @@ library(genepop)
 library(data.table)
 library(cowplot)
 library(raster)
+library(sf)
+library(ggplot2)
 
 
 ###########################
@@ -44,7 +46,7 @@ imp2023 = read.csv("data/siblingships/imp_sibships_preliminary_2023.csv")
 
 ######################
 ### Make sib maps
-#####################
+######################
 
 # merge 2022 + 2023 specimens
 allspecs = rbind(specimenData2022[, colnames(specimenData2022) %in% c("site", "round", "sample_pt", "sample_id", "year", "barcode_id", "active_flower", "final_id", "notes", "pollen")],
@@ -78,8 +80,24 @@ mix = genotypedspecs %>% filter(final_id == "B. mixtus")
 imp = genotypedspecs %>% filter(final_id == "B. impatiens")
 
 #make plot grids for both
+nonsingletonmix = mix %>% 
+  group_by(ClusterIndex) %>%
+  filter(n() > 1)
+length(unique(nonsingletonmix$ClusterIndex))
 mixgrids = makeSibMaps(mix)
-length(unique(sibs22$fullsib_index))
 
-grids2023 = makeSibMaps(sibs23)
-length(unique(sibs23$fullsib_index))
+nonsingletonimp = imp %>% 
+  group_by(ClusterIndex) %>%
+  filter(n() > 1)
+length(unique(nonsingletonimp$ClusterIndex))
+summary = imp %>%
+  group_by(ClusterIndex) %>%
+  summarize(n = n())
+ggplot(summary, aes(x = n))+
+  geom_histogram()
+impgrids = makeSibMaps(imp)
+
+
+##########################################################
+### Calculate average pairwise distance between siblings
+##########################################################
