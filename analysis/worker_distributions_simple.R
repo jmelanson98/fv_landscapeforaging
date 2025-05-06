@@ -24,6 +24,9 @@ library(cowplot)
 library(raster)
 library(sf)
 library(ggplot2)
+library(viridis)
+library(ggspatial)
+library(geodist)
 
 
 ###########################
@@ -64,7 +67,7 @@ allspecs = left_join(allspecs, samplePoints, by = "sample_pt")
 
 # make unique cluster IDs
 mix2023$ClusterIndex = mix2023$ClusterIndex + max(mix2022$ClusterIndex)
-imp2023$ClusterIndex = imp2023$ClusterIndex + max(mix2022$ClusterIndex)
+imp2023$ClusterIndex = imp2023$ClusterIndex + max(imp2022$ClusterIndex)
 
 # join cluster IDs to specimen dataframe
 tokeep = c("ClusterIndex", "OffspringID")
@@ -85,6 +88,8 @@ nonsingletonmix = mix %>%
   filter(n() > 1)
 length(unique(nonsingletonmix$ClusterIndex))
 mixgrids = makeSibMaps(mix)
+ggsave("figures/manuscript_figures/mixtusmap_bothyears.jpg", mixgrids,
+       width = 4000, height = 2500, units = "px")
 
 nonsingletonimp = imp %>% 
   group_by(ClusterIndex) %>%
@@ -96,8 +101,33 @@ summary = imp %>%
 ggplot(summary, aes(x = n))+
   geom_histogram()
 impgrids = makeSibMaps(imp)
-
+ggsave("figures/manuscript_figures/impatiensmap_bothyears.jpg", impgrids,
+       width = 4000, height = 2500, units = "px")
 
 ##########################################################
 ### Calculate average pairwise distance between siblings
 ##########################################################
+
+# initiate vector to save pairwise distance values
+mix_pairwise = c()
+imp_pairwise = c()
+
+# loop through sib pairs (or triplets, or quadruplets...) and record distances
+for(sibship in nonsingletonmix$ClusterIndex){
+  sibs = nonsingletonmix[nonsingletonmix$ClusterIndex == sibship,colnames(nonsingletonmix) %in% c("barcode_id", "lat", "long")]
+  sibs = st_as_sf(sibs, coords = c("long", "lat"), crs = 4326)
+  centroid = st_centroid(sibs)
+  distmat <- st_distance(sibs, centroid)
+  pairwise_dists = as.numeric(distmat[lower.tri(distmat)])
+  mix_pairwise = c(mix_pairwise, pairwise_dists)
+}
+
+
+for(sibship in nonsingletonimp$ClusterIndex){
+  sibs = nonsingletonimp[nonsingletonimp$ClusterIndex == sibship,colnames(nonsingletonimp) %in% c("barcode_id", "lat", "long")]
+  sibs = st_as_sf(sibs, coords = c("long", "lat"), crs = 4326)
+  centroid = st_centroid(sibs)
+  distmat <- st_distance(sibs, centroid)
+  pairwise_dists = as.numeric(distmat[lower.tri(distmat)])
+  imp_pairwise = c(imp_pairwise, pairwise_dists)
+}
