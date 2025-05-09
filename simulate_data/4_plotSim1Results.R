@@ -22,6 +22,8 @@ library(furrr)
 library(dplyr)
 library(tidyr)
 library(gridExtra)
+library(tibble)
+library(ggpubr)
 
 ##### Set Environment #####
 setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
@@ -208,6 +210,8 @@ ggsave("figures/simfigs/Popefig3GQ.jpg", grid, width = 2000, height = 3000, unit
 
 
 # Plot distributions of number of siblings for real and simulated data
+
+# prep real data
 allspecs = read.csv("data/siblingships/allsibships_cleaned.csv")
 mixsum = allspecs %>% filter(final_id == "B. mixtus") %>%
   filter(!is.na(ClusterIndex)) %>%
@@ -235,3 +239,123 @@ imp = ggplot(impsum, aes(x = n)) +
 numberofsibs = grid.arrange(mix, imp, ncol = 2)
 ggsave("figures/manuscript_figures/numberofsibs.jpg", numberofsibs,
        width = 2000, height = 500, units = "px")
+
+mix_df = data.frame(dataset_id = rep("mix", length(mixsum$n)),
+                    value = mixsum$n,
+                    type = rep("real", length(mixsum$n)),
+                    beta = rep(NA, length(mixsum$n)),
+                    samplesize = rep(NA, length(mixsum$n)))
+
+imp_df = data.frame(dataset_id = rep("imp", length(impsum$n)),
+                    value = impsum$n,
+                    type = rep("real", length(impsum$n)),
+                    beta = rep(NA, length(impsum$n)),
+                    samplesize = rep(NA, length(impsum$n)))
+
+real_df = rbind(mix_df, imp_df)
+
+# prep simulated data
+columns = c("dataset_id", "value", "type", "beta", "samplesize") 
+sim_df = data.frame(matrix(nrow = 0, ncol = length(columns))) 
+colnames(sim_df) = columns
+
+#reload full paramgrid
+param_grid = readRDS("simulate_data/batch_sim1/param_grid.rds")
+
+for (sim in rownames(param_grid)){
+  sim = as.numeric(sim)
+  results_path = sprintf("simulate_data/batch_sim1/data/sim_result_%03d", sim)
+  yobs = readRDS(paste(results_path, "/yobs.RDS", sep=""))
+  
+  counts = rowSums(yobs)
+  temp_df = data.frame(rep(sim, length(counts)),
+                       counts,
+                       rep("sim", length(counts)),
+                       rep(param_grid$beta[sim], length(counts)),
+                       rep(param_grid$sample_size[sim], length(counts))
+                       )
+  colnames(temp_df) = columns
+  sim_df = rbind(sim_df, temp_df)
+}
+
+sim_df = sim_df %>% filter(value > 0)
+all_df <- rbind(sim_df, real_df)
+
+
+
+# bin the data for plotting
+breaks <- seq(0.5, max(all_df$value)+0.5, by = 1)
+
+all_df <- all_df %>%
+  mutate(bin = cut(value, breaks = breaks, include.lowest = TRUE, right = FALSE),
+         bin_mid = as.numeric(sub("\\[([0-9]+(?:\\.[0-9]+)?),.*", "\\1", bin)) + 0.5)
+
+
+# loop over each of 15 conditions (beta and sample size)
+plotlist = list()
+legend = NULL
+count = 1
+
+for (beta in unique(param_grid$beta)){
+  for (sample_size in unique(param_grid$sample_size)){
+    # calculate proportion in each bin
+    binned_props <- all_df %>%
+      filter(type == "real" | (beta == beta & samplesize == sample_size)) %>%
+      group_by(dataset_id, type, bin_mid) %>%
+      summarize(n = n(), .groups = "drop") %>%
+      group_by(dataset_id) %>%
+      mutate(prop = n / sum(n)) %>%
+      ungroup()
+    
+    # create confidence interval for simulated data (proportion in each bin based on multiple sims)
+    sim_summary <- binned_props %>%
+      filter(type == "sim") %>%
+      group_by(bin_mid) %>%
+      summarize(
+        ymin = quantile(prop, 0.10),
+        ymax = quantile(prop, 0.90),
+        ymed = median(prop),
+        .groups = "drop"
+      )
+    
+    plot = ggplot() +
+      # Simulated confidence intervals
+      geom_rect(
+        data = sim_summary,
+        aes(xmin = bin_mid - 0.5, xmax = bin_mid + 0.5, ymin = ymin, ymax = ymax),
+        fill = "darkred",
+        alpha = 0.3
+      ) +
+      
+      # simulated median
+      geom_segment(
+        data = sim_summary,
+        aes(x = bin_mid - 0.5, xend = bin_mid + 0.5, y = ymed, yend = ymed),
+        color = "darkred",
+        linewidth = 1
+      ) +
+      
+      # real data lollipop-histogram
+      geom_segment(
+        data = binned_props %>% filter(type == "real"),
+        aes(x = bin_mid - 0.5, xend = bin_mid + 0.5,
+            y = prop, yend = prop, color = dataset_id),
+        linewidth = 1.2
+      ) +
+      
+      labs(x = "Number of Siblings", y = "Proportion",
+           title = paste("Beta = ", round(beta, 3), ", Sample Size = ", sample_size, sep = "")) +
+      scale_color_brewer(palette = "Paired") +
+      theme_minimal()
+    
+    legend = as_ggplot(get_legend(plot))
+    plot = plot + theme(legend.position = "none")
+    plotlist[[count]] = plot
+    count = count + 1
+  }
+}
+
+grid = grid.arrange(grobs = plotlist, ncol = 3)
+sibdistributions = grid.arrange(grid, legend, ncol = 2, widths = c(10,1))
+ggsave("figures/simfigs/sibship_size_distributions.jpg", sibdistributions,
+       height = 4000, width = 4000, units = "px")
