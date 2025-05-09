@@ -205,3 +205,33 @@ fig3250 = ggplot(as.data.frame(allsim_summary[allsim_summary$samplesize == 250,]
 
 grid = grid.arrange(fig31000, fig3500, fig3250, ncol = 1)
 ggsave("figures/simfigs/Popefig3GQ.jpg", grid, width = 2000, height = 3000, units = 'px')
+
+
+# Plot distributions of number of siblings for real and simulated data
+allspecs = read.csv("data/siblingships/allsibships_cleaned.csv")
+mixsum = allspecs %>% filter(final_id == "B. mixtus") %>%
+  filter(!is.na(ClusterIndex)) %>%
+  group_by(ClusterIndex) %>%
+  summarize(n = n())
+impsum = allspecs %>% filter(final_id == "B. impatiens") %>%
+  filter(!is.na(ClusterIndex)) %>%
+  group_by(ClusterIndex) %>%
+  summarize(n = n())
+
+mix = ggplot(mixsum, aes(x = n)) +
+  geom_histogram() +
+  labs(x = "Number of siblings",
+       y = "Frequency",
+       title = "B. mixtus") +
+  theme_minimal()
+
+imp = ggplot(impsum, aes(x = n)) +
+  geom_histogram() +
+  labs(x = "Number of siblings",
+       y = "Frequency",
+       title = "B. impatiens") +
+  theme_minimal()
+
+numberofsibs = grid.arrange(mix, imp, ncol = 2)
+ggsave("figures/manuscript_figures/numberofsibs.jpg", numberofsibs,
+       width = 2000, height = 500, units = "px")
