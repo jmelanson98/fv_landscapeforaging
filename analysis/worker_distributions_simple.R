@@ -109,25 +109,33 @@ ggsave("figures/manuscript_figures/impatiensmap_bothyears.jpg", impgrids,
 ##########################################################
 
 # initiate vector to save pairwise distance values
-mix_pairwise = c()
-imp_pairwise = c()
+mix_centroid = c()
+imp_centroid = c()
 
 # loop through sib pairs (or triplets, or quadruplets...) and record distances
-for(sibship in nonsingletonmix$ClusterIndex){
+for(sibship in unique(nonsingletonmix$ClusterIndex)){
   sibs = nonsingletonmix[nonsingletonmix$ClusterIndex == sibship,colnames(nonsingletonmix) %in% c("barcode_id", "lat", "long")]
   sibs = st_as_sf(sibs, coords = c("long", "lat"), crs = 4326)
-  centroid = st_centroid(sibs)
-  distmat <- st_distance(sibs, centroid)
-  pairwise_dists = as.numeric(distmat[lower.tri(distmat)])
-  mix_pairwise = c(mix_pairwise, pairwise_dists)
+  centroid = st_centroid(st_union(sibs))
+  dists <- as.numeric(st_distance(sibs, centroid))
+  mix_centroid = c(mix_centroid, dists)
 }
 
+ggplot(as.data.frame(mix_centroid), aes(x = mix_centroid)) +
+  geom_histogram() +
+  labs(title = "B. mixtus", y = "count", x = "distance from sibship centroid (m)") +
+  theme_minimal()
 
-for(sibship in nonsingletonimp$ClusterIndex){
+
+for(sibship in unique(nonsingletonimp$ClusterIndex)){
   sibs = nonsingletonimp[nonsingletonimp$ClusterIndex == sibship,colnames(nonsingletonimp) %in% c("barcode_id", "lat", "long")]
   sibs = st_as_sf(sibs, coords = c("long", "lat"), crs = 4326)
-  centroid = st_centroid(sibs)
-  distmat <- st_distance(sibs, centroid)
-  pairwise_dists = as.numeric(distmat[lower.tri(distmat)])
-  imp_pairwise = c(imp_pairwise, pairwise_dists)
+  centroid = st_centroid(st_union(sibs))
+  dists <- as.numeric(st_distance(sibs, centroid))
+  imp_centroid = c(imp_centroid, dists)
 }
+
+ggplot(as.data.frame(imp_centroid), aes(x = imp_centroid)) +
+  geom_histogram() +
+  labs(title = "B. impatiens", y = "count", x = "distance from sibship centroid (m)") +
+  theme_minimal()
