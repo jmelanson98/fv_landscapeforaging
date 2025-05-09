@@ -24,7 +24,7 @@ library(tidyr)
 library(gridExtra)
 
 ##### Set Environment #####
-#setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
+setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
@@ -34,9 +34,6 @@ source("simulate_data/0_PopeSimFunctions.R")
 
 ##### Load in data #####
 param_grid = readRDS("simulate_data/batch_sim1/param_grid.rds")
-
-
-
 
 ##### Check for errors in stan fit
 # list all .err files
@@ -62,7 +59,7 @@ results <- lapply(err_files, check_err_file)
 # Convert to a data frame
 error_summary <- do.call(rbind, lapply(results, as.data.frame))
 
-# Join with all_sim_df
+# Join with param grid
 param_grid$id = as.integer(rownames(param_grid))
 error_summary$id = as.integer(sapply(strsplit(error_summary$file, "[_.]"), function(x) x[3]))
 error_summary = left_join(error_summary, param_grid, by = "id")
@@ -157,3 +154,54 @@ colonyplot = ggplot(data = allsim_colonies,
 
 ggsave("figures/simfigs/Popefig3GQ.jpg", colonyplot, width = 4000, height = 1000, units= "px")
 write.csv(allsim_colonies, "simulate_data/batch_sim1/forplotting.csv")
+
+
+##### Plot figure 3 from Pope & Jha
+allsim_colonies = read.csv("simulate_data/batch_sim1/forplotting.csv")
+
+allsim_summary = allsim_colonies %>% group_by(samplesize, beta, colony_size_bin) %>%
+  summarize(true_avg = mean(true_colony_avg, na.rm = TRUE),
+            true_sd = sqrt(sum(true_colony_sd^2, na.rm = TRUE)),
+            model_avg = mean(model_colony_avg, na.rm = TRUE),
+            model_sd = sqrt(sum(model_colony_sd^2, na.rm = TRUE))
+            ) %>%
+  ungroup()
+
+fig31000 = ggplot(as.data.frame(allsim_summary[allsim_summary$samplesize == 1000,]), 
+              aes(x = true_avg, y = model_avg,
+                        color = colony_size_bin)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = model_avg - 2*model_sd, ymax = model_avg + 2*model_sd)) +
+  geom_abline(slope = 1, intercept = 0) +
+  labs(x = "True Foraging Distance",
+       y = "Modelled Foraging Distance",
+       color = "Number of Siblings",
+       title = "sample size = 1000 individuals") +
+  theme_minimal()
+
+fig3500 = ggplot(as.data.frame(allsim_summary[allsim_summary$samplesize == 500,]), 
+                  aes(x = true_avg, y = model_avg,
+                      color = colony_size_bin)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = model_avg - 2*model_sd, ymax = model_avg + 2*model_sd)) +
+  geom_abline(slope = 1, intercept = 0) +
+  labs(x = "True Foraging Distance",
+       y = "Modelled Foraging Distance",
+       color = "Number of Siblings",
+       title = "sample size = 500 individuals") +
+  theme_minimal()
+
+fig3250 = ggplot(as.data.frame(allsim_summary[allsim_summary$samplesize == 250,]), 
+                 aes(x = true_avg, y = model_avg,
+                     color = colony_size_bin)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = model_avg - 2*model_sd, ymax = model_avg + 2*model_sd)) +
+  geom_abline(slope = 1, intercept = 0) +
+  labs(x = "True Foraging Distance",
+       y = "Modelled Foraging Distance",
+       color = "Number of Siblings",
+       title = "sample size = 250 individuals") +
+  theme_minimal()
+
+grid = grid.arrange(fig31000, fig3500, fig3250, ncol = 1)
+ggsave("figures/simfigs/Popefig3GQ.jpg", grid, width = 2000, height = 3000, units = 'px')
