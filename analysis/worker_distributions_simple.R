@@ -139,3 +139,5 @@ ggplot(as.data.frame(imp_centroid), aes(x = imp_centroid)) +
   geom_histogram() +
   labs(title = "B. impatiens", y = "count", x = "distance from sibship centroid (m)") +
   theme_minimal()
+
+write.csv(allspecs, "data/siblingships/allsibships_cleaned.csv")
