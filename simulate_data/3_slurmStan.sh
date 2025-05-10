@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=fit_stan
-#SBATCH --output=logs/stanGQ_%A_%a.out
-#SBATCH --error=logs/stanGQ_%A_%a.err
-#SBATCH --array=1-150
+#SBATCH --output=logs/stanEQ_%A_%a.out
+#SBATCH --error=logs/stanEQ_%A_%a.err
+#SBATCH --array=1-120
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=8G
-#SBATCH --time=24:00:00
+#SBATCH --time=12:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
@@ -24,4 +24,4 @@ for package in "${packages[@]}"; do
   Rscript -e "if (!require('$package')) install.packages('$package', repos='https://cloud.r-project.org/')"
 done
 
-Rscript 3A_testGeneratedQuantitiesModel.R
+Rscript 6_testEQModel.R
