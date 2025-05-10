@@ -38,7 +38,7 @@ param_grid = readRDS(paste(sim_path, "param_grid.rds", sep = ""))
 ##### Check for errors in stan fit
 # list all .err files
 err_dir <- "simulate_data/logs"
-err_files <- list.files(err_dir, pattern = "\\.err$", full.names = TRUE)
+err_files <- list.files(err_dir, pattern = "^stan.*\\.err$", full.names = TRUE)
 
 # Function to check each file
 check_err_file <- function(file) {
@@ -65,10 +65,10 @@ error_summary$id = as.integer(sapply(strsplit(error_summary$file, "[_.]"), funct
 error_summary = left_join(error_summary, param_grid, by = "id")
 
 # plot results
-samplesize = ggplot(error_summary, aes(x = sample_size, colour = has_divergent)) +
+colonydensity = ggplot(error_summary, aes(x = colony_density, colour = has_divergent)) +
   geom_histogram() +
   theme_minimal() +
-  labs(title = "Divergent Transitions x Sample Size")
+  labs(title = "Divergent Transitions x Colony Density")
 
 beta = ggplot(error_summary, aes(x = beta, colour = has_divergent)) +
   geom_histogram() +
