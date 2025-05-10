@@ -242,18 +242,18 @@ mix_df = data.frame(dataset_id = rep("mix", length(mixsum$n)),
                     value = mixsum$n,
                     type = rep("real", length(mixsum$n)),
                     rhos = rep(NA, length(mixsum$n)),
-                    samplesize = rep(NA, length(mixsum$n)))
+                    colony_density = rep(NA, length(mixsum$n)))
 
 imp_df = data.frame(dataset_id = rep("imp", length(impsum$n)),
                     value = impsum$n,
                     type = rep("real", length(impsum$n)),
                     rhos = rep(NA, length(impsum$n)),
-                    samplesize = rep(NA, length(impsum$n)))
+                    colony_density = rep(NA, length(impsum$n)))
 
 real_df = rbind(mix_df, imp_df)
 
 # prep simulated data
-columns = c("dataset_id", "value", "type", "rhos", "samplesize") 
+columns = c("dataset_id", "value", "type", "rhos", "colony_density") 
 sim_df = data.frame(matrix(nrow = 0, ncol = length(columns))) 
 colnames(sim_df) = columns
 
@@ -270,7 +270,7 @@ for (sim in rownames(param_grid)){
                        counts,
                        rep("sim", length(counts)),
                        rep(param_grid$rhos[sim], length(counts)),
-                       rep(param_grid$sample_size[sim], length(counts))
+                       rep(param_grid$colony_density[sim], length(counts))
                        )
   colnames(temp_df) = columns
   sim_df = rbind(sim_df, temp_df)
@@ -295,10 +295,10 @@ legend = NULL
 count = 1
 
 for (rho in unique(param_grid$rhos)){
-  for (sample_size in unique(param_grid$sample_size)){
+  for (colonydensity in unique(param_grid$colony_density)){
     # calculate proportion in each bin
     binned_props <- all_df %>%
-      filter(type == "real" | (rhos == rho & samplesize == sample_size)) %>%
+      filter(type == "real" | (rhos == rho & colony_density == colonydensity)) %>%
       group_by(dataset_id, type, bin_mid) %>%
       summarize(n = n(), .groups = "drop") %>%
       group_by(dataset_id) %>%
@@ -344,7 +344,7 @@ for (rho in unique(param_grid$rhos)){
       ) +
       
       labs(x = "Number of Siblings", y = "Proportion",
-           title = paste("Rho = ", rho, ", Sample Size = ", sample_size, sep = "")) +
+           title = paste("Rho = ", rho, ", Colony Density = ", colonydensity, sep = "")) +
       scale_color_brewer(palette = "Paired") +
       theme_minimal()
     
@@ -355,7 +355,7 @@ for (rho in unique(param_grid$rhos)){
   }
 }
 
-grid = grid.arrange(grobs = plotlist, ncol = 4)
+grid = grid.arrange(grobs = plotlist, ncol = 3)
 sibdistributions = grid.arrange(grid, legend, ncol = 2, widths = c(10,1))
 ggsave("figures/simfigs/sibship_size_distributions.jpg", sibdistributions,
        height = 4000, width = 4000, units = "px")
