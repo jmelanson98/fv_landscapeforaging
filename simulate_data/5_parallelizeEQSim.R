@@ -27,11 +27,13 @@ source("0_EQSimFunctions.R")
 # set parameter combinations
 landscape_ids = 1:10
 rhos <- c(50, 100, 150, 200)
+colony_density <- c(1000, 2000, 4000)
 sample_sizes <- c(1000)
 
 param_grid <- expand.grid(
   landscape_id = landscape_ids,
   rhos = rhos,
+  colony_density =colony_density,
   sample_size = sample_sizes,
   stringsAsFactors = FALSE
 )
@@ -52,8 +54,8 @@ result <- draw_N_bees(
   colonygrid_size = 700,
   trapgrid_size   = 300,
   number_traps    = 25,
-  number_colonies = 1000,
-  colony_sizes    = rep(100, 1000),
+  number_colonies = params$colony_density,
+  colony_sizes    = rep(100, params$colony_density),
   rho            = params$rho,
   theta           = 0.5,
   resource_landscape = fq,
