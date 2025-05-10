@@ -30,12 +30,10 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
-
-##### Source functions #####
-source("simulate_data/0_PopeSimFunctions.R")
+sim_path = "simulate_data/exponentiated_quadratic_sim/"
 
 ##### Load in data #####
-param_grid = readRDS("simulate_data/batch_sim1/param_grid.rds")
+param_grid = readRDS(paste(sim_path, "param_grid.rds", sep = ""))
 
 ##### Check for errors in stan fit
 # list all .err files
@@ -243,35 +241,35 @@ ggsave("figures/manuscript_figures/numberofsibs.jpg", numberofsibs,
 mix_df = data.frame(dataset_id = rep("mix", length(mixsum$n)),
                     value = mixsum$n,
                     type = rep("real", length(mixsum$n)),
-                    beta = rep(NA, length(mixsum$n)),
+                    rhos = rep(NA, length(mixsum$n)),
                     samplesize = rep(NA, length(mixsum$n)))
 
 imp_df = data.frame(dataset_id = rep("imp", length(impsum$n)),
                     value = impsum$n,
                     type = rep("real", length(impsum$n)),
-                    beta = rep(NA, length(impsum$n)),
+                    rhos = rep(NA, length(impsum$n)),
                     samplesize = rep(NA, length(impsum$n)))
 
 real_df = rbind(mix_df, imp_df)
 
 # prep simulated data
-columns = c("dataset_id", "value", "type", "beta", "samplesize") 
+columns = c("dataset_id", "value", "type", "rhos", "samplesize") 
 sim_df = data.frame(matrix(nrow = 0, ncol = length(columns))) 
 colnames(sim_df) = columns
 
 #reload full paramgrid
-param_grid = readRDS("simulate_data/batch_sim1/param_grid.rds")
+param_grid = readRDS(paste(sim_path, "param_grid.rds", sep = ""))
 
 for (sim in rownames(param_grid)){
   sim = as.numeric(sim)
-  results_path = sprintf("simulate_data/batch_sim1/data/sim_result_%03d", sim)
+  results_path = sprintf("simulate_data/exponentiated_quadratic_sim/data/sim_result_%03d", sim)
   yobs = readRDS(paste(results_path, "/yobs.RDS", sep=""))
   
   counts = rowSums(yobs)
   temp_df = data.frame(rep(sim, length(counts)),
                        counts,
                        rep("sim", length(counts)),
-                       rep(param_grid$beta[sim], length(counts)),
+                       rep(param_grid$rhos[sim], length(counts)),
                        rep(param_grid$sample_size[sim], length(counts))
                        )
   colnames(temp_df) = columns
@@ -296,11 +294,11 @@ plotlist = list()
 legend = NULL
 count = 1
 
-for (beta in unique(param_grid$beta)){
+for (rho in unique(param_grid$rhos)){
   for (sample_size in unique(param_grid$sample_size)){
     # calculate proportion in each bin
     binned_props <- all_df %>%
-      filter(type == "real" | (beta == beta & samplesize == sample_size)) %>%
+      filter(type == "real" | (rhos == rho & samplesize == sample_size)) %>%
       group_by(dataset_id, type, bin_mid) %>%
       summarize(n = n(), .groups = "drop") %>%
       group_by(dataset_id) %>%
@@ -317,6 +315,8 @@ for (beta in unique(param_grid$beta)){
         ymed = median(prop),
         .groups = "drop"
       )
+    print(rho)
+    print(paste("Median = ", sim_summary$ymed, sep = ""))
     
     plot = ggplot() +
       # Simulated confidence intervals
@@ -344,7 +344,7 @@ for (beta in unique(param_grid$beta)){
       ) +
       
       labs(x = "Number of Siblings", y = "Proportion",
-           title = paste("Beta = ", round(beta, 3), ", Sample Size = ", sample_size, sep = "")) +
+           title = paste("Rho = ", rho, ", Sample Size = ", sample_size, sep = "")) +
       scale_color_brewer(palette = "Paired") +
       theme_minimal()
     
@@ -355,7 +355,7 @@ for (beta in unique(param_grid$beta)){
   }
 }
 
-grid = grid.arrange(grobs = plotlist, ncol = 3)
+grid = grid.arrange(grobs = plotlist, ncol = 4)
 sibdistributions = grid.arrange(grid, legend, ncol = 2, widths = c(10,1))
 ggsave("figures/simfigs/sibship_size_distributions.jpg", sibdistributions,
        height = 4000, width = 4000, units = "px")
