@@ -26,13 +26,13 @@ source("0_EQSimFunctions.R")
 ##### Prepare to run in parallel ! #####
 # set parameter combinations
 landscape_ids = 1:10
-beta <- c(1/50, 1/75, 1/100, 1/125, 1/150)
+rho <- c(50, 75, 100, 125, 150)
 colony_density <- c(1000, 2000, 4000)
 sample_sizes <- c(1000)
 
 param_grid <- expand.grid(
   landscape_id = landscape_ids,
-  rhos = rhos,
+  rho = rho,
   colony_density =colony_density,
   sample_size = sample_sizes,
   stringsAsFactors = FALSE
@@ -56,7 +56,7 @@ result <- draw_N_bees(
   number_traps    = 25,
   number_colonies = params$colony_density,
   colony_sizes    = rep(100, params$colony_density),
-  rho            = params$beta,
+  rho            = params$rho,
   theta           = 0.5,
   resource_landscape = fq,
   batch_size = 1

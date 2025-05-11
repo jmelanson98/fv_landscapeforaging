@@ -4,7 +4,7 @@
 # Goal: simulate data for Pope model using exponentiated quadratic instead of 
 # exponential decrease in visitation
 
-compute_visitation_rates_and_avg_distance <- function(colonies, resource_quality, beta, theta, landscape_size) {
+compute_visitation_rates_and_avg_distance <- function(colonies, resource_quality, rho, theta, landscape_size) {
   x_coords <- 1:landscape_size
   y_coords <- 1:landscape_size
   
@@ -22,7 +22,7 @@ compute_visitation_rates_and_avg_distance <- function(colonies, resource_quality
     dist <- sqrt(dist_x^2 + dist_y^2)
     
     # Compute visitation matrix
-    visitation <- exp(-0.5*(beta*dist - theta * resource_quality)^2)
+    visitation <- exp(-0.5*(dist/rho - theta * resource_quality)^2)
     
     # Compute weighted average distance
     total_visitation <- sum(visitation)
@@ -94,7 +94,7 @@ draw_N_bees = function(sample_size, # number of bees to sample
                        number_traps, # integer
                        number_colonies, # a square number
                        colony_sizes, #vector of length number_colonies
-                       beta, # set param value
+                       rho, # set param value
                        theta, # set param value
                        batch_size # number of bees to draw before updating ni/N
 ){
@@ -125,7 +125,7 @@ draw_N_bees = function(sample_size, # number of bees to sample
   # compute visitation rates for each colony at each grid cell, total visitation, and average foraging range
   visitation_and_foraging_range <- compute_visitation_rates_and_avg_distance(colonies = colony_data, 
                                                                              resource_quality = resource_landscape, 
-                                                                             beta = beta, 
+                                                                             rho = rho, 
                                                                              theta = theta, 
                                                                              landscape_size = landscape_size)
   
