@@ -149,7 +149,7 @@ ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 30
 
 # check if the all sim data frame exists, and if not, create one
 if (file.exists("simulate_data/exponentiated_quadratic_sim/all_simulation_summary.csv")){
-  allsim_colonies = read.csv("simulate_data/exponentiated_quadratic_sim/all_simulation_summary.csv" row.names = FALSE)
+  allsim_colonies = read.csv("simulate_data/exponentiated_quadratic_sim/all_simulation_summary.csv", row.names = FALSE)
 } else{
   columns = c("colony_density", "rhos", "landscape_id", "colony_size_bin", 
               "true_colony_avg", "true_colony_sd", "model_colony_avg", "model_colony_sd")
