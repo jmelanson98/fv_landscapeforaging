@@ -1,5 +1,5 @@
 //Pope & Jha, 2017, Cons. Genetics
-// Modified to include exponentiated quadratic distance decay
+// Modified to include generated quantities block for foraging distance estimation
 
 data {
 int<lower=1> C; // number of colonies 
@@ -15,7 +15,7 @@ real<lower=0> priorCo; // prior variance on other coefficients
 }
 
 parameters { // see text for definitions
-real<lower=0> rho; 
+real<lower=0> beta; 
 real<lower=0> sigma;
 real<lower=0> tau; 
 real theta;
@@ -49,11 +49,11 @@ matrix[C,K] lambda; //rate of captures for colony C at trap K?
 // priors
 sigma ~ normal(0, priorVa);
 tau ~ normal(0, priorVa); 
-rho ~ normal(0, priorBe);
+beta ~ normal(0, priorBe);
 mu ~ normal(0, priorCo); 
 theta ~ normal(0, priorCo);
 
-// random effects for traps
+// random effects for traps and colonies
 eps ~ normal(0, 1); 
 zeta ~ normal(0, 1);
 
@@ -61,7 +61,7 @@ zeta ~ normal(0, 1);
 for(k in 1:K){
   for(i in 1:C){
     dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-    lambda[i, k] = -0.5*((dis[i,k]/rho) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k])^2;
+    lambda[i, k] = -beta*dis[i,k] + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
     y[i, k] ~ poisson_log(lambda[i, k]);
   } 
 }
@@ -83,7 +83,7 @@ generated quantities {
     for(k in 1:K){
       for(i in 1:C){
         dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-        lambda[i, k] = -0.5*((dis[i,k]/rho) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k])^2;
+        lambda[i, k] = -beta*dis[i,k] + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
       } 
     }
     
