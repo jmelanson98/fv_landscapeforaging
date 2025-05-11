@@ -7,10 +7,6 @@
 ### Plot colony posteriors
 ### Plot colony foraging distance estimates
 
-stan_rhat
-stan_ess
-traceplot(exfit, pars = "sigma", inc_warmup = TRUE)
-
 
 ##### Load packages #####
 library(rstan)

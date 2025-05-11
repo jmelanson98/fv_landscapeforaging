@@ -65,5 +65,3 @@ dir.create(outfilepath, recursive = TRUE, showWarnings = FALSE)
 saveRDS(result[[1]], paste(outfilepath, "/yobs.RDS", sep = ""))
 saveRDS(result[[2]], paste(outfilepath, "/colonydata.RDS", sep = ""))
 saveRDS(result[[3]], paste(outfilepath, "/trapdata.RDS", sep = ""))
-
-
