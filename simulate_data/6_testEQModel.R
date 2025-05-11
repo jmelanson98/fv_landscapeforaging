@@ -65,6 +65,7 @@ data$priorRh = 50
 # Fit Stan model!
 stanFit = stan(file = "models/EQmodel.stan",
                data = data, seed = 5838299,
+	       iter = 10000,
                chains = 4, cores = 4,
                verbose = TRUE)
 print("Model complete.")
