@@ -3,9 +3,13 @@
 # By: Jenna Melanson
 # Goals:
 ### Fit exponentiated quadratic using multiple iterations of simulated data
-### 10 landscapes x 4 rho values x 3 underlying colony densities
+### 10 landscapes x 5 rho values x 3 underlying colony densities
 ### Plot colony posteriors
 ### Plot colony foraging distance estimates
+
+stan_rhat
+stan_ess
+traceplot(exfit, pars = "sigma", inc_warmup = TRUE)
 
 
 ##### Load packages #####
@@ -60,12 +64,12 @@ data$upperbound = 900
 data$floral = trap_data$fq
 data$priorVa = 1
 data$priorCo = 1
-data$priorRh = 50
+data$rho_center = 100
+data$rho_sd_log = 0.5
 
 # Fit Stan model!
 stanFit = stan(file = "models/EQmodel.stan",
                data = data, seed = 5838299,
-	       iter = 10000,
                chains = 4, cores = 4,
                verbose = TRUE)
 print("Model complete.")
@@ -151,7 +155,7 @@ ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 30
 if (file.exists("simulate_data/exponentiated_quadratic_sim/all_simulation_summary.csv")){
   allsim_colonies = read.csv("simulate_data/exponentiated_quadratic_sim/all_simulation_summary.csv", row.names = 1)
 } else{
-  columns = c("colony_density", "rhos", "landscape_id", "colony_size_bin", 
+  columns = c("colony_density", "rho", "landscape_id", "colony_size_bin", 
               "true_colony_avg", "true_colony_sd", "model_colony_avg", "model_colony_sd")
   allsim_colonies = data.frame(matrix(nrow =0, ncol = length(columns))) 
   colnames(allsim_colonies) = columns
@@ -176,13 +180,13 @@ if(max(colony_data$observed_size > 3)){
 }
 
 # make a temporary df and add to allsim_colonies
-columns = c("colony_density", "rhos", "landscape_id", "colony_size_bin", 
+columns = c("colony_density", "rho", "landscape_id", "colony_size_bin", 
             "true_colony_avg", "true_colony_sd", "model_colony_avg", "model_colony_sd")
 temp_df = data.frame(matrix(nrow = dim, ncol = length(columns))) 
 colnames(temp_df) = columns
 
 temp_df$colony_density = param_grid$sample_size[task_id]
-temp_df$rhos = param_grid$rhos[task_id]
+temp_df$rho = param_grid$rho[task_id]
 temp_df$landscape_id = param_grid$landscape_id[task_id]
 temp_df$colony_size_bin = bin_vec
 
@@ -210,7 +214,7 @@ write.csv(allsim_colonies, "simulate_data/exponentiated_quadratic_sim/all_simula
 ##### Plot figure 3 from Pope & Jha #####
 allsim_colonies = read.csv("simulate_data/exponentiated_quadratic_sim/all_simulation_summary.csv")
 
-allsim_summary = allsim_colonies %>% group_by(colony_density, rhos, colony_size_bin) %>%
+allsim_summary = allsim_colonies %>% group_by(colony_density, rho, colony_size_bin) %>%
   summarize(true_avg = mean(true_colony_avg, na.rm = TRUE),
             true_sd = sqrt(sum(true_colony_sd^2, na.rm = TRUE)),
             model_avg = mean(model_colony_avg, na.rm = TRUE),
