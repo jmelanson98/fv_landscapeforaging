@@ -27,7 +27,6 @@ library(gridExtra)
 ##### Set Environment #####
 #setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
-rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
 
 ##### Source functions #####
@@ -67,6 +66,7 @@ data$rho_sd_log = 0.5
 stanFit = stan(file = "models/EQmodel.stan",
                data = data, seed = 5838299,
                chains = 4, cores = 4,
+               iter = 10000,
                verbose = TRUE)
 print("Model complete.")
 saveRDS(stanFit, file=paste(results_path,"/stanFit.RDS", sep =""))

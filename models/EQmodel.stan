@@ -58,7 +58,7 @@ zeta ~ normal(0, 1);
 for(k in 1:K){
   for(i in 1:C){
     dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-    lambda[i, k] = -0.5*(dis[i,k]/rho - theta*floral[k] + mu + zeta_scale[i] + eps_scale[k])^2;
+    lambda[i, k] = -0.5*(dis[i,k]/rho - theta*floral[k])^2 + mu + zeta_scale[i] + eps_scale[k];
     y[i, k] ~ poisson_log(lambda[i, k]);
   } 
 }
@@ -80,7 +80,7 @@ generated quantities {
     for(k in 1:K){
       for(i in 1:C){
         dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-        lambda[i, k] = -0.5*(dis[i,k]/rho - theta*floral[k] + mu + zeta_scale[i] + eps_scale[k])^2;
+        lambda[i, k] = -0.5*(dis[i,k]/rho - theta*floral[k])^2 + mu + zeta_scale[i] + eps_scale[k];
       } 
     }
     
