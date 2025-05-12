@@ -2,7 +2,7 @@
 #SBATCH --job-name=bee_sim
 #SBATCH --output=logs/sim_%A_%a.out
 #SBATCH --error=logs/sim_%A_%a.err
-#SBATCH --array=1-120
+#SBATCH --array=1-150
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=80G
