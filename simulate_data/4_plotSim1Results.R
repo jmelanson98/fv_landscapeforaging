@@ -49,7 +49,8 @@ check_err_file <- function(file) {
     unfinished = any(grepl("DUE TO TIME LIMIT", lines, ignore.case = TRUE)),
     has_divergent = any(grepl("divergent", lines, ignore.case = TRUE)),
     has_low_ess = any(grepl("Effective Samples Size", lines, ignore.case = TRUE)),
-    has_error = any(grepl("error", lines, ignore.case = TRUE))
+    has_error = any(grepl("error", lines, ignore.case = TRUE)),
+    has_undefined = any(grepl("The following variables have undefined values", lines, ignore.case = TRUE))
   )
 }
 
@@ -65,15 +66,15 @@ error_summary$id = as.integer(sapply(strsplit(error_summary$file, "[_.]"), funct
 error_summary = left_join(error_summary, param_grid, by = "id")
 
 # plot results
-colonydensity = ggplot(error_summary, aes(x = colony_density, colour = has_divergent)) +
+colonydensity = ggplot(error_summary, aes(x = colony_density, colour = has_undefined)) +
   geom_histogram() +
   theme_minimal() +
   labs(title = "Divergent Transitions x Colony Density")
 
-beta = ggplot(error_summary, aes(x = beta, colour = has_divergent)) +
+rho = ggplot(error_summary, aes(x = rho, fill = has_undefined)) +
   geom_histogram() +
   theme_minimal() +
-  labs(title = "Divergent Transitions x Simulated Foraging Distance")
+  labs(title = "Undefined Foraging Distance x Simulated Length Scale")
 
 # remove any sims that had errors
 param_grid = error_summary[error_summary$has_error == FALSE,]
