@@ -151,7 +151,7 @@ ggsave(paste(results_path, "/colony_posteriors.jpg", sep = ""), fig, height = 30
 if (file.exists("simulate_data/exponentiated_quadratic_sim/all_simulation_summary.csv")){
   allsim_colonies = read.csv("simulate_data/exponentiated_quadratic_sim/all_simulation_summary.csv", row.names = 1)
 } else{
-  columns = c("colony_density", "rho", "landscape_id", "colony_size_bin", 
+  columns = c("task_id", "colony_density", "rho", "landscape_id", "colony_size_bin", 
               "true_colony_avg", "true_colony_sd", "model_colony_avg", "model_colony_sd")
   allsim_colonies = data.frame(matrix(nrow =0, ncol = length(columns))) 
   colnames(allsim_colonies) = columns
@@ -176,12 +176,13 @@ if(max(colony_data$observed_size > 3)){
 }
 
 # make a temporary df and add to allsim_colonies
-columns = c("colony_density", "rho", "landscape_id", "colony_size_bin", 
+columns = c("task_id", "colony_density", "rho", "landscape_id", "colony_size_bin", 
             "true_colony_avg", "true_colony_sd", "model_colony_avg", "model_colony_sd")
 temp_df = data.frame(matrix(nrow = dim, ncol = length(columns))) 
 colnames(temp_df) = columns
 
-temp_df$colony_density = param_grid$sample_size[task_id]
+temp_df$task_id = task_id
+temp_df$colony_density = param_grid$colony_density[task_id]
 temp_df$rho = param_grid$rho[task_id]
 temp_df$landscape_id = param_grid$landscape_id[task_id]
 temp_df$colony_size_bin = bin_vec
