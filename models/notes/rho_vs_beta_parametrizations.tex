@@ -43,33 +43,19 @@ An alternative parametrization, following from Mike's chapter on the exponentiat
 \[ \sigma \sim \mathcal{N}(0, 1)\]
 \[ \tau \sim \mathcal{N}(0, 1)\]
 
-\[ \rho_{raw} \sim \mathcal{N}(ln(100), 0.5) \]
-\[ \rho = exp(\rho_{raw}) \]
-
 where $\rho$ (at least in my case) is a large positive real. For me, realistic values would be on the range 50-150. I initially gave it a prior,
 
 \[\ \rho \sim \mathcal{N}(100, 50)\]
+
+but then changed to a lognormal,
+
+\[ \rho_{raw} \sim \mathcal{N}(ln(100), 0.5) \]
+\[ \rho = exp(\rho_{raw}) \]
 
 
 
 which is probably a bit too wide, to be fair.
 
 
-\section{Model convergence}
-
-As I mentioned previously, the $\beta$ parametrization of the model frequently leads to divergent transitions, especially for (1) small sample size and (2) large foraging distance (e.g., small(er) $\beta$). After seeing the $\rho$ parametrization, I started to wonder if perhaps the issues with $\beta$ were a result of the prior being zero-centered, when zero-centering implies infinite foraging distance (e.g., distance has no effect on visitation rate).
-
-I thought at first that this was a general problem resulting from lack of data, and you suggested that perhaps it was an issue of unidentifiability between two parameters (for example, $\beta$ and $\theta$ (the parameter governing floral attractiveness, which I have ommitted here for simplicity)). However, playing around with these two different paramerizations has led me to believe that the issue is actually with the $\beta$ parametrization more generally!
-
-I believe that $\beta$ is a tricky parameter to estimate because $\text{as } \beta \to 0$, the decay function flattens and all distances are equally likely. The region close to $\beta = 0$ would also have high posterior density in cases where visitation is not highly localized (e.g., when foraging distance is large). In the limit, ($\beta = 0$), the visitation function would depend entirely on other parameter values (e.g., resource quality, colony/trap specific intercepts). This is likely exacerbated for small sample size because the prior (centered at 0) dominates.
-
-I am not entirely sure why this leads to divergent transitions, but in my mind it seems like the gradient of the parameter space in that region would be extremely steep? Maybe you have a better intuition for what is happening. The problem is solved with higher \texttt{adapt_delta} and smaller \texttt{step_size} possibly because the Markov chain is able to better navigate the area around $\beta$ = 0?
-
-One thing I have noted is that the model consistently \textit{overestimates} foraging distance (e.g., underestimates $\beta$), especially in cases where there is not strong evidence for a steep decay rate. To be fair I'm not sure if this is actually an example of a complex geometry, or if $\beta$ is just being unduly influenced by my zero-centered prior...But I guess the deeper issue here is that it's hard to prevent $\beta$ from taking some values close to 0 (which would result in obnoxiously high estimate foraging distance). Basically a single "step" close to $\beta = 0$ could result in a \textit{massive} change in estimated foraging distance; so ideally the step-size you would use in this region would be quite small. But a step size so small would be very inefficient for exploring the rest of the parameter space. It is, in this regard, reminiscent of the funnel problem, although I don't think it's a funnel exactly??
-
-
-Turning to the $\rho$ parametrization, the models do not return any divergent transitions but instead return high values of texttt{Rhat} and low texttt{Neff}. Chain inspection for $\rho$ shows that the chains are not mixing at all, but instead seem to take some very different values. I suspected that this was because of my very wide prior on $\rho$.
-
-I have just had an epiphany which is that we could easily implement a log-scaled prior for $\beta$ (as we have for $\rho$) to prevent it from stepping so close to zero. This might allow us to avoid divergent transitions without implementing an extremely small step size!
 
 \end{document}
