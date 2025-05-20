@@ -656,14 +656,14 @@ write.table(mixtus_error_rates, "data/merged_by_year/mixtus_error_rates_finalloc
 rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
                             name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2022_1.DAT", delim=",")
 rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2023.DAT", delim=",")
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2023_1.DAT", delim=",")
 
 # navigate to COLONY2 sub folder and run the following in terminal
 #NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
 
 # cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
-# ./colony2s.out IFN=mixtus2022.DAT
-# ./colony2s.out IFN=mixtus2023.DAT
+# ./colony2s.out IFN:final/mixtus2022_1.DAT
+# ./colony2s.out IFN:final/mixtus2023_1.DAT
 
 
 
