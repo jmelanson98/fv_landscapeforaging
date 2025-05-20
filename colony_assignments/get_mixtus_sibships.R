@@ -564,3 +564,150 @@ alpha_mix = 5.3*10^-5
 
 LD2022_failed = LD2022[as.numeric(LD2022$pval) < alpha_mix,]
 LD2023_failed = LD2023[as.numeric(LD2023$pval) < alpha_mix, ]
+
+
+##########################################
+# Re-run COLONY with corrected locus sets
+##########################################
+
+##### prep genotype data
+
+#remove all columns except barcode and scores
+# also discard loci with high errors or out of HWE/LD
+colsToRemove = c("year", 
+                 "final_id", 
+                 "notes", 
+                 "sample_id", 
+                 "date", 
+                 "julian_date", 
+                 "BL15...1", 
+                 "BL15...2", 
+                 "BTMS0072...1", 
+                 "BTMS0072...2",
+                 "BTERN01...1",
+                 "BTERN01...2")
+mixtus2022 = mixtus2022[, !colnames(mixtus2022) %in% colsToRemove]
+mixtus2023 = mixtus2023[, !colnames(mixtus2023) %in% colsToRemove]
+
+#relocate barcode, remove rows with more than 8 NAs, replace NAs with 0's
+mixtus2022 = mixtus2022 %>% relocate(barcode_id)
+mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) < 8,]
+mixtus2022_forcolony[is.na(mixtus2022_forcolony)] = 0
+
+mixtus2023 = mixtus2023 %>% relocate(barcode_id)
+mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) < 8,]
+mixtus2023_forcolony[is.na(mixtus2023_forcolony)] = 0
+
+#write csvs for upload to colony
+column_names = colnames(mixtus2022_forcolony)
+
+write.table(mixtus2022_forcolony, "data/merged_by_year/mixtus2022_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixtus2023_forcolony, "data/merged_by_year/mixtus2023_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+
+
+write.csv(mixtus2022_forcolony, "data/merged_by_year/mixtus_2022_scores_finalloci.csv")
+write.csv(mixtus2023_forcolony, "data/merged_by_year/mixtus_2023_scores_finalloci.csv")
+
+
+##### prep microsat error rates
+
+# first value per column: marker name
+# second value per column: marker type (codominant for microsats -> 0)
+# third value per column: allelic dropout rate ?? (set to 0)
+# fourth value per column: error/mutation rate (empirically derived, see check_microsat_error_rates.R)
+mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
+                                c("BTMS0104", 0, 0, 0.01),
+                                c("BTMS0057", 0, 0, 0.01),
+                                c("BTMS0086", 0, 0, 0.015),
+                                c("BTMS0066", 0, 0, 0.01),
+                                c("BTMS0062", 0, 0, 0.015),
+                                c("BTMS0136", 0, 0, 0.01),
+                                c("BTMS0126", 0, 0, 0.0162),
+                                c("BTMS0059", 0, 0, 0.01),
+                                c("BL13", 0, 0, 0.0159),
+                                c("BTMS0083", 0, 0, 0.01),
+                                c("B126", 0, 0, 0.01))
+write.table(mixtus_error_rates, "data/merged_by_year/mixtus_error_rates_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+
+###### No sibship exclusion this time...
+
+########################################
+# Generate .DAT file and run colony
+########################################
+# A few important notes!
+# For MacOS users: run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
+
+# Rcolony (a wrapper package for creating the .dat input file for COLONY2) is a 
+#bit out of date and is missing some important arguments. For this reason I have 
+# made some small updates to the package, available at https://github.com/jmelanson98/rcolony
+# Forked from the excellent original package at https://github.com/jonesor/rcolony
+
+# Changes include:
+# - Modification to the writing of siblingship exclusion table (remove excess padding of 
+# space at the end of lines)
+# - Addition of several arguments required by the latest version of COLONY2:
+# line 8 (after dioecious/monoecious): 0/1 for inbreeding (recommended for dioecious: no inbreeding (0))
+# line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
+# line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
+# - Addition of exclusion threshold (0) for known paternity/maternity in cases wehre the number of known parentages is 0
+
+
+# build .DAT files for both datasets
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2022_1.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2023.DAT", delim=",")
+
+# navigate to COLONY2 sub folder and run the following in terminal
+#NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
+
+# cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
+# ./colony2s.out IFN=mixtus2022.DAT
+# ./colony2s.out IFN=mixtus2023.DAT
+
+
+
+#####################################
+## Load in results from colony
+#####################################
+
+# read in and format 2022 data
+lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2022.BestCluster"))
+split_lines2022 <- strsplit(lines2022, "\\s+")
+bestconfig2022 <- do.call(rbind, split_lines2022)
+colnames(bestconfig2022) <- bestconfig2022[1, ]
+bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
+bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
+
+# read in and format 2023 data
+lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/mixtus2023.BestCluster"))
+split_lines2023 <- strsplit(lines2023, "\\s+")
+bestconfig2023 <- do.call(rbind, split_lines2023)
+colnames(bestconfig2023) <- bestconfig2023[1, ]
+bestconfig2023 <- as.data.frame(bestconfig2023[-1, ])
+bestconfig2023$Probability = as.numeric(bestconfig2023$Probability)
+
+# remove sibling relationships with p < 0.95
+counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
+for (i in 1:nrow(bestconfig2022)){
+  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
+  if (bestconfig2022$Probability[i] < 0.95){
+    bestconfig2022$ClusterIndex[i] = counter
+    counter = counter + 1
+  }
+}
+
+# repeat for 2023
+counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
+for (i in 1:nrow(bestconfig2023)){
+  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
+  if (bestconfig2023$Probability[i] < 0.95){
+    bestconfig2023$ClusterIndex[i] = counter
+    counter = counter + 1
+  }
+}
+
+
+#write csvs to file
+write.csv(bestconfig2022, "data/siblingships/mix_sibships_preliminary_2022.csv")
+write.csv(bestconfig2023, "data/siblingships/mix_sibships_preliminary_2023.csv")
