@@ -539,3 +539,28 @@ test_HW("data/genepop/ms_genepop_format_mixtus2023.txt", which="Proba", "data/ge
 
 #test for LD
 test_LD("data/genepop/ms_genepop_format_mixtus2023.txt","data/genepop/mixtusLD2023.txt.DIS")
+
+
+######################################
+# Auto-check LD results
+#####################################
+
+LD2022lines = readLines("data/genepop/mixtusLD2022.txt.DIS")
+split_linesLD2022 <- strsplit(LD2022lines, "\\s+")
+LD2022 = do.call(rbind, split_linesLD2022[13:482])
+colnames(LD2022) = LD2022[1,]
+colnames(LD2022)[colnames(LD2022) == 'P-Value'] = "pval"
+LD2022 = as.data.frame(LD2022[3:nrow(LD2022),])
+
+LD2023lines = readLines("data/genepop/mixtusLD2023.txt.DIS")
+split_linesLD2023 <- strsplit(LD2023lines, "\\s+")
+LD2023 = do.call(rbind, split_linesLD2023[13:482])
+colnames(LD2023) = LD2023[1,]
+colnames(LD2023)[colnames(LD2023) == 'P-Value'] = "pval"
+LD2023 = as.data.frame(LD2023[3:nrow(LD2023),])
+
+# check out loci that are below Bonferroni-corrected P-value
+alpha_mix = 5.3*10^-5
+
+LD2022_failed = LD2022[as.numeric(LD2022$pval) < alpha_mix,]
+LD2023_failed = LD2023[as.numeric(LD2023$pval) < alpha_mix, ]
