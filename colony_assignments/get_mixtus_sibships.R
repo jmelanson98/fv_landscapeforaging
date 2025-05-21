@@ -32,6 +32,8 @@ colnames(samplePoints) = c("sample_pt", "gps","landowner","subsite")
 # load allele tables
 alleles_plex1_all = as.data.frame(read.table("data/from_geneious/mixtus_plex1.csv", sep = ",", header = T))
 alleles_plex2_all = as.data.frame(read.table("data/from_geneious/mixtus_plex2.csv", sep = ",", header = T))
+extraqueens_plex1 = as.data.frame(read.table("data/from_geneious/extramixtusqueens_plex1_binned.csv", sep = ",", header = T))
+extraqueens_plex2 = as.data.frame(read.table("data/from_geneious/extramixtusqueens_plex2_binned.csv", sep = ",", header = T))
 
 # modify specimen table for merging
 specimenData2022$location = str_remove_all(paste(specimenData2022$plate, specimenData2022$well), "_| ")
@@ -81,15 +83,25 @@ alleles_plex2_rerun$barcode_id = gsub("^.{0,6}", "", alleles_plex2_rerun$Name)
 alleles_plex2_rerun$barcode_id = gsub("-","_",alleles_plex2_rerun$barcode_id)
 alleles_plex2_rerun = alleles_plex2_rerun[,!colnames(alleles_plex2_rerun) %in% c("Name")]
 
+extraqueens_plex1$barcode_id = gsub("^.{0,6}", "", extraqueens_plex1$Name)
+extraqueens_plex1$barcode_id = gsub("-","_",extraqueens_plex1$barcode_id)
+extraqueens_plex1 = extraqueens_plex1[,!colnames(extraqueens_plex1) %in% c("Name")]
+
+extraqueens_plex2$barcode_id = gsub("^.{0,6}", "", extraqueens_plex2$Name)
+extraqueens_plex2$barcode_id = gsub("-","_",extraqueens_plex2$barcode_id)
+extraqueens_plex2 = extraqueens_plex2[,!colnames(extraqueens_plex2) %in% c("Name")]
+
 #order columns so that we can rbind originals to reruns
 correctorderp1 = colnames(alleles_plex1_wbarcode)
 correctorderp2 = colnames(alleles_plex2_wbarcode)
 
 alleles_plex1_rerun <- alleles_plex1_rerun[, correctorderp1]
 alleles_plex2_rerun <- alleles_plex2_rerun[, correctorderp2]
+extraqueens_plex1 <- extraqueens_plex1[, correctorderp1]
+extraqueens_plex2 <- extraqueens_plex2[, correctorderp2]
 
-alleles_plex1 = rbind(alleles_plex1_wbarcode, alleles_plex1_rerun)
-alleles_plex2 = rbind(alleles_plex2_wbarcode, alleles_plex2_rerun)
+alleles_plex1 = rbind(alleles_plex1_wbarcode, alleles_plex1_rerun, extraqueens_plex1)
+alleles_plex2 = rbind(alleles_plex2_wbarcode, alleles_plex2_rerun, extraqueens_plex2)
 
 #check for duplicates in these dataframes
 print("Number of rows in alleles 1 dataframe:")
@@ -108,9 +120,6 @@ print("Duplicates in final dataframe:")
 duplicated = alleles_plex2$barcode_id[duplicated(alleles_plex2$barcode_id)]
 print(duplicated)
 
-#remove duplicated rows
-plex1_unique <- alleles_plex1[!duplicated(alleles_plex1$barcode_id), ]
-plex2_unique <- alleles_plex2[!duplicated(alleles_plex2$barcode_id), ]
 
 #merge plexes
 microsat_scores = full_join(plex1_unique, plex2_unique, by = "barcode_id")
