@@ -168,12 +168,12 @@ impatiens2023_forcolony[is.na(impatiens2023_forcolony)] = 0
 #write csvs for upload to colony
 column_names = colnames(impatiens2022_forcolony)
 
-write.table(impatiens2022_forcolony, "data/merged_by_year/impatiens2022_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(impatiens2023_forcolony, "data/merged_by_year/impatiens2023_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens2022_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2022_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens2023_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2023_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 
-write.csv(impatiens2022_forcolony, "data/merged_by_year/impatiens_2022_scores.csv")
-write.csv(impatiens2023_forcolony, "data/merged_by_year/impatiens_2023_scores.csv")
+write.csv(impatiens2022_forcolony, "data/merged_by_year/csvs/impatiens_2022_scores.csv")
+write.csv(impatiens2023_forcolony, "data/merged_by_year/csvs/impatiens_2023_scores.csv")
 
 
 ###########################################
@@ -200,7 +200,7 @@ impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
                                 c("BTMS0073", 0, 0, 0.01),
                                 c("BT28", 0, 0, 0.01)
                                 )
-write.table(impatiens_error_rates, "data/merged_by_year/impatiens_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 ###########################################
 # Prep sibship exclusion data for COLONY
@@ -266,7 +266,7 @@ sib2023_reduced = sibexclusions_2023[,!colnames(sibexclusions_2023) %in% c("num_
 
 write.table(
   sib2022_reduced,
-  file = "data/merged_by_year/impatiens_sibexclusions_2022.txt",
+  file = "data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2022.txt",
   sep = ",",
   quote = FALSE,
   row.names = FALSE,
@@ -276,7 +276,7 @@ write.table(
 
 write.table(
   sib2023_reduced,
-  file = "data/merged_by_year/impatiens_sibexclusions_2023.txt",
+  file = "data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023.txt",
   sep = ",",
   quote = FALSE,
   row.names = FALSE,
@@ -306,17 +306,17 @@ write.table(
 
 
 # build .DAT files for both datasets
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2022.DAT", delim=",")
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2023.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2022.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2023.DAT", delim=",")
 
 # navigate to COLONY2 sub folder and run the following in terminal
 #NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
 
 # cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
-# ./colony2s.out IFN:impatiens2022.DAT
-# ./colony2s.out IFN:mixtusimpatiens.DAT
+# ./colony2s.out IFN:initial/impatiens2022.DAT
+# ./colony2s.out IFN:initial/impatiens.DAT
 
 
 
@@ -325,7 +325,7 @@ rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_la
 #####################################
 
 # read in and format 2022 data
-lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2022.BestCluster"))
+lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2022.BestCluster"))
 split_lines2022 <- strsplit(lines2022, "\\s+")
 bestconfig2022 <- do.call(rbind, split_lines2022)
 colnames(bestconfig2022) <- bestconfig2022[1, ]
@@ -333,7 +333,7 @@ bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
 bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
 
 # read in and format 2023 data
-lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2023.BestCluster"))
+lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2023.BestCluster"))
 split_lines2023 <- strsplit(lines2023, "\\s+")
 bestconfig2023 <- do.call(rbind, split_lines2023)
 colnames(bestconfig2023) <- bestconfig2023[1, ]
@@ -600,12 +600,12 @@ impatiens2023_forcolony[is.na(impatiens2023_forcolony)] = 0
 #write csvs for upload to colony
 column_names = colnames(impatiens2022_forcolony)
 
-write.table(impatiens2022_forcolony, "data/merged_by_year/impatiens2022_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(impatiens2023_forcolony, "data/merged_by_year/impatiens2023_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens2022_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2022_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens2023_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2023_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 
-write.csv(impatiens2022_forcolony, "data/merged_by_year/impatiens_2022_scores_finalloci.csv")
-write.csv(impatiens2023_forcolony, "data/merged_by_year/impatiens_2023_scores_finalloci.csv")
+write.csv(impatiens2022_forcolony, "data/merged_by_year/csvs/impatiens_2022_scores_finalloci.csv")
+write.csv(impatiens2023_forcolony, "data/merged_by_year/csvs/impatiens_2023_scores_finalloci.csv")
 
 # first value per column: marker name
 # second value per column: marker type (codominant for microsats -> 0)
@@ -625,7 +625,7 @@ impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
                                    c("BTMS0073", 0, 0, 0.01),
                                    c("BT28", 0, 0, 0.01)
 )
-write.table(impatiens_error_rates, "data/merged_by_year/impatiens_error_rates_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 ##### No sibship exclusion this time??
 
@@ -651,22 +651,22 @@ write.table(impatiens_error_rates, "data/merged_by_year/impatiens_error_rates_fi
 
 
 # build .DAT files for both datasets
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final", 
                             name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022_1.DAT", delim=",")
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final", 
                             name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2023_1.DAT", delim=",")
 
 # navigate to COLONY2 sub folder and run the following in terminal
 #NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
 
 # cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
-# ./colony2s.out IFN:impatiens2022.DAT
-# ./colony2s.out IFN:mixtusimpatiens.DAT
+# ./colony2s.out IFN:final/impatiens2022.DAT
+# ./colony2s.out IFN:final/impatiens.DAT
 
 
 
 #####################################
-## Load in results from colony
+## Load in results from colony UPDATE FROM HERE
 #####################################
 
 # read in and format 2022 data
