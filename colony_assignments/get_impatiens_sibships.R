@@ -126,10 +126,12 @@ specimens_withdates = joinJulianDates(specimens_withscores, sampleEffort2023)
 # split by year, including early season 2023 queens with 2022 subset
 # julian date cutoff based on script "queen_phenology.R"
 impatiens2022 = filter(specimens_withdates, final_id == "B. impatiens") %>%
-  filter(year == "2022" | (str_detect(notes, "queen") & julian_date < 175))
+  filter(year == "2022" | (str_detect(notes, "queen") & julian_date < 175)) %>%
+  filter(!str_detect(notes, "male"))
 impatiens2023 = filter(specimens_withdates, final_id == "B. impatiens") %>%
   filter(year == "2023") %>%
-  filter((!str_detect(notes, "queen")) | julian_date > 175)
+  filter((!str_detect(notes, "queen")) | julian_date > 175) %>%
+  filter(!str_detect(notes, "male"))
                           
 
 #check which bees are unscored
@@ -560,3 +562,150 @@ alpha_imp = 3.9*10^-5
 
 LD2022_failed = LD2022[as.numeric(LD2022$pval) < alpha_imp,]
 LD2023_failed = LD2023[as.numeric(LD2023$pval) < alpha_imp, ]
+
+
+
+###########################################
+# Re-run COLONY with corrected locus sets
+###########################################
+
+##### prep genotype data for COLONY
+
+#remove all columns except barcode and scores
+# also remove loci with high error rates
+colsToRemove = c("year", 
+                 "final_id", 
+                 "notes", 
+                 "sample_id", 
+                 "date", 
+                 "julian_date", 
+                 "BL15...1", 
+                 "BL15...2",
+                 "BTMS0062...1",
+                 "BTMS0062...2",
+                 "BTMS0057...1",
+                 "BTMS0057...2")
+impatiens2022 = impatiens2022[, !colnames(impatiens2022) %in% colsToRemove]
+impatiens2023 = impatiens2023[, !colnames(impatiens2023) %in% colsToRemove]
+
+#relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
+impatiens2022 = impatiens2022 %>% relocate(barcode_id)
+impatiens2022_forcolony = impatiens2022[rowSums(is.na(impatiens2022)) < 10,]
+impatiens2022_forcolony[is.na(impatiens2022_forcolony)] = 0
+
+impatiens2023 = impatiens2023 %>% relocate(barcode_id)
+impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) < 10,]
+impatiens2023_forcolony[is.na(impatiens2023_forcolony)] = 0
+
+#write csvs for upload to colony
+column_names = colnames(impatiens2022_forcolony)
+
+write.table(impatiens2022_forcolony, "data/merged_by_year/impatiens2022_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens2023_forcolony, "data/merged_by_year/impatiens2023_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+
+
+write.csv(impatiens2022_forcolony, "data/merged_by_year/impatiens_2022_scores_finalloci.csv")
+write.csv(impatiens2023_forcolony, "data/merged_by_year/impatiens_2023_scores_finalloci.csv")
+
+# first value per column: marker name
+# second value per column: marker type (codominant for microsats -> 0)
+# third value per column: allelic dropout rate ?? (set to 0)
+# fourth value per column: error/mutation rate (empirically derived, see check_microsat_error_rates.R)
+impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
+                                   c("B96", 0, 0, 0.027),
+                                   c("BTMS0059", 0, 0, 0.017),
+                                   c("BTMS0081", 0, 0, 0.016),
+                                   c("BL13", 0, 0, 0.011),
+                                   c("B126", 0, 0, 0.01),
+                                   c("BTERN01", 0, 0, 0.028),
+                                   c("B124", 0, 0, 0.011),
+                                   c("BT30", 0, 0, 0.01),
+                                   c("B10", 0, 0, 0.029),
+                                   c("BTMS0083", 0, 0, 0.01),
+                                   c("BTMS0073", 0, 0, 0.01),
+                                   c("BT28", 0, 0, 0.01)
+)
+write.table(impatiens_error_rates, "data/merged_by_year/impatiens_error_rates_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+
+##### No sibship exclusion this time??
+
+########################################
+# Generate .DAT file and run colony
+########################################
+# A few important notes!
+# For MacOS users: run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
+
+# Rcolony (a wrapper package for creating the .dat input file for COLONY2) is a 
+#bit out of date and is missing some important arguments. For this reason I have 
+# made some small updates to the package, available at https://github.com/jmelanson98/rcolony
+# Forked from the excellent original package at https://github.com/jonesor/rcolony
+
+# Changes include:
+# - Modification to the writing of siblingship exclusion table (remove excess padding of 
+# space at the end of lines)
+# - Addition of several arguments required by the latest version of COLONY2:
+# line 8 (after dioecious/monoecious): 0/1 for inbreeding (recommended for dioecious: no inbreeding (0))
+# line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
+# line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
+# - Addition of exclusion threshold (0) for known paternity/maternity in cases wehre the number of known parentages is 0
+
+
+# build .DAT files for both datasets
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2023.DAT", delim=",")
+
+# navigate to COLONY2 sub folder and run the following in terminal
+#NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
+
+# cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
+# ./colony2s.out IFN:impatiens2022.DAT
+# ./colony2s.out IFN:mixtusimpatiens.DAT
+
+
+
+#####################################
+## Load in results from colony
+#####################################
+
+# read in and format 2022 data
+lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2022.BestCluster"))
+split_lines2022 <- strsplit(lines2022, "\\s+")
+bestconfig2022 <- do.call(rbind, split_lines2022)
+colnames(bestconfig2022) <- bestconfig2022[1, ]
+bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
+bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
+
+# read in and format 2023 data
+lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2023.BestCluster"))
+split_lines2023 <- strsplit(lines2023, "\\s+")
+bestconfig2023 <- do.call(rbind, split_lines2023)
+colnames(bestconfig2023) <- bestconfig2023[1, ]
+bestconfig2023 <- as.data.frame(bestconfig2023[-1, ])
+bestconfig2023$Probability = as.numeric(bestconfig2023$Probability)
+
+# remove sibling relationships with p < 0.95
+counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
+for (i in 1:nrow(bestconfig2022)){
+  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
+  if (bestconfig2022$Probability[i] < 0.95){
+    bestconfig2022$ClusterIndex[i] = counter
+    counter = counter + 1
+  }
+}
+
+# repeat for 2023
+counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
+for (i in 1:nrow(bestconfig2023)){
+  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
+  if (bestconfig2023$Probability[i] < 0.95){
+    bestconfig2023$ClusterIndex[i] = counter
+    counter = counter + 1
+  }
+}
+
+#write csvs to file
+write.csv(bestconfig2022, "data/siblingships/imp_sibships_preliminary_2022.csv")
+write.csv(bestconfig2023, "data/siblingships/imp_sibships_preliminary_2023.csv")
+
