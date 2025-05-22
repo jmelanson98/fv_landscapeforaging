@@ -27,7 +27,7 @@ library(ggpubr)
 
 ##### Set Environment #####
 setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
-setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
+#setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
 sim_path = "simulate_data/exponentiated_quadratic_sim/"
