@@ -22,7 +22,7 @@ compute_visitation_rates_and_avg_distance <- function(colonies, resource_quality
     dist <- sqrt(dist_x^2 + dist_y^2)
     
     # Compute visitation matrix
-    visitation <- exp(-0.5*(dist/rho)^2 - theta * resource_quality)
+    visitation <- exp(-0.5*(dist/rho)^2 + theta * resource_quality)
     
     # Compute weighted average distance
     total_visitation <- sum(visitation)
