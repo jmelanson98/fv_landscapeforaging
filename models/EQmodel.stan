@@ -74,7 +74,6 @@ generated quantities {
     matrix[C,K] dis; //distance from colony C to trap K
     matrix[C,K] lambda; //rate of captures for colony C at trap K
     vector[C] V;     // Declare local variable for each colony's total visitation
-    vector[C] V_inv; // Declare inverse (1/V) -- multiplication faster in loop than division
     
     // Recompute lambda and dis
     for(k in 1:K){
@@ -89,12 +88,10 @@ generated quantities {
       V[i] = sum(exp(lambda[i,]));
     }
     
-    // Calculate V_inv outside the for-loop
-    V_inv = 1 ./ V;
     
     // compute colony_dist to be saved outside the anonymous scope
     for (k in 1:K){
-      colony_dist = colony_dist + (dis[,k] .* exp(lambda[,k]) .* V_inv);
+      colony_dist = colony_dist + (dis[,k] .* exp(lambda[,k]) ./ V);
     }
   }
 }
