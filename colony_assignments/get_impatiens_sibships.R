@@ -581,8 +581,6 @@ colsToRemove = c("year",
                  "julian_date", 
                  "BL15...1", 
                  "BL15...2",
-                 "BTMS0062...1",
-                 "BTMS0062...2",
                  "BTMS0057...1",
                  "BTMS0057...2")
 impatiens2022 = impatiens2022[, !colnames(impatiens2022) %in% colsToRemove]
@@ -590,11 +588,11 @@ impatiens2023 = impatiens2023[, !colnames(impatiens2023) %in% colsToRemove]
 
 #relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
 impatiens2022 = impatiens2022 %>% relocate(barcode_id)
-impatiens2022_forcolony = impatiens2022[rowSums(is.na(impatiens2022)) < 10,]
+impatiens2022_forcolony = impatiens2022[rowSums(is.na(impatiens2022)) < 12,]
 impatiens2022_forcolony[is.na(impatiens2022_forcolony)] = 0
 
 impatiens2023 = impatiens2023 %>% relocate(barcode_id)
-impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) < 10,]
+impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) < 12,]
 impatiens2023_forcolony[is.na(impatiens2023_forcolony)] = 0
 
 #write csvs for upload to colony
@@ -616,6 +614,7 @@ impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
                                    c("BTMS0059", 0, 0, 0.017),
                                    c("BTMS0081", 0, 0, 0.016),
                                    c("BL13", 0, 0, 0.011),
+                                   c("BTMS0062", 0, 0, 0.022),
                                    c("B126", 0, 0, 0.01),
                                    c("BTERN01", 0, 0, 0.028),
                                    c("B124", 0, 0, 0.011),
