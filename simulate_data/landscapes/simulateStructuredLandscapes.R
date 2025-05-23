@@ -7,62 +7,108 @@
 # load packages
 library(matrixStats)
 library(ggplot2)
+library(terra)
+
+
+
+#######################################################################
+### Simulate a checkerboard landscape of nesting habitat quality
+#######################################################################
 
 
 # define scales
 landscape_size = 1100
 grid_size = 50
 
-# create empty matrix of landscape_size x landscape_size
-empty_landscape = allocMatrix(nrow = landscape_size,
-                              ncol = landscape_size)
+# create an empty raster
+nest_raster <- rast(nrows = landscape_size, ncols = landscape_size, 
+                     xmin = 0, xmax = landscape_size, 
+                     ymin = 0, ymax = landscape_size)
 
-# fill in grid pattern according to grid size
-is_odd = function(number){
-  if (number - ( 2* (number %/% 2)) == 1){
-    return(TRUE)
-  } else if (number - ( 2* (number %/% 2)) == 0){
-    return(FALSE)
-  }
-}
+# get xy coordinates of center of each pixel
+xy <- xyFromCell(nest_raster, 1:ncell(nest_raster))
 
-for (x in 1:landscape_size){
-  for (y in 1:landscape_size){
-    xbool = is_odd(x %/% grid_size)
-    ybool = is_odd(y %/% grid_size)
-    if (xbool + ybool == 1){
-      empty_landscape[x,y] = 1
-    } else {
-      empty_landscape[x,y] = 0
-    }
-  }
-}
+# determine which checkerboard grid they're in
+col_index <- floor(xy[,1] / 50)
+row_index <- floor(xy[,2] / 50)
 
-filled_landscape = empty_landscape
+# assign values
+checker_values <- (col_index + row_index) %% 2
+values(nest_raster) <- checker_values
 
-
-# plot grid landscape to check
-df <- data.frame(
-  x = rep(1:ncol(filled_landscape), each = nrow(filled_landscape)),
-  y = rep(nrow(filled_landscape):1, times = ncol(filled_landscape)),  # reverse y for image-like plot
-  value = as.vector(filled_landscape)
-)
-
-ggplot(df, aes(x = x, y = y, fill = value)) +
-  geom_raster() +  # much faster than geom_tile for large matrices
-  scale_fill_viridis_c() +
-  coord_fixed() +
-  theme_void()
+# plot
+plot(nest_raster, col = c("white", "black"))
 # voila!
 
 
+#######################################################################
+### Put some functions here for now, might move later
+#######################################################################
 
-# Put some functions here for now, might move later
-compute_visitation_rates_and_avg_distance <- function(colonies, resource_quality, rho, theta, landscape_size) {
-  x_coords <- 1:landscape_size
-  y_coords <- 1:landscape_size
+
+##### simulate floral quality landscapes as raster #####
+simulateLandscapeRaster = function(landscape_size, # integer, same for x and y
+                             resource_range) {
+  # use Brownian variogram to simulate spatial distribution of resources (as in Pope & Jha)
   
-  visitation_rates <- list()
+  
+ 
+  # get xy coordinates of center of each pixel
+  xy <- xyFromCell(nest_raster, 1:ncell(nest_raster))
+  
+  # determine which checkerboard grid they're in
+  col_index <- floor(xy[,1] / 50)
+  row_index <- floor(xy[,2] / 50)
+  
+  # assign values
+  checker_values <- (col_index + row_index) %% 2
+  values(nest_raster) <- checker_values
+  
+  
+  # create a regular grid of points to simulate over
+  grid = rast(nrows = landscape_size, ncols = landscape_size,
+              xmin = 0, xmax = landscape_size, 
+              ymin = 0, ymax = landscape_size)
+  
+  # get xy coordinates of center of each pixel
+  xy <- as.data.frame(xyFromCell(grid, 1:ncell(grid)))
+  
+  # create a spatial points data frame for gstat
+  sp_points <- SpatialPointsDataFrame(coords = xy, data = data.frame(id = 1:nrow(xy)),
+                                      proj4string = CRS(NA_character_))
+  
+  # define a Brownian variogram model
+  # "nugget" = 0, "sill" = total variance
+  vgm_model <- vgm(psill = 1, model = "Lin", nugget = 0, resource_range)
+  
+  # simulate one realization of a Gaussian random field
+  simulated <- gstat(formula = z ~ 1, locations = ~x + y, dummy = TRUE, 
+                     beta = 0, model = vgm_model, nmax = 20)
+  simulated_field <- predict(simulated, newdata = sp_points, nsim = 1)
+  
+  # return as a raster
+  sim_df <- as.data.frame(simulated_field)
+  sim_rast <- grid
+  values(sim_rast) <- sim_df$sim1
+  
+  # plot
+  plot(sim_rast, main = "Simulated Resource Distribution (Brownian variogram)")
+  
+  return(sim_rast)
+  }
+
+
+
+##### compute visitation rates of each colony to each raster pixel
+compute_visitation_on_raster <- function(colonies, resource_quality_rast, rho, theta) {
+  
+  # get coordinates for center of each pixel
+  xy_coords <- crds(resource_quality_rast, df = TRUE)  # matrix of x and y
+  
+  # flatten raster values into a vector
+  rq_vals <- values(resource_quality_rast)
+  
+  visitation_rates <- list() # will be a list of rasters
   avg_distances <- numeric(nrow(colonies))
   total_vis <- numeric(nrow(colonies))
   
@@ -70,40 +116,44 @@ compute_visitation_rates_and_avg_distance <- function(colonies, resource_quality
     colony_x <- colonies$colony_x[i]
     colony_y <- colonies$colony_y[i]
     
-    # Efficiently generate coordinate grids
-    dist_x <- outer(x_coords, rep(colony_x, landscape_size), "-")
-    dist_y <- outer(rep(colony_y, landscape_size), y_coords, "-")
-    dist <- sqrt(dist_x^2 + dist_y^2)
+    # compute Euclidean distance from colony to each pixel
+    dx <- xy_coords[, 1] - colony_x
+    dy <- xy_coords[, 2] - colony_y
+    dist <- sqrt(dx^2 + dy^2)
     
-    # Compute visitation matrix
-    visitation <- exp(-0.5*(dist/rho)^2 + theta * resource_quality)
+    # compute visitation rate of colony at each pixel
+    visitation_vals <- exp(-0.5 * (dist / rho)^2 + theta * rq_vals)
     
-    # Compute weighted average distance
-    total_visitation <- sum(visitation)
+    total_visitation <- sum(visitation_vals, na.rm = TRUE)
     avg_distance <- if (total_visitation > 0) {
-      sum(visitation * dist) / total_visitation
+      sum(visitation_vals * dist, na.rm = TRUE) / total_visitation
     } else {
       NA_real_
     }
     
-    visitation_rates[[i]] <- visitation
+    vis_rast <- resource_quality_rast  # clone geometry
+    values(vis_rast) <- visitation_vals
+    
+    print(paste("Saving visitation for colony", i, sep = " "))
+    visitation_rates[[i]] <- vis_rast
     avg_distances[i] <- avg_distance
-    total_vis[i] = total_visitation
+    total_vis[i] <- total_visitation
   }
   
-  return(list(visitation_rates = visitation_rates,
-              avg_distances = avg_distances,
-              total_vis = total_vis))
+  return(list(
+    visitation_rates = visitation_rates,
+    avg_distances = avg_distances,
+    total_vis = total_vis
+  ))
 }
 
 
-
-##### Simulate bee draws #####
+##### simulate bee draws #####
 draw_bees_colony_restricted = function(sample_size, # number of bees to sample
                        landscape_size, # integer, size of full resource landscape
                        colonygrid_size, # integer, size of colony distribution
                        trapgrid_size, # integer, size of trap grid
-                       resource_landscape, # matrix containing floral quality across landscape
+                       resource_landscape, # raster containing floral quality across landscape
                        nesting_landscape, # matrix containing nest habitat quality across landscape
                        number_traps, # square integer
                        number_colonies, # positive integer
@@ -120,11 +170,11 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   
   while (length(colony_x) < number_colonies){
     # propose a colony location
-    xprop = round(runif(1, (landscape_size-colonygrid_size)/2, (landscape_size-colonygrid_size)/2 + colonygrid_size)) #colony locations are integers
-    yprop = round(runif(1, (landscape_size-colonygrid_size)/2, (landscape_size-colonygrid_size)/2 + colonygrid_size)) #colony locations are integers
+    xprop = runif(1, (landscape_size-colonygrid_size)/2, (landscape_size-colonygrid_size)/2 + colonygrid_size)
+    yprop = runif(1, (landscape_size-colonygrid_size)/2, (landscape_size-colonygrid_size)/2 + colonygrid_size)
     
     # accept or reject colony location
-    nesting_val = nesting_landscape[xprop, yprop]
+    nesting_val = extract(nesting_landscape, cbind(xprop, yprop))
     rand = runif(1, 0, 1)
     if(rand < nesting_val){
       colony_x = c(colony_x, xprop)
@@ -142,33 +192,22 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   trap_y = (landscape_size - trapgrid_size)/2 + step*(0:(grid_size-1))
   coords = expand.grid(trap_x = trap_x, trap_y = trap_y)
   trap_data = as.data.frame(cbind(trapid, coords))
-  trap_data$fq <- mapply(function(x, y) resource_landscape[x, y], trap_data$trap_x, trap_data$trap_y)
+  trap_data$fq <- terra::extract(resource_landscape, trap_data[, c("trap_x", "trap_y")])[, 2]
   
   
   # optional plotting step to visualize traps and colonies
-  # df <- data.frame(
-  #   x = rep(1:ncol(nesting_landscape), each = nrow(nesting_landscape)),
-  #   y = rep(1:nrow(nesting_landscape), times = ncol(nesting_landscape)),  # reverse y for image-like plot
-  #   value = as.vector(nesting_landscape)
-  # )
-  # 
-  # a = ggplot(df) +
-  #   geom_raster(aes(x = x, y = y, fill = value)) +
-  #   scale_fill_viridis_c() +
-  #   coord_fixed() +
-  #   geom_point(data = colony_data, aes(x = colony_x, y = colony_y)) +
-  #   geom_point(data = trap_data, aes(x = trap_x, y = trap_y)) +
-  #   theme_void()
-    
+  plot(nesting_landscape, col = c("white", "black"))
+  points(colony_data$colony_x, colony_data$colony_y, col = "red", pch = 16, cex = 1.5)
+  points(trap_data$trap_x, trap_data$trap_y, col = "blue", pch = 16, cex = 1.5)
   
   
   ##### Create landscape-wide visitation matrix #####
   # compute visitation rates for each colony at each grid cell, total visitation, and average foraging range
-  visitation_and_foraging_range <- compute_visitation_rates_and_avg_distance(colonies = colony_data,
-                                                                             resource_quality = resource_landscape,
+  visitation_and_foraging_range <- compute_visitation_on_raster(colonies = colony_data,
+                                                                             resource_quality_rast = resource_landscape,
                                                                              rho = rho,
-                                                                             theta = theta,
-                                                                             landscape_size = landscape_size)
+                                                                             theta = theta)
+  
 
   visitation_rates = visitation_and_foraging_range[[1]]
   colony_data$foraging_range = visitation_and_foraging_range[[2]]
@@ -177,12 +216,18 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   ##### Compute fixed values lambda_ik #####
   # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
   lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
+  trapcoords = as.matrix(trap_data[, c("trap_x", "trap_y")])
 
   for (i in seq_len(number_colonies)) {
-    visit_mat <- visitation_rates[[i]]  # each is a matrix of size [xmax x ymax]
+    print(i)
+    print(visitation_rates[[i]])
+    class(visitation_rates[[i]])
+    nlyr(visitation_rates[[i]])
+    visit_rast <- visitation_rates[[i]]  # each is a raster of size [xmax x ymax]
 
-    # pull out all trap visitation values in one vectorized step
-    lambda_ik[i, ] <- mapply(function(x, y) visit_mat[x, y], trap_data$trap_x, trap_data$trap_y)
+    # pull out all trap visitation values for that colony
+    vals <- terra::extract(visit_rast, trapcoords)
+    lambda_ik[i, ] <- vals[, 1]
   }
 
 
@@ -238,3 +283,6 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
 
 
 
+#######################################################################
+### Fit model with informative colony prior
+#######################################################################
