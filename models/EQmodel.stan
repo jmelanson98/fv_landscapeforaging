@@ -16,7 +16,7 @@ real<lower=0> rho_sd_log; //prior sd of length parameter, !!on log scale!!
 }
 
 parameters { // see text for definitions
-real rho; 
+real<lower=0> rho; 
 real<lower=0> sigma;
 real<lower=0> tau; 
 real theta;
