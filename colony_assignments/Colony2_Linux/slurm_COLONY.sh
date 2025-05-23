@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=colony_run
-#SBATCH --array=1-5         # Adjust for number of .DAT files
+#SBATCH --array=0-4         # Adjust for number of .DAT files
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=24G            # Adjust depending on dataset size
-#SBATCH --time=00:00:30
+#SBATCH --time=24:00:00
 #SBATCH --output=colony_%A_%a.out
 #SBATCH --error=colony_%A_%a.err
 
