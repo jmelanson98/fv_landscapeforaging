@@ -16,7 +16,7 @@ real<lower=0> rho_sd_log; //prior sd of length parameter, !!on log scale!!
 }
 
 parameters { // see text for definitions
-real rho_raw; 
+real rho; 
 real<lower=0> sigma;
 real<lower=0> tau; 
 real theta;
@@ -73,6 +73,7 @@ generated quantities {
     matrix[C,K] dis; //distance from colony C to trap K
     matrix[C,K] lambda; //rate of captures for colony C at trap K
     vector[C] V;     // Declare local variable for each colony's total visitation
+    real alpha = 1e-12;  // set smaaaaall number to prevent division by 0
     
     // Recompute lambda and dis
     for(k in 1:K){
@@ -90,7 +91,7 @@ generated quantities {
     
     // compute colony_dist to be saved outside the anonymous scope
     for (k in 1:K){
-      colony_dist = colony_dist + (dis[,k] .* exp(lambda[,k]) ./ V);
+      colony_dist = colony_dist + (dis[,k] .* exp(lambda[,k]) ./ (V + alpha));
     }
   }
 }
