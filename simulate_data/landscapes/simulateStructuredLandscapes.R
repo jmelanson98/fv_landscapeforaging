@@ -286,3 +286,21 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
 #######################################################################
 ### Fit model with informative colony prior
 #######################################################################
+
+# CHECK RASTER RESOLUTION AND MIN/MAX!!!
+xres <- terra::xres(nest_raster)
+yres <- terra::yres(nest_raster)
+xmin <- terra::xmin(nest_raster)
+ymin <- terra::ymin(nest_raster)
+
+# Convert nesting landscape raster to a matrix
+nest_mat <- as.matrix(nest_raster, wide = TRUE)
+# flip along y axis so that [row, column] indices match to (x, y) coordinates
+nest_mat <- nest_mat[nrow(nest_mat):1, ]
+
+# Create data list for stan
+data = list()
+data$res = 1 #resolution of matrix--important!!
+data$nesting_landscape = nest_mat
+
+

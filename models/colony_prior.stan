@@ -11,6 +11,7 @@ data {
 int<lower=1> C; // number of colonies 
 int<lower=1> K; // number of traps
 int<lower=1> L; // landscape size
+int<lower=1> res; //resolution of nesting landscape matrix
 
 matrix[K, 2] trap; // trap coordinates
 vector[K] fq; // floral quality at traps
@@ -50,8 +51,8 @@ transformed parameters {
 model {
   
 // temporary declarations
-matrix[C,K] dis; //distance from colony C to trap K?
-matrix[C,K] lambda; //rate of captures for colony C at trap K?
+matrix[C,K] dis; //distance from colony C to trap K
+matrix[C,K] lambda; //rate of captures for colony C at trap K
 
 // priors
 sigma ~ normal(0, priorVa);
@@ -59,6 +60,11 @@ tau ~ normal(0, priorVa);
 rho ~ lognormal(log(rho_center), rho_sd_log);  // log-normal with median = rho_center
 mu ~ normal(0, priorCo); 
 theta ~ normal(0, priorCo);
+
+// custom prior for colony location
+// okay this is not correct because they're probably not on the right scale (log likelihoods)
+// see Betancourt RE dirichlet priors
+target += nest_mat[ceil(delta[i, 2]), ceil(delta[i, 1])]
 
 // random effects for traps
 eps ~ normal(0, 1); 
