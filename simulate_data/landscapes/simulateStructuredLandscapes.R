@@ -33,7 +33,8 @@ col_index <- floor(xy[,1] / 50)
 row_index <- floor(xy[,2] / 50)
 
 # assign values
-checker_values <- (col_index + row_index) %% 2
+eps = 10^-12 # use small epsilon values so that we can later calculate log probability of habitat suitability
+checker_values <- eps + (col_index + row_index) %% 2
 values(nest_raster) <- checker_values
 
 # plot
@@ -282,11 +283,32 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
 
 
 
+#######################################################################
+### simulate one iteration of bee data for model
+#######################################################################
+landscape1 = simulateLandscapeRaster(landscape_size = 1100,
+                                     resource_range = 10)
+
+sample1 = draw_bees_colony_restricted(sample_size = 1000,
+                                      landscape_size = 1100,
+                                      colonygrid_size = 700,
+                                      trapgrid_size = 300,
+                                      resource_landscape = landscape1,
+                                      nesting_landscape = nest_raster,
+                                      number_traps = 25,
+                                      number_colonies = 500,
+                                      colony_sizes = rep(100,500),
+                                      rho = 75,
+                                      theta = 0.5)
 
 #######################################################################
 ### Fit model with informative colony prior
 #######################################################################
 
+###### Prep trap data, colony data, yobs
+
+
+###### Prep nest habitat matrix
 # CHECK RASTER RESOLUTION AND MIN/MAX!!!
 xres <- terra::xres(nest_raster)
 yres <- terra::yres(nest_raster)
@@ -294,13 +316,35 @@ xmin <- terra::xmin(nest_raster)
 ymin <- terra::ymin(nest_raster)
 
 # Convert nesting landscape raster to a matrix
-nest_mat <- as.matrix(nest_raster, wide = TRUE)
+nest_mat = as.matrix(nest_raster, wide = TRUE)
+
 # flip along y axis so that [row, column] indices match to (x, y) coordinates
-nest_mat <- nest_mat[nrow(nest_mat):1, ]
+nest_mat = nest_mat[nrow(nest_mat):1, ]
 
-# Create data list for stan
+# convert to a log probability matrix (normalize and take the log)
+log_prob_nest_mat = log(nest_mat/sum(nest_mat))
+
+###### Create data list for stan
 data = list()
+data$C = nrow(yobs)
+data$K = 25
+data$L = 1100
+data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
+data$y = yobs
+data$lowerbound = 200
+data$upperbound = 900
+data$floral = trap_data$fq
+data$priorVa = 1
+data$priorCo = 1
+data$rho_center = 4.5
+data$rho_sd = 0.5
 data$res = 1 #resolution of matrix--important!!
-data$nesting_landscape = nest_mat
+data$nesting_landscape = log_prob_nest_mat
 
 
+###### Fit model in Stan
+stanFit = stan(file = "models/colony_prior.stan",
+               data = data, seed = 5838299,
+               chains = 4, cores = 4,
+               iter = 10000,
+               verbose = TRUE)
