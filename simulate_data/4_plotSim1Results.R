@@ -270,7 +270,7 @@ for (sim in rownames(param_grid)){
   temp_df = data.frame(rep(sim, length(counts)),
                        counts,
                        rep("sim", length(counts)),
-                       rep(param_grid$rhos[sim], length(counts)),
+                       rep(param_grid$rho[sim], length(counts)),
                        rep(param_grid$colony_density[sim], length(counts))
                        )
   colnames(temp_df) = columns
@@ -295,7 +295,7 @@ plotlist = list()
 legend = NULL
 count = 1
 
-for (rho in unique(param_grid$rhos)){
+for (rho in unique(param_grid$rho)){
   for (colonydensity in unique(param_grid$colony_density)){
     # calculate proportion in each bin
     binned_props <- all_df %>%

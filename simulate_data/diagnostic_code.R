@@ -35,7 +35,3 @@ samples = extract_expectands(stanFitGQ)
 diagnostics = extract_hmc_diagnostics(stanFitGQ)
 plot_div_pairs(x, y, samples, diagnostics)
 
-
-stan_rhat
-stan_ess
-traceplot(exfit, pars = "sigma", inc_warmup = TRUE)
