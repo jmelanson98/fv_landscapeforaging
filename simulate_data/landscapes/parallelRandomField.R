@@ -15,19 +15,20 @@ library(rasterVis)
 library(parallel)
 library(future)
 library(furrr)
+library(terra)
 
 ##### Source Helper Functions #####
-source("0_PopeSimFunctions.R")
+source("src/GeneralizedSimFunctions.R")
 
 ##### Create directory to save landscapes #####
-dir.create("landscapes/random_field_range10", recursive = TRUE, showWarnings = FALSE)
+dir.create("landscapes/random_field_range10_large", recursive = TRUE, showWarnings = FALSE)
 
 ##### Set up run #####
 # Get task ID from SLURM environment variable
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
 # Simulate landscape
-fq <- simulateLandscape(landscape_size = 1100, resource_range = 10)
+fq <- simulateLandscapeRaster(landscape_size = 1500, resource_range = 10)
 
 # Save landscape
 saveRDS(fq, file = paste(sprintf("landscapes/random_field_range10/landscape_%03d", task_id), ".rds", sep = ""))

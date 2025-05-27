@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=landscape_sim
-#SBATCH --output=logs/sim_%A_%a.out
-#SBATCH --error=logs/sim_%A_%a.err
+#SBATCH --output=logs/landscape_%A_%a.out
+#SBATCH --error=logs/landscape_%A_%a.err
 #SBATCH --array=1-10
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=4G
+#SBATCH --mem=8G
 #SBATCH --time=1:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
@@ -20,7 +20,7 @@ for package in "${packages[@]}"; do
 done
 
 #Make directory to store outputs
-mkdir -p landscapes/random_field_range10
+mkdir -p landscapes/random_field_range10_large
 
 #Run landscape simulation script
-Rscript parallelizeSimulateLandscape.R
+Rscript parallelizeRandomField.R
