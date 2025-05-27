@@ -83,7 +83,7 @@ compute_visitation_on_raster <- function(colonies,
     dist <- sqrt(dx^2 + dy^2)
     
     # compute visitation rate of colony at each pixel
-    if (distance_decay == "exponentiated quadratic"){
+    if (distance_decay == "exponentiated_quadratic"){
       visitation_vals <- exp(-0.5 * (dist / rho)^2 + theta * rq_vals)
     } else if (distance_decay == "exponential"){
       visitation_vals <- exp(dist / rho + theta * rq_vals)
@@ -127,7 +127,7 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
                                        colony_sizes, #vector of length number_colonies
                                        rho, # set param value
                                        theta, # set param value
-                                       distance_decay # current options: "exponentiated quadratic" and "exponential"
+                                       distance_decay # current options: "exponentiated_quadratic" and "exponential"
 ){
   ##### Define colony characteristics #####
   colonyid = 1:number_colonies
