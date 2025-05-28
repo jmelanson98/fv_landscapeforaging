@@ -139,6 +139,7 @@ if (model_approach == "centroid"){
   colony_data$model_estimate = summary(stanFit, pars = c("colony_dist"))$summary[,1]
   param_grid$model_average_foraging = mean(colony_data$model_estimate)
   param_grid$model_sd_foraging = sd(colony_data$model_estimate)
+  param_grid$model_mu = summary(stanFit, pars = c("mu"))$summary[,1]
 }
 
 saveRDS(param_grid, "simulate_data/methods_comparison/param_grid.rds")

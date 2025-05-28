@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
-#SBATCH --time=1:00:00
+#SBATCH --time=2:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
@@ -19,8 +19,5 @@ for package in "${packages[@]}"; do
   Rscript -e "if (!require('$package')) install.packages('$package', repos='https://cloud.r-project.org/')"
 done
 
-#Make directory to store outputs
-mkdir -p landscapes/random_field_range10_large
-
 #Run landscape simulation script
-Rscript parallelizeRandomField.R
+Rscript parallelRandomField.R

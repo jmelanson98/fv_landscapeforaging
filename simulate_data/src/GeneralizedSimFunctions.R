@@ -8,20 +8,7 @@
 ##### Simulate floral quality landscapes as raster #####
 simulateLandscapeRaster = function(landscape_size, # integer, same for x and y
                                    resource_range) {
-  # use Brownian variogram to simulate spatial distribution of resources (as in Pope & Jha)
-  
-  # get xy coordinates of center of each pixel
-  xy <- xyFromCell(nest_raster, 1:ncell(nest_raster))
-  
-  # determine which checkerboard grid they're in
-  col_index <- floor(xy[,1] / 50)
-  row_index <- floor(xy[,2] / 50)
-  
-  # assign values
-  checker_values <- (col_index + row_index) %% 2
-  values(nest_raster) <- checker_values
-  
-  
+  # use Brownian variogram to simulate spatial distribution of resources (as in Pope & Jha
   # create a regular grid of points to simulate over
   grid = rast(nrows = landscape_size, ncols = landscape_size,
               xmin = 0, xmax = landscape_size, 
@@ -82,6 +69,8 @@ compute_visitation_on_raster <- function(colonies,
     dy <- xy_coords[, 2] - colony_y
     dist <- sqrt(dx^2 + dy^2)
     
+    print(rho)
+    print(distance_decay)
     # compute visitation rate of colony at each pixel
     if (distance_decay == "exponentiated_quadratic"){
       visitation_vals <- exp(-0.5 * (dist / rho)^2 + theta * rq_vals)

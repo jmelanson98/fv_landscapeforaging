@@ -68,6 +68,7 @@ if (file.exists("simulate_data/methods_comparison/param_grid.rds")){
   param_grid$model_sd_foraging = NA
   param_grid$counts = NA
   param_grid$num_unobserved = NA
+  param_grid$model_mu = NA
 }
 
 
@@ -77,7 +78,7 @@ task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 params <- param_grid[task_id, ]
 
 # Get landscape from saved file
-fq <- readRDS(paste0(sprintf("landscapes/random_field_range10_large/landscape_%03d", params$landscape_id), ".rds"))
+fq <- readRDS(paste0(sprintf("simulate_data/landscapes/landscapes/random_field_range10/landscape_%03d", params$landscape_id), ".rds"))
 
 # Run simulation
 result <- draw_bees_colony_restricted(
