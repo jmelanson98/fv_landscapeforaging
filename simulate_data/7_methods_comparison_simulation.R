@@ -57,6 +57,7 @@ if (file.exists("simulate_data/methods_comparison/param_grid.rds")){
   param_grid <- expand.grid(
     landscape_id = landscape_ids,
     rho = rho,
+    colony_density = colony_density,
     sample_size = sample_sizes,
     distance_decay = distance_decay,
     model_approach = model_approach,
