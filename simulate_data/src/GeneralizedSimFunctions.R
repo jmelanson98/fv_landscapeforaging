@@ -56,7 +56,8 @@ compute_visitation_on_raster <- function(colonies,
   # flatten raster values into a vector
   rq_vals <- values(resource_quality_rast)
   
-  visitation_rates <- list() # will be a list of rasters
+  lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
+  trapcoords = as.matrix(trap_data[, c("trap_x", "trap_y")])
   avg_distances <- numeric(nrow(colonies))
   total_vis <- numeric(nrow(colonies))
   
@@ -87,17 +88,25 @@ compute_visitation_on_raster <- function(colonies,
       NA_real_
     }
     
-    vis_rast <- resource_quality_rast  # clone geometry
-    values(vis_rast) <- visitation_vals
+    visit_rast <- resource_quality_rast  # clone geometry
+    values(visit_rast) <- visitation_vals
     
-    print(paste("Saving visitation for colony", i, sep = " "))
-    visitation_rates[[i]] <- vis_rast
+    
+    # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
+    # pull out all trap visitation values for that colony
+    trap_vals <- terra::extract(visit_rast, trapcoords)
+    lambda_ik[i, ] <- vals[, 1]
+    
+    # record average foraging distance and total visitation
     avg_distances[i] <- avg_distance
     total_vis[i] <- total_visitation
+    
+    # report
+    print(paste("Computed visitation for colony", i, sep = " "))
   }
   
   return(list(
-    visitation_rates = visitation_rates,
+    lambda_ik = lambda_ik,
     avg_distances = avg_distances,
     total_vis = total_vis
   ))
@@ -113,7 +122,7 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
                                        nesting_landscape = NULL, # matrix containing nest habitat quality across landscape
                                        number_traps, # square integer
                                        number_colonies, # positive integer
-                                       colony_sizes, #vector of length number_colonies
+                                       colony_sizes, #vector cd ..of length number_colonies
                                        rho, # set param value
                                        theta, # set param value
                                        distance_decay # current options: "exponentiated_quadratic" and "exponential"
@@ -167,30 +176,16 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   ##### Create landscape-wide visitation matrix #####
   # compute visitation rates for each colony at each grid cell, total visitation, and average foraging range
   visitation_and_foraging_range <- compute_visitation_on_raster(colonies = colony_data,
+                                                                trap_data = trap_data,
                                                                 resource_quality_rast = resource_landscape,
                                                                 rho = rho,
                                                                 theta = theta,
                                                                 distance_decay = distance_decay)
   
   
-  visitation_rates = visitation_and_foraging_range[[1]]
+  lambda_ik = visitation_and_foraging_range[[1]]
   colony_data$foraging_range = visitation_and_foraging_range[[2]]
   colony_data$D_i = visitation_and_foraging_range[[3]]
-  
-  
-  ##### Compute fixed values lambda_ik #####
-  # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
-  lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
-  trapcoords = as.matrix(trap_data[, c("trap_x", "trap_y")])
-  
-  for (i in seq_len(number_colonies)) {
-    visit_rast <- visitation_rates[[i]]  # each is a raster of size [xmax x ymax]
-    
-    # pull out all trap visitation values for that colony
-    vals <- terra::extract(visit_rast, trapcoords)
-    lambda_ik[i, ] <- vals[, 1]
-  }
-  
   
   ##### Start sampling #####
   yik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
