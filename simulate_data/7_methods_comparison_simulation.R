@@ -97,18 +97,24 @@ result <- draw_bees_colony_restricted(
   distance_decay = params$distance_decay
 )
 
+
+# Write outputs to variables
+yobs = result[[1]]
+colony_data = result[[2]]
+trap_data = result[[3]]
+
 # Save output
 outfilepath <- sprintf("simulate_data/methods_comparison/data/sim_result_%03d", task_id)
 dir.create(outfilepath, recursive = TRUE, showWarnings = FALSE)
-saveRDS(result[[1]], paste(outfilepath, "/yobs.RDS", sep = ""))
-saveRDS(result[[2]], paste(outfilepath, "/colonydata.RDS", sep = ""))
-saveRDS(result[[3]], paste(outfilepath, "/trapdata.RDS", sep = ""))
+saveRDS(yobs, paste(outfilepath, "/yobs.RDS", sep = ""))
+saveRDS(colony_data, paste(outfilepath, "/colonydata.RDS", sep = ""))
+saveRDS(trap_data, paste(outfilepath, "/trapdata.RDS", sep = ""))
 
 #save coloony metrics to param_grid
 nonzero = yobs[rowSums(yobs) > 0,]
 zero = yobs[rowSums(yobs) ==0,]
 param_grid$counts = list(rowSums(nonzero))
 param_grid$num_unobserved = nrow(zero)
-param_grid$true_average_foraging = mean(result[[2]]$foraging_range)
-param_grid$true_sd_foraging - sd(result[[2]]$foraging_range)
+param_grid$true_average_foraging = mean(colony_data$foraging_range)
+param_grid$true_sd_foraging - sd(colony_data$foraging_range)
 saveRDS(param_grid, "simulate_data/methods_comparison/param_grid.rds")
