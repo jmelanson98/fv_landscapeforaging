@@ -48,7 +48,10 @@ compute_visitation_on_raster <- function(colonies,
                                          resource_quality_rast, 
                                          rho, 
                                          theta,
-                                         distance_decay) {
+                                         distance_decay,
+					 trap_data = trap_data,
+					 number_colonies = number_colonies,
+					 number_traps = number_traps) {
   
   # get coordinates for center of each pixel
   xy_coords <- crds(resource_quality_rast, df = TRUE)  # matrix of x and y
@@ -95,7 +98,7 @@ compute_visitation_on_raster <- function(colonies,
     # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
     # pull out all trap visitation values for that colony
     trap_vals <- terra::extract(visit_rast, trapcoords)
-    lambda_ik[i, ] <- vals[, 1]
+    lambda_ik[i, ] <- trap_vals[, 1]
     
     # record average foraging distance and total visitation
     avg_distances[i] <- avg_distance
@@ -180,7 +183,9 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
                                                                 resource_quality_rast = resource_landscape,
                                                                 rho = rho,
                                                                 theta = theta,
-                                                                distance_decay = distance_decay)
+                                                                distance_decay = distance_decay,
+								number_colonies = number_colonies,
+								number_traps = number_traps)
   
   
   lambda_ik = visitation_and_foraging_range[[1]]
@@ -231,6 +236,6 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
     print(paste("Now sampled", sum(yik), "of", sample_size, "bees"))
   }
   
-  output = list(yik, colony_data, trap_data, visitation_rates)
+  output = list(yik, colony_data, trap_data)
   return(output)
 }
