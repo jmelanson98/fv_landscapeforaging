@@ -324,6 +324,30 @@ nest_mat = nest_mat[nrow(nest_mat):1, ]
 # convert to a log probability matrix (normalize and take the log)
 log_prob_nest_mat = log(nest_mat/sum(nest_mat))
 
+
+###### Fit GAM
+# Convert raster to data.frame
+df <- as.data.frame(nest_raster, xy = TRUE)
+colnames(df) <- c("x", "y", "suitability")
+
+# Scale coordinates (important for numerical stability in Stan)
+df$x_scaled <- scale(df$x)[,1]
+df$y_scaled <- scale(df$y)[,1]
+
+# Fit GAM
+gam_fit <- gam(suitability ~ s(x_scaled, y_scaled, bs = "tp", k = 100), data = df)
+
+
+df$predicted <- predict(gam_fit, newdata = df)
+ggplot(df, aes(x = x, y = y)) +
+  geom_raster(aes(fill = predicted)) +
+  coord_equal() +
+  scale_fill_viridis_c() +
+  ggtitle("GAM-Predicted Suitability")
+
+### hahaha that looks like shit
+
+
 ###### Create data list for stan
 data = list()
 data$C = nrow(yobs)
