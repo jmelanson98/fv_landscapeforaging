@@ -62,7 +62,7 @@ data$floral = trap_data$fq
 data$priorVa = 1
 data$priorCo = 1
 data$rho_center = 4.5
-data$rho_sd_log = 0.5
+data$rho_sd = 0.5
 
 
 ### Current params
@@ -106,7 +106,7 @@ if (current_params$model_approach != "centroid"){
                  iter = 10000,
                  verbose = TRUE)
   print("Model complete.")
-  saveRDS(stanFit, file=paste(results_path,"/stanFit.RDS", sep =""))
+  saveRDS(stanFit, file=paste(inputfilepath,"/stanFit.RDS", sep =""))
   print("Model saved.")
 }
 
