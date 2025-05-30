@@ -46,8 +46,8 @@ param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 inputfilepath <- sprintf("simulate_data/methods_comparison/data/sim_result_%03d", task_id)
 yobs = readRDS(paste(inputfilepath, "/yobs.RDS", sep = ""))
-colony_data = readRDS(paste(outfilepath, "/colonydata.RDS", sep = ""))
-trap_data = readRDS(paste(outfilepath, "/trapdata.RDS", sep = ""))
+colony_data = readRDS(paste(inputfilepath, "/colonydata.RDS", sep = ""))
+trap_data = readRDS(paste(inputfilepath, "/trapdata.RDS", sep = ""))
 
 
 ##### Fit Models ######
@@ -64,21 +64,26 @@ data$priorCo = 1
 data$rho_center = 4.5
 data$rho_sd_log = 0.5
 
+
+### Current params
+current_params = param_grid[task_id,]
+
+
 ### Correctly subset yobs based on approach
-if (model_approach == "all"){
+if (current_params$model_approach == "all"){
   data$y = yobs
   data$C = nrow(yobs)
-} else if (model_approach == "singletons"){
+} else if (current_params$model_approach == "singletons"){
   colony_data = colony_data[rowSums(yobs) > 0,]
   yobs = yobs[rowSums(yobs) > 0,]
   data$y = yobs
   data$C = nrow(yobs)
-} else if (model_approach == "doubletons"){
+} else if (current_params$model_approach == "doubletons"){
   colony_data = colony_data[rowSums(yobs) > 1,]
   yobs = yobs[rowSums(yobs) > 1,]
   data$y = yobs
   data$C = nrow(yobs)
-} else if (model_approach == "centroid"){
+} else if (current_params$model_approach == "centroid"){
   colony_data = colony_data[rowSums(yobs) > 1,]
   yobs = yobs[rowSums(yobs) > 1,]
   data$y = yobs
@@ -90,9 +95,9 @@ if (model_approach == "all"){
 
 
 ### Fit Stan model if necessary
-if (model_approach != "centroid"){
+if (current_params$model_approach != "centroid"){
   #select stan model to fit
-  stanfile = paste("models/", distance_decay, ".stan", sep = "")
+  stanfile = paste("models/", current_params$distance_decay, ".stan", sep = "")
   
   #fit and save model
   stanFit = stan(file = stanfile,
@@ -109,7 +114,7 @@ if (model_approach != "centroid"){
 
 ##### Estimate and plot landscape-level foraging distance ######
 
-if (model_approach == "centroid"){
+if (current_params$model_approach == "centroid"){
   get_avg_distance_to_centroid <- function(counts, coords) {
     total <- sum(counts)
     if (total == 0) return(NA)
@@ -127,7 +132,7 @@ if (model_approach == "centroid"){
   }
   
   #apply function to yobs
-  avg_dists <- apply(yobs_temp, 1, function(counts) {
+  avg_dists <- apply(yobs, 1, function(counts) {
     get_avg_distance_to_centroid(counts, trap_data)
   })
   
