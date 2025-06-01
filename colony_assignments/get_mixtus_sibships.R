@@ -192,15 +192,19 @@ write.csv(mixtus2023_forcolony, "data/merged_by_year/csvs/mixtus_2023_scores.csv
 # second value per column: marker type (codominant for microsats -> 0)
 # third value per column: allelic dropout rate ?? (set to 0)
 # fourth value per column: error/mutation rate (empirically derived, see check_microsat_error_rates.R)
-mixtus_error_rates <- data.frame(
-  locus = c("BT10", "BTMS0104", "BTMS0057", "BTMS0086", "BTMS0066", "BTMS0062", 
-            "BTMS0136", "BTERN01", "BTMS0126", "BTMS0059", "BL13", "BTMS0083", "B126"),
-  col2 = rep(0, 13),
-  col3 = rep(0, 13),
-  error_rate = c(0.01, 0.01, 0.01, 0.015, 0.01, 0.015, 0.01, 0.0215, 0.0162, 0.01, 0.0159, 0.01, 0.01),
-  stringsAsFactors = FALSE
-)
-
+mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
+                         c("BTMS0104", 0, 0, 0.01),
+                         c("BTMS0057", 0, 0, 0.01),
+                         c("BTMS0086", 0, 0, 0.015),
+                         c("BTMS0066", 0, 0, 0.01),
+                         c("BTMS0062", 0, 0, 0.015),
+                         c("BTMS0136", 0, 0, 0.01),
+                         c("BTERN01", 0, 0, 0.0215),
+                         c("BTMS0126", 0, 0, 0.0162),
+                         c("BTMS0059", 0, 0, 0.01),
+                         c("BL13", 0, 0, 0.0159),
+                         c("BTMS0083", 0, 0, 0.01),
+                         c("B126", 0, 0, 0.01))
 write.table(mixtus_error_rates, "data/merged_by_year/error_rates/mixtus_error_rates.txt", 
             sep= "\t", col.names = FALSE, row.names = FALSE, quote = FALSE)
 
