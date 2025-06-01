@@ -200,7 +200,7 @@ impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
                                 c("BTMS0073", 0, 0, 0.01),
                                 c("BT28", 0, 0, 0.01)
                                 )
-write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates.txt", sep= "/t", col.names = FALSE, row.names = FALSE)
 
 ###########################################
 # Prep sibship exclusion data for COLONY
@@ -669,7 +669,7 @@ rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_la
 #####################################
 
 # read in and format 2022 data
-lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2022.BestCluster"))
+lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022_1.BestCluster"))
 split_lines2022 <- strsplit(lines2022, "\\s+")
 bestconfig2022 <- do.call(rbind, split_lines2022)
 colnames(bestconfig2022) <- bestconfig2022[1, ]
@@ -677,7 +677,7 @@ bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
 bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
 
 # read in and format 2023 data
-lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/impatiens2023.BestCluster"))
+lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2023_1.BestCluster"))
 split_lines2023 <- strsplit(lines2023, "\\s+")
 bestconfig2023 <- do.call(rbind, split_lines2023)
 colnames(bestconfig2023) <- bestconfig2023[1, ]
@@ -705,6 +705,6 @@ for (i in 1:nrow(bestconfig2023)){
 }
 
 #write csvs to file
-write.csv(bestconfig2022, "data/siblingships/imp_sibships_preliminary_2022.csv")
+write.csv(bestconfig2022, "data/siblingships/imp_sibships_final_2022.csv")
 write.csv(bestconfig2023, "data/siblingships/imp_sibships_preliminary_2023.csv")
 
