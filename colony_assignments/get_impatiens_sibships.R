@@ -200,7 +200,7 @@ impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
                                 c("BTMS0073", 0, 0, 0.01),
                                 c("BT28", 0, 0, 0.01)
                                 )
-write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates.txt", sep= "/t", col.names = FALSE, row.names = FALSE)
+write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates.txt", sep= "\t", col.names = FALSE, row.names = FALSE)
 
 ###########################################
 # Prep sibship exclusion data for COLONY
