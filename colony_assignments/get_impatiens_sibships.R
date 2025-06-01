@@ -184,23 +184,17 @@ write.csv(impatiens2023_forcolony, "data/merged_by_year/csvs/impatiens_2023_scor
 # second value per column: marker type (codominant for microsats -> 0)
 # third value per column: allelic dropout rate ?? (set to 0)
 # fourth value per column: error/mutation rate (empirically derived, see check_microsat_error_rates.R)
-impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
-                                c("B96", 0, 0, 0.027),
-                                c("BTMS0059", 0, 0, 0.017),
-                                c("BTMS0081", 0, 0, 0.016),
-                                c("BL13", 0, 0, 0.011),
-                                c("BTMS0062", 0, 0, 0.022),
-                                c("B126", 0, 0, 0.01),
-                                c("BTERN01", 0, 0, 0.028),
-                                c("B124", 0, 0, 0.011),
-                                c("BTMS0057", 0, 0, 0.017),
-                                c("BT30", 0, 0, 0.01),
-                                c("B10", 0, 0, 0.029),
-                                c("BTMS0083", 0, 0, 0.01),
-                                c("BTMS0073", 0, 0, 0.01),
-                                c("BT28", 0, 0, 0.01)
-                                )
-write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates.txt", sep= "\t", col.names = FALSE, row.names = FALSE)
+impatiens_error_rates <- data.frame(
+  locus = c("BT10", "B96", "BTMS0059", "BTMS0081", "BL13", "BTMS0062", 
+            "B126", "BTERN01", "B124", "BTMS0057", "BT30", "B10", "BTMS0083", "BTMS0073", "BT28"),
+  col2 = rep(0, 15),
+  col3 = rep(0, 15),
+  error_rate = c(0.017, 0.027, 0.017, 0.016, 0.011, 0.022, 0.01, 0.028, 0.011, 0.017, 0.01, 0.29, 0.01, 0.01, 0.01),
+  stringsAsFactors = FALSE
+)
+
+write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates.txt", 
+            sep= "\t", col.names = FALSE, row.names = FALSE, quote = FALSE)
 
 ###########################################
 # Prep sibship exclusion data for COLONY
