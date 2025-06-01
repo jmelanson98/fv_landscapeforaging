@@ -205,7 +205,7 @@ mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
                          c("BL13", 0, 0, 0.0159),
                          c("BTMS0083", 0, 0, 0.01),
                          c("B126", 0, 0, 0.01))
-write.table(mixtus_error_rates, "data/merged_by_year/error_rates/mixtus_error_rates.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixtus_error_rates, "data/merged_by_year/error_rates/mixtus_error_rates.txt", sep= "\t", col.names = FALSE, row.names = FALSE)
 
 ###########################################
 # Prep sibship exclusion data for COLONY
