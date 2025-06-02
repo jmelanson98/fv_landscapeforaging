@@ -19,6 +19,7 @@ library(genepop)
 library(data.table)
 library(cowplot)
 library(raster)
+library(igraph)
 
 # next; load in specimen data and allele tables
 #load field data
@@ -327,12 +328,13 @@ rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_la
 #####################################
 
 # read in and format 2022 data
-lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2022.BestCluster"))
+lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022_1.BestCluster"))
 split_lines2022 <- strsplit(lines2022, "\\s+")
 bestconfig2022 <- do.call(rbind, split_lines2022)
 colnames(bestconfig2022) <- bestconfig2022[1, ]
 bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
 bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
+
 
 # read in and format 2023 data
 lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2023.BestCluster"))
@@ -346,7 +348,7 @@ bestconfig2023$Probability = as.numeric(bestconfig2023$Probability)
 counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
 for (i in 1:nrow(bestconfig2022)){
   # if the probability of inclusion in the cluster is < 0.95, make a new cluster
-  if (bestconfig2022$Probability[i] < 0.95){
+  if (bestconfig2022$Probability[i] < 1){
     bestconfig2022$ClusterIndex[i] = counter
     counter = counter + 1
   }
@@ -356,7 +358,7 @@ for (i in 1:nrow(bestconfig2022)){
 counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
 for (i in 1:nrow(bestconfig2023)){
   # if the probability of inclusion in the cluster is < 0.95, make a new cluster
-  if (bestconfig2023$Probability[i] < 0.95){
+  if (bestconfig2023$Probability[i] < 1){
     bestconfig2023$ClusterIndex[i] = counter
     counter = counter + 1
   }
@@ -365,6 +367,55 @@ for (i in 1:nrow(bestconfig2023)){
 #write csvs to file
 write.csv(bestconfig2022, "data/siblingships/imp_sibships_preliminary_2022.csv")
 write.csv(bestconfig2023, "data/siblingships/imp_sibships_preliminary_2023.csv")
+
+
+
+# try with FS dyads instead of FS clusters (more stringent?)
+fsDyad2022 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022_1.FullSibDyad"))
+split_dyads2022 <- strsplit(fsDyad2022, ",")
+bestdyads2022 <- do.call(rbind, split_dyads2022)
+colnames(bestdyads2022) <- bestdyads2022[1, ]
+bestdyads2022 <- as.data.frame(bestdyads2022[-1, ])
+bestdyads2022$Probability = as.numeric(bestdyads2022$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2022_filtered = bestdyads2022 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2022_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+# then, check for non-circularity (e.g., A related to B, B related to C, A not related to C)
+flags <- lapply(unique(membership_df$Family), function(fam_id) {
+  nodes <- membership_df$OffspringID[membership_df$Family == fam_id]
+  subg <- induced_subgraph(graph_22, vids = nodes)
+  
+  n <- gorder(subg)
+  expected_edges <- n * (n - 1) / 2
+  actual_edges <- gsize(subg)
+  
+  data.frame(Family = fam_id, FlagIncomplete = actual_edges < expected_edges)
+})
+
+flag_df <- bind_rows(flags)
+
+# add flags to output
+df_with_family <- bestdyads2022_filtered %>%
+  left_join(membership_df, by = c("OffspringID1" = "OffspringID")) %>%
+  rename(Family = Family)
+
+df_with_flags <- df_with_family %>%
+  left_join(flag_df, by = "Family")
+
+
 
 ############################################
 # Remove siblings before running genepop

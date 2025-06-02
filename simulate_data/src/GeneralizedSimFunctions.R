@@ -77,9 +77,9 @@ compute_visitation_on_raster <- function(colonies,
     print(distance_decay)
     # compute visitation rate of colony at each pixel
     if (distance_decay == "exponentiated_quadratic"){
-      visitation_vals <- exp(-0.5 * (dist / rho)^2 + theta * rq_vals)
+      visitation_vals <- exp(-0.5 * (dist / (rho*exp(theta*rq_vals)))^2)
     } else if (distance_decay == "exponential"){
-      visitation_vals <- exp(dist / rho + theta * rq_vals)
+      visitation_vals <- exp(dist / (rho*exp(theta * rq_vals)))
     } else {
       print("Sorry, not a valid decay function.")
     }
