@@ -30,6 +30,9 @@ library(dplyr)
 library(tidyr)
 library(gridExtra)
 library(terra)
+library(ggpubr)
+library(grid.arrange)
+
 
 ##### Set Environment #####
 #setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
