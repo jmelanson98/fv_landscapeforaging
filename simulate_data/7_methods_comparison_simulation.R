@@ -106,9 +106,17 @@ trap_data = result[[3]]
 # Save output
 outfilepath <- sprintf("simulate_data/methods_comparison/data/sim_result_%03d", task_id)
 dir.create(outfilepath, recursive = TRUE, showWarnings = FALSE)
-saveRDS(yobs, paste(outfilepath, "/yobs.RDS", sep = ""))
-saveRDS(colony_data, paste(outfilepath, "/colonydata.RDS", sep = ""))
-saveRDS(trap_data, paste(outfilepath, "/trapdata.RDS", sep = ""))
+
+# create safe saving function
+safe_save <- function(object, path) {
+  tmp <- paste0(path, ".tmp")
+  saveRDS(object, tmp)
+  file.rename(tmp, path)
+}
+
+safe_save(yobs, paste(outfilepath, "/yobs.RDS", sep = ""))
+safe_save(colony_data, paste(outfilepath, "/colonydata.RDS", sep = ""))
+safe_save(trap_data, paste(outfilepath, "/trapdata.RDS", sep = ""))
 
 #save coloony metrics to param_grid
 nonzero = yobs[rowSums(yobs) > 0,]
@@ -117,4 +125,4 @@ param_grid$counts = list(rowSums(nonzero))
 param_grid$num_unobserved = nrow(zero)
 param_grid$true_average_foraging = mean(colony_data$foraging_range)
 param_grid$true_sd_foraging - sd(colony_data$foraging_range)
-saveRDS(param_grid, "simulate_data/methods_comparison/param_grid.rds")
+safe_save(param_grid, "simulate_data/methods_comparison/param_grid.rds")
