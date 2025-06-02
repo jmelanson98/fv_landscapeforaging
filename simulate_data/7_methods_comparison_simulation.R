@@ -121,8 +121,8 @@ safe_save(trap_data, paste(outfilepath, "/trapdata.RDS", sep = ""))
 #save coloony metrics to param_grid
 nonzero = yobs[rowSums(yobs) > 0,]
 zero = yobs[rowSums(yobs) ==0,]
-param_grid$counts = list(rowSums(nonzero))
-param_grid$num_unobserved = nrow(zero)
-param_grid$true_average_foraging = mean(colony_data$foraging_range)
-param_grid$true_sd_foraging - sd(colony_data$foraging_range)
+param_grid$counts[task_id] = list(rowSums(nonzero))
+param_grid$num_unobserved[task_id] = nrow(zero)
+param_grid$true_average_foraging[task_id] = mean(colony_data$foraging_range)
+param_grid$true_sd_foraging[task_id] = sd(colony_data$foraging_range)
 safe_save(param_grid, "simulate_data/methods_comparison/param_grid.rds")
