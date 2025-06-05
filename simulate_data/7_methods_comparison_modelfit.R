@@ -31,7 +31,6 @@ library(tidyr)
 library(gridExtra)
 library(terra)
 library(ggpubr)
-library(grid.arrange)
 
 
 ##### Set Environment #####
