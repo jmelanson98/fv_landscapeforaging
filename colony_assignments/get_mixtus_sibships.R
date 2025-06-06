@@ -371,6 +371,102 @@ for (i in 1:nrow(bestconfig2023)){
 write.csv(bestconfig2022, "data/siblingships/mix_sibships_preliminary_2022.csv")
 write.csv(bestconfig2023, "data/siblingships/mix_sibships_preliminary_2023.csv")
 
+
+#################################################
+# More stringent approach for colony assignments
+#################################################
+
+# try with FS dyads instead of FS clusters
+#run 1
+fsDyad2022_1 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/mixtus_2022_monogamous/mixtus_2022_monogamous.FullSibDyad"))
+fsDyad2022_1 <- strsplit(fsDyad2022_1, ",")
+fsDyad2022_1 <- do.call(rbind, fsDyad2022_1)
+colnames(fsDyad2022_1) <- fsDyad2022_1[1, ]
+fsDyad2022_1 <- as.data.frame(fsDyad2022_1[-1, ])
+fsDyad2022_1$Probability = as.numeric(fsDyad2022_1$Probability)
+
+# run 2
+fsDyad2022_2 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/mixtus_2022_monogamous_2/mixtus_2022_monogamous_2.FullSibDyad"))
+fsDyad2022_2 <- strsplit(fsDyad2022_2, ",")
+fsDyad2022_2 <- do.call(rbind, fsDyad2022_2)
+colnames(fsDyad2022_2) <- fsDyad2022_2[1, ]
+fsDyad2022_2 <- as.data.frame(fsDyad2022_2[-1, ])
+fsDyad2022_2$Probability = as.numeric(fsDyad2022_2$Probability)
+
+# run 3
+fsDyad2022_3 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/mixtus_2022_monogamous_3/mixtus_2022_monogamous_3.FullSibDyad"))
+fsDyad2022_3 <- strsplit(fsDyad2022_3, ",")
+fsDyad2022_3 <- do.call(rbind, fsDyad2022_3)
+colnames(fsDyad2022_3) <- fsDyad2022_3[1, ]
+fsDyad2022_3 <- as.data.frame(fsDyad2022_3[-1, ])
+fsDyad2022_3$Probability = as.numeric(fsDyad2022_3$Probability)
+
+# remove sibpairs below some threshold probability (p = 0.95)
+bestdyads2022_1 = fsDyad2022_1 %>% filter(Probability > 0.99)
+bestdyads2022_2 = fsDyad2022_2 %>% filter(Probability > 0.99)
+bestdyads2022_3 = fsDyad2022_3 %>% filter(Probability > 0.99)
+
+example = c(bestdyads2022_1[2, c("OffspringID1")], bestdyads2022_1[2, c("OffspringID2")])
+comparison = example %in% bestdyads2022_1[,c("OffspringID1", "OffspringID2")]
+
+
+# retain dyads which are present in all 3 runs
+# first, collapse pairs into an ordered character string
+collapse <- function(df) {
+  apply(df, 1, function(row) paste(sort(row[c("OffspringID1", "OffspringID2")]), collapse = "-"))
+}
+
+# generate pairs
+pairs_df1 <- collapse(bestdyads2022_1)
+pairs_df2 <- collapse(bestdyads2022_2)
+pairs_df3 <- collapse(bestdyads2022_3)
+
+# check matches
+in_df2 <- pairs_df1 %in% pairs_df2
+in_df3 <- pairs_df1 %in% pairs_df3
+
+bestdyads2022_1$in2 = in_df2
+bestdyads2022_1$in3 =  in_df3
+bestdyads2022_1$inall = in_df2 & in_df3
+
+# subset to the consistent subset
+consistentdyad_2022 = bestdyads2022_1[bestdyads2022_1$inall ==TRUE,]
+
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(consistentdyad_2022[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+# then, check for non-circularity (e.g., A related to B, B related to C, A not related to C)
+flags <- lapply(unique(membership_df$Family), function(fam_id) {
+  nodes <- membership_df$OffspringID[membership_df$Family == fam_id]
+  subg <- induced_subgraph(graph_22, vids = nodes)
+  
+  n <- gorder(subg)
+  expected_edges <- n * (n - 1) / 2
+  actual_edges <- gsize(subg)
+  
+  data.frame(Family = fam_id, FlagIncomplete = actual_edges < expected_edges)
+})
+
+flag_df <- bind_rows(flags)
+
+# add flags to output
+df_with_family <- consistentdyad_2022 %>%
+  left_join(membership_df, by = c("OffspringID1" = "OffspringID")) %>%
+  rename(Family = Family)
+
+df_with_flags <- df_with_family %>%
+  left_join(flag_df, by = "Family")
+
 ############################################
 # Remove siblings before running genepop
 ############################################
