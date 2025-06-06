@@ -174,7 +174,7 @@ fig = ggplot(summary, aes(x = true_avg, y = model_avg,
        y = "Modelled Foraging Distance",
        color = "Approach") +
   theme_minimal()
-ggsave(ggsave("figures/simfigs/methods_comparison_accuracy.jpg", fig, width = 2000, height = 1000, units = 'px'))
+ggsave("figures/simfigs/methods_comparison_accuracy.jpg", fig, width = 2000, height = 1000, units = 'px')
 
 #### Worker distribution plots
 # prep real data
