@@ -84,12 +84,9 @@ compute_visitation_on_raster <- function(colonies,
       print("Sorry, not a valid decay function.")
     }
     
-    total_visitation <- sum(visitation_vals, na.rm = TRUE)
-    avg_distance <- if (total_visitation > 0) {
-      sum(visitation_vals * dist, na.rm = TRUE) / total_visitation
-    } else {
-      NA_real_
-    }
+    total_visitation = sum(visitation_vals, na.rm = TRUE)
+    print(paste("Total visitation = ", total_visitation, sep = ""))
+    avg_distance = sum(visitation_vals * dist, na.rm = TRUE) / total_visitation
     
     visit_rast <- resource_quality_rast  # clone geometry
     values(visit_rast) <- visitation_vals
@@ -106,6 +103,7 @@ compute_visitation_on_raster <- function(colonies,
     
     # report
     print(paste("Computed visitation for colony", i, sep = " "))
+    print(paste("Average foraging distance = ", avg_distance, sep = ""))
   }
   
   return(list(

@@ -44,34 +44,34 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 
 
 ##### Create a grid of parameters to test #####
-if (file.exists("simulate_data/methods_comparison/param_grid.rds")){
-  param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
-} else{
-  landscape_ids = 1:10
-  rho <- c(50, 75, 100, 125, 150)
-  colony_density <- c(8000) # using this because it's 4 * sample_size
-  sample_sizes <- c(2000)
-  distance_decay = c("exponentiated_quadratic", "exponential")
-  model_approach = c("all", "singletons", "doubletons", "centroid")
-  
-  param_grid <- expand.grid(
-    landscape_id = landscape_ids,
-    rho = rho,
-    colony_density = colony_density,
-    sample_size = sample_sizes,
-    distance_decay = distance_decay,
-    model_approach = model_approach,
-    stringsAsFactors = FALSE
-  )
-  param_grid$true_average_foraging = NA
-  param_grid$true_sd_foraging = NA
-  param_grid$model_average_foraging = NA
-  param_grid$model_sd_foraging = NA
-  param_grid$counts = NA
-  param_grid$num_unobserved = NA
-  param_grid$model_mu = NA
-}
-
+# if (file.exists("simulate_data/methods_comparison/param_grid.rds")){
+#   param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
+# } else {
+#   landscape_ids = 1:10
+#   rho <- c(50, 75, 100, 125, 150)
+#   colony_density <- c(7000)
+#   sample_sizes <- c(2000)
+#   distance_decay = c("exponentiated_quadratic", "exponential")
+#   model_approach = c("all", "singletons", "doubletons", "centroid")
+#   
+#   param_grid <- expand.grid(
+#     landscape_id = landscape_ids,
+#     rho = rho,
+#     colony_density = colony_density,
+#     sample_size = sample_sizes,
+#     distance_decay = distance_decay,
+#     model_approach = model_approach,
+#     stringsAsFactors = FALSE
+#   )
+#   param_grid$true_average_foraging = NA
+#   param_grid$true_sd_foraging = NA
+#   param_grid$model_average_foraging = NA
+#   param_grid$model_sd_foraging = NA
+#   param_grid$counts = NA
+#   param_grid$num_unobserved = NA
+#   param_grid$model_mu = NA
+# }
+param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
 
 ##### Simulate data ######
 # Get task ID from SLURM environment variable
