@@ -30,6 +30,8 @@ library(dplyr)
 library(tidyr)
 library(gridExtra)
 library(terra)
+library(filelock)
+library(tibble)
 
 ##### Set Environment #####
 #setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
@@ -53,7 +55,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 #   sample_sizes <- c(2000)
 #   distance_decay = c("exponentiated_quadratic", "exponential")
 #   model_approach = c("all", "singletons", "doubletons", "centroid")
-#   
+# 
 #   param_grid <- expand.grid(
 #     landscape_id = landscape_ids,
 #     rho = rho,
@@ -80,6 +82,8 @@ params <- param_grid[task_id, ]
 
 # Get landscape from saved file
 fq <- readRDS(paste0(sprintf("simulate_data/landscapes/landscapes/random_field_range10/landscape_%03d", params$landscape_id), ".rds"))
+fq = terra::rast(fq)
+
 
 # Run simulation
 result <- draw_bees_colony_restricted(
@@ -103,26 +107,48 @@ yobs = result[[1]]
 colony_data = result[[2]]
 trap_data = result[[3]]
 
-# Save output
+# save main output
 outfilepath <- sprintf("simulate_data/methods_comparison/data/sim_result_%03d", task_id)
 dir.create(outfilepath, recursive = TRUE, showWarnings = FALSE)
 
-# create safe saving function
-safe_save <- function(object, path) {
-  tmp <- paste0(path, ".tmp")
-  saveRDS(object, tmp)
-  file.rename(tmp, path)
-}
+saveRDS(yobs, paste(outfilepath, "/yobs.RDS", sep = ""))
+saveRDS(colony_data, paste(outfilepath, "/colonydata.RDS", sep = ""))
+saveRDS(trap_data, paste(outfilepath, "/trapdata.RDS", sep = ""))
 
-safe_save(yobs, paste(outfilepath, "/yobs.RDS", sep = ""))
-safe_save(colony_data, paste(outfilepath, "/colonydata.RDS", sep = ""))
-safe_save(trap_data, paste(outfilepath, "/trapdata.RDS", sep = ""))
-
-#save coloony metrics to param_grid
+#save colony metrics / summary statistics to single output file
 nonzero = yobs[rowSums(yobs) > 0,]
 zero = yobs[rowSums(yobs) ==0,]
 param_grid$counts[task_id] = list(rowSums(nonzero))
 param_grid$num_unobserved[task_id] = nrow(zero)
 param_grid$true_average_foraging[task_id] = mean(colony_data$foraging_range)
 param_grid$true_sd_foraging[task_id] = sd(colony_data$foraging_range)
-safe_save(param_grid, "simulate_data/methods_comparison/param_grid.rds")
+
+result = tibble(param_grid[task_id,])
+
+# use lock to make sure multiple tasks don't write to output at the same time
+lockfile <- "output.lock"
+rds_file <- "simulate_data/methods_comparison/output.rds"
+
+# try to acquire the lock (waits up to 60 seconds)
+lock <- lock(lockfile, timeout = 60000)
+
+if (!is.null(lock)) {
+  # If the RDS file exists, read it in; else create new
+  if (file.exists(rds_file)) {
+    df <- readRDS(rds_file)
+  } else {
+    df <- tibble()  # initialize empty tibble
+  }
+  
+  # append the new row
+  df <- dplyr::bind_rows(df, result)
+  
+  # Save the updated dataframe
+  saveRDS(df, rds_file)
+  
+  # Release lock
+  unlock(lock)
+} else {
+  stop("Could not acquire lock on output file.")
+}
+

@@ -54,7 +54,8 @@ compute_visitation_on_raster <- function(colonies,
 					 number_traps = number_traps) {
   
   # get coordinates for center of each pixel
-  xy_coords <- crds(resource_quality_rast, df = TRUE)  # matrix of x and y
+  xy_coords <- terra::crds(resource_quality_rast, df = TRUE)  # matrix of x and y
+  
   
   # flatten raster values into a vector
   rq_vals <- values(resource_quality_rast)
@@ -79,7 +80,7 @@ compute_visitation_on_raster <- function(colonies,
     if (distance_decay == "exponentiated_quadratic"){
       visitation_vals <- exp(-0.5 * (dist / (rho*exp(theta*rq_vals)))^2)
     } else if (distance_decay == "exponential"){
-      visitation_vals <- exp(dist / (rho*exp(theta * rq_vals)))
+      visitation_vals <- exp(-dist / (rho*exp(theta * rq_vals)))
     } else {
       print("Sorry, not a valid decay function.")
     }
