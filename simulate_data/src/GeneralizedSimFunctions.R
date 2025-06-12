@@ -157,7 +157,8 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   }
   
   colony_data = as.data.frame(cbind(colonyid, colony_sizes, colony_x, colony_y))
-  
+  print("Colony simulation complete.")
+
   ##### Define trap characteristics #####
   trapid = 1:number_traps
   grid_size = sqrt(number_traps)
@@ -166,8 +167,9 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   trap_y = (landscape_size - trapgrid_size)/2 + step*(0:(grid_size-1))
   coords = expand.grid(trap_x = trap_x, trap_y = trap_y)
   trap_data = as.data.frame(cbind(trapid, coords))
-  trap_data$fq <- terra::extract(resource_landscape, trap_data[, c("trap_x", "trap_y")])[, 2]
-  
+  points <- terra::vect(trap_data[, c("trap_x", "trap_y")], geom = c("trap_x", "trap_y"), crs = crs(resource_landscape))
+  trap_data$fq <- terra::extract(resource_landscape, points)[, 2]
+  print("Trap simulation complete.")
   
   # optional plotting step to visualize traps and colonies
   #plot(nesting_landscape, col = c("white", "black"))

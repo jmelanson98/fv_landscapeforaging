@@ -73,19 +73,23 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 #   param_grid$num_unobserved = NA
 #   param_grid$model_mu = NA
 # }
+print("Reading param grid.")
 param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
 
 ##### Simulate data ######
 # Get task ID from SLURM environment variable
+print("Setting task id and params.")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 params <- param_grid[task_id, ]
 
 # Get landscape from saved file
+print("Loading floral resource raster.")
 fq <- readRDS(paste0(sprintf("simulate_data/landscapes/landscapes/random_field_range10/landscape_%03d", params$landscape_id), ".rds"))
-fq = terra::rast(fq)
-
+#fq = terra::rast(fq)
+print(terra::hasValues(fq))
 
 # Run simulation
+print("Starting simulation.")
 result <- draw_bees_colony_restricted(
   sample_size     = params$sample_size,
   landscape_size  = 1500,

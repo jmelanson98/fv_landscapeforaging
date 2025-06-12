@@ -10,6 +10,9 @@
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
+# Define your personal R library path
+export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.3
+
 # List of required packages
 packages=("matrixStats" "sp" "gstat" "ggplot2" "reshape2" "raster" "rasterVis" "parallel" "future" "furrr")
 
