@@ -38,9 +38,6 @@ library(tibble)
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 options(mc.cores = parallel::detectCores())
 
-
-
-
 ##### Source functions #####
 source("simulate_data/src/GeneralizedSimFunctions.R")
 
@@ -57,7 +54,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 #   model_approach = c("all", "singletons", "doubletons", "centroid")
 # 
 #   param_grid <- expand.grid(
-#
+# 
 #     landscape_id = landscape_ids,
 #     rho = rho,
 #     colony_density = colony_density,
@@ -66,7 +63,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 #     model_approach = model_approach,
 #     stringsAsFactors = FALSE
 #   )
-#   param_grid$task_id = 1:ncol(param_grid)
+#   param_grid$task_id = 1:nrow(param_grid)
 #   param_grid$true_average_foraging = NA
 #   param_grid$true_sd_foraging = NA
 #   param_grid$model_average_foraging = NA
