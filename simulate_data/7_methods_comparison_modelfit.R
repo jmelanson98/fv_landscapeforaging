@@ -105,6 +105,7 @@ if (current_params$model_approach != "centroid"){
   stanFit = stan(file = stanfile,
                  data = data, seed = 5838299,
                  chains = 4, cores = 4,
+                 control = list(max_treedepth = 15),
                  iter = 10000,
                  verbose = TRUE)
   print("Model complete.")
