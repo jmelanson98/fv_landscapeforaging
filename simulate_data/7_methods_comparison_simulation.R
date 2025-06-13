@@ -147,7 +147,8 @@ if (!is.null(lock)) {
   # Save the updated dataframe
   tmp <- tempfile()
   saveRDS(df, tmp)
-  file.rename(tmp, rds_file)
+  file.copy(tmp, rds_file, overwrite = TRUE)
+  file.remove(tmp)
   
   # Release lock
   unlock(lock)
