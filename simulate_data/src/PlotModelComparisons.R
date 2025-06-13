@@ -146,7 +146,7 @@ for (rho_select in unique(sim_output$rho)){
 grid = grid.arrange(grobs = plotlist, ncol = 2)
 sibdistributions = grid.arrange(grid, legend, ncol = 2, widths = c(10,1))
 ggsave("figures/simfigs/methods_comparison_sibship_distribution.jpg", sibdistributions,
-       height = 5000, width = 2500, units = "px")
+       height = 5000, width = 3000, units = "px")
 
 
 
