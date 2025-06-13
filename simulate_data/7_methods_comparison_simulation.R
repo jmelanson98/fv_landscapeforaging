@@ -145,7 +145,9 @@ if (!is.null(lock)) {
   df <- dplyr::bind_rows(df, result)
   
   # Save the updated dataframe
-  saveRDS(df, rds_file)
+  tmp <- tempfile()
+  saveRDS(df, tmp)
+  file.rename(tmp, rds_file)
   
   # Release lock
   unlock(lock)

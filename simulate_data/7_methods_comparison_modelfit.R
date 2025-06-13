@@ -176,7 +176,9 @@ if (current_params$model_approach == "centroid"){
     df$model_mu[df$task_id == task_id] = summary(stanFit, pars = c("mu"))$summary[,1]
     
     # Save the updated dataframe
-    saveRDS(df, rds_file)
+    tmp <- tempfile()
+    saveRDS(df, tmp)
+    file.rename(tmp, rds_file)
     
     # Release lock
     unlock(lock)
