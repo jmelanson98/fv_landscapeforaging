@@ -30,7 +30,7 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
 #setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging") # server
 rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
-sim_path = "simulate_data/exponentiated_quadratic_sim/"
+sim_path = "simulate_data/methods_comparison/"
 
 ##### Load in data #####
 param_grid = readRDS(paste(sim_path, "param_grid.rds", sep = ""))
@@ -39,6 +39,8 @@ param_grid = readRDS(paste(sim_path, "param_grid.rds", sep = ""))
 # list all .err files
 err_dir <- "simulate_data/logs"
 err_files <- list.files(err_dir, pattern = "^stan.*\\.err$", full.names = TRUE)
+out_files <- list.files(err_dir, pattern = "^stan.*\\.out$", full.names = TRUE)
+
 
 # Function to check each file
 check_err_file <- function(file) {
@@ -54,22 +56,41 @@ check_err_file <- function(file) {
   )
 }
 
+check_out_file <- function(file) {
+  lines <- readLines(file, warn = FALSE)
+  
+  list(
+    file = basename(file),
+    has_divergent = any(grepl("divergent", lines, ignore.case = TRUE)),
+    has_low_ess = any(grepl("Effective Sample Size", lines, ignore.case = TRUE)),
+    has_error_out = any(grepl("error", lines, ignore.case = TRUE)),
+    rejected_init = any(grepl("Rejecting initial value", lines, ignore.case = TRUE)),
+    finished = any(grepl("Model saved", lines, ignore.case = TRUE))
+  )
+}
+
+
 # Apply to all files
-results <- lapply(err_files, check_err_file)
+err_results <- lapply(err_files, check_err_file)
+out_results <- lapply(out_files, check_out_file)
 
 # Convert to a data frame
-error_summary <- do.call(rbind, lapply(results, as.data.frame))
+error_summary <- do.call(rbind, lapply(err_results, as.data.frame))
+output_summary <- do.call(rbind, lapply(out_results, as.data.frame))
 
 # Join with param grid
 param_grid$id = as.integer(rownames(param_grid))
 error_summary$id = as.integer(sapply(strsplit(error_summary$file, "[_.]"), function(x) x[3]))
+output_summary$id = as.integer(sapply(strsplit(output_summary$file, "[_.]"), function(x) x[3]))
+
+
 error_summary = left_join(error_summary, param_grid, by = "id")
+summary = left_join(error_summary, output_summary, by = "id")
 
 # plot results
-colonydensity = ggplot(error_summary, aes(x = colony_density, colour = has_undefined)) +
-  geom_histogram() +
-  theme_minimal() +
-  labs(title = "Divergent Transitions x Colony Density")
+ggplot(summary, aes(x = distance_decay, colour = finished)) +
+  geom_bar() +
+  theme_minimal()
 
 rho = ggplot(error_summary, aes(x = rho, fill = has_undefined)) +
   geom_histogram() +

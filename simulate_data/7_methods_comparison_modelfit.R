@@ -143,6 +143,11 @@ if (current_params$model_approach == "centroid"){
     get_avg_distance_to_centroid(counts, trap_data)
   })
   
+  # save the result of *this* simulation only
+  current_params$model_average_foraging[df$task_id == task_id] = mean(avg_dists)
+  current_params$model_sd_foraging[df$task_id == task_id] = sd(avg_dists)
+  saveRDS(current_params, inputfilepath)
+  
   # save in output grid
   # try to acquire the lock (waits up to 60 seconds)
   lock <- lock(lockfile, timeout = 60000)
@@ -165,6 +170,12 @@ if (current_params$model_approach == "centroid"){
 } else {
   colony_data$model_estimate = summary(stanFit, pars = c("colony_dist"))$summary[,1]
   
+  # save the result of *this* simulation only
+  current_params$model_average_foraging[df$task_id == task_id] = mean(colony_data$model_estimate)
+  current_params$model_sd_foraging[df$task_id == task_id] = sd(colony_data$model_estimate)
+  current_params$model_mu[df$task_id == task_id] = summary(stanFit, pars = c("mu"))$summary[,1]
+  saveRDS(current_params, inputfilepath)
+  
   # save output
   # try to acquire the lock (waits up to 60 seconds)
   lock <- lock(lockfile, timeout = 60000)
@@ -176,10 +187,8 @@ if (current_params$model_approach == "centroid"){
     df$model_sd_foraging[df$task_id == task_id] = sd(colony_data$model_estimate)
     df$model_mu[df$task_id == task_id] = summary(stanFit, pars = c("mu"))$summary[,1]
     
-    # Save the updated dataframe
-    tmp <- tempfile()
-    saveRDS(df, tmp)
-    file.rename(tmp, rds_file)
+    # save updated dataframe
+    saveRDS(df, rds_file)
     
     # Release lock
     unlock(lock)
