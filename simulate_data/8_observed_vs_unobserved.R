@@ -80,7 +80,7 @@ data$rho_center = 4.5
 data$rho_sd = 0.5
 
 
-data$yobs = yobs
+data$y = yobs
 data$C = nrow(yobs)
 
 
