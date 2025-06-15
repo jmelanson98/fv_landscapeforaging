@@ -144,9 +144,9 @@ if (current_params$model_approach == "centroid"){
   })
   
   # save the result of *this* simulation only
-  current_params$model_average_foraging[df$task_id == task_id] = mean(avg_dists)
-  current_params$model_sd_foraging[df$task_id == task_id] = sd(avg_dists)
-  saveRDS(current_params, inputfilepath)
+  current_params$model_average_foraging = mean(avg_dists)
+  current_params$model_sd_foraging = sd(avg_dists)
+  saveRDS(current_params, paste(inputfilepath, "iteration_output.rds", sep = ""))
   
   # save in output grid
   # try to acquire the lock (waits up to 60 seconds)
@@ -171,10 +171,10 @@ if (current_params$model_approach == "centroid"){
   colony_data$model_estimate = summary(stanFit, pars = c("colony_dist"))$summary[,1]
   
   # save the result of *this* simulation only
-  current_params$model_average_foraging[df$task_id == task_id] = mean(colony_data$model_estimate)
-  current_params$model_sd_foraging[df$task_id == task_id] = sd(colony_data$model_estimate)
-  current_params$model_mu[df$task_id == task_id] = summary(stanFit, pars = c("mu"))$summary[,1]
-  saveRDS(current_params, inputfilepath)
+  current_params$model_average_foraging = mean(colony_data$model_estimate)
+  current_params$model_sd_foraging = sd(colony_data$model_estimate)
+  current_params$model_mu = summary(stanFit, pars = c("mu"))$summary[,1]
+  saveRDS(current_params, paste(inputfilepath, "iteration_output.rds", sep = ""))
   
   # save output
   # try to acquire the lock (waits up to 60 seconds)

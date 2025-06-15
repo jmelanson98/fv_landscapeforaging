@@ -65,7 +65,8 @@ check_out_file <- function(file) {
     has_low_ess = any(grepl("Effective Sample Size", lines, ignore.case = TRUE)),
     has_error_out = any(grepl("error", lines, ignore.case = TRUE)),
     rejected_init = any(grepl("Rejecting initial value", lines, ignore.case = TRUE)),
-    finished = any(grepl("Model saved", lines, ignore.case = TRUE))
+    saved = any(grepl("Model saved", lines, ignore.case = TRUE)),
+    finished = any(grepl("Model complete", lines, ignore.case = TRUE)),
   )
 }
 
