@@ -2,7 +2,7 @@
 #SBATCH --job-name=fit_stan
 #SBATCH --output=logs/stan_%A_%a.out
 #SBATCH --error=logs/stan_%A_%a.err
-#SBATCH --array=101-400
+#SBATCH --array=101-300
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
