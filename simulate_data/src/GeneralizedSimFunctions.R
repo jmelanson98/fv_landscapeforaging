@@ -115,6 +115,79 @@ compute_visitation_on_raster <- function(colonies,
 }
 
 
+##### compute visitation rates with landscape metrics specified for each colony
+compute_visitation_landscape_effects <- function(colonies, 
+                                         resource_quality_rast, 
+                                         rho, 
+                                         theta,
+                                         alpha,
+                                         distance_decay,
+                                         trap_data = trap_data,
+                                         number_colonies = number_colonies,
+                                         number_traps = number_traps) {
+  
+  # get coordinates for center of each pixel
+  xy_coords <- terra::crds(resource_quality_rast, df = TRUE)  # matrix of x and y
+  
+  
+  # flatten raster values into a vector
+  rq_vals <- values(resource_quality_rast)
+  
+  lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
+  trapcoords = as.matrix(trap_data[, c("trap_x", "trap_y")])
+  avg_distances <- numeric(nrow(colonies))
+  total_vis <- numeric(nrow(colonies))
+  
+  for (i in 1:nrow(colonies)) {
+    colony_x <- colonies$colony_x[i]
+    colony_y <- colonies$colony_y[i]
+    landscape = colonies$landscape_metric[i]
+    
+    # compute Euclidean distance from colony to each pixel
+    dx <- xy_coords[, 1] - colony_x
+    dy <- xy_coords[, 2] - colony_y
+    dist <- sqrt(dx^2 + dy^2)
+    
+    # compute visitation rate of colony at each pixel
+    if (distance_decay == "exponentiated_quadratic"){
+      visitation_vals <- exp(-0.5 * (dist / (rho*exp(alpha*landscape)))^2 + theta * rq_vals)
+    } else if (distance_decay == "exponential"){
+      visitation_vals <- exp(-dist / (rho*exp(alpha * landscape)) + theta * rq_vals)
+    } else {
+      print("Sorry, not a valid decay function.")
+    }
+    
+    total_visitation = sum(visitation_vals, na.rm = TRUE)
+    avg_distance = sum(visitation_vals * dist, na.rm = TRUE) / total_visitation
+    
+    visit_rast <- resource_quality_rast  # clone geometry
+    values(visit_rast) <- visitation_vals
+    
+    
+    # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
+    # pull out all trap visitation values for that colony
+    trap_vals <- terra::extract(visit_rast, trapcoords)
+    lambda_ik[i, ] <- trap_vals[, 1]
+    
+    # record average foraging distance and total visitation
+    avg_distances[i] <- avg_distance
+    total_vis[i] <- total_visitation
+    
+    # report
+    print(paste("Rho = ", rho, sep = ""))
+    print(paste("Edge density = ", landscape, sep = ""))
+    print(paste("Computed visitation for colony", i, sep = " "))
+    print(paste("Average foraging distance = ", avg_distance, sep = ""))
+  }
+  
+  return(list(
+    lambda_ik = lambda_ik,
+    avg_distances = avg_distances,
+    total_vis = total_vis
+  ))
+}
+
+
 ##### Simulate bee draws #####
 draw_bees_colony_restricted = function(sample_size, # number of bees to sample
                                        landscape_size, # integer, size of full resource landscape
@@ -127,6 +200,7 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
                                        colony_sizes, #vector cd ..of length number_colonies
                                        rho, # set param value
                                        theta, # set param value
+                                       alpha = NULL, # log-linear effect of landscape on length scale
                                        distance_decay # current options: "exponentiated_quadratic" and "exponential"
 ){
   ##### Define colony characteristics #####
@@ -157,6 +231,7 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   }
   
   colony_data = as.data.frame(cbind(colonyid, colony_sizes, colony_x, colony_y))
+  colony_data$landscape_metric = runif(number_colonies, 0, 0.2)
   print("Colony simulation complete.")
 
   ##### Define trap characteristics #####
@@ -179,14 +254,30 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   
   ##### Create landscape-wide visitation matrix #####
   # compute visitation rates for each colony at each grid cell, total visitation, and average foraging range
-  visitation_and_foraging_range <- compute_visitation_on_raster(colonies = colony_data,
-                                                                trap_data = trap_data,
-                                                                resource_quality_rast = resource_landscape,
-                                                                rho = rho,
-                                                                theta = theta,
-                                                                distance_decay = distance_decay,
-								number_colonies = number_colonies,
-								number_traps = number_traps)
+  
+  if (is.null(alpha)){
+    visitation_and_foraging_range <- compute_visitation_on_raster(colonies = colony_data,
+                                                                  trap_data = trap_data,
+                                                                  resource_quality_rast = resource_landscape,
+                                                                  rho = rho,
+                                                                  theta = theta,
+                                                                  distance_decay = distance_decay,
+                                                                  number_colonies = number_colonies,
+                                                                  number_traps = number_traps)
+    
+  } else {
+    visitation_and_foraging_range <- compute_visitation_landscape_effects(colonies = colony_data,
+                                                                  trap_data = trap_data,
+                                                                  resource_quality_rast = resource_landscape,
+                                                                  rho = rho,
+                                                                  theta = theta,
+                                                                  alpha = alpha,
+                                                                  distance_decay = distance_decay,
+                                                                  number_colonies = number_colonies,
+                                                                  number_traps = number_traps)
+    
+  }
+  
   
   
   lambda_ik = visitation_and_foraging_range[[1]]
