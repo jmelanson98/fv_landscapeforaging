@@ -63,7 +63,7 @@ data$upperbound = 1100
 data$floral = trap_data$fq
 data$priorVa = 1
 data$priorCo = 1
-data$rho_center = 4.5
+data$rho_center = 3.5
 data$rho_sd = 0.5
 
 
@@ -174,6 +174,7 @@ if (current_params$model_approach == "centroid"){
   current_params$model_average_foraging = mean(colony_data$model_estimate)
   current_params$model_sd_foraging = sd(colony_data$model_estimate)
   current_params$model_mu = summary(stanFit, pars = c("mu"))$summary[,1]
+  current_params$model_rho = summary(stanFit, pars = c("rho"))$summary[,1]
   saveRDS(current_params, paste(inputfilepath, "iteration_output.rds", sep = ""))
   
   # save output
@@ -186,6 +187,7 @@ if (current_params$model_approach == "centroid"){
     df$model_average_foraging[df$task_id == task_id] = mean(colony_data$model_estimate)
     df$model_sd_foraging[df$task_id == task_id] = sd(colony_data$model_estimate)
     df$model_mu[df$task_id == task_id] = summary(stanFit, pars = c("mu"))$summary[,1]
+    df$model_rho[df$task_id == task_id] = summary(stanFit, pars = c("rho"))$summary[,1]
     
     # save updated dataframe
     saveRDS(df, rds_file)

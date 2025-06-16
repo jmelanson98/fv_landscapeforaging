@@ -52,7 +52,8 @@ check_err_file <- function(file) {
     has_divergent = any(grepl("divergent", lines, ignore.case = TRUE)),
     has_low_ess = any(grepl("Effective Samples Size", lines, ignore.case = TRUE)),
     has_error = any(grepl("error", lines, ignore.case = TRUE)),
-    has_undefined = any(grepl("The following variables have undefined values", lines, ignore.case = TRUE))
+    has_undefined = any(grepl("The following variables have undefined values", lines, ignore.case = TRUE)),
+    executed = any(grepl("Execution halted", lines, ignore.case = TRUE))
   )
 }
 
@@ -66,7 +67,7 @@ check_out_file <- function(file) {
     has_error_out = any(grepl("error", lines, ignore.case = TRUE)),
     rejected_init = any(grepl("Rejecting initial value", lines, ignore.case = TRUE)),
     saved = any(grepl("Model saved", lines, ignore.case = TRUE)),
-    finished = any(grepl("Model complete", lines, ignore.case = TRUE)),
+    finished = any(grepl("Model complete", lines, ignore.case = TRUE))
   )
 }
 
@@ -89,25 +90,18 @@ error_summary = left_join(error_summary, param_grid, by = "id")
 summary = left_join(error_summary, output_summary, by = "id")
 
 # plot results
-ggplot(summary, aes(x = distance_decay, colour = finished)) +
+ggplot(summary, aes(x = rho, fill = executed)) +
   geom_bar() +
   theme_minimal()
 
-rho = ggplot(error_summary, aes(x = rho, fill = has_undefined)) +
-  geom_histogram() +
-  theme_minimal() +
-  labs(title = "Undefined Foraging Distance x Simulated Length Scale")
 
 # remove any sims that had errors
 param_grid = error_summary[error_summary$has_error == FALSE,]
 
-# currently the saved version of these figures are from initial model fits with 
-# divergent transitions -- before tightening prior on beta and decreasing step size
-# ggsave("figures/simfigs/divergenttransitions_samplesize_informativebeta.jpg",
-#        samplesize, width = 1500, height = 1000, units = "px")
-# 
-# ggsave("figures/simfigs/divergenttransitions_foragingdist_informativebeta.jpg",
-#        beta, width = 1500, height = 1000, units = "px")
+
+
+
+
 
 
 ##### Plot simulated vs model-predicted colony average foraging distance

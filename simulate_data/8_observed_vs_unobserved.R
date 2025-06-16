@@ -58,6 +58,7 @@ result <- draw_bees_colony_restricted(
 
 # Save results
 saveRDS(result, "simulate_data/methods_comparison/observed_vs_unobserved/simdata.rds")
+result = readRDS("simulate_data/methods_comparison/observed_vs_unobserved/simdata.rds")
 
 # Write outputs to variables
 yobs = result[[1]]
@@ -80,15 +81,15 @@ data$rho_center = 4.5
 data$rho_sd = 0.5
 
 
-data$y = yobs
-data$C = nrow(yobs)
+data$y = yobs_detected
+data$C = nrow(data$y)
 
 
 #select stan model to fit
 stanfile = paste("models/exponential.stan")
 
 #fit and save model
-stanFitAll = stan(file = stanfile,
+stanFitObserved = stan(file = stanfile,
                data = data, seed = 5838299,
                chains = 4, cores = 4,
                control = list(max_treedepth = 15),
@@ -96,9 +97,17 @@ stanFitAll = stan(file = stanfile,
                verbose = TRUE)
 saveRDS(stanFitAll, file="simulate_data/methods_comparison/observed_vs_unobserved/stanFitAll.RDS")
 
+# load in the other model
+stanFitObserved = readRDS("simulate_data/methods_comparison/observed_vs_unobserved/stanFitObserved.RDS")
 
+# when I ran these, the generated quantities block of exponential.stan had an error :(
+# so ignore the colony dist estimates, they're all wrong
 
-
+# okay so initial thoughts...maintaining the zeros makes a HUGE difference
+# for all colonies included, rho = 53 
+# for only observed colonies, rho = 199
+# (true rho = 50)
+# this seems too extreme to me true....going to rerun the stanFitObserved
 
 
 sim_path = "simulate_data/methods_comparison/"

@@ -47,7 +47,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 #   param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
 # } else {
 #   landscape_ids = 1:10
-#   rho <- c(50, 75, 100, 125, 150)
+#   rho <- c(20, 35, 50, 75, 100)
 #   colony_density <- c(7000)
 #   sample_sizes <- c(2000)
 #   distance_decay = c("exponentiated_quadratic", "exponential")
@@ -71,7 +71,11 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 #   param_grid$counts = NA
 #   param_grid$num_unobserved = NA
 #   param_grid$model_mu = NA
+#   param_grid$model_rho = NA
 # }
+# saveRDS(param_grid, "simulate_data/methods_comparison/param_grid.rds")
+
+
 print("Reading param grid.")
 param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
 
