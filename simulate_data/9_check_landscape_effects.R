@@ -55,38 +55,40 @@ result <- draw_bees_colony_restricted(
 
 # Save results
 saveRDS(result, "simulate_data/methods_comparison/landscape_effects/simdata.rds")
+result = readRDS("simulate_data/methods_comparison/landscape_effects/simdata.rds")
 
 # Write outputs to variables
 yobs = result[[1]]
 colony_data = result[[2]]
 trap_data = result[[3]]
 
+# First try for only detected colonies
+yobs_detected = yobs[rowSums(yobs > 0),]
+colony_data_detected = colony_data[rowSums(yobs > 0),]
 
 # Prep data list for Stan
 data = list()
-data$y = yobs
-data$C = nrow(yobs)
-data$K = 25
+data$y = yobs_detected
+data$C = nrow(data$y)
+data$K = ncol(data$y)
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
 data$lowerbound = 400
 data$upperbound = 1100
+data$landscape = colony_data_detected$landscape_metric
 data$floral = trap_data$fq
 data$priorVa = 1
-data$priorCo = 1
-data$rho_center = 4.5
+data$priorCo = 3
+data$rho_center = 3.5
 data$rho_sd = 0.5
-data$y = yobs
-data$C = nrow(yobs)
 
 
 #select stan model to fit
-stanfile = paste("models/exponential.stan")
+stanfile = paste("models/landscape_exp.stan")
 
 #fit and save model
-stanFitAll = stan(file = stanfile,
+stanFitLandscape = stan(file = stanfile,
                   data = data, seed = 5838299,
                   chains = 4, cores = 4,
-                  control = list(max_treedepth = 15),
                   iter = 10000,
                   verbose = TRUE)
 saveRDS(stanFitAll, file="simulate_data/methods_comparison/observed_vs_unobserved/stanFitAll.RDS")
