@@ -108,6 +108,46 @@ stanFitObserved = readRDS("simulate_data/methods_comparison/observed_vs_unobserv
 # for only observed colonies, rho = 199
 # (true rho = 50)
 # this seems too extreme to me true....going to rerun the stanFitObserved
+# second run -- same results
 
+# check worker distributions
+# prep real data
+allspecs = read.csv("data/siblingships/allsibships_cleaned.csv")
+mixsum = allspecs %>% filter(final_id == "B. mixtus") %>%
+  filter(!is.na(ClusterIndex)) %>%
+  group_by(ClusterIndex) %>%
+  summarize(n = n())
+impsum = allspecs %>% filter(final_id == "B. impatiens") %>%
+  filter(!is.na(ClusterIndex)) %>%
+  group_by(ClusterIndex) %>%
+  summarize(n = n())
 
-sim_path = "simulate_data/methods_comparison/"
+# simulated data
+simsum = data.frame(n = rowSums(yobs_detected))
+
+# combine
+mix = data.frame(n = mixsum$n)
+imp = data.frame(n = impsum$n)
+df_combined = bind_rows(
+  simsum %>% mutate(group = "sim"),
+  mix %>% mutate(group = "mix"),
+  imp %>% mutate(group = "imp")
+)
+
+# bin manually
+df_props <- df_combined %>%
+  group_by(group, n) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(group) %>%
+  mutate(proportion = count / sum(count))
+
+# plot
+ggplot(df_props, aes(x = n, y = proportion, color = group)) +
+  geom_segment(aes(x = n - 0.5, xend = n + 0.5), linewidth = 0.6) +
+  geom_point(size = 3) +
+  labs(
+    x = "Number of Sibs",
+    y = "Proportion"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))

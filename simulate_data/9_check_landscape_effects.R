@@ -77,10 +77,9 @@ data$upperbound = 1100
 data$landscape = colony_data_detected$landscape_metric
 data$floral = trap_data$fq
 data$priorVa = 1
-data$priorCo = 3
+data$priorCo = 1
 data$rho_center = 3.5
 data$rho_sd = 0.5
-
 
 #select stan model to fit
 stanfile = paste("models/landscape_exp.stan")
