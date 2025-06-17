@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH --job-name=fit_cmdstanr
+#SBATCH --output=simulate_data/methods_comparison/logs/cmdstanr_%A_%a.out
+#SBATCH --error=simulate_data/methods_comparison/logs/cmdstanr_%A_%a.err
+#SBATCH --array=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=1G
+#SBATCH --time=00:30:00
+
+module load StdEnv/2023 gcc r/4.3.1 gdal proj
+
+# Define your personal R library path
+export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.3
+
+Rscript 8A_reducesum_unobserved.R
