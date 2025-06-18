@@ -1,8 +1,12 @@
 \documentclass[12pt]{article}
 \usepackage{iftex}
-\usepackage[pdftex]{graphicx}
+\usepackage{graphicx}
+\usepackage{enumitem}
 \usepackage{hyperref}
-\usepackage{natbib}
+\usepackage[style=apa, backend=biber, refsection = chapter]{biblatex}
+\addbibresource{refs.bib}
+\setcounter{maxnames}{20}
+\setcounter{minnames}{1}
 \usepackage{color}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -11,7 +15,6 @@
 \usepackage{mathpazo}
 \usepackage{setspace}
 \usepackage{multirow}
-\usepackage{fullpage}
 \usepackage{lscape}
 \usepackage{fancyhdr}
 \usepackage[normalem]{ulem}
@@ -21,7 +24,13 @@
 \usepackage[tiny,compact]{titlesec}
 \usepackage{longtable}
 \usepackage{textcomp}
+\usepackage{rotating}
 \usepackage{xr}
+\usepackage{caption}
+\usepackage{siunitx}
+\usepackage[T1]{fontenc}
+\usepackage{gensymb}
+\sisetup{round-mode=places, round-precision=2, detect-all}
 %\externaldocument{supplementary_methods}
 
 \newcommand{\flagged}[1] {
@@ -101,7 +110,6 @@ abstract text
 \textbf{Keywords:} \keywords
 \clearpage
 \section{Introduction}
-\cite{gelmanRsquaredBayesianRegression2019}
 \section{Methods}
 
 \subsection{Study system}
@@ -112,24 +120,69 @@ Field surveys were conducted across six replicate landscapes distributed through
 Thirty sampling transects (50 meters x 2 meters) were established in each landscape, spaced as evenly as possible based on land-access and the availability of foraging resources on which to observe bees. We did not survey in active crop fields except for high-bush blueberry, which offers floral resources during its spring bloom and can sometimes host other flowers such as clovers (\textit{Trifolium spp.}) and flatweed (\textit{Hypochaeris radicata}) later in the season. A total of \emph{INSERT TOTAL TRANSECT NUMBER HERE} were surveyed over the course of two years (2022-2023) due to changes in land access within and between years. 
 
 \subsection{\textit{Bombus} collections and floral surveys}
-Each landscape was surveyed during 10 sampling rounds in year one (May-August 2022) and 17 sampling rounds in year two (March-August 2023). During each round of sampling, surveys were conducted on \emph{INSERT MEAN PLUS OR MINUS SD OF SAMPLING EFFORT} (mean \pm SE) transects. 
+Each landscape was surveyed during 10 sampling rounds in year one (May-August 2022) and 17 sampling rounds in year two (March-August 2023). During each round of sampling, surveys were conducted on \emph{INSERT MEAN PLUS OR MINUS SD OF SAMPLING EFFORT} (mean $\pm$ SE) transects. 
 
-\textit{Bombus} surveys at each transect entailed 5 minutes of active search time (totaling 140 hours in 2022 and \emph{INSERT TOTAL SAMPLING EFFORT 2023} in 2023), during which the stopwatch was paused whenever a foraging bumble bee was sighted. Specimens were captured by netting, placed into sterile 15 mL tubes, and immediately placed on ice before transfer to a -80\degree C freezer at the end of the day.  Surveys were conducted on days when the temperature was above 12\degree C (10\degree C for queen surveys) and wind speeds below 2.5 m/s. In 2022, all \texit{Bombus} species were collected; in 2023 only the focal species (\textit{B. mixtus} and \textit{B. impatiens} were collected.
+\textit{Bombus} surveys at each transect entailed 5 minutes of active search time (totaling 140 hours in 2022 and \emph{INSERT TOTAL SAMPLING EFFORT 2023} in 2023), during which the stopwatch was paused whenever a foraging bumble bee was sighted. Specimens were captured by netting, placed into sterile 15 mL tubes, and immediately placed on ice before transfer to a -80\degree C freezer at the end of the day.  Surveys were conducted on days when the temperature was above 12\degree C (10\degree C for queen surveys) and wind speeds below 2.5 m/s. In 2022, all \textit{Bombus} species were collected; in 2023 only the focal species (\textit{B. mixtus} and \textit{B. impatiens} were collected.
 
 To assess floral quality, all flowering plants within the transect area were identified to species or genus level. Abundance estimates were given for each species using a log-scale (i.e., 0 = 1-10 inflorescences, 1 = 11-100 inflorescences, 2 = 101-1000 inflorescences, 3 = 1001-10,000 inflorescences,  4 = 10,000+ inflorescences). Floral survey data was later filtered to exclude species which bumble bees were never observed visiting (based on over ~3,400 visitation events in 2022, and ~3,500 visitation events in 2023). This filtering step was included to reduce the noise introduced by a variety of herbaceous weeds with flowers too small to attract or support bumble bee foragers, but which were frequently observed on the transects in high abundance. 
 
 
-\emph{START EDITS FROM HERE}
-\subsection{Landscape analyses}
-Land cover maps were developed for each study site based on manual classification of Google Earth satellite imagery (2021) and site visits. Briefly, land cover was classified into 16 categories: annual row crops, blueberry, cranberry, other perennials, polyculture, hay meadows, pasture, fallow, grassy field margins, hedgerows (tree-dominated), hedgerows (blackberry-dominated), forest, wetlands, urban/suburban, roads, and water). These land cover types were chosen based on their hypothesized provisioning of nesting/floral resources and differences in disturbance regimes (see Table \ref{tab:landscapetable} for details). Land cover was mapped at 2-meter resolution in QGIS \parencite{QGIS_software}. Landscape Shannon diversity, the proportion of each landscape in blueberry cultivation, and the proportion of each landscape consisting of edge habitat (grassy field margins and hedgerows) were calculated within a 500-meter buffer surrounding each transect using the package \textit{lsm} \parencite{lsm-package}. Here, "edge density" is defined as the proportion of area within each buffer zone that was classified as a hedgerow or grassy margin. A buffer size was 500m was chosen based on the average foraging distance observed for bumble bee species across many studies \parencite{molaReview2025}; we used average foraging distance (as opposed to maximum foraging distance) as it represents the area accessible to the majority of individuals surveyed at a location, including those from species with smaller foraging ranges.
+\subsection{Landscape characterization}
+Land cover maps were developed for each study site based on manual classification of Google Earth satellite imagery (2021) and site visits. Briefly, land cover was classified into 16 categories: annual row crops, blueberry, cranberry, other perennials, polyculture, hay meadows, pasture, fallow, grassy field margins, hedgerows (tree-dominated), hedgerows (blackberry-dominated), forest, wetlands, urban/suburban, roads, and water). These land cover types were chosen based on their hypothesized provisioning of nesting/floral resources and differences in disturbance regimes (see Table \ref{tab:landscapetable} for details). Land cover was mapped at 2-meter resolution in QGIS \parencite{QGIS_software}. 
+
+%Landscape Shannon diversity, the proportion of each landscape in blueberry cultivation, and the proportion of each landscape consisting of edge habitat (grassy field margins and hedgerows) were calculated within a 500-meter buffer surrounding each transect using the package \textit{lsm} \parencite{lsm-package}. Here, "edge density" is defined as the proportion of area within each buffer zone that was classified as a hedgerow or grassy margin. A buffer size was 500m was chosen based on the average foraging distance observed for bumble bee species across many studies \parencite{molaReview2025}; we used average foraging distance (as opposed to maximum foraging distance) as it represents the area accessible to the majority of individuals surveyed at a location, including those from species with smaller foraging ranges.
+
+\begin{table}
+\centering
+\caption{Description of land cover classifications, including hypothesized resource provisioning for bumble bees. Based on personal observations and expert opinion.}
+\label{tab:landscapetable}
+\footnotesize
+\begin{tabular}{ p{2cm}  p{3.5cm} p{2cm} p{2.5cm} p{2cm} p{1.5cm}}
+\hline
+\textbf{Landcover Class}& \textbf{Description}& \textbf{Vegetation Level}& \textbf{Flowers}& \textbf{Nesting}& \textbf{Disturbance Rank}\\
+\hline
+\textbf{annual} & monoculture annual crops, tilled yearly& bare & sometimes (resource pulse)& no& 5 \\
+\hline
+\textbf{polyculture} & mixed annual crops, tilled yearly& bare & sometimes& no& 5 \\
+\hline
+\textbf{hay} & multiple cuts per year, tilled every 1-7 yrs& grass & sometimes (clover)& some species& 4\\
+\hline
+\textbf{fallow} & fields taken out of production temporarily& grass & yes& some species& 2 \\
+\hline
+\textbf{pasture} & grazed hay meadow& grass & yes& some species& 4\\
+\hline
+\textbf{blueberry} & described in text& woody & yes (resource pulse)& some species& 3 \\
+   \hline       
+\textbf{cranberry} & perennial, flooded yearly& herbaceous& yes (resource pulse)& no& 5 \\
+\hline
+\textbf{other perennial}& orchards, tree farms, etc.& woody & sometimes& yes& 3\\
+\hline
+\textbf{hedgerow (blackberry)}& field margins dominated by \textit{Rubus armeniacus} and \textit{R. laciniatus} & woody & yes (resource pulse)& yes& 2 \\
+\hline
+\textbf{forest} & forest fragments (primarily native species)& woody & yes& yes& 1 \\
+\hline
+\textbf{hedgerow (woody)}& planted or remnant hedgerows dominated by trees; planted hedgerows contain flowering species selected for pollinators& woody & yes& yes& 2 \\
+\hline
+\textbf{road/ industrial}& paved/impermeable surfaces& bare & no& no& 5 \\
+\hline
+\textbf{grassy margins}& unmanaged field margins without woody vegetation& grass & yes& some species& 3\\
+\hline
+\textbf{suburban/ urban}& residential properties, including gardens& woody & yes& yes& 4\\
+\hline
+\textbf{water} & lakes, rivers, irrigation ditches, ocean& bare & no& no& 5\\
+\end{tabular}
+\end{table}
+
+
+\subsection{Colony assignments}
+Microsatellite genotyping was used to assign workers (2022 and 2023) and queens (2023) to their natal colonies. Loci utilized were ...
+
 
 
 \section{Results}
 \section{Discussion}
 
-\bibliographystyle{wileyNJD-Harvard.bst}
-  \bibliography{refs.bib}
-  \setlength{\parskip}{1em}
+\printbibliography
 \clearpage
 
 
