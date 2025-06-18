@@ -5,8 +5,9 @@
 functions {
   real partial_log_lik(int[] slice_idx,
                        int start, int end,
+                       int K,
                        matrix trap,
-                       matrix y,
+                       int[,] y,
                        vector floral,
                        real rho,
                        real sigma_sqrt,
@@ -15,11 +16,11 @@ functions {
                        real theta,
                        vector eps,
                        vector zeta,
-                       array[] vector[2] delta) {
+                       array[] vector delta) {
                        
     real total = 0;
     for (i in start:end) {
-      for (k in 1:cols(y)) {
+      for (k in 1:K) {
         real dis = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
         real lambda = dis/(-rho * exp(theta * floral[k])) + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
         total += poisson_log_lpmf(y[i,k] | lambda);
@@ -43,6 +44,12 @@ real<lower=0> priorCo; // prior variance on other coefficients
 real<lower=0> rho_center; //prior median for length parameter, !! on log scale!!
 real<lower=0> rho_sd; //prior sd of length parameter, !!on log scale!!
 int<lower=1> grainsize; // number of colonies to parallelize per chunk
+}
+
+transformed data {
+int colony_ids[C];
+for (i in 1:C)
+  colony_ids[i] = i;
 }
 
 parameters { // see text for definitions
@@ -84,8 +91,8 @@ eps ~ normal(0, 1);
 zeta ~ normal(0, 1);
 
 // calculate intensity using partial_log_lik function
-target += reduce_sum(partial_log_lik, 1:C, grainsize,
-                     trap, y, floral,
+target += reduce_sum(partial_log_lik, colony_ids, grainsize,
+                     K, trap, y, floral,
                      rho, sigma_sqrt, tau_sqrt, mu, theta,
                      eps, zeta, delta);
 
