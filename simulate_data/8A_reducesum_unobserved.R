@@ -24,6 +24,7 @@ library(ggpubr)
 
 ##### Set Environment #####
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
+set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
 
@@ -63,6 +64,8 @@ grid$task = 1:nrow(grid)
 
 current = grid[grid$task == task_id,]
 
+print(current$model)
+print(current$threads)
 
 #select stan model to fit
 mod = cmdstan_model(paste("models/", current$model, sep = ""))
@@ -79,5 +82,9 @@ fit <- mod$sample(
   chains = 4,
   parallel_chains = 4,
   threads_per_chain = threads_per_chain,
-  refresh = 500         
+  refresh = 500,
+  iter_warmup = 1000,
+  iter_sampling = 5000
 )
+
+saveRDS(fit, paste("methods_comparison/observed_vs_unobserved/reducesum/", current$thread, current$model, "stanFit.rds"))
