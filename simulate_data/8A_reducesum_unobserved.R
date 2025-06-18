@@ -30,15 +30,10 @@ task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
 ##### Load in some simulation data!! #####
 
-# Get landscape from saved file
-fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
-fq = terra::rast(fq)
-
-# Get bee data
-## NOTE: this is simulation 71!! this data is for landscape = 1, rho = 50, exponential decay
-yobs = readRDS("simulate_data/methods_comparison/data/sim_result_071/yobs.RDS")
-colony_data = readRDS("simulate_data/methods_comparison/data/sim_result_071/colonydata.RDS")
-trap_data = readRDS("simulate_data/methods_comparison/data/sim_result_071/trapdata.RDS")
+## NOTE: this is simulation 74!! this data is for landscape = 4, rho = 50, exponential decay
+yobs = readRDS("simulate_data/methods_comparison/data/sim_result_074/yobs.RDS")
+colony_data = readRDS("simulate_data/methods_comparison/data/sim_result_074/colonydata.RDS")
+trap_data = readRDS("simulate_data/methods_comparison/data/sim_result_074/trapdata.RDS")
 
 
 # Prep data list for Stan
@@ -68,7 +63,8 @@ print(current$model)
 print(current$threads)
 
 #select stan model to fit
-mod = cmdstan_model(paste("models/", current$model, sep = ""))
+mod = cmdstan_model(paste("models/", current$model, sep = ""),
+quiet = FALSE)
 threads_per_chain = current$threads
                     
 
@@ -76,13 +72,15 @@ threads_per_chain = current$threads
 grainsize <- max(floor(C / (threads_per_chain * 5)), 1)
 data_list$grainsize = grainsize
 
+
 #fit and save model
+print("Starting sampling.")
 fit <- mod$sample(
   data = data,
   chains = 4,
   parallel_chains = 4,
   threads_per_chain = threads_per_chain,
-  refresh = 500,
+  refresh = 1,
   iter_warmup = 1000,
   iter_sampling = 5000
 )

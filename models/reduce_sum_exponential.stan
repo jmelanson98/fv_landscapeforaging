@@ -16,7 +16,7 @@ functions {
                        real theta,
                        vector eps,
                        vector zeta,
-                       array[] delta) {
+                       array[,] real delta) {
                        
     real total = 0;
     for (i in start:end) {
@@ -47,7 +47,8 @@ int<lower=1> grainsize; // number of colonies to parallelize per chunk
 }
 
 transformed data {
-int colony_ids[C];
+array[C] int colony_ids;
+
 for (i in 1:C)
   colony_ids[i] = i;
 }
@@ -60,7 +61,7 @@ real theta;
 real mu; 
 vector[K] eps; 
 vector[C] zeta;
-array [C,2] vector<lower=lowerbound, upper=upperbound> delta;
+array[C,2] real<lower=lowerbound, upper=upperbound> delta;
 
 }
 
