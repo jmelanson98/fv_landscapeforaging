@@ -3,11 +3,11 @@
 // June 17, 2025
 
 functions {
-  real partial_log_lik(int[] slice_idx,
+  real partial_log_lik(array[] int slice_idx,
                        int start, int end,
                        int K,
                        matrix trap,
-                       int[,] y,
+                       array[,] int y,
                        vector floral,
                        real rho,
                        real sigma_sqrt,
@@ -16,7 +16,7 @@ functions {
                        real theta,
                        vector eps,
                        vector zeta,
-                       array[] vector delta) {
+                       array[] delta) {
                        
     real total = 0;
     for (i in start:end) {
@@ -35,7 +35,7 @@ data {
 int<lower=1> C; // number of colonies 
 int<lower=1> K; // number of traps
 matrix[K, 2] trap; // trap coordinates 
-int y[C, K]; // counts of bees in traps
+array[C,K] int y; // counts of bees in traps
 real lowerbound; // uniform prior on colony location 
 real upperbound; // uniform prior on colony location
 vector[K] floral; // floral quality at traps
@@ -60,7 +60,7 @@ real theta;
 real mu; 
 vector[K] eps; 
 vector[C] zeta;
-array [C] vector<lower=lowerbound, upper=upperbound>[2] delta;
+array [C,2] vector<lower=lowerbound, upper=upperbound> delta;
 
 }
 
