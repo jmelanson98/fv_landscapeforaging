@@ -51,7 +51,7 @@ data$rho_center = 4.5
 data$rho_sd = 0.5
 
 # Table of conditions
-model = c("reduce_sum_exponential.stan", "reduce_sum_exponentialGQ.stan")
+model = c("reduce_sum_exponential", "reduce_sum_exponentialGQ")
 threads = c(4, 8)
 grid = expand.grid(model = model, 
                    threads = threads)
@@ -63,10 +63,12 @@ print(current$model)
 print(current$threads)
 
 #select stan model to fit
-mod = cmdstan_model(paste("models/", current$model, sep = ""),
-quiet = FALSE)
+exe_file <- paste("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/", current$model, sep = "")
+mod <- cmdstan_model(exe_file, compile = FALSE)
+
+
+# Run sampling
 threads_per_chain = current$threads
-                    
 
 # add grainsize to data list
 grainsize <- max(floor(C / (threads_per_chain * 5)), 1)
@@ -80,7 +82,7 @@ fit <- mod$sample(
   chains = 4,
   parallel_chains = 4,
   threads_per_chain = threads_per_chain,
-  refresh = 1,
+  refresh = 100,
   iter_warmup = 1000,
   iter_sampling = 5000
 )
