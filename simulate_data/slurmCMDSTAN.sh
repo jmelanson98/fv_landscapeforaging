@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=fit_cmdstanr
-#SBATCH --output=simulate_data/methods_comparison/logs/cmdstanr_%A_%a.out
-#SBATCH --error=simulate_data/methods_comparison/logs/cmdstanr_%A_%a.err
+#SBATCH --output=logs/cmdstanr_%A_%a.out
+#SBATCH --error=logs/cmdstanr_%A_%a.err
 #SBATCH --array=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16

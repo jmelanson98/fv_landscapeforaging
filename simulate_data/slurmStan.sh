@@ -2,11 +2,11 @@
 #SBATCH --job-name=fit_stan
 #SBATCH --output=logs/stan_%A_%a.out
 #SBATCH --error=logs/stan_%A_%a.err
-#SBATCH --array=101-300
+#SBATCH --array=301-400
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
-#SBATCH --time=12:00:00
+#SBATCH --mem=2G
+#SBATCH --time=01:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
