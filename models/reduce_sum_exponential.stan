@@ -20,12 +20,20 @@ functions {
                        
     real total = 0;
     for (i in start:end) {
-      for (k in 1:K) {
-        real dis = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-        real lambda = dis/(-rho * exp(theta * floral[k])) + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
-        total += poisson_log_lpmf(y[i,k] | lambda);
-      }
-    }
+  	for (k in 1:K) {
+    		real dx = delta[i, 1] - trap[k, 1];
+    		real dy = delta[i, 2] - trap[k, 2];
+    		real dis = sqrt(square(dx) + square(dy));
+    		real exp_term = exp(theta * floral[k]);
+    		real lambda = dis / (-rho * exp_term) + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
+		
+
+		if (lambda < -1e20){
+			print("dis: ", dis, ", rho: ", rho, " , theta: ", theta, ", floral[k]: ", floral[k], ", zeta[i]: ", zeta[i], ", eps[k]: ", eps[k], ", lambda: ", lambda);
+		}
+    		total += poisson_log_lpmf(y[i,k] | lambda);
+  }
+}
     return total;
   }
 }
