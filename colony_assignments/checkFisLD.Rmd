@@ -34,6 +34,7 @@ library(adegenet)
 library(devtools)
 library(PopGenUtils)
 library(polysat)
+library(hierfstat)
 
 
 # load in raw data
@@ -51,7 +52,7 @@ itestalleles2023 = read.csv("data/merged_by_year/csvs/impatiens_2023_scores.csv"
 itestalleles2023 = itestalleles2023[,-1]
 ```
 
-We used an iterative approach to assign workers and queens to their natal colonies. First, using the software COLONY 2.0 (CITE WANG), we assigned full siblingships based on all available microsatellite data, assuming male and female monogamy and no inbreeding. A single run was carried out for each species and year, using the software's full-likelihood approach and no siblingship size scaling or priors. Siblingships were maintained at this stage only if $P(full sibling dyad) = 1$. A single individual from each putative colony (including non-circular colonies) was maintained for downstream analysis of microsatellite data quality and utility.
+We used an iterative approach to assign workers and queens to their natal colonies. First, using the software COLONY 2.0 (CITE WANG), we assigned full siblingships based on all available microsatellite data, assuming male and female monogamy and no inbreeding. A single run was carried out for each species and year, using the software's full-likelihood approach and no siblingship size scaling or priors. Siblingships were maintained at this stage only if $P(full sibling dyad) = 1$. A single individual from each putative colony (including non-circular colonies) was maintained for downstream analysis of microsatellite locus quality.
 
 ```{r remove sibs before genepop, include = FALSE}
 
@@ -658,7 +659,7 @@ ggplot(HWE, aes(x = FisWC)) +
 
 ```
 
-We then employed a linear model of $F_{is}$ estimates with locus and site as fixed predictors. We used sum-to-zero coding so that the model intercept represented the global mean $F_{is}$ across loci, and calculated the effect of each locus and site using the *emmeans* package.
+We employed a linear model of $F_{is}$ estimates with locus and site as fixed predictors. We used sum-to-zero coding so that the model intercept represented the global mean $F_{is}$ across loci, and calculated the effect of each locus and site using the *emmeans* package.
 
 Below we show the computed effects of each locus for each species. The dashed black line represents $F_{is} = 0$, and the dashed red line represents the global mean $F_{is}$.
 
@@ -723,7 +724,7 @@ mixtus_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
 grid.arrange(mixtus_locus_init, impatiens_locus_init, ncol = 2)
 ```
 
-We then iteratively removed loci which were significantly different from the global mean, starting with the locus with the greatest deviation, and re-running the model after each removal (i.e., because removing a locus with a high or low inbreeding coefficient will change the global mean and therefore all comparisons to the global mean). We did not apply an adjustment for multiple-hypothesis testing (i.e., comparison of multiple loci to the global mean $F_{is}$) but instead utilized a relatively stringent p-value ($alpha$ = 0.01) for removal of loci.
+We iteratively removed loci which were significantly different from the global mean, starting with the locus with the greatest deviation, and re-running the model after each removal (i.e., because removing a locus with a high or low inbreeding coefficient will change the global mean and therefore all comparisons to the global mean). We did not apply an adjustment for multiple-hypothesis testing (i.e., comparison of multiple loci to the global mean $F_{is}$) but instead utilized a relatively stringent p-value ($\alpha$ = 0.01) for removal of loci.
 
 ```{r, iteratively remove poor loci for impatiens, echo = FALSE}
 #############################################
@@ -931,7 +932,7 @@ mixtusLD = mixtusLD[!(mixtusLD$`Locus#2`%in% c("BTMS0059", "BTMS0104", "BTERN01"
 
 There was not strong support for linkage disequilibrium between locus pairs in *B. mixtus*--four pairs showed signs of LD, but only at a single site in a single year. In *B. impatiens*, there was strong evidence for linkage disequilibrium between BTMS0057 and BL13 (7 out of 12 populations showed significant LD following Bonferroni correction). To determine which locus to maintain, we calculated the polymorphic information content (PIC) using the package *PopGenUtils* (CITE PACKAGE).
 
-```{r calculate PIC of BTMS0057 and BL13}
+```{r calculate PIC of BTMS0057 and BL13 in impatiens, include = FALSE}
 
 # load genepop files
 file.copy("data/genepop/ms_genepop_format_impatiens2022.txt",
@@ -946,16 +947,53 @@ genind_imp2023 <- read.genepop("data/genepop/ms_genepop_format_impatiens2023.gen
 pic_values_2022 <- pic_calc(genind_imp2022, ploidy = 2, bypop = FALSE)
 pic_values_2023 <- pic_calc(genind_imp2023, ploidy = 2, bypop = FALSE)
 
-pic_values_2022
-pic_values_2023
+#pic_values_2022
+#pic_values_2023
 
 ```
-We found that BTMS0057 had higher PIC in both years (PIC = 0.78 in both years) compared to BL13 (PIC = 0.47 in 2022 and 0.45 in 2023). For this reason, we chose to maintain BTMS0057 and remove BL13 from further analyses.
+We found that BTMS0057 had higher PIC in both years (PIC = 0.78) compared to BL13 (PIC = 0.47 in 2022 and 0.45 in 2023). For this reason, we chose to maintain BTMS0057 and remove BL13 from further analyses.
 
-
-After locus quality screening, calculated $F_{st}$ between sites to determine whether populations were in panmixia, or whether allele frequencies varied between sites. Moderate or high $F_{st}$ betwen sites would suggest that final siblingship assignments should be run separately to account for differences in allele frequencies between populations.
+After locus quality screening, we calculated $F_{st}$ between sites to determine whether populations were in panmixia, or whether allele frequencies varied between sites. Moderate or high $F_{st}$ betwen sites would suggest that final siblingship assignments should be run separately to account for differences in allele frequencies between populations.
 
 ```{r calculate Fst between sites}
+# load mixtus genepop files and make genind!
+file.copy("data/genepop/ms_genepop_format_mixtus2022.txt",
+          "data/genepop/ms_genepop_format_mixtus2022.gen")
+file.copy("data/genepop/ms_genepop_format_mixtus2023.txt",
+          "data/genepop/ms_genepop_format_mixtus2023.gen")
+
+genind_mix2022 <- read.genepop("data/genepop/ms_genepop_format_mixtus2022.gen", ncode = 3)
+genind_mix2023 <- read.genepop("data/genepop/ms_genepop_format_mixtus2023.gen", ncode = 3)
+
+# convert all to hierfstat objects
+hf_imp2022 <- genind2hierfstat(genind_imp2022)
+hf_imp2023 <- genind2hierfstat(genind_imp2023)
+hf_mix2022 <- genind2hierfstat(genind_mix2022)
+hf_mix2023 <- genind2hierfstat(genind_mix2023)
+
+# remove dropped loci!
+hf_imp2022 = hf_imp2022[,!colnames(hf_imp2022) %in% c("BT28", "BTMS0073", "BL13")]
+hf_imp2023 = hf_imp2023[,!colnames(hf_imp2023) %in% c("BT28", "BTMS0073", "BL13")]
+hf_mix2022 = hf_mix2022[,!colnames(hf_mix2022) %in% c("BTMS0104", "BTMS0059", "BTERN01")]
+hf_mix2023 = hf_mix2023[,!colnames(hf_mix2023) %in% c("BTMS0104", "BTMS0059", "BTERN01")]
+
+# set individuals with partially missing data (e.g., 1 called peak, 1 unbinned peak) to NA
+handle_partial = function(hf_obj){
+  for (col in 2:ncol(hf_obj)){
+    for (row in 1:nrow(hf_obj)){
+      if (is.na(hf_obj[row, col])){
+        # skip
+        } else if (nchar(hf_obj[row, col]) < 6){
+        hf_obj[row, col] = NA
+      }
+    }
+  }
+}
+
+hf_imp2022 = handle_partial(hf_imp2022)
+
+# calculate pairwise Fst
+
 
 ```
 
