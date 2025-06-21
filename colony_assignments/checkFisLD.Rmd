@@ -24,6 +24,12 @@ library(genepop)
 library(data.table)
 library(cowplot)
 library(raster)
+library(lmerTest)
+library(lme4)
+library(emmeans)
+library(ggplot2)
+library(gridExtra)
+library(igraph)
 
 # load in raw data
 
@@ -40,10 +46,155 @@ itestalleles2023 = read.csv("data/merged_by_year/csvs/impatiens_2023_scores.csv"
 itestalleles2023 = itestalleles2023[,-1]
 ```
 
-## Goals
-To assess the quality of our microsatellites for sibling-ship assignment, we first calculated $F_{is}$ for all loci x site x year x species groups using the Weir & Cockerham method in GENEPOP [insert citation].
+We used an iterative approach to assign workers and queens to their natal colonies. First, using the software COLONY 2.0 (CITE WANG), we assigned full siblingships based on all available microsatellite data, assuming male and female monogamy and no inbreeding. A single run was carried out for each species and year, using the software's full-likelihood approach and no siblingship size scaling or priors. Siblingships were maintained at this stage only if $P(full sibling dyad) = 1$. A single individual from each putative colony (including non-circular colonies) was maintained for downstream analysis of microsatellite data quality and utility.
 
-```{r calculate Fis, include = FALSE}
+```{r remove sibs before genepop, include = FALSE}
+
+#################################
+# IMPATIENS 2022
+################################
+
+# load in FS dyad files
+fsDyad2022 = trimws(readLines("colony_assignments/Colony2/initial/impatiens2022.FullSibDyad"))
+split_dyads2022 <- strsplit(fsDyad2022, ",")
+bestdyads2022 <- do.call(rbind, split_dyads2022)
+colnames(bestdyads2022) <- bestdyads2022[1, ]
+bestdyads2022 <- as.data.frame(bestdyads2022[-1, ])
+bestdyads2022$Probability = as.numeric(bestdyads2022$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2022_filtered = bestdyads2022 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2022_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+#maintain a single sib per putative colony
+sibs_to_keep = membership_df %>%
+  group_by(Family) %>%
+  sample_n(1)
+sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_to_keep$OffspringID]
+itestalleles2022 = itestalleles2022[!itestalleles2022$barcode_id %in% sibs_to_remove,]
+
+
+#################################
+# IMPATIENS 2023
+################################
+
+# load in FS dyad files
+fsDyad2023 = trimws(readLines("colony_assignments/Colony2/initial/impatiens2023.FullSibDyad"))
+split_dyads2023 <- strsplit(fsDyad2023, ",")
+bestdyads2023 <- do.call(rbind, split_dyads2023)
+colnames(bestdyads2023) <- bestdyads2023[1, ]
+bestdyads2023 <- as.data.frame(bestdyads2023[-1, ])
+bestdyads2023$Probability = as.numeric(bestdyads2023$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2023_filtered = bestdyads2023 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2023_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+#maintain a single sib per putative colony
+sibs_to_keep = membership_df %>%
+  group_by(Family) %>%
+  sample_n(1)
+sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_to_keep$OffspringID]
+itestalleles2023 = itestalleles2023[!itestalleles2023$barcode_id %in% sibs_to_remove,]
+
+
+
+#################################
+# MIXTUS 2022
+################################
+# load in FS dyad files
+fsDyad2022 = trimws(readLines("colony_assignments/Colony2/initial/mixtus2022.FullSibDyad"))
+split_dyads2022 <- strsplit(fsDyad2022, ",")
+bestdyads2022 <- do.call(rbind, split_dyads2022)
+colnames(bestdyads2022) <- bestdyads2022[1, ]
+bestdyads2022 <- as.data.frame(bestdyads2022[-1, ])
+bestdyads2022$Probability = as.numeric(bestdyads2022$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2022_filtered = bestdyads2022 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2022_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+#maintain a single sib per putative colony
+sibs_to_keep = membership_df %>%
+  group_by(Family) %>%
+  sample_n(1)
+sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_to_keep$OffspringID]
+mtestalleles2022 = mtestalleles2022[!mtestalleles2022$barcode_id %in% sibs_to_remove,]
+
+
+
+#################################
+# MIXTUS 2023
+################################
+# load in FS dyad files
+fsDyad2023 = trimws(readLines("colony_assignments/Colony2/initial/mixtus2023.FullSibDyad"))
+split_dyads2023 <- strsplit(fsDyad2023, ",")
+bestdyads2023 <- do.call(rbind, split_dyads2023)
+colnames(bestdyads2023) <- bestdyads2023[1, ]
+bestdyads2023 <- as.data.frame(bestdyads2023[-1, ])
+bestdyads2023$Probability = as.numeric(bestdyads2023$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2023_filtered = bestdyads2023 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2023_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+#maintain a single sib per putative colony
+sibs_to_keep = membership_df %>%
+  group_by(Family) %>%
+  sample_n(1)
+sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_to_keep$OffspringID]
+mtestalleles2023 = mtestalleles2023[!mtestalleles2023$barcode_id %in% sibs_to_remove,]
+```
+
+Ideally, high-quality markers should be in Hardy-Weinberg equilibrium (e.g., inbreeding coefficient $F_{is} = 0$) and should be independently assorted (e.g., no linkage disequilibrium between markers). COLONY 2.0 can account for inbreeding at the population level, if specified, but $F_{is}$ estimates for individual loci which are significantly different from the global mean $F_{is}$ can be indicative of null alleles or other scoring errors. 
+
+To test overall $F_{is}$ and individual locus deviations, we first calculated $F_{is}$ for all locus, site, year, species groups using the Weir & Cockerham method in GENEPOP [insert citation].
+
+```{r calculate Fis and LD, include = FALSE}
 ######################################
 # Prep BOMBUS MIXTUS for genepop
 #####################################
@@ -359,9 +510,9 @@ test_LD("data/genepop/ms_genepop_format_impatiens2023.txt","data/genepop/impatie
 
 ```
 
-The distributions of $F_{is}$ estimates for each species x site are shown below.
+The distributions of $F_{is}$ estimates for each species at each site are shown below. The blue dotted line indicates $F_{is}$ = 0, and the red dotted lines indicate $F_{is}$ = $\pm$ 0.1.
 
-```{r read in Fis values for each species, echo = FALSE}
+```{r read in Fis values for each species, echo = FALSE, include = FALSE}
 
 # first, mixtus 2022
 mix2022HWElines = readLines("data/genepop/mixtusHWE2022.txt.D")
@@ -461,14 +612,26 @@ impHWE2023$year = 2023
 impHWE = rbind(impHWE2022, impHWE2023)
 
 
+
+##############################################
+# Make sure all columns are right data format
+##############################################
+
+impHWE$FisWC = as.numeric(impHWE$FisWC)
+impHWE$locus = factor(impHWE$locus)
+impHWE$site = factor(impHWE$site)
+
+mixHWE$FisWC = as.numeric(mixHWE$FisWC)
+mixHWE$locus = factor(mixHWE$locus)
+mixHWE$site = factor(mixHWE$site)
+
 ```
 
-```{r plot Fis distributions for each species, echo = FALSE}
+```{r plot Fis distributions for each species, fig.width = 12, fig.align = "center", echo = FALSE}
+# combine data frames
 impHWE$species = "B. impatiens"
 mixHWE$species = "B. mixtus"
 HWE = rbind(impHWE, mixHWE)
-HWE$FisWC = as.numeric(HWE$FisWC)
-HWE$locus = as.factor(HWE$locus)
 
 ggplot(HWE, aes(x = FisWC)) +
   geom_histogram(binwidth = 0.02) +
@@ -476,8 +639,8 @@ ggplot(HWE, aes(x = FisWC)) +
   geom_vline(xintercept = -0.1, color = "red", linetype = "dotted") +
   geom_vline(xintercept = 0.1, color = "red", linetype = "dotted") +
   theme_minimal() +
-  xlab(expression(F[is] * " (W&C)")) +
-  ylab("Count") +
+  labs(y = "Count", x = expression(F[is] * " (W&C)"), title = expression(F[is] * " Distributions Across Sites and Species")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x = element_text(size = 6)) +
   facet_grid(species ~ site)
 
@@ -490,20 +653,301 @@ ggplot(HWE, aes(x = FisWC)) +
 
 ```
 
-We employed a linear model to determine whether the global mean of $F_{is}$ estimates (across all sites, years, and loci) varied significantly from zero (no inbreeding), and whether $F_{is}$ estimates for any individual locus (across sites, years) varied significantly from the global mean. The presence of inbreeding must be accounted for, if present, during sibling-ship assignment, and $F_{is}$ significantly different from the global mean for a given locus can be indicative of null alleles or other scoring errors.
+We then employed a linear model of $F_{is}$ estimates with locus and site as fixed predictors. We used sum-to-zero coding so that the model intercept represented the global mean $F_{is}$ across loci, and calculated the effect of each locus and site using the *emmeans* package.
 
-We modeled $F_{is}$ (W&C) with locus as a fixed predictor, using sum-to-zero coding so that the model intercept represented the global mean $F_{is}$ across loci and the coefficient for each locus represented its difference from the global mean. We then iteratively removed loci which were significantly different from the global mean, starting with the locus with the most significant deviation and re-running the model after each removal (i.e., because removing a locus with a high or low inbreeding coefficient will change the global mean).
+Below we show the computed effects of each locus for each species. The dashed black line represents $F_{is} = 0$, and the dashed red line represents the global mean $F_{is}$.
 
 
-```{r mixed effect model of Fis, echo=TRUE}
-contrasts(HWE$locus) <- contr.sum
+```{r initial linear models of Fis, fig.width = 12, fig.align = "center", echo=FALSE}
+#############################################
+# Initial models and plots for impatiens
+#############################################
+# set site and locus to sum-to-zero contrasts
+contrasts(impHWE$locus) = contr.sum
+contrasts(impHWE$site) = contr.sum
 
-# Then fit model
-library(lmerTest)
-model <- lmer(FisWC ~ locus + (1 | site) + (1 | year), data = HWE)
-model <- lmer(FisWC ~ locus + (1 | site) + (1 | year), data = HWE)
-summary(model)
+# fit the model
+model <- lm(FisWC ~ locus + site, data = impHWE)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+#summary(comp_locus)
+#summary(model)
+
+# plot locus effects
+emm_df <- as.data.frame(emm_locus)
+impatiens_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = "", x = "Locus", title = substitute(italic("B. impatiens"))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 4))
+
+#############################################
+# Initial models and plots for mixtus
+#############################################
+# set site and locus to sum-to-zero contrasts
+contrasts(mixHWE$locus) = contr.sum
+contrasts(mixHWE$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = mixHWE)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+#summary(comp_locus)
+#summary(model)
+
+# plot locus effects
+emm_df <- as.data.frame(emm_locus)
+mixtus_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus", title = substitute(italic("B. mixtus"))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 4))
+
+grid.arrange(mixtus_locus_init, impatiens_locus_init, ncol = 2)
+```
+
+We then iteratively removed loci which were significantly different from the global mean, starting with the locus with the greatest deviation, and re-running the model after each removal (i.e., because removing a locus with a high or low inbreeding coefficient will change the global mean and therefore all comparisons to the global mean). We did not apply an adjustment for multiple-hypothesis testing (i.e., comparison of multiple loci to the global mean $F_{is}$) but instead utilized a relatively stringent p-value ($alpha$ = 0.01) for removal of loci.
+
+```{r, iteratively remove poor loci for impatiens, echo = FALSE}
+#############################################
+# Remove poor loci for impatiens
+#############################################
+##### remove BTMS0073
+impHWE_trunc = impHWE[impHWE$locus != "BTMS0073",]
+
+# reset factor levels
+impHWE_trunc$locus = factor(impHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(impHWE_trunc$locus) = contr.sum
+contrasts(impHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = impHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+
+
+##### remove BT28
+impHWE_trunc = impHWE_trunc[impHWE_trunc$locus != "BT28",]
+
+# reset factor levels
+impHWE_trunc$locus = factor(impHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(impHWE_trunc$locus) = contr.sum
+contrasts(impHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = impHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+#summary(model)
+#summary(comp_locus)
+
+# plot locus effects
+emm_df <- as.data.frame(emm_locus)
+impatiens_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = "", x = "Locus", title = substitute(italic("B. impatiens"))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 4))
+
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r, iteratively remove poor loci for mixtus, echo = FALSE}
+#############################################
+# Remove poor loci for mixtus
+#############################################
+##### remove BTERN01
+mixHWE_trunc = mixHWE[mixHWE$locus != "BTERN01",]
+
+# reset factor levels
+mixHWE_trunc$locus = factor(mixHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(mixHWE_trunc$locus) = contr.sum
+contrasts(mixHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = mixHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+
+
+##### remove BTMS0104
+mixHWE_trunc = mixHWE_trunc[mixHWE_trunc$locus != "BTMS0104",]
+
+# reset factor levels
+mixHWE_trunc$locus = factor(mixHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(mixHWE_trunc$locus) = contr.sum
+contrasts(mixHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = mixHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+
+
+##### remove BTMS0059
+mixHWE_trunc = mixHWE_trunc[mixHWE_trunc$locus != "BTMS0059",]
+
+# reset factor levels
+mixHWE_trunc$locus = factor(mixHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(mixHWE_trunc$locus) = contr.sum
+contrasts(mixHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = mixHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+#summary(model)
+#summary(comp_locus)
+
+# plot locus effects
+emm_df <- as.data.frame(emm_locus)
+mixtus_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus", title = substitute(italic("B. mixtus"))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 4))
+
+```
+
+This process resulted in the removal of loci BTERN01, BTMS0104, and BTMS0059 from downstream analysis of *B. mixtus* and removal of BTMS0073 and BT28 for *B. impatiens*. $F_{is}$ estimates for the remaining loci (n = 10 for *B. mixtus*, n = 13 for *B. impatiens*) are shown below.
+
+```{r plots of remaining loci after Fis removals, fig.width = 12, fig.align = "center", echo = FALSE}
+grid.arrange(mixtus_locus, impatiens_locus, ncol =2)
+```
+
+Finally, we checked locus pairs for linkage disequilibrium in GENEPOP. LD values were calculated for each population (site and year). We applied a Bonferroni correction for multiple hypothesis testing, and flagged locus pairs which showed significant deviations in $>2$ populations.
+
+```{r check for LD in genepop, echo = FALSE}
+
+##############################
+# IMPATIENS
+#############################
+
+LD2022lines = readLines("data/genepop/impatiensLD2022.txt.DIS")
+split_linesLD2022 <- strsplit(LD2022lines, "\\s+")
+LD2022 = do.call(rbind, split_linesLD2022[13:644])
+colnames(LD2022) = LD2022[1,]
+colnames(LD2022)[colnames(LD2022) == 'P-Value'] = "pval"
+LD2022 = as.data.frame(LD2022[3:nrow(LD2022),])
+LD2022$year = 2022
+
+LD2023lines = readLines("data/genepop/impatiensLD2023.txt.DIS")
+split_linesLD2023 <- strsplit(LD2023lines, "\\s+")
+LD2023 = do.call(rbind, split_linesLD2023[13:644])
+colnames(LD2023) = LD2023[1,]
+colnames(LD2023)[colnames(LD2023) == 'P-Value'] = "pval"
+LD2023 = as.data.frame(LD2023[3:nrow(LD2023),])
+LD2023$year = 2023
+
+impatiensLD = rbind(LD2022, LD2023)
+
+# check out loci that are below Bonferroni-corrected P-value
+alpha_imp = 0.05/nrow(impatiensLD)
+
+impatiensLD = impatiensLD[as.numeric(impatiensLD$pval) < alpha_imp,]
+impatiensLD = impatiensLD[!(impatiensLD$`Locus#1`%in% c("BTMS0073", "BT28")),]
+
+
+##############################
+# MIXTUS
+#############################
+
+LD2022lines = readLines("data/genepop/mixtusLD2022.txt.DIS")
+split_linesLD2022 <- strsplit(LD2022lines, "\\s+")
+LD2022 = do.call(rbind, split_linesLD2022[13:482])
+colnames(LD2022) = LD2022[1,]
+colnames(LD2022)[colnames(LD2022) == 'P-Value'] = "pval"
+LD2022 = as.data.frame(LD2022[3:nrow(LD2022),])
+LD2022$year = 2022
+
+LD2023lines = readLines("data/genepop/mixtusLD2023.txt.DIS")
+split_linesLD2023 <- strsplit(LD2023lines, "\\s+")
+LD2023 = do.call(rbind, split_linesLD2023[13:482])
+colnames(LD2023) = LD2023[1,]
+colnames(LD2023)[colnames(LD2023) == 'P-Value'] = "pval"
+LD2023 = as.data.frame(LD2023[3:nrow(LD2023),])
+LD2023$year = 2023
+
+mixtusLD = rbind(LD2022, LD2023)
+
+# check out loci that are below Bonferroni-corrected P-value
+alpha_mix = 0.05/nrow(mixtusLD)
+
+mixtusLD = mixtusLD[as.numeric(mixtusLD$pval) < alpha_mix,]
+mixtusLD = mixtusLD[!(mixtusLD$`Locus#1`%in% c("BTMS0059", "BTMS0104", "BTERN01")),]
+
+
+```
+
+These locus pairs were BTMS0057 and BL13 in *B. impatiens* (evidence for LD in 7 populations).
+
+
+
+
+
+After removing loci with unusually high/low $F_{is}$ and loci in linkage disequilibrium, we computed the effect of site on $F_{is}$ scores to determine whether inbreeding was present at some sites but not others.
+
+```{r check for site-level inbreeding, echo = FALSE}
+######################
+# IMPATIENS
+######################
+# fit the model
+model <- lm(FisWC ~ locus + site, data = impHWE_trunc)
+
+# get site vs grand mean comparisons
+emm_site = emmeans(model, "site")
+comp_site = contrast(emm_locus, method = "eff", adjust = "none")
+
+# plot site effects
+emm_df <- as.data.frame(emm_site)
+impatiens_site = ggplot(emm_df, aes(x = site, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Site", title = substitute(italic("B. impatiens"))) +
+  theme(axis.text.x = element_text(size = 6))
+```
+
