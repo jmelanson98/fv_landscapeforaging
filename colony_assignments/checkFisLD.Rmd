@@ -30,6 +30,11 @@ library(emmeans)
 library(ggplot2)
 library(gridExtra)
 library(igraph)
+library(adegenet)
+library(devtools)
+library(PopGenUtils)
+library(polysat)
+
 
 # load in raw data
 
@@ -856,7 +861,9 @@ This process resulted in the removal of loci BTERN01, BTMS0104, and BTMS0059 fro
 grid.arrange(mixtus_locus, impatiens_locus, ncol =2)
 ```
 
-Finally, we checked locus pairs for linkage disequilibrium in GENEPOP. LD values were calculated for each population (site and year). We applied a Bonferroni correction for multiple hypothesis testing, and flagged locus pairs which showed significant deviations in $>2$ populations.
+Finally, we checked locus pairs for linkage disequilibrium in GENEPOP. LD values were calculated for each locus pair in each population (site and year). We applied a Bonferroni correction for multiple hypothesis testing, and flagged locus pairs which showed significant deviations in $>2$ populations.
+
+[[**NOTE for Mike**: Is there a better way of approaching this? You suggested that Bonferroni correction wasn't the best way to approach $F_{is}$ / HWE, and I wonder if similar logic would apply here? It does seem odd to me to correct for multiple hypothesis testing and then only drop loci if they exceed the Bonferroni-correct p-value in *multiple* cases--it's common practice in the literature, but perhaps it would be better to first assess $F_{st}$ between populations and then test LD of loci across *all* samples rather than individually for each population?]]
 
 ```{r check for LD in genepop, echo = FALSE}
 
@@ -887,6 +894,7 @@ alpha_imp = 0.05/nrow(impatiensLD)
 
 impatiensLD = impatiensLD[as.numeric(impatiensLD$pval) < alpha_imp,]
 impatiensLD = impatiensLD[!(impatiensLD$`Locus#1`%in% c("BTMS0073", "BT28")),]
+impatiensLD = impatiensLD[!(impatiensLD$`Locus#2`%in% c("BTMS0073", "BT28")),]
 
 
 ##############################
@@ -916,17 +924,43 @@ alpha_mix = 0.05/nrow(mixtusLD)
 
 mixtusLD = mixtusLD[as.numeric(mixtusLD$pval) < alpha_mix,]
 mixtusLD = mixtusLD[!(mixtusLD$`Locus#1`%in% c("BTMS0059", "BTMS0104", "BTERN01")),]
+mixtusLD = mixtusLD[!(mixtusLD$`Locus#2`%in% c("BTMS0059", "BTMS0104", "BTERN01")),]
 
 
 ```
 
-These locus pairs were BTMS0057 and BL13 in *B. impatiens* (evidence for LD in 7 populations).
+There was not strong support for linkage disequilibrium between locus pairs in *B. mixtus*--four pairs showed signs of LD, but only at a single site in a single year. In *B. impatiens*, there was strong evidence for linkage disequilibrium between BTMS0057 and BL13 (7 out of 12 populations showed significant LD following Bonferroni correction). To determine which locus to maintain, we calculated the polymorphic information content (PIC) using the package *PopGenUtils* (CITE PACKAGE).
+
+```{r calculate PIC of BTMS0057 and BL13}
+
+# load genepop files
+file.copy("data/genepop/ms_genepop_format_impatiens2022.txt",
+          "data/genepop/ms_genepop_format_impatiens2022.gen")
+file.copy("data/genepop/ms_genepop_format_impatiens2023.txt",
+          "data/genepop/ms_genepop_format_impatiens2023.gen")
+
+genind_imp2022 <- read.genepop("data/genepop/ms_genepop_format_impatiens2022.gen", ncode = 3)
+genind_imp2023 <- read.genepop("data/genepop/ms_genepop_format_impatiens2023.gen", ncode = 3)
+
+# calculate PIC
+pic_values_2022 <- pic_calc(genind_imp2022, ploidy = 2, bypop = FALSE)
+pic_values_2023 <- pic_calc(genind_imp2023, ploidy = 2, bypop = FALSE)
+
+pic_values_2022
+pic_values_2023
+
+```
+We found that BTMS0057 had higher PIC in both years (PIC = 0.78 in both years) compared to BL13 (PIC = 0.47 in 2022 and 0.45 in 2023). For this reason, we chose to maintain BTMS0057 and remove BL13 from further analyses.
 
 
+After locus quality screening, calculated $F_{st}$ between sites to determine whether populations were in panmixia, or whether allele frequencies varied between sites. Moderate or high $F_{st}$ betwen sites would suggest that final siblingship assignments should be run separately to account for differences in allele frequencies between populations.
+
+```{r calculate Fst between sites}
+
+```
 
 
-
-After removing loci with unusually high/low $F_{is}$ and loci in linkage disequilibrium, we computed the effect of site on $F_{is}$ scores to determine whether inbreeding was present at some sites but not others.
+Finally, we computed the effect of site on $F_{is}$ scores to determine whether inbreeding was present at some sites but not others.
 
 ```{r check for site-level inbreeding, echo = FALSE}
 ######################
@@ -950,4 +984,7 @@ impatiens_site = ggplot(emm_df, aes(x = site, y = emmean)) +
   labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Site", title = substitute(italic("B. impatiens"))) +
   theme(axis.text.x = element_text(size = 6))
 ```
+
+We found that ....
+
 
