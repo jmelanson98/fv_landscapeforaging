@@ -19,7 +19,10 @@ library(ggpubr)
 #### Set working directory ####
 setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
-#### Worker distribution plots
+###############################################
+### Check worker distribution plots
+###############################################
+
 # prep real data
 allspecs = read.csv("data/siblingships/allsibships_cleaned.csv")
 mixsum = allspecs %>% filter(final_id == "B. mixtus") %>%
@@ -151,8 +154,92 @@ ggsave("figures/simfigs/methods_comparison_sibship_distribution.jpg", sibdistrib
 
 
 
-###### Plot some figures #######
-summary = param_grid %>% group_by(rho, distance_decay, model_approach) %>%
+###############################################
+### Check error logs for stan model fitting
+###############################################
+# list all .err files
+err_dir <- "simulate_data/logs"
+err_files <- list.files(err_dir, pattern = "^stan.*\\.err$", full.names = TRUE)
+out_files <- list.files(err_dir, pattern = "^stan.*\\.out$", full.names = TRUE)
+
+
+# Function to check each file
+check_err_file <- function(file) {
+  lines <- readLines(file, warn = FALSE)
+  
+  list(
+    file = basename(file),
+    unfinished = any(grepl("DUE TO TIME LIMIT", lines, ignore.case = TRUE)),
+    has_divergent = any(grepl("divergent", lines, ignore.case = TRUE)),
+    has_low_ess = any(grepl("Effective Samples Size", lines, ignore.case = TRUE)),
+    has_error = any(grepl("error", lines, ignore.case = TRUE)),
+    has_undefined = any(grepl("The following variables have undefined values", lines, ignore.case = TRUE)),
+    executed = any(grepl("Execution halted", lines, ignore.case = TRUE)),
+    OOM = any(grepl("oom_kill", lines, ignore.case = TRUE))
+  )
+}
+
+check_out_file <- function(file) {
+  lines <- readLines(file, warn = FALSE)
+  
+  list(
+    file = basename(file),
+    has_error_out = any(grepl("error", lines, ignore.case = TRUE)),
+    rejected_init = any(grepl("Rejecting initial value", lines, ignore.case = TRUE)),
+    saved = any(grepl("Model saved", lines, ignore.case = TRUE)),
+    finished = any(grepl("Model complete", lines, ignore.case = TRUE))
+  )
+}
+
+
+# Apply to all files
+err_results <- lapply(err_files, check_err_file)
+out_results <- lapply(out_files, check_out_file)
+
+# Convert to a data frame
+error_summary <- do.call(rbind, lapply(err_results, as.data.frame))
+output_summary <- do.call(rbind, lapply(out_results, as.data.frame))
+
+# Join with param grid
+error_summary$task_id = as.integer(sapply(strsplit(error_summary$file, "[_.]"), function(x) x[3]))
+output_summary$task_id = as.integer(sapply(strsplit(output_summary$file, "[_.]"), function(x) x[3]))
+
+
+error_summary = left_join(error_summary, sim_output, by = "task_id")
+summary = left_join(error_summary, output_summary, by = "task_id")
+
+# plot results
+ggplot(summary[summary$model_approach == "doubletons",], aes(x = true_average_foraging, y = model_average_foraging, color = has_low_ess)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0) +
+  xlim(c(0,300)) +
+  ylim(c(0,300)) +
+  theme_minimal()
+
+# bar plot of errors
+ggplot(summary, aes(x = model_approach, fill = finished)) +
+  geom_bar() +
+  theme_minimal()
+
+# plot distribution of OOM fails in singletons as a function of # colonies
+summary$numcolonies = sapply(summary$counts, length)
+ggplot(summary[summary$model_approach == "singletons",], aes(x = numcolonies, fill = OOM)) +
+  geom_histogram() +
+  theme_minimal()
+
+
+###############################################
+### Plot some figures of model accuracy
+###############################################
+
+centroids = ggplot(sim_output[sim_output$model_approach == "centroids",], aes(x = true_average_foraging, y = model_average_foraging)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0) +
+  xlim(c(0,300)) +
+  ylim(c(0,300)) +
+  theme_minimal()
+
+summary = sim_output %>% group_by(rho, distance_decay, model_approach) %>%
   summarize(true_avg = mean(true_average_foraging, na.rm = TRUE),
             true_sd = sqrt(sum(true_sd_foraging^2, na.rm = TRUE)),
             model_avg = mean(model_average_foraging, na.rm = TRUE),
@@ -164,7 +251,11 @@ summary$technique = paste(summary$distance_decay, summary$model_approach, sep = 
 
 
 #### Accuracy plot
-fig = ggplot(summary, aes(x = true_avg, y = model_avg,
+
+# add a jitter for visibility (x direction)
+summary$x_jittered <- summary$true_avg + runif(nrow(summary), min = -2, max = 2)
+
+fig = ggplot(summary, aes(x = x_jittered, y = model_avg,
                           color = technique)) +
   geom_point() +
   geom_errorbar(aes(ymin = model_avg - 2*model_sd, ymax = model_avg + 2*model_sd)) +
