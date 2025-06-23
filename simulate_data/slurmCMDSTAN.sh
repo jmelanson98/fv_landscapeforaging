@@ -2,11 +2,12 @@
 #SBATCH --job-name=fit_cmdstanr
 #SBATCH --output=logs/cmdstanr_%A_%a.out
 #SBATCH --error=logs/cmdstanr_%A_%a.err
-#SBATCH --array=3-4
+#SBATCH --array=1-2
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=16
 #SBATCH --mem=32G
 #SBATCH --time=48:00:00
+#SBATCH --time-min=12:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
