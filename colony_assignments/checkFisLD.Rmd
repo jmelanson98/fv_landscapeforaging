@@ -1,0 +1,1028 @@
+---
+title: "Check $F_{is}$ and LD of microsatellite loci"
+author: "Jenna Melanson"
+date: "2025-06-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+
+# prep workspace
+rm(list = ls())
+setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+
+# first, load in packages
+source('colony_assignments/src/init.R')
+source('colony_assignments/src/joinFunctions.R')
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(rcolony)
+library(genepop)
+library(data.table)
+library(cowplot)
+library(raster)
+library(lmerTest)
+library(lme4)
+library(emmeans)
+library(ggplot2)
+library(gridExtra)
+library(igraph)
+library(adegenet)
+library(devtools)
+library(PopGenUtils)
+library(polysat)
+library(hierfstat)
+
+
+# load in raw data
+
+# for mixtus
+mtestalleles2022 = read.csv("data/merged_by_year/csvs/mixtus_2022_scores.csv")
+mtestalleles2022 = mtestalleles2022[,-1]
+mtestalleles2023 = read.csv("data/merged_by_year/csvs/mixtus_2023_scores.csv")
+mtestalleles2023 = mtestalleles2023[,-1]
+
+# for impatiens
+itestalleles2022 = read.csv("data/merged_by_year/csvs/impatiens_2022_scores.csv")
+itestalleles2022 = itestalleles2022[,-1]
+itestalleles2023 = read.csv("data/merged_by_year/csvs/impatiens_2023_scores.csv")
+itestalleles2023 = itestalleles2023[,-1]
+```
+
+We used an iterative approach to assign workers and queens to their natal colonies. First, using the software COLONY 2.0 (CITE WANG), we assigned full siblingships based on all available microsatellite data, assuming male and female monogamy and no inbreeding. A single run was carried out for each species and year, using the software's full-likelihood approach and no siblingship size scaling or priors. Siblingships were maintained at this stage only if $P(full sibling dyad) = 1$. A single individual from each putative colony (including non-circular colonies) was maintained for downstream analysis of microsatellite locus quality.
+
+```{r remove sibs before genepop, include = FALSE}
+
+#################################
+# IMPATIENS 2022
+################################
+
+# load in FS dyad files
+fsDyad2022 = trimws(readLines("colony_assignments/Colony2/initial/impatiens2022.FullSibDyad"))
+split_dyads2022 <- strsplit(fsDyad2022, ",")
+bestdyads2022 <- do.call(rbind, split_dyads2022)
+colnames(bestdyads2022) <- bestdyads2022[1, ]
+bestdyads2022 <- as.data.frame(bestdyads2022[-1, ])
+bestdyads2022$Probability = as.numeric(bestdyads2022$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2022_filtered = bestdyads2022 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2022_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+#maintain a single sib per putative colony
+sibs_to_keep = membership_df %>%
+  group_by(Family) %>%
+  sample_n(1)
+sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_to_keep$OffspringID]
+itestalleles2022 = itestalleles2022[!itestalleles2022$barcode_id %in% sibs_to_remove,]
+
+
+#################################
+# IMPATIENS 2023
+################################
+
+# load in FS dyad files
+fsDyad2023 = trimws(readLines("colony_assignments/Colony2/initial/impatiens2023.FullSibDyad"))
+split_dyads2023 <- strsplit(fsDyad2023, ",")
+bestdyads2023 <- do.call(rbind, split_dyads2023)
+colnames(bestdyads2023) <- bestdyads2023[1, ]
+bestdyads2023 <- as.data.frame(bestdyads2023[-1, ])
+bestdyads2023$Probability = as.numeric(bestdyads2023$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2023_filtered = bestdyads2023 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2023_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+#maintain a single sib per putative colony
+sibs_to_keep = membership_df %>%
+  group_by(Family) %>%
+  sample_n(1)
+sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_to_keep$OffspringID]
+itestalleles2023 = itestalleles2023[!itestalleles2023$barcode_id %in% sibs_to_remove,]
+
+
+
+#################################
+# MIXTUS 2022
+################################
+# load in FS dyad files
+fsDyad2022 = trimws(readLines("colony_assignments/Colony2/initial/mixtus2022.FullSibDyad"))
+split_dyads2022 <- strsplit(fsDyad2022, ",")
+bestdyads2022 <- do.call(rbind, split_dyads2022)
+colnames(bestdyads2022) <- bestdyads2022[1, ]
+bestdyads2022 <- as.data.frame(bestdyads2022[-1, ])
+bestdyads2022$Probability = as.numeric(bestdyads2022$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2022_filtered = bestdyads2022 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2022_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+#maintain a single sib per putative colony
+sibs_to_keep = membership_df %>%
+  group_by(Family) %>%
+  sample_n(1)
+sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_to_keep$OffspringID]
+mtestalleles2022 = mtestalleles2022[!mtestalleles2022$barcode_id %in% sibs_to_remove,]
+
+
+
+#################################
+# MIXTUS 2023
+################################
+# load in FS dyad files
+fsDyad2023 = trimws(readLines("colony_assignments/Colony2/initial/mixtus2023.FullSibDyad"))
+split_dyads2023 <- strsplit(fsDyad2023, ",")
+bestdyads2023 <- do.call(rbind, split_dyads2023)
+colnames(bestdyads2023) <- bestdyads2023[1, ]
+bestdyads2023 <- as.data.frame(bestdyads2023[-1, ])
+bestdyads2023$Probability = as.numeric(bestdyads2023$Probability)
+
+# remove sibpairs below threshold probability (p = 1)
+bestdyads2023_filtered = bestdyads2023 %>% filter(Probability == 1)
+
+# make an undirected graph of families
+graph_22 <- graph_from_data_frame(bestdyads2023_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
+
+# find connected components (families)
+components <- components(graph_22)
+
+# assign family ID to each individual
+membership_df <- data.frame(
+  OffspringID = names(components$membership),
+  Family = components$membership
+)
+
+#maintain a single sib per putative colony
+sibs_to_keep = membership_df %>%
+  group_by(Family) %>%
+  sample_n(1)
+sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_to_keep$OffspringID]
+mtestalleles2023 = mtestalleles2023[!mtestalleles2023$barcode_id %in% sibs_to_remove,]
+```
+
+Ideally, high-quality markers should be in Hardy-Weinberg equilibrium (e.g., inbreeding coefficient $F_{is} = 0$) and should be independently assorted (e.g., no linkage disequilibrium between markers). COLONY 2.0 can account for inbreeding at the population level, if specified, but $F_{is}$ estimates for individual loci which are significantly different from the global mean $F_{is}$ can be indicative of null alleles or other scoring errors. 
+
+To test overall $F_{is}$ and individual locus deviations, we first calculated $F_{is}$ for all locus, site, year, species groups using the Weir & Cockerham method in GENEPOP [insert citation].
+
+```{r calculate Fis and LD, include = FALSE}
+######################################
+# Prep BOMBUS MIXTUS for genepop
+#####################################
+
+#combine columns for each locus
+ms_m22 = data.table(mtestalleles2022)
+ms_m22[ms_m22 ==0] <- "000"
+
+
+i1 <- seq(1, length(ms_m22)-1, 2)
+i2 <- seq(2, length(ms_m22)-1, 2)
+msgenepop_m22 = ms_m22[, Map(paste,
+                             .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
+                             MoreArgs = list(sep="")), 
+                       by = "barcode_id"]
+colnames(msgenepop_m22) = c("barcode_id", "BT10", "BTMS0104", "BTMS0057", "BTMS0086",
+                            "BTMS0066", "BTMS0062", "BTMS0136","BTERN01", "BTMS0126", 
+                            "BTMS0059", "BL13", "BTMS0083", "B126")
+
+#sort allele table by barcode ID
+msgenepop_m22 <- msgenepop_m22[order(msgenepop_m22$barcode_id),]
+msgenepop_m22$site = substring(msgenepop_m22$barcode_id, 1, 1)
+
+haplotypes_m22 <- as.data.frame(paste(msgenepop_m22$site, ","," ", 
+                                      msgenepop_m22$BT10," ", msgenepop_m22$BTMS0104, " ",
+                                      msgenepop_m22$BTMS0057," ", msgenepop_m22$BTMS0086, " ",
+                                      msgenepop_m22$BTMS0066," ", msgenepop_m22$BTMS0062, " ",
+                                      msgenepop_m22$BTMS0136," ", msgenepop_m22$BTERN01, " ",
+                                      msgenepop_m22$BTMS0126," ", msgenepop_m22$BTMS0059," ",
+                                      msgenepop_m22$BL13," ", msgenepop_m22$BTMS0083, " ",
+                                      msgenepop_m22$B126,
+                                      sep = ""))
+
+#Build the Genepop format
+sink("data/genepop/ms_genepop_format_mixtus2022.txt")
+cat("Title: B. mixtus workers (2022) \n")
+cat("BT10 \n")
+cat("BTMS0104 \n")
+cat("BTMS0057 \n")
+cat("BTMS0086 \n")
+cat("BTMS0066 \n")
+cat("BTMS0062 \n")
+cat("BTMS0136 \n")
+cat("BTERN01 \n")
+cat("BTMS0126 \n")
+cat("BTMS0059 \n")
+cat("BL13 \n")
+cat("BTMS0083 \n")
+cat("B126 \n")
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+sink()
+
+
+######################################
+# Run genepop on samples
+#####################################
+
+#test for HWE
+test_HW("data/genepop/ms_genepop_format_mixtus2022.txt", which="Proba", "data/genepop/mixtusHWE2022.txt.D")
+
+#test for LD
+test_LD("data/genepop/ms_genepop_format_mixtus2022.txt","data/genepop/mixtusLD2022.txt.DIS")
+
+
+######################################
+# Repeat for 2023 mixtus !
+#####################################
+
+##### Prepare alleles table for genepop
+#combine columns for each locus
+ms_m23 = data.table(mtestalleles2023)
+ms_m23[ms_m23 ==0] <- "000"
+
+i1 <- seq(1, length(ms_m23)-1, 2)
+i2 <- seq(2, length(ms_m23)-1, 2)
+msgenepop_m23 = ms_m23[, Map(paste,
+                             .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
+                             MoreArgs = list(sep="")), 
+                       by = "barcode_id"]
+colnames(msgenepop_m23) = c("barcode_id", "BT10", "BTMS0104", "BTMS0057", "BTMS0086",
+                            "BTMS0066", "BTMS0062", "BTMS0136","BTERN01", "BTMS0126", 
+                            "BTMS0059", "BL13", "BTMS0083", "B126")
+
+
+#select and join alleles
+
+#sort allele table by barcode ID
+msgenepop_m23 <- msgenepop_m23[order(msgenepop_m23$barcode_id),]
+msgenepop_m23$site = substring(msgenepop_m23$barcode_id, 1, 1)
+
+haplotypes_m23 <- as.data.frame(paste(msgenepop_m23$site, ","," ", 
+                                      msgenepop_m23$BT10," ", msgenepop_m23$BTMS0104, " ",
+                                      msgenepop_m23$BTMS0057," ", msgenepop_m23$BTMS0086, " ",
+                                      msgenepop_m23$BTMS0066," ", msgenepop_m23$BTMS0062, " ",
+                                      msgenepop_m23$BTMS0136," ", msgenepop_m23$BTERN01, " ",
+                                      msgenepop_m23$BTMS0126," ", msgenepop_m23$BTMS0059," ",
+                                      msgenepop_m23$BL13," ", msgenepop_m23$BTMS0083, " ",
+                                      msgenepop_m23$B126,
+                                      sep = ""))
+
+#Build the Genepop format
+sink("data/genepop/ms_genepop_format_mixtus2023.txt")
+cat("Title: B. mixtus workers (2023) \n")
+cat("BT10 \n")
+cat("BTMS0104 \n")
+cat("BTMS0057 \n")
+cat("BTMS0086 \n")
+cat("BTMS0066 \n")
+cat("BTMS0062 \n")
+cat("BTMS0136 \n")
+cat("BTERN01 \n")
+cat("BTMS0126 \n")
+cat("BTMS0059 \n")
+cat("BL13 \n")
+cat("BTMS0083 \n")
+cat("B126 \n")
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+sink()
+
+
+######################################
+# Run genepop on samples
+#####################################
+
+#test for HWE
+test_HW("data/genepop/ms_genepop_format_mixtus2023.txt", 
+        which="Proba", 
+        "data/genepop/mixtusHWE2023.txt.D")
+
+#test for LD
+test_LD("data/genepop/ms_genepop_format_mixtus2023.txt",
+        "data/genepop/mixtusLD2023.txt.DIS")
+
+
+######################################
+# Repeat for BOMBUS IMPATIENS
+######################################
+
+######################################
+# Prep alleles table for genepop
+#####################################
+
+### first for 2022! 
+#combine columns for each locus
+ms_i22 = data.table(itestalleles2022)
+ms_i22[ms_i22 ==0] <- "000"
+
+
+i1 <- seq(1, length(ms_i22)-1, 2)
+i2 <- seq(2, length(ms_i22)-1, 2)
+msgenepop_i22 = ms_i22[, Map(paste,
+                         .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
+                         MoreArgs = list(sep="")), 
+                   by = "barcode_id"]
+colnames(msgenepop_i22) = c("barcode_id", "BT10", "B96", "BTMS0059", "BTMS0081",
+                        "BL13", "BTMS0062", "B126", "BTERN01","B124", "BTMS0057", 
+                        "BT30", "B10", "BTMS0083", "BTMS0073", "BT28")
+
+
+#select and join alleles
+
+#sort allele table by barcode ID
+msgenepop_i22 <- msgenepop_i22[order(msgenepop_i22$barcode_id),]
+msgenepop_i22$site = substring(msgenepop_i22$barcode_id, 1, 1)
+
+haplotypes_i22 <- as.data.frame(paste(msgenepop_i22$site, ","," ", 
+                                      msgenepop_i22$BT10," ", msgenepop_i22$B96, " ",
+                                      msgenepop_i22$BTMS0059," ", msgenepop_i22$BTMS0081, " ",
+                                      msgenepop_i22$BL13," ", msgenepop_i22$BTMS0062, " ",
+                                      msgenepop_i22$B126," ", msgenepop_i22$BTERN01, " ",
+                                      msgenepop_i22$B124," ", msgenepop_i22$BTMS0057," ",
+                                      msgenepop_i22$BT30," ", msgenepop_i22$B10, " ",
+                                      msgenepop_i22$BTMS0083," ", msgenepop_i22$BTMS0073," ",
+                                      msgenepop_i22$BT28,
+                                  sep = ""))
+
+#Build the Genepop format
+sink("data/genepop/ms_genepop_format_impatiens2022.txt")
+cat("Title: B. impatiens workers (2022) \n")
+cat("BT10 \n")
+cat("B96 \n")
+cat("BTMS0059 \n")
+cat("BTMS0081 \n")
+cat("BL13 \n")
+cat("BTMS0062 \n")
+cat("B126 \n")
+cat("BTERN01 \n")
+cat("B124 \n")
+cat("BTMS0057 \n")
+cat("BT30 \n")
+cat("B10 \n")
+cat("BTMS0083 \n")
+cat("BTMS0073 \n")
+cat("BT28 \n")
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+sink()
+
+
+# then again, for 2023!
+#combine columns for each locus
+ms_i23 = data.table(itestalleles2023)
+ms_i23[ms_i23 ==0] <- "000"
+
+
+i1 <- seq(1, length(ms_i23)-1, 2)
+i2 <- seq(2, length(ms_i23)-1, 2)
+msgenepop_i23 = ms_i23[, Map(paste,
+                             .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
+                             MoreArgs = list(sep="")), 
+                       by = "barcode_id"]
+colnames(msgenepop_i23) = c("barcode_id", "BT10", "B96", "BTMS0059", "BTMS0081",
+                            "BL13", "BTMS0062", "B126", "BTERN01","B124", "BTMS0057", 
+                            "BT30", "B10", "BTMS0083", "BTMS0073", "BT28")
+
+
+#select and join alleles
+
+#sort allele table by barcode ID
+msgenepop_i23 <- msgenepop_i23[order(msgenepop_i23$barcode_id),]
+msgenepop_i23$site = substring(msgenepop_i23$barcode_id, 1, 1)
+
+haplotypes_i23 <- as.data.frame(paste(msgenepop_i23$site, ","," ", 
+                                      msgenepop_i23$BT10," ", msgenepop_i23$B96, " ",
+                                      msgenepop_i23$BTMS0059," ", msgenepop_i23$BTMS0081, " ",
+                                      msgenepop_i23$BL13," ", msgenepop_i23$BTMS0062, " ",
+                                      msgenepop_i23$B126," ", msgenepop_i23$BTERN01, " ",
+                                      msgenepop_i23$B124," ", msgenepop_i23$BTMS0057," ",
+                                      msgenepop_i23$BT30," ", msgenepop_i23$B10, " ",
+                                      msgenepop_i23$BTMS0083," ", msgenepop_i23$BTMS0073," ",
+                                      msgenepop_i23$BT28,
+                                      sep = ""))
+
+#Build the Genepop format
+sink("data/genepop/ms_genepop_format_impatiens2023.txt")
+cat("Title: B. impatiens workers (2023) \n")
+cat("BT10 \n")
+cat("B96 \n")
+cat("BTMS0059 \n")
+cat("BTMS0081 \n")
+cat("BL13 \n")
+cat("BTMS0062 \n")
+cat("B126 \n")
+cat("BTERN01 \n")
+cat("B124 \n")
+cat("BTMS0057 \n")
+cat("BT30 \n")
+cat("B10 \n")
+cat("BTMS0083 \n")
+cat("BTMS0073 \n")
+cat("BT28 \n")
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
+cat("Pop \n")
+sink()
+
+######################################
+# Run genepop on samples
+#####################################
+
+#test for HWE
+test_HW("data/genepop/ms_genepop_format_impatiens2022.txt", which="Proba", "data/genepop/impatiensHWE2022.txt.D")
+test_HW("data/genepop/ms_genepop_format_impatiens2023.txt", which="Proba", "data/genepop/impatiensHWE2023.txt.D")
+
+#test for LD
+test_LD("data/genepop/ms_genepop_format_impatiens2022.txt","data/genepop/impatiensLD2022.txt.DIS")
+test_LD("data/genepop/ms_genepop_format_impatiens2023.txt","data/genepop/impatiensLD2023.txt.DIS")
+
+```
+
+The distributions of $F_{is}$ estimates for each species at each site are shown below. The blue dotted line indicates $F_{is}$ = 0, and the red dotted lines indicate $F_{is}$ = $\pm$ 0.1.
+
+```{r read in Fis values for each species, echo = FALSE, include = FALSE}
+
+# first, mixtus 2022
+mix2022HWElines = readLines("data/genepop/mixtusHWE2022.txt.D")
+split_mixHWE2022 <- strsplit(mix2022HWElines, "\\s+")
+
+# pull out the estimates for each site
+mixHWE2022_east = as.data.frame(do.call(rbind, split_mixHWE2022[269:281]))
+mixHWE2022_east$site = "ED"
+mixHWE2022_west = as.data.frame(do.call(rbind, split_mixHWE2022[294:306]))
+mixHWE2022_west$site = "W"
+mixHWE2022_south = as.data.frame(do.call(rbind, split_mixHWE2022[319:331]))
+mixHWE2022_south$site = "SD"
+mixHWE2022_harvie = as.data.frame(do.call(rbind, split_mixHWE2022[394:406]))
+mixHWE2022_harvie$site = "HR"
+mixHWE2022_nico = as.data.frame(do.call(rbind, split_mixHWE2022[344:356]))
+mixHWE2022_nico$site = "NR"
+mixHWE2022_pitt = as.data.frame(do.call(rbind, split_mixHWE2022[369:381]))
+mixHWE2022_pitt$site = "PM"
+
+mixHWE2022 = rbind(mixHWE2022_east, mixHWE2022_harvie, mixHWE2022_nico, mixHWE2022_pitt, mixHWE2022_south, mixHWE2022_west)
+colnames(mixHWE2022) = c("locus", "pval", "SE", "FisWC", "FisRH", "steps", "switches", "site")
+mixHWE2022$year = 2022
+
+
+
+## next, for mixtus 2023
+mix2023HWElines = readLines("data/genepop/mixtusHWE2023.txt.D")
+split_mixHWE2023 <- strsplit(mix2023HWElines, "\\s+")
+
+# pull out the estimates for each site
+mixHWE2023_east = as.data.frame(do.call(rbind, split_mixHWE2023[269:281]))
+mixHWE2023_east$site = "ED"
+mixHWE2023_west = as.data.frame(do.call(rbind, split_mixHWE2023[294:306]))
+mixHWE2023_west$site = "W"
+mixHWE2023_south = as.data.frame(do.call(rbind, split_mixHWE2023[319:331]))
+mixHWE2023_south$site = "SD"
+mixHWE2023_harvie = as.data.frame(do.call(rbind, split_mixHWE2023[394:406]))
+mixHWE2023_harvie$site = "HR"
+mixHWE2023_nico = as.data.frame(do.call(rbind, split_mixHWE2023[344:356]))
+mixHWE2023_nico$site = "NR"
+mixHWE2023_pitt = as.data.frame(do.call(rbind, split_mixHWE2023[369:381]))
+mixHWE2023_pitt$site = "PM"
+
+mixHWE2023 = rbind(mixHWE2023_east, mixHWE2023_harvie, mixHWE2023_nico, mixHWE2023_pitt, mixHWE2023_south, mixHWE2023_west)
+colnames(mixHWE2023) = c("locus", "pval", "SE", "FisWC", "FisRH", "steps", "switches", "site")
+mixHWE2023$year = 2023
+
+mixHWE = rbind(mixHWE2022, mixHWE2023)
+
+
+## next, for impatiens 2022!
+imp2022HWElines = readLines("data/genepop/impatiensHWE2022.txt.D")
+split_impHWE2022 <- strsplit(imp2022HWElines, "\\s+")
+
+# pull out the estimates for each site
+impHWE2022_east = as.data.frame(do.call(rbind, split_impHWE2022[305:319]))
+impHWE2022_east$site = "ED"
+impHWE2022_west = as.data.frame(do.call(rbind, split_impHWE2022[332:346]))
+impHWE2022_west$site = "W"
+impHWE2022_south = as.data.frame(do.call(rbind, split_impHWE2022[359:373]))
+impHWE2022_south$site = "SD"
+impHWE2022_harvie = as.data.frame(do.call(rbind, split_impHWE2022[440:454]))
+impHWE2022_harvie$site = "HR"
+impHWE2022_nico = as.data.frame(do.call(rbind, split_impHWE2022[386:400])[,1:7])
+impHWE2022_nico$site = "NR"
+impHWE2022_pitt = as.data.frame(do.call(rbind, split_impHWE2022[413:427]))
+impHWE2022_pitt$site = "PM"
+
+impHWE2022 = rbind(impHWE2022_east, impHWE2022_harvie, impHWE2022_nico, impHWE2022_pitt, impHWE2022_south, impHWE2022_west)
+colnames(impHWE2022) = c("locus", "pval", "SE", "FisWC", "FisRH", "steps", "switches", "site")
+impHWE2022$year = 2022
+
+
+
+## repeat for impatiens 2023!
+imp2023HWElines = readLines("data/genepop/impatiensHWE2023.txt.D")
+split_impHWE2023 <- strsplit(imp2023HWElines, "\\s+")
+
+# pull out the estimates for each site
+impHWE2023_east = as.data.frame(do.call(rbind, split_impHWE2023[305:319]))
+impHWE2023_east$site = "ED"
+impHWE2023_west = as.data.frame(do.call(rbind, split_impHWE2023[332:346]))
+impHWE2023_west$site = "W"
+impHWE2023_south = as.data.frame(do.call(rbind, split_impHWE2023[359:373]))
+impHWE2023_south$site = "SD"
+impHWE2023_harvie = as.data.frame(do.call(rbind, split_impHWE2023[440:454]))
+impHWE2023_harvie$site = "HR"
+impHWE2023_nico = as.data.frame(do.call(rbind, split_impHWE2023[386:400]))
+impHWE2023_nico$site = "NR"
+impHWE2023_pitt = as.data.frame(do.call(rbind, split_impHWE2023[413:427]))
+impHWE2023_pitt$site = "PM"
+
+impHWE2023 = rbind(impHWE2023_east, impHWE2023_harvie, impHWE2023_nico, impHWE2023_pitt, impHWE2023_south, impHWE2023_west)
+colnames(impHWE2023) = c("locus", "pval", "SE", "FisWC", "FisRH", "steps", "switches", "site")
+impHWE2023$year = 2023
+
+impHWE = rbind(impHWE2022, impHWE2023)
+
+
+
+##############################################
+# Make sure all columns are right data format
+##############################################
+
+impHWE$FisWC = as.numeric(impHWE$FisWC)
+impHWE$locus = factor(impHWE$locus)
+impHWE$site = factor(impHWE$site)
+
+mixHWE$FisWC = as.numeric(mixHWE$FisWC)
+mixHWE$locus = factor(mixHWE$locus)
+mixHWE$site = factor(mixHWE$site)
+
+```
+
+```{r plot Fis distributions for each species, fig.width = 12, fig.align = "center", echo = FALSE}
+# combine data frames
+impHWE$species = "B. impatiens"
+mixHWE$species = "B. mixtus"
+HWE = rbind(impHWE, mixHWE)
+
+ggplot(HWE, aes(x = FisWC)) +
+  geom_histogram(binwidth = 0.02) +
+  geom_vline(xintercept = 0, color = "blue", linetype = "dotted") +
+  geom_vline(xintercept = -0.1, color = "red", linetype = "dotted") +
+  geom_vline(xintercept = 0.1, color = "red", linetype = "dotted") +
+  theme_minimal() +
+  labs(y = "Count", x = expression(F[is] * " (W&C)"), title = expression(F[is] * " Distributions Across Sites and Species")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 6)) +
+  facet_grid(species ~ site)
+
+# ggplot(HWE, aes(x = FisWC)) +
+#   geom_histogram() +
+#   geom_vline(xintercept = 0, color = "red", linetype = "dotted") +
+#   theme_minimal() +
+#   facet_grid(species ~ 1)
+
+
+```
+
+We employed a linear model of $F_{is}$ estimates with locus and site as fixed predictors. We used sum-to-zero coding so that the model intercept represented the global mean $F_{is}$ across loci, and calculated the effect of each locus and site using the *emmeans* package.
+
+Below we show the computed effects of each locus for each species. The dashed black line represents $F_{is} = 0$, and the dashed red line represents the global mean $F_{is}$.
+
+
+```{r initial linear models of Fis, fig.width = 12, fig.align = "center", echo=FALSE}
+#############################################
+# Initial models and plots for impatiens
+#############################################
+# set site and locus to sum-to-zero contrasts
+contrasts(impHWE$locus) = contr.sum
+contrasts(impHWE$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = impHWE)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+#summary(comp_locus)
+#summary(model)
+
+# plot locus effects
+emm_df <- as.data.frame(emm_locus)
+impatiens_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = "", x = "Locus", title = substitute(italic("B. impatiens"))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 4))
+
+#############################################
+# Initial models and plots for mixtus
+#############################################
+# set site and locus to sum-to-zero contrasts
+contrasts(mixHWE$locus) = contr.sum
+contrasts(mixHWE$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = mixHWE)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+#summary(comp_locus)
+#summary(model)
+
+# plot locus effects
+emm_df <- as.data.frame(emm_locus)
+mixtus_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus", title = substitute(italic("B. mixtus"))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 4))
+
+grid.arrange(mixtus_locus_init, impatiens_locus_init, ncol = 2)
+```
+
+We iteratively removed loci which were significantly different from the global mean, starting with the locus with the greatest deviation, and re-running the model after each removal (i.e., because removing a locus with a high or low inbreeding coefficient will change the global mean and therefore all comparisons to the global mean). We did not apply an adjustment for multiple-hypothesis testing (i.e., comparison of multiple loci to the global mean $F_{is}$) but instead utilized a relatively stringent p-value ($\alpha$ = 0.01) for removal of loci.
+
+```{r, iteratively remove poor loci for impatiens, echo = FALSE}
+#############################################
+# Remove poor loci for impatiens
+#############################################
+##### remove BTMS0073
+impHWE_trunc = impHWE[impHWE$locus != "BTMS0073",]
+
+# reset factor levels
+impHWE_trunc$locus = factor(impHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(impHWE_trunc$locus) = contr.sum
+contrasts(impHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = impHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+
+
+##### remove BT28
+impHWE_trunc = impHWE_trunc[impHWE_trunc$locus != "BT28",]
+
+# reset factor levels
+impHWE_trunc$locus = factor(impHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(impHWE_trunc$locus) = contr.sum
+contrasts(impHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = impHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+#summary(model)
+#summary(comp_locus)
+
+# plot locus effects
+emm_df <- as.data.frame(emm_locus)
+impatiens_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = "", x = "Locus", title = substitute(italic("B. impatiens"))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 4))
+
+
+```
+
+
+```{r, iteratively remove poor loci for mixtus, echo = FALSE}
+#############################################
+# Remove poor loci for mixtus
+#############################################
+##### remove BTERN01
+mixHWE_trunc = mixHWE[mixHWE$locus != "BTERN01",]
+
+# reset factor levels
+mixHWE_trunc$locus = factor(mixHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(mixHWE_trunc$locus) = contr.sum
+contrasts(mixHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = mixHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+
+
+##### remove BTMS0104
+mixHWE_trunc = mixHWE_trunc[mixHWE_trunc$locus != "BTMS0104",]
+
+# reset factor levels
+mixHWE_trunc$locus = factor(mixHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(mixHWE_trunc$locus) = contr.sum
+contrasts(mixHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = mixHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+
+
+##### remove BTMS0059
+mixHWE_trunc = mixHWE_trunc[mixHWE_trunc$locus != "BTMS0059",]
+
+# reset factor levels
+mixHWE_trunc$locus = factor(mixHWE_trunc$locus)
+
+# set site and locus to sum-to-zero contrasts
+contrasts(mixHWE_trunc$locus) = contr.sum
+contrasts(mixHWE_trunc$site) = contr.sum
+
+# fit the model
+model <- lm(FisWC ~ locus + site, data = mixHWE_trunc)
+
+# get locus vs grand mean comparisons
+emm_locus = emmeans(model, "locus")
+comp_locus = contrast(emm_locus, method = "eff", adjust = "none")
+#summary(model)
+#summary(comp_locus)
+
+# plot locus effects
+emm_df <- as.data.frame(emm_locus)
+mixtus_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus", title = substitute(italic("B. mixtus"))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(size = 4))
+
+```
+
+This process resulted in the removal of loci BTERN01, BTMS0104, and BTMS0059 from downstream analysis of *B. mixtus* and removal of BTMS0073 and BT28 for *B. impatiens*. $F_{is}$ estimates for the remaining loci (n = 10 for *B. mixtus*, n = 13 for *B. impatiens*) are shown below.
+
+```{r plots of remaining loci after Fis removals, fig.width = 12, fig.align = "center", echo = FALSE}
+grid.arrange(mixtus_locus, impatiens_locus, ncol =2)
+```
+
+Finally, we checked locus pairs for linkage disequilibrium in GENEPOP. LD values were calculated for each locus pair in each population (site and year). We applied a Bonferroni correction for multiple hypothesis testing, and flagged locus pairs which showed significant deviations in $>2$ populations.
+
+[[**NOTE for Mike**: Is there a better way of approaching this? You suggested that Bonferroni correction wasn't the best way to approach $F_{is}$ / HWE, and I wonder if similar logic would apply here? It does seem odd to me to correct for multiple hypothesis testing and then only drop loci if they exceed the Bonferroni-correct p-value in *multiple* cases--it's common practice in the literature, but perhaps it would be better to first assess $F_{st}$ between populations and then test LD of loci across *all* samples rather than individually for each population?]]
+
+```{r check for LD in genepop, echo = FALSE}
+
+##############################
+# IMPATIENS
+#############################
+
+LD2022lines = readLines("data/genepop/impatiensLD2022.txt.DIS")
+split_linesLD2022 <- strsplit(LD2022lines, "\\s+")
+LD2022 = do.call(rbind, split_linesLD2022[13:644])
+colnames(LD2022) = LD2022[1,]
+colnames(LD2022)[colnames(LD2022) == 'P-Value'] = "pval"
+LD2022 = as.data.frame(LD2022[3:nrow(LD2022),])
+LD2022$year = 2022
+
+LD2023lines = readLines("data/genepop/impatiensLD2023.txt.DIS")
+split_linesLD2023 <- strsplit(LD2023lines, "\\s+")
+LD2023 = do.call(rbind, split_linesLD2023[13:644])
+colnames(LD2023) = LD2023[1,]
+colnames(LD2023)[colnames(LD2023) == 'P-Value'] = "pval"
+LD2023 = as.data.frame(LD2023[3:nrow(LD2023),])
+LD2023$year = 2023
+
+impatiensLD = rbind(LD2022, LD2023)
+
+# check out loci that are below Bonferroni-corrected P-value
+alpha_imp = 0.05/nrow(impatiensLD)
+
+impatiensLD = impatiensLD[as.numeric(impatiensLD$pval) < alpha_imp,]
+impatiensLD = impatiensLD[!(impatiensLD$`Locus#1`%in% c("BTMS0073", "BT28")),]
+impatiensLD = impatiensLD[!(impatiensLD$`Locus#2`%in% c("BTMS0073", "BT28")),]
+
+
+##############################
+# MIXTUS
+#############################
+
+LD2022lines = readLines("data/genepop/mixtusLD2022.txt.DIS")
+split_linesLD2022 <- strsplit(LD2022lines, "\\s+")
+LD2022 = do.call(rbind, split_linesLD2022[13:482])
+colnames(LD2022) = LD2022[1,]
+colnames(LD2022)[colnames(LD2022) == 'P-Value'] = "pval"
+LD2022 = as.data.frame(LD2022[3:nrow(LD2022),])
+LD2022$year = 2022
+
+LD2023lines = readLines("data/genepop/mixtusLD2023.txt.DIS")
+split_linesLD2023 <- strsplit(LD2023lines, "\\s+")
+LD2023 = do.call(rbind, split_linesLD2023[13:482])
+colnames(LD2023) = LD2023[1,]
+colnames(LD2023)[colnames(LD2023) == 'P-Value'] = "pval"
+LD2023 = as.data.frame(LD2023[3:nrow(LD2023),])
+LD2023$year = 2023
+
+mixtusLD = rbind(LD2022, LD2023)
+
+# check out loci that are below Bonferroni-corrected P-value
+alpha_mix = 0.05/nrow(mixtusLD)
+
+mixtusLD = mixtusLD[as.numeric(mixtusLD$pval) < alpha_mix,]
+mixtusLD = mixtusLD[!(mixtusLD$`Locus#1`%in% c("BTMS0059", "BTMS0104", "BTERN01")),]
+mixtusLD = mixtusLD[!(mixtusLD$`Locus#2`%in% c("BTMS0059", "BTMS0104", "BTERN01")),]
+
+
+```
+
+There was not strong support for linkage disequilibrium between locus pairs in *B. mixtus*--four pairs showed signs of LD, but only at a single site in a single year. In *B. impatiens*, there was strong evidence for linkage disequilibrium between BTMS0057 and BL13 (7 out of 12 populations showed significant LD following Bonferroni correction). To determine which locus to maintain, we calculated the polymorphic information content (PIC) using the package *PopGenUtils* (CITE PACKAGE).
+
+```{r calculate PIC of BTMS0057 and BL13 in impatiens, include = FALSE}
+
+# load genepop files
+file.copy("data/genepop/ms_genepop_format_impatiens2022.txt",
+          "data/genepop/ms_genepop_format_impatiens2022.gen")
+file.copy("data/genepop/ms_genepop_format_impatiens2023.txt",
+          "data/genepop/ms_genepop_format_impatiens2023.gen")
+
+genind_imp2022 <- read.genepop("data/genepop/ms_genepop_format_impatiens2022.gen", ncode = 3)
+genind_imp2023 <- read.genepop("data/genepop/ms_genepop_format_impatiens2023.gen", ncode = 3)
+
+# calculate PIC
+pic_values_2022 <- pic_calc(genind_imp2022, ploidy = 2, bypop = FALSE)
+pic_values_2023 <- pic_calc(genind_imp2023, ploidy = 2, bypop = FALSE)
+
+#pic_values_2022
+#pic_values_2023
+
+```
+We found that BTMS0057 had higher PIC in both years (PIC = 0.78) compared to BL13 (PIC = 0.47 in 2022 and 0.45 in 2023). For this reason, we chose to maintain BTMS0057 and remove BL13 from further analyses.
+
+After locus quality screening, we calculated $F_{st}$ between sites to determine whether populations were in panmixia, or whether allele frequencies varied between sites. Moderate or high $F_{st}$ betwen sites would suggest that final siblingship assignments should be run separately to account for differences in allele frequencies between populations.
+
+```{r calculate Fst between sites}
+# load mixtus genepop files and make genind!
+file.copy("data/genepop/ms_genepop_format_mixtus2022.txt",
+          "data/genepop/ms_genepop_format_mixtus2022.gen")
+file.copy("data/genepop/ms_genepop_format_mixtus2023.txt",
+          "data/genepop/ms_genepop_format_mixtus2023.gen")
+
+genind_mix2022 <- read.genepop("data/genepop/ms_genepop_format_mixtus2022.gen", ncode = 3)
+genind_mix2023 <- read.genepop("data/genepop/ms_genepop_format_mixtus2023.gen", ncode = 3)
+
+# convert all to hierfstat objects
+hf_imp2022 <- genind2hierfstat(genind_imp2022)
+hf_imp2023 <- genind2hierfstat(genind_imp2023)
+hf_mix2022 <- genind2hierfstat(genind_mix2022)
+hf_mix2023 <- genind2hierfstat(genind_mix2023)
+
+# remove dropped loci!
+hf_imp2022 = hf_imp2022[,!colnames(hf_imp2022) %in% c("BT28", "BTMS0073", "BL13")]
+hf_imp2023 = hf_imp2023[,!colnames(hf_imp2023) %in% c("BT28", "BTMS0073", "BL13")]
+hf_mix2022 = hf_mix2022[,!colnames(hf_mix2022) %in% c("BTMS0104", "BTMS0059", "BTERN01")]
+hf_mix2023 = hf_mix2023[,!colnames(hf_mix2023) %in% c("BTMS0104", "BTMS0059", "BTERN01")]
+
+# set individuals with partially missing data (e.g., 1 called peak, 1 unbinned peak) to NA
+handle_partial = function(hf_obj){
+  for (col in 2:ncol(hf_obj)){
+    for (row in 1:nrow(hf_obj)){
+      if (is.na(hf_obj[row, col])){
+        # skip
+        } else if (nchar(hf_obj[row, col]) < 6){
+        hf_obj[row, col] = NA
+      }
+    }
+  }
+}
+
+hf_imp2022 = handle_partial(hf_imp2022)
+
+# calculate pairwise Fst
+
+
+```
+
+
+Finally, we computed the effect of site on $F_{is}$ scores to determine whether inbreeding was present at some sites but not others.
+
+```{r check for site-level inbreeding, echo = FALSE}
+######################
+# IMPATIENS
+######################
+# fit the model
+model <- lm(FisWC ~ locus + site, data = impHWE_trunc)
+
+# get site vs grand mean comparisons
+emm_site = emmeans(model, "site")
+comp_site = contrast(emm_locus, method = "eff", adjust = "none")
+
+# plot site effects
+emm_df <- as.data.frame(emm_site)
+impatiens_site = ggplot(emm_df, aes(x = site, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Site", title = substitute(italic("B. impatiens"))) +
+  theme(axis.text.x = element_text(size = 6))
+```
+
+We found that ....
+
+
