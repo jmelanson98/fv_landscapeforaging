@@ -87,7 +87,7 @@ fit <- mod$sample(
   iter_sampling = 5000
 )
 
-saveRDS(fit, paste("methods_comparison/observed_vs_unobserved/reducesum/", current$thread, current$model, "Fit.rds", sep = ""))
+saveRDS(fit, paste("simulate_data/methods_comparison/observed_vs_unobserved/reducesum/", current$thread, current$model, "Fit.rds", sep = ""))
 
 
 
