@@ -30,16 +30,26 @@ task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
 
 ##### Load in some simulation data!! #####
+param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
+inputfilepath <- sprintf("simulate_data/methods_comparison/data/sim_result_%03d", task_id)
+yobs = readRDS(paste(inputfilepath, "/yobs.RDS", sep = ""))
+colony_data = readRDS(paste(inputfilepath, "/colonydata.RDS", sep = ""))
+trap_data = readRDS(paste(inputfilepath, "/trapdata.RDS", sep = ""))
+current_params = param_grid[param_grid$task_id == task_id,]
 
-## NOTE: this is simulation 74!! this data is for landscape = 4, rho = 50, exponential decay
-yobs = readRDS("simulate_data/methods_comparison/data/sim_result_074/yobs.RDS")
-colony_data = readRDS("simulate_data/methods_comparison/data/sim_result_074/colonydata.RDS")
-trap_data = readRDS("simulate_data/methods_comparison/data/sim_result_074/trapdata.RDS")
 
-ydub = yobs[rowSums(yobs) > 1,]
 # Prep data list for Stan
 data = list()
-data$y = ydub
+
+# how much of simulation data to keep?
+if (current_params$model_approach == "all"){
+  data$y = yobs
+} else if (current_params$model_approach == "singletons"){
+  data$y = yobs[rowSums(yobs) >0,]
+} else if (current_params$model_approach == "doubletons"){
+  data$y = yobs[rowSums(yobs) >1,]
+}
+
 data$C = nrow(data$y)
 data$K = ncol(data$y)
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
@@ -51,27 +61,17 @@ data$priorCo = 1
 data$rho_center = 4.5
 data$rho_sd = 0.5
 
-# Table of conditions
-model = c("reduce_sum_exponential.stan", "reduce_sum_exponentialGQ.stan")
-threads = c(4, 8)
-grid = expand.grid(model = model,
-                 threads = threads)
-grid$task = 1:nrow(grid)
-
-current = grid[grid$task == task_id,]
-
-print(current$model)
-print(current$threads)
-
 #select stan model to fit
-mod_file <- paste("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/", current$model, sep = "")
+if (current_params$distance_decay == "exponential"){
+  mod_file <- "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/reduce_sum_exponential.stan"
+} else if (current_params$distance_decay == "exponentiated_quadratic"){
+  mod_file <- "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/reduce_sum_expquad.stan"
+}
 mod <- cmdstan_model(mod_file, cpp_options = list(stan_threads = TRUE), force_recompile = TRUE)
 
 
-# Run sampling
-threads_per_chain = current$threads
-
 # add grainsize to data list
+threads_per_chain = 4
 grainsize <- max(floor(data$C / (threads_per_chain * 5)), 1)
 data$grainsize = grainsize
 
@@ -87,9 +87,6 @@ fit <- mod$sample(
   iter_warmup = 1000,
   iter_sampling = 5000
 )
-
-saveRDS(fit, paste("simulate_data/methods_comparison/observed_vs_unobserved/reducesum/", current$thread, current$model, "Fit.rds", sep = ""))
-
 
 
 ###### Post hoc calculations of colony_dist
@@ -172,7 +169,6 @@ for (start in chunk_starts) {
   chunk_draws <- posterior_draws_matrix[start:end, , drop = FALSE]
   
   # apply function in parallel to each row (draw)
-  print("start lapplying")
   chunk_results <- future_lapply(1:nrow(chunk_draws), function(i) {
     compute_colony_dist_summary(
       draw_row = chunk_draws[i, ],
@@ -181,7 +177,6 @@ for (start in chunk_starts) {
       C = data$C,
       K = data$K
     )
-    print("done one draw")
   }
   )
   
@@ -193,8 +188,45 @@ print('done lapplying')
 # combine all into one matrix or data frame
 summary_stats_mat <- do.call(rbind, summary_stats_list)
 
-print(paste("posterior mean = ", apply(summary_stats_mat, 2, mean), sep = ""))
-print(paste("posterior sd = ", apply(summary_stats_mat, 2, sd), sep = ""))
-print(paste("posterior CIs = ", apply(summary_stats_mat, 2, quantile, probs = c(0.025, 0.975)), sep = ""))
+#print(paste("posterior CIs = ", apply(summary_stats_mat, 2, quantile, probs = c(0.025, 0.975)), sep = ""))
+
+
+
+#####  Save colony_dist estimates ######
+# use lock to make sure multiple tasks don't write to output at the same time
+lockfile <- "output.lock"
+rds_file <- "simulate_data/methods_comparison/output.rds"
+
+
+colony_data$model_estimate = summary(stanFit, pars = c("colony_dist"))$summary[,1]
+  
+# save the result of *this* simulation only
+current_params$model_average_foraging = apply(summary_stats_mat, 2, mean)
+current_params$model_sd_foraging = apply(summary_stats_mat, 2, sd)
+current_params$model_mu = fit$summary(variables = "mu")$mean
+current_params$model_rho = fit$summary(variables = "rho")$mean
+saveRDS(current_params, paste(inputfilepath, "/iteration_output.rds", sep = ""))
+  
+# save output
+# try to acquire the lock (waits up to 60 seconds)
+lock <- lock(lockfile, timeout = 60000)
+
+if (!is.null(lock)) {
+    df <- readRDS(rds_file)
+    
+    df$model_average_foraging[df$task_id == task_id] = apply(summary_stats_mat, 2, mean)
+    df$model_sd_foraging[df$task_id == task_id] = apply(summary_stats_mat, 2, sd)
+    df$model_mu[df$task_id == task_id] = fit$summary(variables = "mu")$mean
+    df$model_rho[df$task_id == task_id] = fit$summary(variables = "rho")$mean
+    
+    # save updated dataframe
+    saveRDS(df, rds_file)
+    
+    # Release lock
+    unlock(lock)
+  } else {
+    stop("Could not acquire lock on output file.")
+  }
+
 
 
