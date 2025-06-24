@@ -94,6 +94,18 @@ saveRDS(fit, paste("simulate_data/methods_comparison/observed_vs_unobserved/redu
 ###### Post hoc calculations of colony_dist
 
 # function for computing colony dist!
+print('trap')
+print(data$trap)
+posterior_draws = fit$draws(variables = c("delta", "rho", "theta", "mu", "zeta", "eps", "tau", "sigma"),
+                             format = "draws_list")
+print('variables')
+class(fit)
+print(names(posterior_draws[[1]]))
+cmdstanr::variables(fit)
+print('delta')
+print(posterior_draws[[1]]$delta)
+
+
 compute_colony_dist_summary <- function(draw,
                                         trap = data$trap,
                                         floral = data$floral,
@@ -109,7 +121,10 @@ compute_colony_dist_summary <- function(draw,
   sigma <- draw$sigma
   
   alpha <- 1e-12
-  
+  print(paste("delta= ", delta, sep = ""))
+  print(paste("trap= ", trap, sep = ""))
+
+
   dis <- matrix(NA, nrow = C, ncol = K)
   lambda <- matrix(NA, nrow = C, ncol = K)
   V <- numeric(C)
