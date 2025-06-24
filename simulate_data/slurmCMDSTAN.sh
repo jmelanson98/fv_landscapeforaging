@@ -16,6 +16,3 @@ export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.3
 
 Rscript 8A_reducesum_unobserved.R
 
-echo "Resource usage:" >> "$SLURM_OUTPUT"
-seff $SLURM_JOB_ID >> "$SLURM_OUTPUT"
-

@@ -21,6 +21,7 @@ library(tidyr)
 library(gridExtra)
 library(tibble)
 library(future.apply)
+library(posterior)
 
 ##### Set Environment #####
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
@@ -154,18 +155,18 @@ compute_colony_dist_summary <- function(draw_row,
 
 
 ### Apply the function in parallel across draws!
-draws_per_chunk <- 500
+draws_per_chunk <- 100
 total_draws <- nrow(posterior_draws_matrix)
 chunk_starts <- seq(1, total_draws, by = draws_per_chunk)
 
 # set up future backend
-plan(multisession, workers = 8)
+plan(multisession, workers = 8, gc = TRUE)
 
 # loop over chunks
 summary_stats_list <- list()
 for (start in chunk_starts) {
   end <- min(start + draws_per_chunk - 1, total_draws)
-  print(paste0("Processing draws", start, "to", end, "\n"))
+  print(paste0("Processing draws ", start, " to ", end))
   
   # subset the matrix for this chunk
   chunk_draws <- posterior_draws_matrix[start:end, , drop = FALSE]
@@ -180,8 +181,9 @@ for (start in chunk_starts) {
       C = data$C,
       K = data$K
     )
-  },
-  globals = FALSE)
+    print("done one draw")
+  }
+  )
   
   # combine results
   summary_stats_list[[length(summary_stats_list) + 1]] <- do.call(rbind, chunk_results)
