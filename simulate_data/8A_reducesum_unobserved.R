@@ -94,7 +94,11 @@ saveRDS(fit, paste("methods_comparison/observed_vs_unobserved/reducesum/", curre
 ###### Post hoc calculations of colony_dist
 
 # function for computing colony dist!
-compute_colony_dist_summary <- function(draw) {
+compute_colony_dist_summary <- function(draw,
+                                        trap = data$trap,
+                                        floral = data$floral,
+                                        C = data$C,
+                                        K = data$K) {
   delta <- draw$delta
   rho <- draw$rho
   theta <- draw$theta
@@ -105,8 +109,6 @@ compute_colony_dist_summary <- function(draw) {
   sigma <- draw$sigma
   
   alpha <- 1e-12
-  C <- nrow(delta)
-  K <- nrow(trap)
   
   dis <- matrix(NA, nrow = C, ncol = K)
   lambda <- matrix(NA, nrow = C, ncol = K)
@@ -136,10 +138,6 @@ plan(multisession, workers = 4)
 posterior_draws <- fit$draws(variables = c("delta", "rho", "theta", "mu", "zeta", "eps", "tau", "sigma"),
                              format = "draws_list")
 
-
-# set some parameters from R
-C <- data$C
-K <- data$K
 
 summary_stats_list <- future_lapply(posterior_draws, compute_colony_dist_summary)
 summary_stats_mat <- do.call(rbind, summary_stats_list)
