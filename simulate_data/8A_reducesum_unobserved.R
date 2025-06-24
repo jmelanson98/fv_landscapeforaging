@@ -151,14 +151,41 @@ compute_colony_dist_summary <- function(draw,
 
 # run in parallel over many draws!
 # set up
-plan(multisession, workers = 4)
+plan(multisession, workers = 16)
 
 # get posterior draws
 posterior_draws <- fit$draws(format = "draws_list")
+print(object.size(posterior_draws), units = "auto")
 
-# apply function and summarize
-summary_stats_list <- future_lapply(posterior_draws, compute_colony_dist_summary)
+# apply function and summarize (loop over chunks)
+print('lapplying')
+
+chunk_size <- 100
+n_draws <- length(posterior_draws)
+n_chunks <- ceiling(n_draws / chunk_size)
+print(paste0("ndraws = ", n_draws))
+
+
+summary_stats_list <- list()
+
+for (i in seq_len(n_chunks)) {
+  start <- (i - 1) * chunk_size + 1
+  end <- min(i * chunk_size, n_draws)
+
+  message("Processing draws ", start, " to ", end)
+
+  chunk_draws <- posterior_draws[start:end]
+  print(length(chunk_draws))
+  
+  chunk_summaries <- future_lapply(chunk_draws, compute_colony_dist_summary, trap=data$trap,
+  floral=data$floral,C=data$C, K=data$K, future.globals = FALSE)
+
+  summary_stats_list[[i]] <- do.call(rbind, chunk_summaries)
+}
+
 summary_stats_mat <- do.call(rbind, summary_stats_list)
+
+print('done lapplying')
 
 print(paste("posterior mean = ", apply(summary_stats_mat, 2, mean), sep = ""))
 print(paste("posterior sd = ", apply(summary_stats_mat, 2, sd), sep = ""))

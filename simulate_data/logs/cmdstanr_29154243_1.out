@@ -1,0 +1,737 @@
+[1] reduce_sum_exponential.stan
+Levels: reduce_sum_exponential.stan reduce_sum_exponentialGQ.stan
+[1] 4
+[1] "Starting sampling."
+Running MCMC with 4 parallel chains, with 4 thread(s) per chain...
+
+Chain 1 Iteration:    1 / 6000 [  0%]  (Warmup) 
+Chain 2 Iteration:    1 / 6000 [  0%]  (Warmup) 
+Chain 3 dis: 276.172, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.849882, eps[k]: 0.381566, lambda: -1.31659e+41 
+Chain 3 dis: 168.425, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.11417, eps[k]: 0.381566, lambda: -8.02928e+40 
+Chain 3 dis: 307.375, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.06024, eps[k]: -0.0769776, lambda: -1.3713e+20 
+Chain 3 dis: 282.723, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.06024, eps[k]: 0.381566, lambda: -1.34782e+41 
+Chain 3 dis: 355.651, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.984263, eps[k]: 0.381566, lambda: -1.69549e+41 
+Chain 3 dis: 339.982, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.14694, eps[k]: 0.381566, lambda: -1.62079e+41 
+Chain 3 dis: 310.369, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.127708, eps[k]: -0.0769776, lambda: -1.38466e+20 
+Chain 3 dis: 369.979, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.127708, eps[k]: 0.381566, lambda: -1.76379e+41 
+Chain 3 dis: 284.429, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.01832, eps[k]: 0.381566, lambda: -1.35595e+41 
+Chain 3 dis: 302.47, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.77462, eps[k]: -0.0769776, lambda: -1.34942e+20 
+Chain 3 dis: 96.513, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.77462, eps[k]: 0.381566, lambda: -4.60105e+40 
+Chain 3 dis: 312.657, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.90094, eps[k]: 0.381566, lambda: -1.49052e+41 
+Chain 3 dis: 292.572, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.8955, eps[k]: 0.381566, lambda: -1.39477e+41 
+Chain 3 dis: 311.96, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.18195, eps[k]: -0.0769776, lambda: -1.39176e+20 
+Chain 3 dis: 397.968, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.18195, eps[k]: 0.381566, lambda: -1.89722e+41 
+Chain 3 dis: 417.485, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.5953, eps[k]: -0.0769776, lambda: -1.86254e+20 
+Chain 3 dis: 163.195, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.5953, eps[k]: 0.381566, lambda: -7.77998e+40 
+Chain 3 dis: 280.23, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.524314, eps[k]: 0.381566, lambda: -1.33594e+41 
+Chain 3 dis: 428.77, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.09574, eps[k]: 0.381566, lambda: -2.04407e+41 
+Chain 3 dis: 120.761, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.34721, eps[k]: 0.381566, lambda: -5.757e+40 
+Chain 3 dis: 388.125, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.206674, eps[k]: -0.0769776, lambda: -1.73155e+20 
+Chain 3 dis: 143.608, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.206674, eps[k]: 0.381566, lambda: -6.84622e+40 
+Chain 3 dis: 446.649, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.3024, eps[k]: -0.0769776, lambda: -1.99265e+20 
+Chain 3 dis: 196.225, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.3024, eps[k]: 0.381566, lambda: -9.35462e+40 
+Chain 3 dis: 356.098, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.542834, eps[k]: -0.0769776, lambda: -1.58867e+20 
+Chain 3 dis: 407.933, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.542834, eps[k]: 0.381566, lambda: -1.94473e+41 
+Chain 3 dis: 90.7273, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.863039, eps[k]: 0.381566, lambda: -4.32523e+40 
+Chain 3 dis: 427.673, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.19917, eps[k]: -0.0769776, lambda: -1.90799e+20 
+Chain 3 dis: 187.452, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.19917, eps[k]: 0.381566, lambda: -8.93636e+40 
+Chain 3 dis: 120.226, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.304142, eps[k]: 0.381566, lambda: -5.73153e+40 
+Chain 3 dis: 388.104, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.119649, eps[k]: 0.381566, lambda: -1.8502e+41 
+Chain 3 dis: 248.569, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.788252, eps[k]: -0.0769776, lambda: -1.10895e+20 
+Chain 3 dis: 34.9455, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.788252, eps[k]: 0.381566, lambda: -1.66595e+40 
+Chain 3 dis: 242.632, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.833324, eps[k]: -0.0769776, lambda: -1.08246e+20 
+Chain 3 dis: 46.1785, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.833324, eps[k]: 0.381566, lambda: -2.20146e+40 
+Chain 3 dis: 431.573, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.669505, eps[k]: 0.381566, lambda: -2.05743e+41 
+Chain 3 dis: 279.173, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.110993, eps[k]: 0.381566, lambda: -1.3309e+41 
+Chain 3 dis: 248.416, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.537, eps[k]: -0.0769776, lambda: -1.10826e+20 
+Chain 3 dis: 282.346, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.537, eps[k]: 0.381566, lambda: -1.34602e+41 
+Chain 3 dis: 365.885, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.641964, eps[k]: 0.381566, lambda: -1.74428e+41 
+Chain 3 dis: 286.231, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.53548, eps[k]: -0.0769776, lambda: -1.27697e+20 
+Chain 3 dis: 176.052, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.53548, eps[k]: 0.381566, lambda: -8.39291e+40 
+Chain 3 dis: 328.652, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.323989, eps[k]: 0.381566, lambda: -1.56678e+41 
+Chain 3 dis: 55.4276, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.28764, eps[k]: 0.381566, lambda: -2.64239e+40 
+Chain 3 dis: 290.436, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.05516, eps[k]: -0.0769776, lambda: -1.29573e+20 
+Chain 3 dis: 338.48, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.05516, eps[k]: 0.381566, lambda: -1.61363e+41 
+Chain 3 dis: 333.201, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.292756, eps[k]: -0.0769776, lambda: -1.48652e+20 
+Chain 3 dis: 91.6554, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.292756, eps[k]: 0.381566, lambda: -4.36948e+40 
+Chain 3 dis: 315.941, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.94784, eps[k]: -0.0769776, lambda: -1.40952e+20 
+Chain 3 dis: 181.718, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.94784, eps[k]: 0.381566, lambda: -8.66303e+40 
+Chain 3 dis: 325.197, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.04632, eps[k]: -0.0769776, lambda: -1.45081e+20 
+Chain 3 dis: 324.726, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.04632, eps[k]: 0.381566, lambda: -1.54806e+41 
+Chain 3 dis: 273.517, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.41788, eps[k]: -0.0769776, lambda: -1.22025e+20 
+Chain 3 dis: 243.823, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.41788, eps[k]: 0.381566, lambda: -1.16238e+41 
+Chain 3 dis: 299.039, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.5779, eps[k]: -0.0769776, lambda: -1.33411e+20 
+Chain 3 dis: 42.6307, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.5779, eps[k]: 0.381566, lambda: -2.03233e+40 
+Chain 3 dis: 246.527, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.938914, eps[k]: 0.381566, lambda: -1.17526e+41 
+Chain 3 dis: 315.654, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.314849, eps[k]: -0.0769776, lambda: -1.40824e+20 
+Chain 3 dis: 373.035, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.314849, eps[k]: 0.381566, lambda: -1.77837e+41 
+Chain 3 dis: 364.678, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.81694, eps[k]: 0.381566, lambda: -1.73853e+41 
+Chain 3 dis: 251.303, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.0109513, eps[k]: 0.381566, lambda: -1.19804e+41 
+Chain 3 dis: 360.978, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.02015, eps[k]: -0.0769776, lambda: -1.61044e+20 
+Chain 3 dis: 124.694, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.02015, eps[k]: 0.381566, lambda: -5.94452e+40 
+Chain 3 dis: 304.502, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.82266, eps[k]: -0.0769776, lambda: -1.35848e+20 
+Chain 3 dis: 237.384, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.82266, eps[k]: 0.381566, lambda: -1.13168e+41 
+Chain 3 dis: 248.945, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.194173, eps[k]: 0.381566, lambda: -1.18679e+41 
+Chain 3 dis: 158.429, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.147302, eps[k]: 0.381566, lambda: -7.55278e+40 
+Chain 3 dis: 243.656, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.48057, eps[k]: -0.0769776, lambda: -1.08703e+20 
+Chain 3 dis: 349.587, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.48057, eps[k]: 0.381566, lambda: -1.66658e+41 
+Chain 3 dis: 304.611, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.98318, eps[k]: 0.381566, lambda: -1.45217e+41 
+Chain 3 dis: 354.826, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.23483, eps[k]: -0.0769776, lambda: -1.583e+20 
+Chain 3 dis: 91.275, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.23483, eps[k]: 0.381566, lambda: -4.35134e+40 
+Chain 3 dis: 310.056, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.79038, eps[k]: -0.0769776, lambda: -1.38326e+20 
+Chain 3 dis: 308.284, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.79038, eps[k]: 0.381566, lambda: -1.46968e+41 
+Chain 3 dis: 350.55, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.641442, eps[k]: -0.0769776, lambda: -1.56392e+20 
+Chain 3 dis: 82.2592, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.641442, eps[k]: 0.381566, lambda: -3.92153e+40 
+Chain 3 dis: 215.348, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.225172, eps[k]: 0.381566, lambda: -1.02662e+41 
+Chain 3 dis: 390.184, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.461673, eps[k]: 0.381566, lambda: -1.86012e+41 
+Chain 3 dis: 227.807, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.18532, eps[k]: -0.0769776, lambda: -1.01632e+20 
+Chain 3 dis: 493.23, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.18532, eps[k]: 0.381566, lambda: -2.35137e+41 
+Chain 3 dis: 327.351, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.478913, eps[k]: -0.0769776, lambda: -1.46042e+20 
+Chain 3 dis: 102.89, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.478913, eps[k]: 0.381566, lambda: -4.90504e+40 
+Chain 3 dis: 177.922, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.56269, eps[k]: 0.381566, lambda: -8.48207e+40 
+Chain 3 dis: 387.8, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.510667, eps[k]: -0.0769776, lambda: -1.7301e+20 
+Chain 3 dis: 176.612, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.510667, eps[k]: 0.381566, lambda: -8.41962e+40 
+Chain 3 dis: 311.969, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.36713, eps[k]: -0.0769776, lambda: -1.3918e+20 
+Chain 3 dis: 304.781, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.36713, eps[k]: 0.381566, lambda: -1.45298e+41 
+Chain 3 dis: 458.178, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.78921, eps[k]: 0.381566, lambda: -2.18426e+41 
+Chain 3 dis: 232.392, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.228617, eps[k]: -0.0769776, lambda: -1.03678e+20 
+Chain 3 dis: 501.072, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.228617, eps[k]: 0.381566, lambda: -2.38875e+41 
+Chain 3 dis: 233.791, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.0056829, eps[k]: -0.0769776, lambda: -1.04302e+20 
+Chain 3 dis: 384.016, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.0056829, eps[k]: 0.381566, lambda: -1.83072e+41 
+Chain 3 dis: 61.1536, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.616183, eps[k]: 0.381566, lambda: -2.91537e+40 
+Chain 3 dis: 375.682, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.63621, eps[k]: 0.381566, lambda: -1.79098e+41 
+Chain 3 dis: 282.84, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.59313, eps[k]: -0.0769776, lambda: -1.26184e+20 
+Chain 3 dis: 363.638, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.59313, eps[k]: 0.381566, lambda: -1.73357e+41 
+Chain 3 dis: 83.5399, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.808805, eps[k]: 0.381566, lambda: -3.98259e+40 
+Chain 3 dis: 353.964, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.16917, eps[k]: -0.0769776, lambda: -1.57915e+20 
+Chain 3 dis: 157.832, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.16917, eps[k]: 0.381566, lambda: -7.52431e+40 
+Chain 3 dis: 177.056, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.697166, eps[k]: 0.381566, lambda: -8.44077e+40 
+Chain 3 dis: 347.495, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.41043, eps[k]: -0.0769776, lambda: -1.55029e+20 
+Chain 3 dis: 210.306, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.41043, eps[k]: 0.381566, lambda: -1.00259e+41 
+Chain 3 dis: 177.952, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.854, eps[k]: 0.381566, lambda: -8.48348e+40 
+Chain 3 dis: 240.376, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.00642, eps[k]: -0.0769776, lambda: -1.07239e+20 
+Chain 3 dis: 273.934, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.00642, eps[k]: 0.381566, lambda: -1.30592e+41 
+Chain 3 dis: 271.391, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.781149, eps[k]: -0.0769776, lambda: -1.21076e+20 
+Chain 3 dis: 12.7986, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.781149, eps[k]: 0.381566, lambda: -6.10145e+39 
+Chain 3 dis: 363.308, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.93337, eps[k]: 0.381566, lambda: -1.73199e+41 
+Chain 3 dis: 333.697, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.63894, eps[k]: -0.0769776, lambda: -1.48873e+20 
+Chain 3 dis: 102.568, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.63894, eps[k]: 0.381566, lambda: -4.88972e+40 
+Chain 3 dis: 375.746, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.547033, eps[k]: 0.381566, lambda: -1.79129e+41 
+Chain 3 dis: 331.189, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.329313, eps[k]: 0.381566, lambda: -1.57887e+41 
+Chain 3 dis: 90.4988, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.34223, eps[k]: 0.381566, lambda: -4.31434e+40 
+Chain 3 dis: 251.136, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.46176, eps[k]: -0.0769776, lambda: -1.1204e+20 
+Chain 3 dis: 401.447, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.46176, eps[k]: 0.381566, lambda: -1.91381e+41 
+Chain 3 dis: 458.106, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.49549, eps[k]: 0.381566, lambda: -2.18392e+41 
+Chain 3 dis: 182.94, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.67354, eps[k]: 0.381566, lambda: -8.72129e+40 
+Chain 3 dis: 466.971, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.57339, eps[k]: 0.381566, lambda: -2.22618e+41 
+Chain 3 dis: 370.774, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.259242, eps[k]: 0.381566, lambda: -1.76759e+41 
+Chain 3 dis: 346.416, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.148705, eps[k]: 0.381566, lambda: -1.65147e+41 
+Chain 3 dis: 169.366, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.382208, eps[k]: 0.381566, lambda: -8.07417e+40 
+Chain 3 dis: 296.113, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.48909, eps[k]: -0.0769776, lambda: -1.32106e+20 
+Chain 3 dis: 291.033, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.48909, eps[k]: 0.381566, lambda: -1.38744e+41 
+Chain 3 dis: 257.981, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.57077, eps[k]: -0.0769776, lambda: -1.15094e+20 
+Chain 3 dis: 358.758, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.57077, eps[k]: 0.381566, lambda: -1.7103e+41 
+Chain 3 dis: 330.201, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.98782, eps[k]: -0.0769776, lambda: -1.47313e+20 
+Chain 3 dis: 404.528, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.98782, eps[k]: 0.381566, lambda: -1.9285e+41 
+Chain 3 dis: 401.272, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.962668, eps[k]: -0.0769776, lambda: -1.7902e+20 
+Chain 3 dis: 136.349, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.962668, eps[k]: 0.381566, lambda: -6.50013e+40 
+Chain 3 dis: 285.025, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.21533, eps[k]: 0.381566, lambda: -1.3588e+41 
+Chain 3 dis: 343.006, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.75357, eps[k]: -0.0769776, lambda: -1.53026e+20 
+Chain 3 dis: 73.8647, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.75357, eps[k]: 0.381566, lambda: -3.52134e+40 
+Chain 3 dis: 268.439, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.85099, eps[k]: -0.0769776, lambda: -1.1976e+20 
+Chain 3 dis: 370.234, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.85099, eps[k]: 0.381566, lambda: -1.76501e+41 
+Chain 3 dis: 207.214, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.53269, eps[k]: 0.381566, lambda: -9.87848e+40 
+Chain 3 dis: 450.094, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.925345, eps[k]: 0.381566, lambda: -2.14573e+41 
+Chain 3 dis: 237.798, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.47875, eps[k]: -0.0769776, lambda: -1.06089e+20 
+Chain 3 dis: 307.95, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.47875, eps[k]: 0.381566, lambda: -1.46808e+41 
+Chain 3 dis: 359.085, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.721795, eps[k]: 0.381566, lambda: -1.71186e+41 
+Chain 3 dis: 419.357, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.49132, eps[k]: -0.0769776, lambda: -1.87089e+20 
+Chain 3 dis: 153.093, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.49132, eps[k]: 0.381566, lambda: -7.29839e+40 
+Chain 3 dis: 418.75, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.84967, eps[k]: 0.381566, lambda: -1.9963e+41 
+Chain 3 dis: 333.236, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.796957, eps[k]: -0.0769776, lambda: -1.48667e+20 
+Chain 3 dis: 100.217, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.796957, eps[k]: 0.381566, lambda: -4.77763e+40 
+Chain 3 dis: 245.454, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.38502, eps[k]: -0.0769776, lambda: -1.09505e+20 
+Chain 3 dis: 299.318, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.38502, eps[k]: 0.381566, lambda: -1.42694e+41 
+Chain 3 dis: 407.361, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.669, eps[k]: 0.381566, lambda: -1.942e+41 
+Chain 3 dis: 191.643, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.140679, eps[k]: 0.381566, lambda: -9.13619e+40 
+Chain 3 dis: 330.176, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.87694, eps[k]: 0.381566, lambda: -1.57404e+41 
+Chain 3 dis: 98.4058, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.388765, eps[k]: 0.381566, lambda: -4.69129e+40 
+Chain 3 dis: 349.524, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.440298, eps[k]: -0.0769776, lambda: -1.55934e+20 
+Chain 3 dis: 110.962, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.440298, eps[k]: 0.381566, lambda: -5.28986e+40 
+Chain 3 dis: 345.681, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.00241, eps[k]: -0.0769776, lambda: -1.5422e+20 
+Chain 3 dis: 319.164, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.00241, eps[k]: 0.381566, lambda: -1.52154e+41 
+Chain 3 dis: 178.567, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.20258, eps[k]: 0.381566, lambda: -8.51278e+40 
+Chain 3 dis: 289.343, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.672503, eps[k]: 0.381566, lambda: -1.37938e+41 
+Chain 3 dis: 339.321, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.683217, eps[k]: 0.381566, lambda: -1.61764e+41 
+Chain 3 dis: 425.953, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.0117288, eps[k]: 0.381566, lambda: -2.03064e+41 
+Chain 3 dis: 321.452, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.53869, eps[k]: -0.0769776, lambda: -1.4341e+20 
+Chain 3 dis: 334.52, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.53869, eps[k]: 0.381566, lambda: -1.59475e+41 
+Chain 3 dis: 324.502, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.06485, eps[k]: -0.0769776, lambda: -1.44771e+20 
+Chain 3 dis: 397.961, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.06485, eps[k]: 0.381566, lambda: -1.89719e+41 
+Chain 3 dis: 371.944, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.374472, eps[k]: -0.0769776, lambda: -1.65937e+20 
+Chain 3 dis: 155.555, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.374472, eps[k]: 0.381566, lambda: -7.41574e+40 
+Chain 3 dis: 311.365, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.30201, eps[k]: -0.0769776, lambda: -1.3891e+20 
+Chain 3 dis: 359.192, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.30201, eps[k]: 0.381566, lambda: -1.71237e+41 
+Chain 3 dis: 104.324, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.523427, eps[k]: 0.381566, lambda: -4.97341e+40 
+Chain 3 dis: 458.935, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.766813, eps[k]: 0.381566, lambda: -2.18788e+41 
+Chain 3 dis: 469.238, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.646884, eps[k]: 0.381566, lambda: -2.23699e+41 
+Chain 3 dis: 209.365, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.93545, eps[k]: 0.381566, lambda: -9.98102e+40 
+Chain 3 dis: 326.5, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.86403, eps[k]: -0.0769776, lambda: -1.45662e+20 
+Chain 3 dis: 226.571, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.86403, eps[k]: 0.381566, lambda: -1.08013e+41 
+Chain 3 dis: 67.9832, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.976528, eps[k]: 0.381566, lambda: -3.24095e+40 
+Chain 3 dis: 196.644, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.97522, eps[k]: 0.381566, lambda: -9.37459e+40 
+Chain 3 dis: 258.182, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.90615, eps[k]: -0.0769776, lambda: -1.15183e+20 
+Chain 3 dis: 396.758, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.90615, eps[k]: 0.381566, lambda: -1.89146e+41 
+Chain 3 dis: 322.458, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.00066, eps[k]: -0.0769776, lambda: -1.43859e+20 
+Chain 3 dis: 400.556, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.00066, eps[k]: 0.381566, lambda: -1.90956e+41 
+Chain 3 dis: 384.24, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.74261, eps[k]: 0.381566, lambda: -1.83178e+41 
+Chain 3 dis: 378.986, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.458738, eps[k]: -0.0769776, lambda: -1.69078e+20 
+Chain 3 dis: 110.326, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.458738, eps[k]: 0.381566, lambda: -5.25957e+40 
+Chain 3 dis: 356.824, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.879549, eps[k]: 0.381566, lambda: -1.70108e+41 
+Chain 3 dis: 319.081, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.488663, eps[k]: 0.381566, lambda: -1.52115e+41 
+Chain 3 dis: 318.178, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.130129, eps[k]: -0.0769776, lambda: -1.4195e+20 
+Chain 3 dis: 335.841, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.130129, eps[k]: 0.381566, lambda: -1.60105e+41 
+Chain 3 dis: 156.5, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.83505, eps[k]: 0.381566, lambda: -7.46078e+40 
+Chain 3 dis: 262.134, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.43151, eps[k]: -0.0769776, lambda: -1.16947e+20 
+Chain 3 dis: 236.573, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.43151, eps[k]: 0.381566, lambda: -1.12781e+41 
+Chain 3 dis: 399.884, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.538245, eps[k]: 0.381566, lambda: -1.90636e+41 
+Chain 3 dis: 270.886, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.675254, eps[k]: -0.0769776, lambda: -1.20851e+20 
+Chain 3 dis: 131.224, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.675254, eps[k]: 0.381566, lambda: -6.25581e+40 
+Chain 3 dis: 216.919, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.450294, eps[k]: 0.381566, lambda: -1.03412e+41 
+Chain 3 dis: 291.157, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.97553, eps[k]: -0.0769776, lambda: -1.29895e+20 
+Chain 3 dis: 374.704, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.97553, eps[k]: 0.381566, lambda: -1.78632e+41 
+Chain 3 dis: 317.277, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.234101, eps[k]: 0.381566, lambda: -1.51255e+41 
+Chain 3 dis: 213.496, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.400531, eps[k]: 0.381566, lambda: -1.0178e+41 
+Chain 3 dis: 317.42, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.11834, eps[k]: 0.381566, lambda: -1.51323e+41 
+Chain 3 dis: 443.298, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.97678, eps[k]: -0.0769776, lambda: -1.9777e+20 
+Chain 3 dis: 182.352, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.97678, eps[k]: 0.381566, lambda: -8.69326e+40 
+Chain 3 dis: 228.469, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.7792, eps[k]: -0.0769776, lambda: -1.01927e+20 
+Chain 3 dis: 403.327, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.7792, eps[k]: 0.381566, lambda: -1.92277e+41 
+Chain 3 dis: 373.572, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.77604, eps[k]: 0.381566, lambda: -1.78093e+41 
+Chain 3 dis: 290.698, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.157294, eps[k]: 0.381566, lambda: -1.38584e+41 
+Chain 3 dis: 324.67, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.82911, eps[k]: -0.0769776, lambda: -1.44846e+20 
+Chain 3 dis: 82.8155, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.82911, eps[k]: 0.381566, lambda: -3.94805e+40 
+Chain 3 dis: 342.311, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.798928, eps[k]: 0.381566, lambda: -1.63189e+41 
+Chain 3 dis: 357.939, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.128823, eps[k]: -0.0769776, lambda: -1.59689e+20 
+Chain 3 dis: 90.9024, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.128823, eps[k]: 0.381566, lambda: -4.33358e+40 
+Chain 3 dis: 171.951, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.91066, eps[k]: 0.381566, lambda: -8.19741e+40 
+Chain 3 dis: 258.628, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.666774, eps[k]: -0.0769776, lambda: -1.15383e+20 
+Chain 3 dis: 315.2, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.666774, eps[k]: 0.381566, lambda: -1.50265e+41 
+Chain 3 dis: 257.337, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.33878, eps[k]: -0.0769776, lambda: -1.14807e+20 
+Chain 3 dis: 125.889, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.33878, eps[k]: 0.381566, lambda: -6.0015e+40 
+Chain 3 dis: 355.43, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.213354, eps[k]: -0.0769776, lambda: -1.58569e+20 
+Chain 3 dis: 101.971, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.213354, eps[k]: 0.381566, lambda: -4.86125e+40 
+Chain 3 dis: 349.923, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.14337, eps[k]: -0.0769776, lambda: -1.56112e+20 
+Chain 3 dis: 209.279, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.14337, eps[k]: 0.381566, lambda: -9.97691e+40 
+Chain 3 dis: 271.757, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.378645, eps[k]: -0.0769776, lambda: -1.2124e+20 
+Chain 3 dis: 258.554, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.378645, eps[k]: 0.381566, lambda: -1.2326e+41 
+Chain 3 dis: 433.952, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.60216, eps[k]: -0.0769776, lambda: -1.936e+20 
+Chain 3 dis: 167.749, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.60216, eps[k]: 0.381566, lambda: -7.99707e+40 
+Chain 3 dis: 284.519, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.851256, eps[k]: -0.0769776, lambda: -1.26933e+20 
+Chain 3 dis: 55.8495, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.851256, eps[k]: 0.381566, lambda: -2.66251e+40 
+Chain 3 dis: 266.99, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.285531, eps[k]: -0.0769776, lambda: -1.19113e+20 
+Chain 3 dis: 331.195, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.285531, eps[k]: 0.381566, lambda: -1.5789e+41 
+Chain 3 dis: 356.33, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.225379, eps[k]: -0.0769776, lambda: -1.5897e+20 
+Chain 3 dis: 97.157, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.225379, eps[k]: 0.381566, lambda: -4.63175e+40 
+Chain 3 dis: 425.234, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.06968, eps[k]: 0.381566, lambda: -2.02721e+41 
+Chain 3 dis: 167.256, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.41918, eps[k]: 0.381566, lambda: -7.97357e+40 
+Chain 3 dis: 340.803, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.422638, eps[k]: -0.0769776, lambda: -1.52043e+20 
+Chain 3 dis: 156.558, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.422638, eps[k]: 0.381566, lambda: -7.46357e+40 
+Chain 3 dis: 208.777, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.04296, eps[k]: 0.381566, lambda: -9.95301e+40 
+Chain 3 dis: 396.296, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.24561, eps[k]: -0.0769776, lambda: -1.76801e+20 
+Chain 3 dis: 125.953, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.24561, eps[k]: 0.381566, lambda: -6.00455e+40 
+Chain 3 dis: 315.567, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.12926, eps[k]: -0.0769776, lambda: -1.40785e+20 
+Chain 3 dis: 361.728, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.12926, eps[k]: 0.381566, lambda: -1.72446e+41 
+Chain 3 dis: 122.934, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.0428, eps[k]: 0.381566, lambda: -5.86062e+40 
+Chain 3 dis: 316.064, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.0115778, eps[k]: 0.381566, lambda: -1.50677e+41 
+Chain 3 dis: 399.414, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.68019, eps[k]: 0.381566, lambda: -1.90412e+41 
+Chain 3 dis: 288.388, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.39154, eps[k]: 0.381566, lambda: -1.37483e+41 
+Chain 3 dis: 246.442, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.77531, eps[k]: 0.381566, lambda: -1.17486e+41 
+Chain 3 dis: 313.502, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.41619, eps[k]: -0.0769776, lambda: -1.39864e+20 
+Chain 3 dis: 124.447, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.41619, eps[k]: 0.381566, lambda: -5.93272e+40 
+Chain 3 dis: 313.904, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.82155, eps[k]: 0.381566, lambda: -1.49647e+41 
+Chain 3 dis: 308.426, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.199944, eps[k]: -0.0769776, lambda: -1.37599e+20 
+Chain 3 dis: 197.316, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.199944, eps[k]: 0.381566, lambda: -9.4066e+40 
+Chain 3 dis: 199.15, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.74135, eps[k]: 0.381566, lambda: -9.49403e+40 
+Chain 3 dis: 415.47, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.45071, eps[k]: -0.0769776, lambda: -1.85355e+20 
+Chain 3 dis: 151.852, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.45071, eps[k]: 0.381566, lambda: -7.23922e+40 
+Chain 3 dis: 109.857, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.71012, eps[k]: 0.381566, lambda: -5.23721e+40 
+Chain 3 dis: 145.461, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.489883, eps[k]: 0.381566, lambda: -6.93455e+40 
+Chain 3 dis: 394.735, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.382258, eps[k]: -0.0769776, lambda: -1.76104e+20 
+Chain 3 dis: 136.846, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.382258, eps[k]: 0.381566, lambda: -6.52385e+40 
+Chain 3 dis: 319.916, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.29606, eps[k]: 0.381566, lambda: -1.52513e+41 
+Chain 3 dis: 308.145, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.416617, eps[k]: -0.0769776, lambda: -1.37474e+20 
+Chain 3 dis: 44.6128, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.416617, eps[k]: 0.381566, lambda: -2.12682e+40 
+Chain 3 dis: 284.733, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.18095, eps[k]: -0.0769776, lambda: -1.27029e+20 
+Chain 3 dis: 331.522, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.18095, eps[k]: 0.381566, lambda: -1.58046e+41 
+Chain 3 dis: 318.098, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.53404, eps[k]: -0.0769776, lambda: -1.41914e+20 
+Chain 3 dis: 340.478, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.53404, eps[k]: 0.381566, lambda: -1.62315e+41 
+Chain 3 dis: 421.298, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.62747, eps[k]: 0.381566, lambda: -2.00845e+41 
+Chain 3 dis: 274.817, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.42019, eps[k]: 0.381566, lambda: -1.31013e+41 
+Chain 3 dis: 248.405, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.261199, eps[k]: 0.381566, lambda: -1.18422e+41 
+Chain 3 dis: 450.161, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.0901143, eps[k]: 0.381566, lambda: -2.14605e+41 
+Chain 3 dis: 329.796, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.277339, eps[k]: 0.381566, lambda: -1.57223e+41 
+Chain 3 dis: 259.113, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.753722, eps[k]: -0.0769776, lambda: -1.15599e+20 
+Chain 3 dis: 244.99, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.753722, eps[k]: 0.381566, lambda: -1.16794e+41 
+Chain 3 dis: 240.626, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.95763, eps[k]: 0.381566, lambda: -1.14713e+41 
+Chain 3 dis: 227.474, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.7705, eps[k]: 0.381566, lambda: -1.08443e+41 
+Chain 3 dis: 312.103, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.15147, eps[k]: -0.0769776, lambda: -1.39239e+20 
+Chain 3 dis: 326.654, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.15147, eps[k]: 0.381566, lambda: -1.55726e+41 
+Chain 3 dis: 336.268, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.98785, eps[k]: -0.0769776, lambda: -1.5002e+20 
+Chain 3 dis: 382.743, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.98785, eps[k]: 0.381566, lambda: -1.82464e+41 
+Chain 3 dis: 308.282, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.940841, eps[k]: 0.381566, lambda: -1.46967e+41 
+Chain 3 dis: 346.185, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.705227, eps[k]: 0.381566, lambda: -1.65036e+41 
+Chain 3 dis: 334.318, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.486715, eps[k]: -0.0769776, lambda: -1.4915e+20 
+Chain 3 dis: 152.499, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.486715, eps[k]: 0.381566, lambda: -7.27004e+40 
+Chain 3 dis: 420.054, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.307877, eps[k]: 0.381566, lambda: -2.00252e+41 
+Chain 3 dis: 422.927, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.941531, eps[k]: 0.381566, lambda: -2.01621e+41 
+Chain 3 dis: 296.516, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.000448344, eps[k]: -0.0769776, lambda: -1.32285e+20 
+Chain 3 dis: 197.974, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.000448344, eps[k]: 0.381566, lambda: -9.438e+40 
+Chain 3 dis: 322.477, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.25869, eps[k]: 0.381566, lambda: -1.53734e+41 
+Chain 3 dis: 410.3, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.898362, eps[k]: 0.381566, lambda: -1.95602e+41 
+Chain 3 dis: 367.425, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.64712, eps[k]: -0.0769776, lambda: -1.63921e+20 
+Chain 3 dis: 133.136, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.64712, eps[k]: 0.381566, lambda: -6.34696e+40 
+Chain 3 dis: 271.228, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.05631, eps[k]: 0.381566, lambda: -1.29302e+41 
+Chain 3 dis: 97.7572, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.48263, eps[k]: 0.381566, lambda: -4.66036e+40 
+Chain 3 dis: 370.68, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.54149, eps[k]: 0.381566, lambda: -1.76714e+41 
+Chain 3 dis: 203.81, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.71049, eps[k]: 0.381566, lambda: -9.71621e+40 
+Chain 3 dis: 311.083, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.636723, eps[k]: 0.381566, lambda: -1.48302e+41 
+Chain 3 dis: 455.912, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.19521, eps[k]: 0.381566, lambda: -2.17346e+41 
+Chain 3 dis: 105.826, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.78863, eps[k]: 0.381566, lambda: -5.04502e+40 
+Chain 3 dis: 265.639, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.257515, eps[k]: -0.0769776, lambda: -1.1851e+20 
+Chain 3 dis: 235.603, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.257515, eps[k]: 0.381566, lambda: -1.12319e+41 
+Chain 3 dis: 298.221, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.53538, eps[k]: 0.381566, lambda: -1.4217e+41 
+Chain 3 dis: 161.627, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.677288, eps[k]: 0.381566, lambda: -7.70521e+40 
+Chain 3 dis: 346.593, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.0609519, eps[k]: 0.381566, lambda: -1.65231e+41 
+Chain 3 dis: 270.063, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.75648, eps[k]: 0.381566, lambda: -1.28747e+41 
+Chain 3 dis: 313.158, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.17065, eps[k]: -0.0769776, lambda: -1.3971e+20 
+Chain 3 dis: 75.423, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.17065, eps[k]: 0.381566, lambda: -3.59563e+40 
+Chain 3 dis: 319.735, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.199746, eps[k]: -0.0769776, lambda: -1.42644e+20 
+Chain 3 dis: 374.898, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.199746, eps[k]: 0.381566, lambda: -1.78725e+41 
+Chain 3 dis: 206.046, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.73211, eps[k]: 0.381566, lambda: -9.82281e+40 
+Chain 3 dis: 290.547, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.752059, eps[k]: -0.0769776, lambda: -1.29622e+20 
+Chain 3 dis: 265.94, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.752059, eps[k]: 0.381566, lambda: -1.26781e+41 
+Chain 3 dis: 323.711, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.80141, eps[k]: -0.0769776, lambda: -1.44418e+20 
+Chain 3 dis: 330.467, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.80141, eps[k]: 0.381566, lambda: -1.57543e+41 
+Chain 3 dis: 352.377, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.00403, eps[k]: 0.381566, lambda: -1.67988e+41 
+Chain 3 dis: 361.634, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.0594259, eps[k]: -0.0769776, lambda: -1.61337e+20 
+Chain 3 dis: 316.135, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.0594259, eps[k]: 0.381566, lambda: -1.50711e+41 
+Chain 3 dis: 328.083, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.932243, eps[k]: 0.381566, lambda: -1.56407e+41 
+Chain 3 dis: 146.955, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.9218, eps[k]: 0.381566, lambda: -7.00576e+40 
+Chain 3 dis: 317.369, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.83493, eps[k]: -0.0769776, lambda: -1.41589e+20 
+Chain 3 dis: 46.9547, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.83493, eps[k]: 0.381566, lambda: -2.23846e+40 
+Chain 3 dis: 225.38, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.5609, eps[k]: -0.0769776, lambda: -1.0055e+20 
+Chain 3 dis: 265.64, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.5609, eps[k]: 0.381566, lambda: -1.26638e+41 
+Chain 3 dis: 239.726, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.72767, eps[k]: -0.0769776, lambda: -1.0695e+20 
+Chain 3 dis: 168.259, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.72767, eps[k]: 0.381566, lambda: -8.02138e+40 
+Chain 3 dis: 346.58, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.96691, eps[k]: 0.381566, lambda: -1.65225e+41 
+Chain 3 dis: 297.084, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.72209, eps[k]: 0.381566, lambda: -1.41628e+41 
+Chain 3 dis: 438.903, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.77228, eps[k]: 0.381566, lambda: -2.09238e+41 
+Chain 3 dis: 413.369, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.46935, eps[k]: -0.0769776, lambda: -1.84418e+20 
+Chain 3 dis: 149.268, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.46935, eps[k]: 0.381566, lambda: -7.11604e+40 
+Chain 3 dis: 254.102, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.630914, eps[k]: -0.0769776, lambda: -1.13363e+20 
+Chain 3 dis: 116.651, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.630914, eps[k]: 0.381566, lambda: -5.56107e+40 
+Chain 3 dis: 219.43, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.43436, eps[k]: 0.381566, lambda: -1.04609e+41 
+Chain 3 dis: 332.539, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.74909, eps[k]: -0.0769776, lambda: -1.48357e+20 
+Chain 3 dis: 403.054, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.74909, eps[k]: 0.381566, lambda: -1.92148e+41 
+Chain 3 dis: 228.285, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.113283, eps[k]: -0.0769776, lambda: -1.01845e+20 
+Chain 3 dis: 373.416, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.113283, eps[k]: 0.381566, lambda: -1.78018e+41 
+Chain 3 dis: 236.663, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.591671, eps[k]: -0.0769776, lambda: -1.05583e+20 
+Chain 3 dis: 253.563, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.591671, eps[k]: 0.381566, lambda: -1.20881e+41 
+Chain 3 dis: 271.908, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.799797, eps[k]: -0.0769776, lambda: -1.21307e+20 
+Chain 3 dis: 240.361, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.799797, eps[k]: 0.381566, lambda: -1.14587e+41 
+Chain 3 dis: 322.463, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.55334, eps[k]: 0.381566, lambda: -1.53727e+41 
+Chain 3 dis: 83.56, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.427545, eps[k]: 0.381566, lambda: -3.98354e+40 
+Chain 3 dis: 258.494, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.970223, eps[k]: 0.381566, lambda: -1.23232e+41 
+Chain 3 dis: 236.693, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.30247, eps[k]: 0.381566, lambda: -1.12838e+41 
+Chain 3 dis: 241.52, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.06361, eps[k]: 0.381566, lambda: -1.1514e+41 
+Chain 3 dis: 289.393, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.0729278, eps[k]: -0.0769776, lambda: -1.29108e+20 
+Chain 3 dis: 119.102, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.0729278, eps[k]: 0.381566, lambda: -5.67794e+40 
+Chain 3 dis: 438.418, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.683524, eps[k]: 0.381566, lambda: -2.09006e+41 
+Chain 3 dis: 259.3, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.75954, eps[k]: 0.381566, lambda: -1.23616e+41 
+Chain 3 dis: 278.072, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.16479, eps[k]: -0.0769776, lambda: -1.24057e+20 
+Chain 3 dis: 221.543, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.16479, eps[k]: 0.381566, lambda: -1.05616e+41 
+Chain 3 dis: 316.686, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.944145, eps[k]: -0.0769776, lambda: -1.41284e+20 
+Chain 3 dis: 54.4505, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.944145, eps[k]: 0.381566, lambda: -2.59581e+40 
+Chain 3 dis: 241.953, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.87014, eps[k]: -0.0769776, lambda: -1.07943e+20 
+Chain 3 dis: 160.163, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.87014, eps[k]: 0.381566, lambda: -7.63543e+40 
+Chain 3 dis: 300.988, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.317428, eps[k]: -0.0769776, lambda: -1.34281e+20 
+Chain 3 dis: 363.925, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.317428, eps[k]: 0.381566, lambda: -1.73493e+41 
+Chain 3 dis: 443.009, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.460351, eps[k]: 0.381566, lambda: -2.11195e+41 
+Chain 3 dis: 227.677, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.378033, eps[k]: -0.0769776, lambda: -1.01574e+20 
+Chain 3 dis: 494.817, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.378033, eps[k]: 0.381566, lambda: -2.35893e+41 
+Chain 3 dis: 253.973, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.434478, eps[k]: 0.381566, lambda: -1.21076e+41 
+Chain 3 dis: 311.585, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.807625, eps[k]: -0.0769776, lambda: -1.39008e+20 
+Chain 3 dis: 48.1954, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.807625, eps[k]: 0.381566, lambda: -2.29761e+40 
+Chain 3 dis: 330.468, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.33905, eps[k]: -0.0769776, lambda: -1.47433e+20 
+Chain 3 dis: 254.481, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.33905, eps[k]: 0.381566, lambda: -1.21318e+41 
+Chain 3 dis: 282.972, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.925452, eps[k]: -0.0769776, lambda: -1.26243e+20 
+Chain 3 dis: 275.06, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.925452, eps[k]: 0.381566, lambda: -1.31129e+41 
+Chain 3 dis: 219.862, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.59725, eps[k]: 0.381566, lambda: -1.04814e+41 
+Chain 3 dis: 226.435, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.87652, eps[k]: -0.0769776, lambda: -1.0102e+20 
+Chain 3 dis: 44.5734, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.87652, eps[k]: 0.381566, lambda: -2.12494e+40 
+Chain 3 dis: 242.061, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.572659, eps[k]: -0.0769776, lambda: -1.07991e+20 
+Chain 3 dis: 126.515, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.572659, eps[k]: 0.381566, lambda: -6.03134e+40 
+Chain 3 dis: 346.972, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.324148, eps[k]: -0.0769776, lambda: -1.54796e+20 
+Chain 3 dis: 107.933, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.324148, eps[k]: 0.381566, lambda: -5.14549e+40 
+Chain 3 dis: 421.836, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.950075, eps[k]: -0.0769776, lambda: -1.88195e+20 
+Chain 3 dis: 175.747, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.950075, eps[k]: 0.381566, lambda: -8.37835e+40 
+Chain 3 dis: 188.504, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.0946211, eps[k]: 0.381566, lambda: -8.98652e+40 
+Chain 3 dis: 185.434, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.48954, eps[k]: 0.381566, lambda: -8.84018e+40 
+Chain 3 dis: 260.422, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.557605, eps[k]: -0.0769776, lambda: -1.16183e+20 
+Chain 3 dis: 104.33, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.557605, eps[k]: 0.381566, lambda: -4.97369e+40 
+Chain 3 dis: 299.925, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.74913, eps[k]: 0.381566, lambda: -1.42983e+41 
+Chain 3 dis: 303.563, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.0137216, eps[k]: -0.0769776, lambda: -1.35429e+20 
+Chain 3 dis: 340.472, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.0137216, eps[k]: 0.381566, lambda: -1.62313e+41 
+Chain 3 dis: 182.01, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.25958, eps[k]: 0.381566, lambda: -8.67695e+40 
+Chain 3 dis: 320.754, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.772344, eps[k]: 0.381566, lambda: -1.52913e+41 
+Chain 3 dis: 71.8081, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.84192, eps[k]: 0.381566, lambda: -3.4233e+40 
+Chain 3 dis: 246.885, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.79182, eps[k]: 0.381566, lambda: -1.17697e+41 
+Chain 3 dis: 301.48, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.00226, eps[k]: -0.0769776, lambda: -1.345e+20 
+Chain 3 dis: 371.364, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.00226, eps[k]: 0.381566, lambda: -1.7704e+41 
+Chain 3 dis: 253.736, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.74544, eps[k]: 0.381566, lambda: -1.20963e+41 
+Chain 3 dis: 305.928, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.19301, eps[k]: 0.381566, lambda: -1.45845e+41 
+Chain 3 dis: 273.658, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.53737, eps[k]: -0.0769776, lambda: -1.22088e+20 
+Chain 3 dis: 301.198, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.53737, eps[k]: 0.381566, lambda: -1.4359e+41 
+Chain 3 dis: 257.721, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.863771, eps[k]: 0.381566, lambda: -1.22863e+41 
+Chain 3 dis: 282.926, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.776486, eps[k]: -0.0769776, lambda: -1.26223e+20 
+Chain 3 dis: 387.868, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.776486, eps[k]: 0.381566, lambda: -1.84908e+41 
+Chain 3 dis: 292.809, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.10914, eps[k]: -0.0769776, lambda: -1.30632e+20 
+Chain 3 dis: 257.012, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.10914, eps[k]: 0.381566, lambda: -1.22525e+41 
+Chain 3 dis: 328.847, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.729069, eps[k]: -0.0769776, lambda: -1.46709e+20 
+Chain 3 dis: 334.77, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.729069, eps[k]: 0.381566, lambda: -1.59594e+41 
+Chain 3 dis: 211.293, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.47674, eps[k]: 0.381566, lambda: -1.0073e+41 
+Chain 3 dis: 244.896, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.920343, eps[k]: -0.0769776, lambda: -1.09256e+20 
+Chain 3 dis: 319.244, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.920343, eps[k]: 0.381566, lambda: -1.52193e+41 
+Chain 3 dis: 295.28, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.217085, eps[k]: -0.0769776, lambda: -1.31734e+20 
+Chain 3 dis: 287.948, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.217085, eps[k]: 0.381566, lambda: -1.37273e+41 
+Chain 3 dis: 365.199, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.987369, eps[k]: -0.0769776, lambda: -1.62928e+20 
+Chain 3 dis: 305.394, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.987369, eps[k]: 0.381566, lambda: -1.4559e+41 
+Chain 3 dis: 92.046, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.965877, eps[k]: 0.381566, lambda: -4.38809e+40 
+Chain 3 dis: 324.085, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.29908, eps[k]: -0.0769776, lambda: -1.44585e+20 
+Chain 3 dis: 73.7339, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.29908, eps[k]: 0.381566, lambda: -3.51511e+40 
+Chain 3 dis: 217.659, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.0726501, eps[k]: 0.381566, lambda: -1.03764e+41 
+Chain 3 dis: 335.509, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.75178, eps[k]: -0.0769776, lambda: -1.49681e+20 
+Chain 3 dis: 87.2185, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.75178, eps[k]: 0.381566, lambda: -4.15796e+40 
+Chain 3 dis: 93.2333, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.698143, eps[k]: 0.381566, lambda: -4.4447e+40 
+Chain 3 dis: 291.714, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.30209, eps[k]: -0.0769776, lambda: -1.30143e+20 
+Chain 3 dis: 160.193, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.30209, eps[k]: 0.381566, lambda: -7.63684e+40 
+Chain 3 dis: 224.43, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.70179, eps[k]: -0.0769776, lambda: -1.00126e+20 
+Chain 3 dis: 367.012, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.70179, eps[k]: 0.381566, lambda: -1.74965e+41 
+Chain 3 dis: 288.211, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.49307, eps[k]: 0.381566, lambda: -1.37399e+41 
+Chain 3 dis: 278.592, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.969279, eps[k]: -0.0769776, lambda: -1.24289e+20 
+Chain 3 dis: 270.333, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.969279, eps[k]: 0.381566, lambda: -1.28875e+41 
+Chain 3 dis: 117.198, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.399131, eps[k]: 0.381566, lambda: -5.58717e+40 
+Chain 3 dis: 344.502, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.61391, eps[k]: -0.0769776, lambda: -1.53694e+20 
+Chain 3 dis: 83.8848, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.61391, eps[k]: 0.381566, lambda: -3.99903e+40 
+Chain 3 dis: 421.25, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.594397, eps[k]: -0.0769776, lambda: -1.87933e+20 
+Chain 3 dis: 167.91, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.594397, eps[k]: 0.381566, lambda: -8.00476e+40 
+Chain 3 dis: 159.99, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -2.01972, eps[k]: 0.381566, lambda: -7.6272e+40 
+Chain 3 dis: 333.731, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.19588, eps[k]: 0.381566, lambda: -1.59099e+41 
+Chain 3 dis: 357.368, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.35066, eps[k]: -0.0769776, lambda: -1.59434e+20 
+Chain 3 dis: 340.304, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.35066, eps[k]: 0.381566, lambda: -1.62233e+41 
+Chain 3 dis: 229.241, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.99937, eps[k]: 0.381566, lambda: -1.09286e+41 
+Chain 3 dis: 141.604, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.943687, eps[k]: 0.381566, lambda: -6.75069e+40 
+Chain 3 dis: 242.748, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.579858, eps[k]: 0.381566, lambda: -1.15725e+41 
+Chain 3 dis: 203.906, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.797265, eps[k]: 0.381566, lambda: -9.7208e+40 
+Chain 3 dis: 51.5984, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.724974, eps[k]: 0.381566, lambda: -2.45985e+40 
+Chain 3 dis: 316.125, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.486984, eps[k]: 0.381566, lambda: -1.50706e+41 
+Chain 3 dis: 285.647, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.766177, eps[k]: -0.0769776, lambda: -1.27437e+20 
+Chain 3 dis: 224.14, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.766177, eps[k]: 0.381566, lambda: -1.06854e+41 
+Chain 3 dis: 310.366, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.71651, eps[k]: -0.0769776, lambda: -1.38465e+20 
+Chain 3 dis: 325.832, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.71651, eps[k]: 0.381566, lambda: -1.55333e+41 
+Chain 3 dis: 302.976, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.00033, eps[k]: 0.381566, lambda: -1.44437e+41 
+Chain 3 dis: 224.66, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.0403022, eps[k]: -0.0769776, lambda: -1.00228e+20 
+Chain 3 dis: 321.459, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.0403022, eps[k]: 0.381566, lambda: -1.53249e+41 
+Chain 3 dis: 344.885, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.723608, eps[k]: -0.0769776, lambda: -1.53864e+20 
+Chain 3 dis: 181.345, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.723608, eps[k]: 0.381566, lambda: -8.64523e+40 
+Chain 3 dis: 181.695, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.65072, eps[k]: 0.381566, lambda: -8.6619e+40 
+Chain 3 dis: 169.981, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.336173, eps[k]: 0.381566, lambda: -8.10349e+40 
+Chain 3 dis: 275.681, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.849981, eps[k]: -0.0769776, lambda: -1.2299e+20 
+Chain 3 dis: 16.8907, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.849981, eps[k]: 0.381566, lambda: -8.05227e+39 
+Chain 3 dis: 347.892, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.83216, eps[k]: 0.381566, lambda: -1.6585e+41 
+Chain 3 dis: 319.872, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.61764, eps[k]: -0.0769776, lambda: -1.42705e+20 
+Chain 3 dis: 151.104, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.61764, eps[k]: 0.381566, lambda: -7.20357e+40 
+Chain 3 dis: 241.244, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.3727, eps[k]: -0.0769776, lambda: -1.07627e+20 
+Chain 3 dis: 367.63, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.3727, eps[k]: 0.381566, lambda: -1.7526e+41 
+Chain 3 dis: 315.289, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.89639, eps[k]: 0.381566, lambda: -1.50307e+41 
+Chain 3 dis: 201.645, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.08509, eps[k]: 0.381566, lambda: -9.61299e+40 
+Chain 3 dis: 229.579, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.28804, eps[k]: -0.0769776, lambda: -1.02423e+20 
+Chain 3 dis: 172.861, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.28804, eps[k]: 0.381566, lambda: -8.2408e+40 
+Chain 3 dis: 228.211, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.17245, eps[k]: 0.381566, lambda: -1.08795e+41 
+Chain 3 dis: 376.39, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.08176, eps[k]: 0.381566, lambda: -1.79436e+41 
+Chain 3 dis: 257.423, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.856214, eps[k]: -0.0769776, lambda: -1.14845e+20 
+Chain 3 dis: 263.58, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.856214, eps[k]: 0.381566, lambda: -1.25656e+41 
+Chain 3 dis: 232.782, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 0.988738, eps[k]: -0.0769776, lambda: -1.03852e+20 
+Chain 3 dis: 348.116, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.988738, eps[k]: 0.381566, lambda: -1.65957e+41 
+Chain 3 dis: 271.683, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.870619, eps[k]: -0.0769776, lambda: -1.21207e+20 
+Chain 3 dis: 303.705, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.870619, eps[k]: 0.381566, lambda: -1.44785e+41 
+Chain 3 dis: 374.92, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.803923, eps[k]: 0.381566, lambda: -1.78735e+41 
+Chain 3 dis: 209.119, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.174653, eps[k]: 0.381566, lambda: -9.96932e+40 
+Chain 3 dis: 134.034, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 0.474998, eps[k]: 0.381566, lambda: -6.3898e+40 
+Chain 3 dis: 228.351, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.881857, eps[k]: -0.0769776, lambda: -1.01875e+20 
+Chain 3 dis: 200.898, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.881857, eps[k]: 0.381566, lambda: -9.5774e+40 
+Chain 3 dis: 246.992, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: 1.93247, eps[k]: -0.0769776, lambda: -1.10191e+20 
+Chain 3 dis: 111.128, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: 1.93247, eps[k]: 0.381566, lambda: -5.2978e+40 
+Chain 3 dis: 442.143, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -1.13372, eps[k]: -0.0769776, lambda: -1.97254e+20 
+Chain 3 dis: 190.884, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -1.13372, eps[k]: 0.381566, lambda: -9.1e+40 
+Chain 3 dis: 365.301, rho: 1.51457e+83 , theta: 234.628, floral[k]: -0.989519, zeta[i]: -0.816262, eps[k]: -0.0769776, lambda: -1.62973e+20 
+Chain 3 dis: 125.255, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.816262, eps[k]: 0.381566, lambda: -5.97125e+40 
+Chain 3 dis: 321.871, rho: 1.51457e+83 , theta: 234.628, floral[k]: -1.19589, zeta[i]: -0.200362, eps[k]: 0.381566, lambda: -1.53445e+41 
+Chain 3 Iteration:    1 / 6000 [  0%]  (Warmup) 
+Chain 4 Iteration:    1 / 6000 [  0%]  (Warmup) 
+Chain 1 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 3 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 4 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 2 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 1 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 3 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 4 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 2 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 1 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 3 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 4 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 2 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 1 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 3 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 4 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 2 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 1 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 4 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 3 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 2 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 1 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 4 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 3 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 2 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 1 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 4 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 3 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 2 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 1 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 4 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 3 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 2 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 1 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 4 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 3 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 2 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 4 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 4 Iteration: 1001 / 6000 [ 16%]  (Sampling) 
+Chain 1 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 1 Iteration: 1001 / 6000 [ 16%]  (Sampling) 
+Chain 3 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 3 Iteration: 1001 / 6000 [ 16%]  (Sampling) 
+Chain 2 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 2 Iteration: 1001 / 6000 [ 16%]  (Sampling) 
+Chain 4 Iteration: 1100 / 6000 [ 18%]  (Sampling) 
+Chain 1 Iteration: 1100 / 6000 [ 18%]  (Sampling) 
+Chain 3 Iteration: 1100 / 6000 [ 18%]  (Sampling) 
+Chain 2 Iteration: 1100 / 6000 [ 18%]  (Sampling) 
+Chain 1 Iteration: 1200 / 6000 [ 20%]  (Sampling) 
+Chain 4 Iteration: 1200 / 6000 [ 20%]  (Sampling) 
+Chain 3 Iteration: 1200 / 6000 [ 20%]  (Sampling) 
+Chain 2 Iteration: 1200 / 6000 [ 20%]  (Sampling) 
+Chain 1 Iteration: 1300 / 6000 [ 21%]  (Sampling) 
+Chain 4 Iteration: 1300 / 6000 [ 21%]  (Sampling) 
+Chain 3 Iteration: 1300 / 6000 [ 21%]  (Sampling) 
+Chain 2 Iteration: 1300 / 6000 [ 21%]  (Sampling) 
+Chain 1 Iteration: 1400 / 6000 [ 23%]  (Sampling) 
+Chain 4 Iteration: 1400 / 6000 [ 23%]  (Sampling) 
+Chain 3 Iteration: 1400 / 6000 [ 23%]  (Sampling) 
+Chain 2 Iteration: 1400 / 6000 [ 23%]  (Sampling) 
+Chain 1 Iteration: 1500 / 6000 [ 25%]  (Sampling) 
+Chain 4 Iteration: 1500 / 6000 [ 25%]  (Sampling) 
+Chain 3 Iteration: 1500 / 6000 [ 25%]  (Sampling) 
+Chain 2 Iteration: 1500 / 6000 [ 25%]  (Sampling) 
+Chain 1 Iteration: 1600 / 6000 [ 26%]  (Sampling) 
+Chain 4 Iteration: 1600 / 6000 [ 26%]  (Sampling) 
+Chain 3 Iteration: 1600 / 6000 [ 26%]  (Sampling) 
+Chain 2 Iteration: 1600 / 6000 [ 26%]  (Sampling) 
+Chain 1 Iteration: 1700 / 6000 [ 28%]  (Sampling) 
+Chain 4 Iteration: 1700 / 6000 [ 28%]  (Sampling) 
+Chain 3 Iteration: 1700 / 6000 [ 28%]  (Sampling) 
+Chain 2 Iteration: 1700 / 6000 [ 28%]  (Sampling) 
+Chain 1 Iteration: 1800 / 6000 [ 30%]  (Sampling) 
+Chain 4 Iteration: 1800 / 6000 [ 30%]  (Sampling) 
+Chain 3 Iteration: 1800 / 6000 [ 30%]  (Sampling) 
+Chain 2 Iteration: 1800 / 6000 [ 30%]  (Sampling) 
+Chain 1 Iteration: 1900 / 6000 [ 31%]  (Sampling) 
+Chain 4 Iteration: 1900 / 6000 [ 31%]  (Sampling) 
+Chain 3 Iteration: 1900 / 6000 [ 31%]  (Sampling) 
+Chain 2 Iteration: 1900 / 6000 [ 31%]  (Sampling) 
+Chain 1 Iteration: 2000 / 6000 [ 33%]  (Sampling) 
+Chain 4 Iteration: 2000 / 6000 [ 33%]  (Sampling) 
+Chain 3 Iteration: 2000 / 6000 [ 33%]  (Sampling) 
+Chain 2 Iteration: 2000 / 6000 [ 33%]  (Sampling) 
+Chain 1 Iteration: 2100 / 6000 [ 35%]  (Sampling) 
+Chain 4 Iteration: 2100 / 6000 [ 35%]  (Sampling) 
+Chain 3 Iteration: 2100 / 6000 [ 35%]  (Sampling) 
+Chain 2 Iteration: 2100 / 6000 [ 35%]  (Sampling) 
+Chain 1 Iteration: 2200 / 6000 [ 36%]  (Sampling) 
+Chain 3 Iteration: 2200 / 6000 [ 36%]  (Sampling) 
+Chain 4 Iteration: 2200 / 6000 [ 36%]  (Sampling) 
+Chain 2 Iteration: 2200 / 6000 [ 36%]  (Sampling) 
+Chain 1 Iteration: 2300 / 6000 [ 38%]  (Sampling) 
+Chain 3 Iteration: 2300 / 6000 [ 38%]  (Sampling) 
+Chain 4 Iteration: 2300 / 6000 [ 38%]  (Sampling) 
+Chain 2 Iteration: 2300 / 6000 [ 38%]  (Sampling) 
+Chain 1 Iteration: 2400 / 6000 [ 40%]  (Sampling) 
+Chain 3 Iteration: 2400 / 6000 [ 40%]  (Sampling) 
+Chain 4 Iteration: 2400 / 6000 [ 40%]  (Sampling) 
+Chain 2 Iteration: 2400 / 6000 [ 40%]  (Sampling) 
+Chain 1 Iteration: 2500 / 6000 [ 41%]  (Sampling) 
+Chain 3 Iteration: 2500 / 6000 [ 41%]  (Sampling) 
+Chain 4 Iteration: 2500 / 6000 [ 41%]  (Sampling) 
+Chain 2 Iteration: 2500 / 6000 [ 41%]  (Sampling) 
+Chain 1 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 3 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 4 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 2 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 1 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 3 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 4 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 2 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 1 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 3 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 4 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 2 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 1 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 3 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 4 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 2 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 1 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 3 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 4 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 2 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 1 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 3 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 4 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 2 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 1 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 3 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 4 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 1 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 2 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 3 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 4 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 1 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 2 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 3 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 4 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 1 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 2 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 3 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 4 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 1 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 3 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 4 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 1 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 2 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 3 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 4 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 1 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 2 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 3 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 4 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 1 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 2 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 3 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 4 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 1 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 2 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 4 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 1 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 2 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 3 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 4 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 1 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 3 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 4 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 1 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 2 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 3 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 4 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 1 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 2 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 3 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 4 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 1 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 2 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 3 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 4 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 2 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 3 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 4 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 1 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 2 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 3 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 4 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 1 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 2 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 3 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 4 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 1 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 2 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 3 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 4 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 1 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 3 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 2 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 4 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 1 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 3 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 2 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 4 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 3 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 2 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 4 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 1 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 3 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 2 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 1 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 4 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 3 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 2 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 1 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 4 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 3 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 2 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 1 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 4 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 3 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 2 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 1 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 4 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 3 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 2 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 1 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 4 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 3 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 2 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 1 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 4 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 3 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 2 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 1 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 1 finished in 294.4 seconds.
+Chain 4 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 3 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 3 finished in 296.9 seconds.
+Chain 2 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 4 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 4 finished in 299.3 seconds.
+Chain 2 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 2 finished in 301.8 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 298.1 seconds.
+Total execution time: 302.2 seconds.
+
+204.2 Mb
+[1] "lapplying"
