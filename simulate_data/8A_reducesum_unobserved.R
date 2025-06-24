@@ -92,100 +92,104 @@ saveRDS(fit, paste("simulate_data/methods_comparison/observed_vs_unobserved/redu
 
 
 ###### Post hoc calculations of colony_dist
+posterior_draws_matrix <- as_draws_matrix(fit$draws())
 
-# function for computing colony dist!
-compute_colony_dist_summary <- function(draw,
+# make a function to compute colony_dist for each draw
+compute_colony_dist_summary <- function(draw_row,
                                         trap = data$trap,
                                         floral = data$floral,
                                         C = data$C,
                                         K = data$K) {
-  # reconstruct delta, zeta
-  delta = matrix(NA, nrow = C, ncol = 2)
-  zeta = matrix(NA, nrow = C)
+  # draw_row is a vector (one row of posterior_draws_matrix)
+  
+  # put delta and zeta in proper format
+  delta <- matrix(NA, nrow = C, ncol = 2)
+  zeta <- numeric(C)
   for (i in 1:C) {
-    delta[i, 1] <- draw[[paste0("delta[", i, ",1]")]]
-    delta[i, 2] <- draw[[paste0("delta[", i, ",2]")]]
-    zeta[i] = draw[[paste0("zeta[", i, "]")]]
+    delta[i, 1] <- draw_row[paste0("delta[", i, ",1]")]
+    delta[i, 2] <- draw_row[paste0("delta[", i, ",2]")]
+    zeta[i] <- draw_row[paste0("zeta[", i, "]")]
   }
   
-  # reconstruct eps
-  eps = matrix(NA, nrow = K)
-  for (i in 1:K) {
-    eps[k] = draw[[paste0("eps[", i, "]")]]
+  # put epsilon in proper format
+  eps <- numeric(K)
+  for (k in 1:K) {
+    eps[k] <- draw_row[paste0("eps[", k, "]")]
   }
   
-  # pull out other vars
-  rho <- draw$rho
-  theta <- draw$theta
-  mu <- draw$mu
-  tau <- draw$tau
-  sigma <- draw$sigma
+  # get scalars
+  rho <- draw_row["rho"]
+  theta <- draw_row["theta"]
+  mu <- draw_row["mu"]
+  tau <- draw_row["tau"]
+  sigma <- draw_row["sigma"]
   alpha <- 1e-12
-
-  # temporary declarations
+  
+  # hold space for temporary declarations
   dis <- matrix(NA, nrow = C, ncol = K)
   lambda <- matrix(NA, nrow = C, ncol = K)
-  V <- numeric(C)
   colony_dist <- numeric(C)
   
-  # calculate distance and lambda
-  for(k in 1:K) {
-    for(i in 1:C) {
-      dis[i, k] <- sqrt((delta[i,1] - trap[k,1])^2 + (delta[i,2] - trap[k,2])^2)
-      lambda[i, k] <- dis[i,k]/(-rho * exp(theta * floral[k])) + mu + zeta[i]*sqrt(tau) + eps[k]*sqrt(sigma)
+  # calculate dis and lambda
+  for (k in 1:K) {
+    for (i in 1:C) {
+      dis[i, k] <- sqrt((delta[i, 1] - trap[k, 1])^2 + (delta[i, 2] - trap[k, 2])^2)
+      lambda[i, k] <- dis[i, k] / (-rho * exp(theta * floral[k])) + mu +
+        zeta[i] * sqrt(tau) + eps[k] * sqrt(sigma)
     }
   }
   
-  # calculate total visitation per colony
+  # calculate per colony visitation
   V <- rowSums(exp(lambda))
   
-  # calculate colony_dist
-  for(k in 1:K) {
-    colony_dist <- colony_dist + (dis[,k] * exp(lambda[,k]) / (V + alpha))
+  # calculate per colony foraging distance
+  for (k in 1:K) {
+    colony_dist <- colony_dist + (dis[, k] * exp(lambda[, k]) / (V + alpha))
   }
   
-  # return mean and sd of colony_dist (averaged across colonies, for one iteration)
+  # return mean foraging distances across colonies, for a single iteration
   return(c(mean = mean(colony_dist), sd = sd(colony_dist)))
 }
 
 
-# run in parallel over many draws!
-# set up
-plan(multisession, workers = 16)
 
-# get posterior draws
-posterior_draws <- fit$draws(format = "draws_list")
-print(object.size(posterior_draws), units = "auto")
+### Apply the function in parallel across draws!
+draws_per_chunk <- 500
+total_draws <- nrow(posterior_draws_matrix)
+chunk_starts <- seq(1, total_draws, by = draws_per_chunk)
 
-# apply function and summarize (loop over chunks)
-print('lapplying')
+# set up future backend
+plan(multisession, workers = 8)
 
-chunk_size <- 100
-n_draws <- length(posterior_draws)
-n_chunks <- ceiling(n_draws / chunk_size)
-print(paste0("ndraws = ", n_draws))
-
-
+# loop over chunks
 summary_stats_list <- list()
-
-for (i in seq_len(n_chunks)) {
-  start <- (i - 1) * chunk_size + 1
-  end <- min(i * chunk_size, n_draws)
-
-  message("Processing draws ", start, " to ", end)
-
-  chunk_draws <- posterior_draws[start:end]
-  print(length(chunk_draws))
+for (start in chunk_starts) {
+  end <- min(start + draws_per_chunk - 1, total_draws)
+  print(paste0("Processing draws", start, "to", end, "\n"))
   
-  chunk_summaries <- future_lapply(chunk_draws, compute_colony_dist_summary, trap=data$trap,
-  floral=data$floral,C=data$C, K=data$K, future.globals = FALSE)
-
-  summary_stats_list[[i]] <- do.call(rbind, chunk_summaries)
+  # subset the matrix for this chunk
+  chunk_draws <- posterior_draws_matrix[start:end, , drop = FALSE]
+  
+  # apply function in parallel to each row (draw)
+  print("start lapplying")
+  chunk_results <- future_lapply(1:nrow(chunk_draws), function(i) {
+    compute_colony_dist_summary(
+      draw_row = chunk_draws[i, ],
+      trap = data$trap,
+      floral = data$floral,
+      C = data$C,
+      K = data$K
+    )
+  },
+  globals = FALSE)
+  
+  # combine results
+  summary_stats_list[[length(summary_stats_list) + 1]] <- do.call(rbind, chunk_results)
 }
-
-summary_stats_mat <- do.call(rbind, summary_stats_list)
-
 print('done lapplying')
+
+# combine all into one matrix or data frame
+summary_stats_mat <- do.call(rbind, summary_stats_list)
 
 print(paste("posterior mean = ", apply(summary_stats_mat, 2, mean), sep = ""))
 print(paste("posterior sd = ", apply(summary_stats_mat, 2, sd), sep = ""))
