@@ -94,42 +94,41 @@ saveRDS(fit, paste("simulate_data/methods_comparison/observed_vs_unobserved/redu
 ###### Post hoc calculations of colony_dist
 
 # function for computing colony dist!
-print('trap')
-print(data$trap)
-posterior_draws = fit$draws(variables = c("delta", "rho", "theta", "mu", "zeta", "eps", "tau", "sigma"),
-                             format = "draws_list")
-print('variables')
-class(fit)
-print(names(posterior_draws[[1]]))
-cmdstanr::variables(fit)
-print('delta')
-print(posterior_draws[[1]]$delta)
-
-
 compute_colony_dist_summary <- function(draw,
                                         trap = data$trap,
                                         floral = data$floral,
                                         C = data$C,
                                         K = data$K) {
-  delta <- draw$delta
+  # reconstruct delta, zeta
+  delta = matrix(NA, nrow = C, ncol = 2)
+  zeta = matrix(NA, nrow = C)
+  for (i in 1:C) {
+    delta[i, 1] <- draw[[paste0("delta[", i, ",1]")]]
+    delta[i, 2] <- draw[[paste0("delta[", i, ",2]")]]
+    zeta[i] = draw[[paste0("zeta[", i, "]")]]
+  }
+  
+  # reconstruct eps
+  eps = matrix(NA, nrow = K)
+  for (i in 1:K) {
+    eps[k] = draw[[paste0("eps[", i, "]")]]
+  }
+  
+  # pull out other vars
   rho <- draw$rho
   theta <- draw$theta
   mu <- draw$mu
-  zeta <- draw$zeta
-  eps <- draw$eps
   tau <- draw$tau
   sigma <- draw$sigma
-  
   alpha <- 1e-12
-  print(paste("delta= ", delta, sep = ""))
-  print(paste("trap= ", trap, sep = ""))
 
-
+  # temporary declarations
   dis <- matrix(NA, nrow = C, ncol = K)
   lambda <- matrix(NA, nrow = C, ncol = K)
   V <- numeric(C)
   colony_dist <- numeric(C)
   
+  # calculate distance and lambda
   for(k in 1:K) {
     for(i in 1:C) {
       dis[i, k] <- sqrt((delta[i,1] - trap[k,1])^2 + (delta[i,2] - trap[k,2])^2)
@@ -137,8 +136,10 @@ compute_colony_dist_summary <- function(draw,
     }
   }
   
+  # calculate total visitation per colony
   V <- rowSums(exp(lambda))
   
+  # calculate colony_dist
   for(k in 1:K) {
     colony_dist <- colony_dist + (dis[,k] * exp(lambda[,k]) / (V + alpha))
   }
@@ -149,14 +150,15 @@ compute_colony_dist_summary <- function(draw,
 
 
 # run in parallel over many draws!
+# set up
 plan(multisession, workers = 4)
-posterior_draws <- fit$draws(variables = c("delta", "rho", "theta", "mu", "zeta", "eps", "tau", "sigma"),
-                             format = "draws_list")
 
+# get posterior draws
+posterior_draws <- fit$draws(format = "draws_list")
 
+# apply function and summarize
 summary_stats_list <- future_lapply(posterior_draws, compute_colony_dist_summary)
 summary_stats_mat <- do.call(rbind, summary_stats_list)
-
 
 print(paste("posterior mean = ", apply(summary_stats_mat, 2, mean), sep = ""))
 print(paste("posterior sd = ", apply(summary_stats_mat, 2, sd), sep = ""))
