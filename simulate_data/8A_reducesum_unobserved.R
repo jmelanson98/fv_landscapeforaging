@@ -22,6 +22,7 @@ library(gridExtra)
 library(tibble)
 library(future.apply)
 library(posterior)
+library(filelock)
 
 ##### Set Environment #####
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
@@ -161,7 +162,6 @@ chunk_starts <- seq(1, total_draws, by = draws_per_chunk)
 
 # set up future backend
 plan(multisession, workers = 8, gc = TRUE)
-total_start = Sys.time()
 
 # loop over chunks
 summary_stats_list <- list()
@@ -191,8 +191,6 @@ for (start in chunk_starts) {
   summary_stats_list[[length(summary_stats_list) + 1]] <- do.call(rbind, chunk_results)
 }
 print('done lapplying')
-total_end = Sys.time()
-print(paste0("Total time = ", total_end-total_start))
 
 # combine all into one matrix or data frame
 summary_stats_mat <- as.data.frame(do.call(rbind, summary_stats_list))
