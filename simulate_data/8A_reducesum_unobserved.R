@@ -92,7 +92,6 @@ fit <- mod$sample(
 
 ###### Post hoc calculations of colony_dist
 posterior_draws_matrix <- as_draws_matrix(fit$draws())
-write.csv(posterior_draws_matrix, "simulate_data/draws.csv")
 
 # make a function to compute colony_dist for each draw
 compute_colony_dist_summary <- function(draw_row,
