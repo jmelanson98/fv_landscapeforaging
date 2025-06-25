@@ -91,42 +91,52 @@ fit <- mod$sample(
 
 ###### Post hoc calculations of colony_dist
 posterior_draws_matrix <- as_draws_matrix(fit$draws())
+write.csv(posterior_draws_matrix, "simulate_data/draws.csv")
 
 # make a function to compute colony_dist for each draw
 compute_colony_dist_summary <- function(draw_row,
-                                        trap = data$trap,
-                                        floral = data$floral,
-                                        C = data$C,
-                                        K = data$K) {
+                                        trap,
+                                        floral,
+                                        C,
+                                        K) {
   # draw_row is a vector (one row of posterior_draws_matrix)
-  
+  print(draw_row)
+  print(C)
+  print(K)
+
   # put delta and zeta in proper format
   delta <- matrix(NA, nrow = C, ncol = 2)
-  zeta <- numeric(C)
+  zeta <- rep(NA,C)
   for (i in 1:C) {
-    delta[i, 1] <- draw_row[paste0("delta[", i, ",1]")]
-    delta[i, 2] <- draw_row[paste0("delta[", i, ",2]")]
-    zeta[i] <- draw_row[paste0("zeta[", i, "]")]
+    delta[i, 1] <- draw_row[[paste0("delta.", i, ".1.")]]
+    delta[i, 2] <- draw_row[[paste0("delta.", i, ".2.")]]
+    zeta[i] <- draw_row[[paste0("zeta.", i, ".")]]
   }
   
   # put epsilon in proper format
-  eps <- numeric(K)
+  eps <- rep(NA,K)
   for (k in 1:K) {
-    eps[k] <- draw_row[paste0("eps[", k, "]")]
+    eps[k] <- draw_row[[paste0("eps.", k, ".")]]
   }
   
   # get scalars
-  rho <- draw_row["rho"]
-  theta <- draw_row["theta"]
-  mu <- draw_row["mu"]
-  tau <- draw_row["tau"]
-  sigma <- draw_row["sigma"]
+  rho <- draw_row$rho
+  theta <- draw_row$theta
+  mu <- draw_row$mu
+  tau <- draw_row$tau
+  sigma <- draw_row$sigma
   alpha <- 1e-12
-  
+  print(rho)
+  print(theta)
+  print(mu)
+  print(tau)
+  print(sigma)
+  print(alpha)
+
   # hold space for temporary declarations
   dis <- matrix(NA, nrow = C, ncol = K)
   lambda <- matrix(NA, nrow = C, ncol = K)
-  colony_dist <- numeric(C)
+  colony_dist <- rep(0,C)
   
   # calculate dis and lambda
   for (k in 1:K) {
@@ -158,6 +168,7 @@ chunk_starts <- seq(1, total_draws, by = draws_per_chunk)
 
 # set up future backend
 plan(multisession, workers = 8, gc = TRUE)
+total_start = Sys.time()
 
 # loop over chunks
 summary_stats_list <- list()
@@ -166,12 +177,13 @@ for (start in chunk_starts) {
   print(paste0("Processing draws ", start, " to ", end))
   
   # subset the matrix for this chunk
-  chunk_draws <- posterior_draws_matrix[start:end, , drop = FALSE]
+  chunk_draws <- posterior_draws_matrix[start:end,]
   
   # apply function in parallel to each row (draw)
-  chunk_results <- future_lapply(1:nrow(chunk_draws), function(i) {
+  chunk_start_time = Sys.time()
+  chunk_results <- future_lapply(1:nrow(chunk_draws), function(j) {
     compute_colony_dist_summary(
-      draw_row = chunk_draws[i, ],
+      draw_row = chunk_draws[j, ,drop = FALSE ],
       trap = data$trap,
       floral = data$floral,
       C = data$C,
@@ -179,16 +191,25 @@ for (start in chunk_starts) {
     )
   }
   )
+  chunk_end_time = Sys.time()
+  print(paste0("Chunk time = ", chunk_end_time-chunk_start_time))
   
   # combine results
   summary_stats_list[[length(summary_stats_list) + 1]] <- do.call(rbind, chunk_results)
 }
 print('done lapplying')
+total_end = Sys.time()
+print(paste0("Total time = ", total_end-total_start))
 
 # combine all into one matrix or data frame
 summary_stats_mat <- do.call(rbind, summary_stats_list)
+print(paste0("Dimensions of summary mat = ", dim(summary_stats_mat)))
+print(paste0("Number of NAs = ", sum(is.na(summary_stats_mat))))
 
-#print(paste("posterior CIs = ", apply(summary_stats_mat, 2, quantile, probs = c(0.025, 0.975)), sep = ""))
+ci_mat <- apply(summary_stats_mat, 2, quantile, probs = c(0.025, 0.975), na.rm = TRUE)
+print("Posterior CIs:")
+print(ci_mat)
+
 
 
 
@@ -197,12 +218,10 @@ summary_stats_mat <- do.call(rbind, summary_stats_list)
 lockfile <- "output.lock"
 rds_file <- "simulate_data/methods_comparison/output.rds"
 
-
-colony_data$model_estimate = summary(stanFit, pars = c("colony_dist"))$summary[,1]
   
 # save the result of *this* simulation only
-current_params$model_average_foraging = apply(summary_stats_mat, 2, mean)
-current_params$model_sd_foraging = apply(summary_stats_mat, 2, sd)
+current_params$model_average_foraging = mean(summary_stats_mat$mean)
+current_params$model_sd_foraging = sqrt(mean(summary_stats_mat$sd^2))
 current_params$model_mu = fit$summary(variables = "mu")$mean
 current_params$model_rho = fit$summary(variables = "rho")$mean
 saveRDS(current_params, paste(inputfilepath, "/iteration_output.rds", sep = ""))
@@ -214,8 +233,8 @@ lock <- lock(lockfile, timeout = 60000)
 if (!is.null(lock)) {
     df <- readRDS(rds_file)
     
-    df$model_average_foraging[df$task_id == task_id] = apply(summary_stats_mat, 2, mean)
-    df$model_sd_foraging[df$task_id == task_id] = apply(summary_stats_mat, 2, sd)
+    df$model_average_foraging[df$task_id == task_id] = mean(summary_stats_mat$mean)
+    df$model_sd_foraging[df$task_id == task_id] = sqrt(mean(summary_stats_mat$sd^2))
     df$model_mu[df$task_id == task_id] = fit$summary(variables = "mu")$mean
     df$model_rho[df$task_id == task_id] = fit$summary(variables = "rho")$mean
     
