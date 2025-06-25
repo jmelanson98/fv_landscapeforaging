@@ -26,11 +26,6 @@ functions {
     		real dis = sqrt(square(dx) + square(dy));
     		real exp_term = exp(theta * floral[k]);
     		real lambda = dis / (-rho * exp_term) + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
-		
-
-		if (lambda < -1e20){
-			print("dis: ", dis, ", rho: ", rho, " , theta: ", theta, ", floral[k]: ", floral[k], ", zeta[i]: ", zeta[i], ", eps[k]: ", eps[k], ", lambda: ", lambda);
-		}
     		total += poisson_log_lpmf(y[i,k] | lambda);
   }
 }

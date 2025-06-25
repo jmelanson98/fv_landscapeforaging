@@ -99,39 +99,32 @@ compute_colony_dist_summary <- function(draw_row,
                                         floral,
                                         C,
                                         K) {
-  # draw_row is a vector (one row of posterior_draws_matrix)
-  print(draw_row)
-  print(C)
-  print(K)
-
+  # draw_row is a draws matrix with one row
+  
   # put delta and zeta in proper format
   delta <- matrix(NA, nrow = C, ncol = 2)
   zeta <- rep(NA,C)
   for (i in 1:C) {
-    delta[i, 1] <- draw_row[[paste0("delta.", i, ".1.")]]
-    delta[i, 2] <- draw_row[[paste0("delta.", i, ".2.")]]
-    zeta[i] <- draw_row[[paste0("zeta.", i, ".")]]
+    delta1 <- paste0("delta[", i, ",1]")
+    delta2 <- paste0("delta[", i, ",2]")
+    delta[i,1] = draw_row[,delta1]
+    delta[i,2] = draw_row[,delta2]
+    zeta[i] <- draw_row[,paste0("zeta[", i, "]")]
   }
   
   # put epsilon in proper format
   eps <- rep(NA,K)
   for (k in 1:K) {
-    eps[k] <- draw_row[[paste0("eps.", k, ".")]]
+    eps[k] <- draw_row[,paste0("eps[", k, "]")]
   }
   
   # get scalars
-  rho <- draw_row$rho
-  theta <- draw_row$theta
-  mu <- draw_row$mu
-  tau <- draw_row$tau
-  sigma <- draw_row$sigma
+  rho <- draw_row[,"rho"]
+  theta <- draw_row[,"theta"]
+  mu <- draw_row[,"mu"]
+  tau <- draw_row[,"tau"]
+  sigma <- draw_row[,"sigma"]
   alpha <- 1e-12
-  print(rho)
-  print(theta)
-  print(mu)
-  print(tau)
-  print(sigma)
-  print(alpha)
 
   # hold space for temporary declarations
   dis <- matrix(NA, nrow = C, ncol = K)
@@ -202,16 +195,7 @@ total_end = Sys.time()
 print(paste0("Total time = ", total_end-total_start))
 
 # combine all into one matrix or data frame
-summary_stats_mat <- do.call(rbind, summary_stats_list)
-print(paste0("Dimensions of summary mat = ", dim(summary_stats_mat)))
-print(paste0("Number of NAs = ", sum(is.na(summary_stats_mat))))
-
-ci_mat <- apply(summary_stats_mat, 2, quantile, probs = c(0.025, 0.975), na.rm = TRUE)
-print("Posterior CIs:")
-print(ci_mat)
-
-
-
+summary_stats_mat <- as.data.frame(do.call(rbind, summary_stats_list))
 
 #####  Save colony_dist estimates ######
 # use lock to make sure multiple tasks don't write to output at the same time
@@ -220,6 +204,7 @@ rds_file <- "simulate_data/methods_comparison/output.rds"
 
   
 # save the result of *this* simulation only
+print("Saving current params")
 current_params$model_average_foraging = mean(summary_stats_mat$mean)
 current_params$model_sd_foraging = sqrt(mean(summary_stats_mat$sd^2))
 current_params$model_mu = fit$summary(variables = "mu")$mean
@@ -233,10 +218,13 @@ lock <- lock(lockfile, timeout = 60000)
 if (!is.null(lock)) {
     df <- readRDS(rds_file)
     
+    print("Saving params to output.rds")
     df$model_average_foraging[df$task_id == task_id] = mean(summary_stats_mat$mean)
     df$model_sd_foraging[df$task_id == task_id] = sqrt(mean(summary_stats_mat$sd^2))
     df$model_mu[df$task_id == task_id] = fit$summary(variables = "mu")$mean
+    df$model_mu_sd[df$task_id == task_id] = fit$summary(variables = "mu")$sd
     df$model_rho[df$task_id == task_id] = fit$summary(variables = "rho")$mean
+    df$model_rho_sd[df$task_id == task_id] = fit$summary(variables = "rho")$sd
     
     # save updated dataframe
     saveRDS(df, rds_file)
