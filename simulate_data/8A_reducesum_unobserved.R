@@ -86,7 +86,8 @@ fit <- mod$sample(
   threads_per_chain = threads_per_chain,
   refresh = 100,
   iter_warmup = 1000,
-  iter_sampling = 5000
+  iter_sampling = 5000,
+  init = 1
 )
 
 
