@@ -25,7 +25,7 @@ functions {
     		real dy = delta[i, 2] - trap[k, 2];
     		real dis = sqrt(square(dx) + square(dy));
     		real exp_term = exp(theta * floral[k]);
-    		real lambda = -0.5(dis / (rho * exp_term))^2 + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
+    		real lambda = -0.5*(dis / (rho * exp_term))^2 + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
     		total += poisson_log_lpmf(y[i,k] | lambda);
   }
 }
@@ -101,3 +101,4 @@ target += reduce_sum(partial_log_lik, colony_ids, grainsize,
                      eps, zeta, delta);
 
 }
+
