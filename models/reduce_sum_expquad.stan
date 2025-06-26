@@ -101,4 +101,7 @@ target += reduce_sum(partial_log_lik, colony_ids, grainsize,
                      eps, zeta, delta);
 
 }
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes

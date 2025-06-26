@@ -102,11 +102,12 @@ if (current_params$model_approach != "centroid"){
   stanfile = paste("models/", current_params$distance_decay, ".stan", sep = "")
   
   #fit and save model
+  
   stanFit = stan(file = stanfile,
                  data = data, seed = 5838299,
-                 chains = 4, cores = 4,
-                 control = list(max_treedepth = 15),
-                 iter = 10000,
+                 chains = 1, cores = 4,
+                 iter = 6000,
+                 warmup = 1000,
                  verbose = TRUE)
   print("Model complete.")
   saveRDS(stanFit, file=paste(inputfilepath,"/stanFit.RDS", sep =""))
