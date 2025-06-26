@@ -953,9 +953,9 @@ pic_values_2023 <- pic_calc(genind_imp2023, ploidy = 2, bypop = FALSE)
 ```
 We found that BTMS0057 had higher PIC in both years (PIC = 0.78) compared to BL13 (PIC = 0.47 in 2022 and 0.45 in 2023). For this reason, we chose to maintain BTMS0057 and remove BL13 from further analyses.
 
-After locus quality screening, we calculated $F_{st}$ between sites to determine whether populations were in panmixia, or whether allele frequencies varied between sites. Moderate or high $F_{st}$ betwen sites would suggest that final siblingship assignments should be run separately to account for differences in allele frequencies between populations.
+After locus quality screening, we calculated global $F_{st}$ between sites to determine whether populations were in panmixia, or whether allele frequencies varied between sites. Moderate or high $F_{st}$ between sites would suggest that final siblingship assignments should be run separately to account for differences in allele frequencies between populations.
 
-```{r calculate Fst between sites}
+```{r calculate Fst between sites, include = FALSE}
 # load mixtus genepop files and make genind!
 file.copy("data/genepop/ms_genepop_format_mixtus2022.txt",
           "data/genepop/ms_genepop_format_mixtus2022.gen")
@@ -988,28 +988,57 @@ handle_partial = function(hf_obj){
       }
     }
   }
+  return(hf_obj)
 }
 
 hf_imp2022 = handle_partial(hf_imp2022)
+hf_imp2023 = handle_partial(hf_imp2023)
+hf_mix2022 = handle_partial(hf_mix2022)
+hf_mix2023 = handle_partial(hf_mix2023)
 
-# calculate pairwise Fst
 
+# calculate global Fst
+fst_imp2022 <- basic.stats(hf_imp2022)$overall["Fst"]
+fst_imp2023 <- basic.stats(hf_imp2023)$overall["Fst"]
+fst_mix2022 <- basic.stats(hf_mix2022)$overall["Fst"]
+fst_mix2023 <- basic.stats(hf_mix2023)$overall["Fst"]
+
+# make table
+fst = data.frame(Species = c("B. mixtus", "B. mixtus", "B. impatiens", "B.impatiens"),
+                    Year = c(2022, 2023, 2022, 2023),
+                    Fst = c(fst_mix2022, fst_mix2023, fst_imp2022, fst_imp2023))
+fst
 
 ```
 
+For both species and years, global $F_{st} < 0.005$, but to be doubly sure we additionally calculated Weir and Cockerham's pairwise $F_{st}$ between sites for each species and year.
 
-Finally, we computed the effect of site on $F_{is}$ scores to determine whether inbreeding was present at some sites but not others.
+```{r calculate pairwise Fst, include = FALSE}
+pfst_imp2022 <- pairwise.WCfst(hf_imp2022)
+pfst_imp2023 <- pairwise.WCfst(hf_imp2023)
+pfst_mix2022 <- pairwise.WCfst(hf_mix2022)
+pfst_mix2023 <- pairwise.WCfst(hf_mix2023)
 
-```{r check for site-level inbreeding, echo = FALSE}
+min(pfst_imp2022, na.rm = TRUE)
+min(pfst_imp2023, na.rm = TRUE)
+min(pfst_mix2022, na.rm = TRUE)
+min(pfst_mix2023, na.rm = TRUE)
+```
+Pairwise $F_{st}$ ranged from -0.002 to 0.01, again providing no substantial evidence of population differentiation. [[Another note to Mike: I read that Fst can sometimes be negative if between population variance is estimated to be slightly smaller than within population variance, as an artifact of finite sampling, but that this mostly occurs when sample sizes are small or unequal. My sample sizes are unequal but the smallest sample size at a given site is 48. Would you just interpret this as some noise resulting from unequal sample size and round to 0, or should I be concerned?]]
+
+
+Finally, we computed the effect of site on $F_{is}$ scores to determine whether inbreeding was present at some sites but not others, or in variable amounts.
+
+```{r check for site-level inbreeding, fig.width = 12, fig.align = "center", echo = FALSE}
 ######################
 # IMPATIENS
 ######################
 # fit the model
-model <- lm(FisWC ~ locus + site, data = impHWE_trunc)
+model <- lm(FisWC ~ site, data = impHWE_trunc)
 
 # get site vs grand mean comparisons
 emm_site = emmeans(model, "site")
-comp_site = contrast(emm_locus, method = "eff", adjust = "none")
+comp_site = contrast(emm_site, method = "eff", adjust = "none")
 
 # plot site effects
 emm_df <- as.data.frame(emm_site)
@@ -1020,9 +1049,40 @@ impatiens_site = ggplot(emm_df, aes(x = site, y = emmean)) +
   geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
   theme_minimal() +
   labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Site", title = substitute(italic("B. impatiens"))) +
-  theme(axis.text.x = element_text(size = 6))
-```
+  theme(axis.text.x = element_text(size = 10))
 
-We found that ....
+
+
+######################
+# MIXTUS
+######################
+# fit the model
+model <- lm(FisWC ~ site, data = mixHWE_trunc)
+
+# get site vs grand mean comparisons
+emm_site = emmeans(model, "site")
+comp_site = contrast(emm_site, method = "eff", adjust = "none")
+
+# plot site effects
+emm_df <- as.data.frame(emm_site)
+mixtus_site = ggplot(emm_df, aes(x = site, y = emmean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Site", title = substitute(italic("B. mixtus"))) +
+  theme(axis.text.x = element_text(size = 10))
+
+# plot those puppies
+grid.arrange(mixtus_site, impatiens_site, ncol =2)
+```
+[[Last note for Mike: does this $F_{is}$ or variation in $F_{is}$ seem sufficiently low to you? I think you mentioned that < 0.05 or 0.1 was probably okay to ignore? I also realized that COLONY 2.0 actually *can* handle inbreeding/deviations from HWE, but they state in the user manual that: "When inbreeding is present, a population level (average) inbreeding coefficient, equivalent to Wright’s FIS, is inferred iteratively with other parameters (e.g. relationship, allele frequencies) and is used for calculating genotype frequencies...Note that, for dioecious, the non-inbreeding model is recommended except when there is strong evidence of inbreeding and the inbreeding level is high. Otherwise, using the inbreeding model for data with low or no inbreeding could slow down the computation substantially with little or no improvement for the estimation of relationships."
+
+My conclusion from this would be that we should NOT ask the software to account for $F_{is}$ in this case, as it's probably unnecessary.
+
+Given the very low $F_{st}$, **I also wonder whether you think it would be prudent to combine all sites for siblingship assignment (e.g., to improve estimation of allele frequencies by pooling data)**. The alternative would be to run the model 5* times for each population (e.g., 2 species * 2 years * 6 sites = 24 populations). I can run them on a server in parallel so time is not really an issue.
+
+*5 times per population is a technique that I have seen repeatedly in the literature--to avoid 'spurious siblingships', like the ones I mentioned to you last time we met. Apparently it's a common issue with COLONY, and people get around it by performing multiple runs and only maintaining the siblingships with occur with high probability in all of them. I tried it for one of my populations and sure enough all of the between-site siblingships (inviduals > 3km apart!) dropped out!]]
 
 
