@@ -26,7 +26,7 @@ functions {
     		real dis = sqrt(square(dx) + square(dy));
     		real exp_term = exp(theta * floral[k]);
     		real lambda = -0.5*(dis / (rho * exp_term))^2 + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
-    		if(lambda < 1e-20){
+    		if(lambda < -1e20){
 		print("Rho = ");
 		print(rho);
 		print("Theta = ");
