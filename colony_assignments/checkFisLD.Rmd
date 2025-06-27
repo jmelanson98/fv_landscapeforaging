@@ -2,10 +2,13 @@
 title: "Check $F_{is}$ and LD of microsatellite loci"
 author: "Jenna Melanson"
 date: "2025-06-20"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
+bibliography: "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/docs/phd_bombus.bib"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache = TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
@@ -52,9 +55,10 @@ itestalleles2023 = read.csv("data/merged_by_year/csvs/impatiens_2023_scores.csv"
 itestalleles2023 = itestalleles2023[,-1]
 ```
 
-We used an iterative approach to assign workers and queens to their natal colonies. First, using the software COLONY 2.0 (CITE WANG), we assigned full siblingships based on all available microsatellite data, assuming male and female monogamy and no inbreeding. A single run was carried out for each species and year, using the software's full-likelihood approach and no siblingship size scaling or priors. Siblingships were maintained at this stage only if $P(full sibling dyad) = 1$. A single individual from each putative colony (including non-circular colonies) was maintained for downstream analysis of microsatellite locus quality.
+## Remove siblings before marker assessment
+We used an iterative approach to assign workers and queens to their natal colonies. First, using the pedigree reconstruction software COLONY 2.0 [@jonesCOLONYProgramParentage2010], we assigned full siblingships based on all available microsatellite data, assuming male and female monogamy and no inbreeding. A single run was carried out for each species and year, using the software's full-likelihood approach and no siblingship size scaling or priors. Siblingships were maintained at this stage only if P(full sibling dyad) = 1. A single individual from each putative colony (including non-circular colonies) was maintained for downstream analyses of microsatellite locus quality.
 
-```{r remove sibs before genepop, include = FALSE}
+```{r remove sibs before genepop, include = FALSE, cache = TRUE}
 
 #################################
 # IMPATIENS 2022
@@ -196,11 +200,12 @@ sibs_to_remove = membership_df$OffspringID[!membership_df$OffspringID %in% sibs_
 mtestalleles2023 = mtestalleles2023[!mtestalleles2023$barcode_id %in% sibs_to_remove,]
 ```
 
-Ideally, high-quality markers should be in Hardy-Weinberg equilibrium (e.g., inbreeding coefficient $F_{is} = 0$) and should be independently assorted (e.g., no linkage disequilibrium between markers). COLONY 2.0 can account for inbreeding at the population level, if specified, but $F_{is}$ estimates for individual loci which are significantly different from the global mean $F_{is}$ can be indicative of null alleles or other scoring errors. 
+## Check distribution of $F_{is}$ estimates across loci
+While COLONY 2.0 can account for inbreeding at the population level, locus-specific estimates of $F_{is}$ should generally be similar to one another, reflecting their shared evolutionary history. Loci with $F_{is}$ estimates that deviate significantly from the species mean (across loci) may suffer from null alleles or other types of scoring errors that can bias siblingship assignment. We therefore tested individual locus deviations from population mean $F_{is}$ as a criterion for marker inclusion/exclusion.
 
-To test overall $F_{is}$ and individual locus deviations, we first calculated $F_{is}$ for all locus, site, year, species groups using the Weir & Cockerham method in GENEPOP [insert citation].
+Single locus $F_{is}$ estimates were computed for all site, year, species groups following @weirEstimatingFStatisticsAnalysis1984 in the package *genepop* [@roussetGenepop007CompleteReimplementation2008]. The distributions of $F_{is}$ estimates for each species at each site are shown below. The blue dotted line indicates $F_{is}$ = 0, and the red dotted lines indicate $F_{is}$ = $\pm$ 0.1.
 
-```{r calculate Fis and LD, include = FALSE}
+```{r calculate Fis and LD, include = FALSE, cache = TRUE}
 ######################################
 # Prep BOMBUS MIXTUS for genepop
 #####################################
@@ -516,9 +521,7 @@ test_LD("data/genepop/ms_genepop_format_impatiens2023.txt","data/genepop/impatie
 
 ```
 
-The distributions of $F_{is}$ estimates for each species at each site are shown below. The blue dotted line indicates $F_{is}$ = 0, and the red dotted lines indicate $F_{is}$ = $\pm$ 0.1.
-
-```{r read in Fis values for each species, echo = FALSE, include = FALSE}
+```{r read in Fis values for each species, echo = FALSE, include = FALSE, cache = TRUE}
 
 # first, mixtus 2022
 mix2022HWElines = readLines("data/genepop/mixtusHWE2022.txt.D")
@@ -633,7 +636,7 @@ mixHWE$site = factor(mixHWE$site)
 
 ```
 
-```{r plot Fis distributions for each species, fig.width = 12, fig.align = "center", echo = FALSE}
+```{r plot Fis distributions for each species, fig.width = 6, fig.height = 3.25, fig.align = "center", echo = FALSE, cache = TRUE}
 # combine data frames
 impHWE$species = "B. impatiens"
 mixHWE$species = "B. mixtus"
@@ -647,7 +650,7 @@ ggplot(HWE, aes(x = FisWC)) +
   theme_minimal() +
   labs(y = "Count", x = expression(F[is] * " (W&C)"), title = expression(F[is] * " Distributions Across Sites and Species")) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x = element_text(size = 6)) +
+  theme(axis.text.x = element_text(size = 4)) +
   facet_grid(species ~ site)
 
 # ggplot(HWE, aes(x = FisWC)) +
@@ -659,12 +662,9 @@ ggplot(HWE, aes(x = FisWC)) +
 
 ```
 
-We employed a linear model of $F_{is}$ estimates with locus and site as fixed predictors. We used sum-to-zero coding so that the model intercept represented the global mean $F_{is}$ across loci, and calculated the effect of each locus and site using the *emmeans* package.
+We fit linear models to $F_{is}$ estimates with locus and site as fixed predictors. We used sum-to-zero coding so that model intercepts represented mean $F_{is}$ across all loci, and calculated the estimated marginal mean of each locus using the *emmeans* package [@lenthEmmeansEstimatedMarginal2024]. Marginal means are plotted below; the dashed black line denotes $F_{is} = 0$, and the dashed red line denotes mean $F_{is}$ for each species.
 
-Below we show the computed effects of each locus for each species. The dashed black line represents $F_{is} = 0$, and the dashed red line represents the global mean $F_{is}$.
-
-
-```{r initial linear models of Fis, fig.width = 12, fig.align = "center", echo=FALSE}
+```{r initial linear models of Fis, fig.width = 6, fig.height = 2.5, fig.align = "center", echo=FALSE, cache = TRUE}
 #############################################
 # Initial models and plots for impatiens
 #############################################
@@ -691,7 +691,7 @@ impatiens_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
   theme_minimal() +
   labs(y = "", x = "Locus", title = substitute(italic("B. impatiens"))) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x = element_text(size = 4))
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1))
 
 #############################################
 # Initial models and plots for mixtus
@@ -719,14 +719,14 @@ mixtus_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
   theme_minimal() +
   labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus", title = substitute(italic("B. mixtus"))) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x = element_text(size = 4))
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1))
 
 grid.arrange(mixtus_locus_init, impatiens_locus_init, ncol = 2)
 ```
 
-We iteratively removed loci which were significantly different from the global mean, starting with the locus with the greatest deviation, and re-running the model after each removal (i.e., because removing a locus with a high or low inbreeding coefficient will change the global mean and therefore all comparisons to the global mean). We did not apply an adjustment for multiple-hypothesis testing (i.e., comparison of multiple loci to the global mean $F_{is}$) but instead utilized a relatively stringent p-value ($\alpha$ = 0.01) for removal of loci.
+We iteratively removed loci with $F_{is}$ significantly different from the species mean $F_{is}$, starting with the locus with the greatest deviation, and re-running the model after each removal (i.e., because removing a locus with a high or low inbreeding coefficient will change the species mean estimate and therefore all comparisons to the mean). We did not apply an adjustment for multiple-hypothesis testing, but instead utilized a relatively stringent p-value ($\alpha$ = 0.01) for removal of loci.
 
-```{r, iteratively remove poor loci for impatiens, echo = FALSE}
+```{r, iteratively remove poor loci for impatiens, echo = FALSE, cache = TRUE}
 #############################################
 # Remove poor loci for impatiens
 #############################################
@@ -777,13 +777,13 @@ impatiens_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
   theme_minimal() +
   labs(y = "", x = "Locus", title = substitute(italic("B. impatiens"))) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x = element_text(size = 4))
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1))
 
 
 ```
 
 
-```{r, iteratively remove poor loci for mixtus, echo = FALSE}
+```{r, iteratively remove poor loci for mixtus, echo = FALSE, cache = TRUE}
 #############################################
 # Remove poor loci for mixtus
 #############################################
@@ -852,21 +852,22 @@ mixtus_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
   theme_minimal() +
   labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus", title = substitute(italic("B. mixtus"))) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x = element_text(size = 4))
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1))
 
 ```
 
-This process resulted in the removal of loci BTERN01, BTMS0104, and BTMS0059 from downstream analysis of *B. mixtus* and removal of BTMS0073 and BT28 for *B. impatiens*. $F_{is}$ estimates for the remaining loci (n = 10 for *B. mixtus*, n = 13 for *B. impatiens*) are shown below.
+This process resulted in the removal of loci BTERN01, BTMS0104, and BTMS0059 from downstream analyses for *B. mixtus* and removal of BTMS0073 and BT28 for *B. impatiens*. $F_{is}$ estimates for the remaining loci (n = 10 for *B. mixtus*, n = 13 for *B. impatiens*) are shown below.
 
-```{r plots of remaining loci after Fis removals, fig.width = 12, fig.align = "center", echo = FALSE}
+```{r plots of remaining loci after Fis removals, fig.width = 6, fig.height = 2.5, fig.align = "center", echo = FALSE, cache = TRUE}
 grid.arrange(mixtus_locus, impatiens_locus, ncol =2)
+
 ```
+## Check markers for linkage disequilibrium
+Next, we checked locus pairs for linkage disequilibrium (LD). Marker linkage can lead to non-independent assortment, a condition which violates the assumptions of COLONY. LD was calculated for each locus pair in each population (site, year, species groups) in *genepop*. We applied a Bonferroni correction for multiple hypothesis testing, and flagged locus pairs which showed significant deviations in $>2$ populations.
 
-Finally, we checked locus pairs for linkage disequilibrium in GENEPOP. LD values were calculated for each locus pair in each population (site and year). We applied a Bonferroni correction for multiple hypothesis testing, and flagged locus pairs which showed significant deviations in $>2$ populations.
+[[Is there a better way of approaching this? It seems odd to me to correct for multiple hypothesis testing and then only drop loci if they exceed the Bonferroni-correct p-value in *multiple* cases--it's common practice in the literature, but perhaps it would be better to first assess $F_{st}$ between sites and years and then test LD of loci across *all* samples rather than individually for each population?]]
 
-[[**NOTE for Mike**: Is there a better way of approaching this? You suggested that Bonferroni correction wasn't the best way to approach $F_{is}$ / HWE, and I wonder if similar logic would apply here? It does seem odd to me to correct for multiple hypothesis testing and then only drop loci if they exceed the Bonferroni-correct p-value in *multiple* cases--it's common practice in the literature, but perhaps it would be better to first assess $F_{st}$ between populations and then test LD of loci across *all* samples rather than individually for each population?]]
-
-```{r check for LD in genepop, echo = FALSE}
+```{r check for LD in genepop, echo = FALSE, cache = TRUE}
 
 ##############################
 # IMPATIENS
@@ -930,9 +931,10 @@ mixtusLD = mixtusLD[!(mixtusLD$`Locus#2`%in% c("BTMS0059", "BTMS0104", "BTERN01"
 
 ```
 
-There was not strong support for linkage disequilibrium between locus pairs in *B. mixtus*--four pairs showed signs of LD, but only at a single site in a single year. In *B. impatiens*, there was strong evidence for linkage disequilibrium between BTMS0057 and BL13 (7 out of 12 populations showed significant LD following Bonferroni correction). To determine which locus to maintain, we calculated the polymorphic information content (PIC) using the package *PopGenUtils* (CITE PACKAGE).
+There was not strong support for linkage disequilibrium between locus pairs in *B. mixtus.* Four pairs showed signs of LD, but each occurred at only a single site in a single year. For *B. impatiens*, there was strong evidence for linkage disequilibrium between BTMS0057 and BL13 (7 out of 12 populations showed significant LD following Bonferroni correction). To determine which locus to maintain, we calculated the polymorphic information content (PIC) using the package *PopGenUtils* [@tourvasPopGenUtilsCollectionUseful2025].
 
-```{r calculate PIC of BTMS0057 and BL13 in impatiens, include = FALSE}
+
+```{r calculate PIC of BTMS0057 and BL13 in impatiens, include = FALSE, cache = TRUE}
 
 # load genepop files
 file.copy("data/genepop/ms_genepop_format_impatiens2022.txt",
@@ -951,11 +953,13 @@ pic_values_2023 <- pic_calc(genind_imp2023, ploidy = 2, bypop = FALSE)
 #pic_values_2023
 
 ```
-We found that BTMS0057 had higher PIC in both years (PIC = 0.78) compared to BL13 (PIC = 0.47 in 2022 and 0.45 in 2023). For this reason, we chose to maintain BTMS0057 and remove BL13 from further analyses.
+We found that BTMS0057 had higher PIC in both years (PIC = 0.78) compared to BL13 (PIC = 0.47 in 2022 and 0.45 in 2023). For this reason, we chose to maintain BTMS0057 and remove BL13 from further analyses for *B. impatiens*.
 
-After locus quality screening, we calculated global $F_{st}$ between sites to determine whether populations were in panmixia, or whether allele frequencies varied between sites. Moderate or high $F_{st}$ between sites would suggest that final siblingship assignments should be run separately to account for differences in allele frequencies between populations.
 
-```{r calculate Fst between sites, include = FALSE}
+## Calculate $F_{st}$ and $F_{is}$ between sites
+After locus quality screening, we calculated global and pairwise $F_{st}$ following @nei1987molecular in the package *hierfstat* [@goudetHierfstatPackageCompute2005].
+
+```{r calculate Fst between sites, include = FALSE, cache = TRUE}
 # load mixtus genepop files and make genind!
 file.copy("data/genepop/ms_genepop_format_mixtus2022.txt",
           "data/genepop/ms_genepop_format_mixtus2022.gen")
@@ -1011,25 +1015,24 @@ fst
 
 ```
 
-For both species and years, global $F_{st} < 0.005$, but to be doubly sure we additionally calculated Weir and Cockerham's pairwise $F_{st}$ between sites for each species and year.
 
-```{r calculate pairwise Fst, include = FALSE}
-pfst_imp2022 <- pairwise.WCfst(hf_imp2022)
-pfst_imp2023 <- pairwise.WCfst(hf_imp2023)
-pfst_mix2022 <- pairwise.WCfst(hf_mix2022)
-pfst_mix2023 <- pairwise.WCfst(hf_mix2023)
+```{r calculate pairwise Fst, include = FALSE, cache = TRUE}
+pfst_imp2022 <- pairwise.neifst(hf_imp2022)
+pfst_imp2023 <- pairwise.neifst(hf_imp2023)
+pfst_mix2022 <- pairwise.neifst(hf_mix2022)
+pfst_mix2023 <- pairwise.neifst(hf_mix2023)
 
-min(pfst_imp2022, na.rm = TRUE)
-min(pfst_imp2023, na.rm = TRUE)
-min(pfst_mix2022, na.rm = TRUE)
-min(pfst_mix2023, na.rm = TRUE)
+max(pfst_imp2022, na.rm = TRUE)
+max(pfst_imp2023, na.rm = TRUE)
+max(pfst_mix2022, na.rm = TRUE)
+max(pfst_mix2023, na.rm = TRUE)
 ```
-Pairwise $F_{st}$ ranged from -0.002 to 0.01, again providing no substantial evidence of population differentiation. [[Another note to Mike: I read that Fst can sometimes be negative if between population variance is estimated to be slightly smaller than within population variance, as an artifact of finite sampling, but that this mostly occurs when sample sizes are small or unequal. My sample sizes are unequal but the smallest sample size at a given site is 48. Would you just interpret this as some noise resulting from unequal sample size and round to 0, or should I be concerned?]]
 
+For both species and years, estimates of global $F_{st}$ were less than 0.005. Pairwise $F_{st}$ ranged from -0.002** to 0.01, indicating little or no genetic differentiation between surveyed sub-populations. [[**I read that $F_{st}$ can sometimes be negative if between population variance is estimated to be slightly smaller than within population variance, as an artifact of finite sampling--would you agree, and if so is it better to report like this or round to 0?]]
 
-Finally, we computed the effect of site on $F_{is}$ scores to determine whether inbreeding was present at some sites but not others, or in variable amounts.
+Finally, we computed the marginal mean $F_{is}$ for each site to determine whether there was evidence for inbreeding following locus removal, and whether it varied between sites.
 
-```{r check for site-level inbreeding, fig.width = 12, fig.align = "center", echo = FALSE}
+```{r check for site-level inbreeding, fig.width = 6, fig.height = 2.5, fig.align = "center", echo = FALSE, cache = TRUE}
 ######################
 # IMPATIENS
 ######################
@@ -1077,12 +1080,15 @@ mixtus_site = ggplot(emm_df, aes(x = site, y = emmean)) +
 # plot those puppies
 grid.arrange(mixtus_site, impatiens_site, ncol =2)
 ```
-[[Last note for Mike: does this $F_{is}$ or variation in $F_{is}$ seem sufficiently low to you? I think you mentioned that < 0.05 or 0.1 was probably okay to ignore? I also realized that COLONY 2.0 actually *can* handle inbreeding/deviations from HWE, but they state in the user manual that: "When inbreeding is present, a population level (average) inbreeding coefficient, equivalent to Wright’s FIS, is inferred iteratively with other parameters (e.g. relationship, allele frequencies) and is used for calculating genotype frequencies...Note that, for dioecious, the non-inbreeding model is recommended except when there is strong evidence of inbreeding and the inbreeding level is high. Otherwise, using the inbreeding model for data with low or no inbreeding could slow down the computation substantially with little or no improvement for the estimation of relationships."
 
-My conclusion from this would be that we should NOT ask the software to account for $F_{is}$ in this case, as it's probably unnecessary.
+## Finalize siblingship assignments
+We used our updated marker sets to more stringently assign siblingships. @jonesCOLONYProgramParentage2010 state that the inbreeding model in COLONY 2.0 should only be implemented for dioecious species when there is strong evidence for high levels of inbreeding. Because we found evidence for only minor inbreeding (e.g., $F_{is} < 0.05$) we ran all final colony assignments using the no-inbreeding model. Given the very low estimates of global and pairwise $F_{st}$, we chose to combine sites for siblingship assignments to maximize the accuracy of allele frequency estimation and to validate our methodology (described below) for excluding spurious siblingships.
 
-Given the very low $F_{st}$, **I also wonder whether you think it would be prudent to combine all sites for siblingship assignment (e.g., to improve estimation of allele frequencies by pooling data)**. The alternative would be to run the model 5* times for each population (e.g., 2 species * 2 years * 6 sites = 24 populations). I can run them on a server in parallel so time is not really an issue.
+[[I have not run the finalized colony assignments yet, bu the method I have come up with for excluding the spurious siblingships is to run COLONY 5 times for each population and only maintain the siblingships which occur with high probability in all of them. I will need to develop a simple heuristic for dealing with non-circular families (e.g., A related to B, B related to C, A not related to C). Currently I am thinking: (1) check if A is related to C in at least 3/5 runs of COLONY, (2) if yes to (1), keep the whole family. If no to (1), randomly draw a sib pair to maintain (AB or BC). This seems to happen only rarely from what I can see, so hopefully it won't be hugely problematic.]]
 
-*5 times per population is a technique that I have seen repeatedly in the literature--to avoid 'spurious siblingships', like the ones I mentioned to you last time we met. Apparently it's a common issue with COLONY, and people get around it by performing multiple runs and only maintaining the siblingships with occur with high probability in all of them. I tried it for one of my populations and sure enough all of the between-site siblingships (inviduals > 3km apart!) dropped out!]]
+
+
+
+\newpage
 
 
