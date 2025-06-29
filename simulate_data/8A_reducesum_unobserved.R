@@ -26,9 +26,11 @@ library(filelock)
 
 ##### Set Environment #####
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
-set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan")
+set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2.36.0")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
+#get start time
+start = Sys.time()
 
 ##### Load in some simulation data!! #####
 param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
@@ -90,6 +92,7 @@ fit <- mod$sample(
   init = 1
 )
 
+midpoint = Sys.time()
 
 ###### Post hoc calculations of colony_dist
 posterior_draws_matrix <- as_draws_matrix(fit$draws())
@@ -233,5 +236,12 @@ if (!is.null(lock)) {
     stop("Could not acquire lock on output file.")
   }
 
+end = Sys.time()
 
+print("Time for modelling:")
+print(midpoint-start)
+print("Time for posterior computations:")
+print(end-midpoint)
+print("Total time:")
+print(end-start)
 
