@@ -24,6 +24,7 @@ library(future.apply)
 library(posterior)
 library(filelock)
 
+
 ##### Set Environment #####
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan")
