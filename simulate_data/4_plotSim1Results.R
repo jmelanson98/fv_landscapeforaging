@@ -38,8 +38,8 @@ param_grid = readRDS(paste(sim_path, "param_grid.rds", sep = ""))
 ##### Check for errors in stan fit
 # list all .err files
 err_dir <- "simulate_data/logs"
-err_files <- list.files(err_dir, pattern = "^stan.*\\.err$", full.names = TRUE)
-out_files <- list.files(err_dir, pattern = "^stan.*\\.out$", full.names = TRUE)
+err_files <- list.files(err_dir, pattern = "^cmdstan.*\\.err$", full.names = TRUE)
+out_files <- list.files(err_dir, pattern = "^cmdstan.*\\.out$", full.names = TRUE)
 
 
 # Function to check each file
@@ -53,7 +53,8 @@ check_err_file <- function(file) {
     has_low_ess = any(grepl("Effective Samples Size", lines, ignore.case = TRUE)),
     has_error = any(grepl("error", lines, ignore.case = TRUE)),
     has_undefined = any(grepl("The following variables have undefined values", lines, ignore.case = TRUE)),
-    executed = any(grepl("Execution halted", lines, ignore.case = TRUE))
+    executed = any(grepl("Execution halted", lines, ignore.case = TRUE)),
+    unknown_error = any(grepl("finished unexpectedly!", lines, ignore.case = TRUE))
   )
 }
 
@@ -90,7 +91,7 @@ error_summary = left_join(error_summary, param_grid, by = "id")
 summary = left_join(error_summary, output_summary, by = "id")
 
 # plot results
-ggplot(summary, aes(x = rho, fill = executed)) +
+ggplot(summary, aes(x = distance_decay, fill = unknown_error)) +
   geom_bar() +
   theme_minimal()
 
@@ -275,6 +276,7 @@ sim_df = data.frame(matrix(nrow = 0, ncol = length(columns)))
 colnames(sim_df) = columns
 
 #reload full paramgrid
+sim_path = "simulate_data/exponentiated_quadratic_sim/"
 param_grid = readRDS(paste(sim_path, "param_grid.rds", sep = ""))
 
 for (sim in rownames(param_grid)){
