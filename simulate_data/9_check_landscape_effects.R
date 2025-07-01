@@ -25,9 +25,11 @@ library(tibble)
 library(ggpubr)
 
 ##### Set Environment #####
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
+setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
+#setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
 rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
+set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan")
 
 ##### Source functions #####
 source("simulate_data/src/GeneralizedSimFunctions.R")
@@ -62,19 +64,19 @@ yobs = result[[1]]
 colony_data = result[[2]]
 trap_data = result[[3]]
 
-# First try for only detected colonies
-yobs_detected = yobs[rowSums(yobs) >0,]
-colony_data_detected = colony_data[rowSums(yobs) > 0,]
+# # First try for only detected colonies
+# yobs_detected = yobs[rowSums(yobs) >0,]
+# colony_data_detected = colony_data[rowSums(yobs) > 0,]
 
 # Prep data list for Stan
 data = list()
-data$y = yobs_detected
+data$y = yobs
 data$C = nrow(data$y)
 data$K = ncol(data$y)
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
 data$lowerbound = 400
 data$upperbound = 1100
-data$landscape = colony_data_detected$landscape_metric
+data$landscape = colony_data$landscape_metric
 data$floral = trap_data$fq
 data$priorVa = 1
 data$priorCo = 3
@@ -82,12 +84,139 @@ data$rho_center = 3.5
 data$rho_sd = 0.5
 
 #select stan model to fit
-stanfile = paste("models/landscape_exp.stan")
+stanfile = paste("models/rs_landscape_exp.stan")
+
+# add grainsize to data list
+threads_per_chain = 4
+grainsize <- max(floor(data$C / (threads_per_chain * 5)), 1)
+data$grainsize = grainsize
+
+# compile model
+mod <- cmdstan_model(
+  "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/rs_landscape_exp.stan",
+  force_recompile = TRUE
+)
 
 #fit and save model
-stanFitLandscape = stan(file = stanfile,
-                  data = data, seed = 5838299,
-                  chains = 4, cores = 4,
-                  verbose = TRUE)
-saveRDS(stanFitAll, file="simulate_data/methods_comparison/observed_vs_unobserved/stanFitAll.RDS")
+print("Starting sampling.")
+fit <- mod$sample(
+  data = data,
+  chains = 4,
+  parallel_chains = 4,
+  threads_per_chain = threads_per_chain,
+  refresh = 100,
+  iter_warmup = 1000,
+  iter_sampling = 5000,
+  init = 1
+)
+
+
+saveRDS(fit, "simulate_data/methods_comparison/landscape_effects/lanscape_all.rds")
+posterior <- fit$draws(format = "df")
+write.csv(posterior, "simulate_data/methods_comparison/landscape_effects/landscape_all_draws.csv", row.names = FALSE)
+
+###### Post hoc calculations of colony_dist
+posterior_draws_matrix <- as_draws_matrix(fit$draws())
+
+# make a function to compute colony_dist for each draw
+compute_colony_dist_summary <- function(draw_row,
+                                        trap,
+                                        floral,
+                                        C,
+                                        K) {
+  # draw_row is a draws matrix with one row
+  
+  # put delta and zeta in proper format
+  delta <- matrix(NA, nrow = C, ncol = 2)
+  zeta <- rep(NA,C)
+  for (i in 1:C) {
+    delta1 <- paste0("delta[", i, ",1]")
+    delta2 <- paste0("delta[", i, ",2]")
+    delta[i,1] = draw_row[,delta1]
+    delta[i,2] = draw_row[,delta2]
+    zeta[i] <- draw_row[,paste0("zeta[", i, "]")]
+  }
+  
+  # put epsilon in proper format
+  eps <- rep(NA,K)
+  for (k in 1:K) {
+    eps[k] <- draw_row[,paste0("eps[", k, "]")]
+  }
+  
+  # get scalars
+  rho <- draw_row[,"rho"]
+  theta <- draw_row[,"theta"]
+  tau <- draw_row[,"tau"]
+  sigma <- draw_row[,"sigma"]
+  alpha <- 1e-12
+  
+  # hold space for temporary declarations
+  dis <- matrix(NA, nrow = C, ncol = K)
+  lambda <- matrix(NA, nrow = C, ncol = K)
+  colony_dist <- rep(0,C)
+  
+  # calculate dis and lambda
+  for (k in 1:K) {
+    for (i in 1:C) {
+      dis[i, k] <- sqrt((delta[i, 1] - trap[k, 1])^2 + (delta[i, 2] - trap[k, 2])^2)
+      lambda[i, k] <- dis[i, k] / (-rho * exp(theta * floral[k])) +
+        zeta[i] * sqrt(tau) + eps[k] * sqrt(sigma)
+    }
+  }
+  
+  # calculate per colony visitation
+  V <- rowSums(exp(lambda))
+  
+  # calculate per colony foraging distance
+  for (k in 1:K) {
+    colony_dist <- colony_dist + (dis[, k] * exp(lambda[, k]) / (V + alpha))
+  }
+  
+  # return mean foraging distances across colonies, for a single iteration
+  return(c(mean = mean(colony_dist), sd = sd(colony_dist)))
+}
+
+
+
+### Apply the function in parallel across draws!
+draws_per_chunk <- 100
+total_draws <- nrow(posterior_draws_matrix)
+chunk_starts <- seq(1, total_draws, by = draws_per_chunk)
+
+# set up future backend
+plan(multisession, workers = 8, gc = TRUE)
+
+# loop over chunks
+summary_stats_list <- list()
+for (start in chunk_starts) {
+  end <- min(start + draws_per_chunk - 1, total_draws)
+  print(paste0("Processing draws ", start, " to ", end))
+  
+  # subset the matrix for this chunk
+  chunk_draws <- posterior_draws_matrix[start:end,]
+  
+  # apply function in parallel to each row (draw)
+  chunk_start_time = Sys.time()
+  chunk_results <- future_lapply(1:nrow(chunk_draws), function(j) {
+    compute_colony_dist_summary(
+      draw_row = chunk_draws[j, ,drop = FALSE ],
+      trap = data$trap,
+      floral = data$floral,
+      C = data$C,
+      K = data$K
+    )
+  }
+  )
+  chunk_end_time = Sys.time()
+  print(paste0("Chunk time = ", chunk_end_time-chunk_start_time))
+  
+  # combine results
+  summary_stats_list[[length(summary_stats_list) + 1]] <- do.call(rbind, chunk_results)
+}
+print('done lapplying')
+
+# combine all into one matrix or data frame
+summary_stats_mat <- as.data.frame(do.call(rbind, summary_stats_list))
+write.csv(summary_stats_mat, "simulate_data/methods_comparison/landscape_effects/all_summary_stats.csv", row.names = FALSE)
+
 
