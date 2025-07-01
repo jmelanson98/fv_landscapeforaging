@@ -71,7 +71,7 @@ if (current_params$distance_decay == "exponential"){
 } else if (current_params$distance_decay == "exponentiated_quadratic"){
   mod_file <- "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/reduce_sum_expquad.stan"
 }
-mod <- cmdstan_model(mod_file, cpp_options = list(stan_threads = TRUE), force_recompile = TRUE)
+mod <- cmdstan_model(mod_file, cpp_options = list(stan_threads = TRUE))
 
 
 # add grainsize to data list
