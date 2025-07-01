@@ -9,6 +9,7 @@ functions {
                        matrix trap,
                        array[,] int y,
                        vector floral,
+                       vector landscape,
                        real rho,
                        real sigma_sqrt,
                        real tau_sqrt,
@@ -23,7 +24,7 @@ functions {
     for (i in start:end) {
   	for (k in 1:K) {
     		real dis = sqrt(square(delta[i, 1] - trap[k, 1]) + square(delta[i, 2] - trap[k, 2]));
-    		real lambda = dis[i,k]/(-rho*exp(alpha*landscape[i])) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+    		real lambda = dis/(-rho*exp(alpha*landscape[i])) + theta*floral[k] + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
     		total += poisson_log_lpmf(y[i,k] | lambda);
   }
 }
@@ -97,7 +98,7 @@ zeta ~ normal(0, 1);
 
 // calculate intensity using partial_log_lik function
 target += reduce_sum(partial_log_lik, colony_ids, grainsize,
-                     K, trap, y, floral,
+                     K, trap, y, floral, landscape,
                      rho, sigma_sqrt, tau_sqrt, mu, theta, alpha,
                      eps, zeta, delta);
 
