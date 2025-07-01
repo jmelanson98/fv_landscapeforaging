@@ -232,11 +232,25 @@ ggplot(summary[summary$model_approach == "singletons",], aes(x = numcolonies, fi
 ### Plot some figures of model accuracy
 ###############################################
 
-centroids = ggplot(sim_output[sim_output$model_approach == "centroids",], aes(x = true_average_foraging, y = model_average_foraging)) +
+accuracy = ggplot(sim_output, aes(x = true_average_foraging, y = model_average_foraging, color = model_approach)) +
   geom_point() +
   geom_abline(slope = 1, intercept = 0) +
-  xlim(c(0,300)) +
-  ylim(c(0,300)) +
+  #xlim(c(0,300)) +
+  #ylim(c(0,300)) +
+  theme_minimal()
+
+rhovsmu = ggplot(sim_output, aes(x = model_rho, y = model_mu, color = rho)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0) +
+  #xlim(c(0,300)) +
+  #ylim(c(0,300)) +
+  theme_minimal()
+
+rhoreturn = ggplot(sim_output, aes(x = rho, y = model_rho, color = model_approach)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0) +
+  #xlim(c(0,300)) +
+  #ylim(c(0,300)) +
   theme_minimal()
 
 summary = sim_output %>% group_by(rho, distance_decay, model_approach) %>%
