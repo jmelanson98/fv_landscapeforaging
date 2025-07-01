@@ -1,12 +1,3 @@
-##### Test accuracy of landscape effects #####
-# Script Initiated: June 15, 2025
-# By: Jenna Melanson
-# Goals:
-### Check whether models can accurately return estimates of landscape effects on foraging distance;
-### assuming that a "true" landscape metric value is known for each 
-
-
-##### Load packages #####
 library(cmdstanr)
 library(matrixStats)
 library(sp)
@@ -22,78 +13,57 @@ library(dplyr)
 library(tidyr)
 library(gridExtra)
 library(tibble)
-#library(ggpubr)
-
-##### Set Environment #####
+library(future.apply)
+library(posterior)
+library(filelock)
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
-#setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
 set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2.36.0")
 
-##### Source functions #####
-source("simulate_data/src/GeneralizedSimFunctions.R")
-
-##### Load in floral quality landscape #####
-fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
-fq = terra::rast(fq)
-
-##### Simulate some data with landscape effects on foraging distance #####
-result <- draw_bees_colony_restricted(
-  sample_size     = 1000,
-  landscape_size  = 1500,
-  colonygrid_size = 700,
-  trapgrid_size   = 300,
-  number_traps    = 25,
-  number_colonies = 2000,
-  colony_sizes    = rep(100, 2000),
-  rho            = 50,
-  theta           = 0.2,
-  alpha = 3.5,
-  resource_landscape = fq,
-  nesting_landscape = NULL,
-  distance_decay = "exponential"
+mod <- cmdstan_model(
+  "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/reduce_sum_nomu.stan",
+  force_recompile = TRUE
 )
 
-# Save results
-saveRDS(result, "simulate_data/methods_comparison/landscape_effects/simdata.rds")
-result = readRDS("simulate_data/methods_comparison/landscape_effects/simdata.rds")
-
-# Write outputs to variables
-yobs = result[[1]]
-colony_data = result[[2]]
-trap_data = result[[3]]
-
-# # First try for only detected colonies
-# yobs_detected = yobs[rowSums(yobs) >0,]
-# colony_data_detected = colony_data[rowSums(yobs) > 0,]
+##### Load in some simulation data!! #####
+task_id = 174
+param_grid = readRDS("simulate_data/methods_comparison/param_grid.rds")
+inputfilepath <- sprintf("simulate_data/methods_comparison/data/sim_result_%03d", task_id)
+yobs = readRDS(paste(inputfilepath, "/yobs.RDS", sep = ""))
+colony_data = readRDS(paste(inputfilepath, "/colonydata.RDS", sep = ""))
+trap_data = readRDS(paste(inputfilepath, "/trapdata.RDS", sep = ""))
+current_params = param_grid[param_grid$task_id == task_id,]
+print(current_params)
+print(current_params$model_approach)
 
 # Prep data list for Stan
 data = list()
-data$y = yobs
+
+# how much of simulation data to keep?
+if (current_params$model_approach == "all"){
+  data$y = yobs
+} else if (current_params$model_approach == "singletons"){
+  data$y = yobs[rowSums(yobs) >0,]
+} else if (current_params$model_approach == "doubletons"){
+  data$y = yobs[rowSums(yobs) >1,]
+}
+
 data$C = nrow(data$y)
 data$K = ncol(data$y)
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
 data$lowerbound = 400
 data$upperbound = 1100
-data$landscape = colony_data$landscape_metric
 data$floral = trap_data$fq
 data$priorVa = 1
-data$priorCo = 3
-data$rho_center = 3.5
+data$priorCo = 1
+data$rho_center = 4.5
 data$rho_sd = 0.5
 
-#select stan model to fit
-stanfile = paste("models/rs_landscape_exp.stan")
 
 # add grainsize to data list
 threads_per_chain = 4
 grainsize <- max(floor(data$C / (threads_per_chain * 5)), 1)
 data$grainsize = grainsize
 
-# compile model
-mod <- cmdstan_model(
-  "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/rs_landscape_exp.stan",
-  force_recompile = TRUE
-)
 
 #fit and save model
 print("Starting sampling.")
@@ -108,10 +78,9 @@ fit <- mod$sample(
   init = 1
 )
 
-
-saveRDS(fit, "simulate_data/methods_comparison/landscape_effects/lanscape_all.rds")
+saveRDS(fit, "simulate_data/methods_comparison/no_mu/fit.rds")
 posterior <- fit$draws(format = "df")
-write.csv(posterior, "simulate_data/methods_comparison/landscape_effects/landscape_all_draws.csv", row.names = FALSE)
+write.csv(posterior, "simulate_data/methods_comparison/no_mu/posterior_draws.csv", row.names = FALSE)
 
 ###### Post hoc calculations of colony_dist
 posterior_draws_matrix <- as_draws_matrix(fit$draws())
@@ -147,7 +116,7 @@ compute_colony_dist_summary <- function(draw_row,
   tau <- draw_row[,"tau"]
   sigma <- draw_row[,"sigma"]
   alpha <- 1e-12
-  
+
   # hold space for temporary declarations
   dis <- matrix(NA, nrow = C, ncol = K)
   lambda <- matrix(NA, nrow = C, ncol = K)
@@ -215,6 +184,5 @@ print('done lapplying')
 
 # combine all into one matrix or data frame
 summary_stats_mat <- as.data.frame(do.call(rbind, summary_stats_list))
-write.csv(summary_stats_mat, "simulate_data/methods_comparison/landscape_effects/all_summary_stats.csv", row.names = FALSE)
-
+write.csv(summary_stats_mat, "simulate_data/methods_comparison/no_mu/summary_stats.csv", row.names = FALSE)
 
