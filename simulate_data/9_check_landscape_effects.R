@@ -22,6 +22,7 @@ library(dplyr)
 library(tidyr)
 library(gridExtra)
 library(tibble)
+library(posterior)
 #library(ggpubr)
 
 ##### Set Environment #####
@@ -81,9 +82,6 @@ data$priorCo = 3
 data$rho_center = 3.5
 data$rho_sd = 0.5
 
-#select stan model to fit
-stanfile = paste("models/rs_landscape_exp.stan")
-
 # add grainsize to data list
 threads_per_chain = 4
 grainsize <- max(floor(data$C / (threads_per_chain * 5)), 1)
@@ -92,7 +90,7 @@ data$grainsize = grainsize
 # compile model
 mod <- cmdstan_model(
   "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/rs_landscape_exp.stan",
-  force_recompile = TRUE
+  force_recompile = TRUE, cpp_options = list(stan_threads = TRUE)
 )
 
 #fit and save model

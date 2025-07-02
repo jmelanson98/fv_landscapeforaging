@@ -1,3 +1,8 @@
+##### Test if model accuracy better without mu term #####
+# Script Initiated: July 1, 2025
+# By: Jenna Melanson
+
+
 library(cmdstanr)
 library(matrixStats)
 library(sp)
@@ -16,12 +21,13 @@ library(tibble)
 library(future.apply)
 library(posterior)
 library(filelock)
+
+### Set working directory and compile model
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2.36.0")
-
 mod <- cmdstan_model(
   "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/reduce_sum_nomu.stan",
-  force_recompile = TRUE
+  force_recompile = TRUE, cpp_options = list(stan_threads = TRUE)
 )
 
 ##### Load in some simulation data!! #####
