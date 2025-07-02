@@ -1,0 +1,227 @@
+Lmod Warning:
+-------------------------------------------------------------------------------
+The following dependent module(s) are not currently loaded: proj/9.2.0
+(required by: libgeotiff/1.7.1, libspatialite/5.1.0, gdal/3.9.1)
+-------------------------------------------------------------------------------
+
+
+
+This is cmdstanr version 0.9.0
+- CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+- Use set_cmdstan_path() to set the path to CmdStan
+- Use install_cmdstan() to install CmdStan
+Loading required package: lattice
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:raster’:
+
+    intersect, select, union
+
+The following object is masked from ‘package:matrixStats’:
+
+    count
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: ‘tidyr’
+
+The following object is masked from ‘package:raster’:
+
+    extract
+
+The following object is masked from ‘package:reshape2’:
+
+    smiths
+
+
+Attaching package: ‘gridExtra’
+
+The following object is masked from ‘package:dplyr’:
+
+    combine
+
+This is posterior version 1.6.1
+
+Attaching package: ‘posterior’
+
+The following objects are masked from ‘package:raster’:
+
+    %in%, match
+
+The following objects are masked from ‘package:stats’:
+
+    mad, sd, var
+
+The following objects are masked from ‘package:base’:
+
+    %in%, match
+
+CmdStan path set to: /home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2.36.0
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: Exception: poisson_log_lpmf: Log rate parameter is -nan, but must be not nan! (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 29, column 6 to column 49) (in '/tmp/RtmpzEueKy/model-3d62065a506277.stan', line 98, column 0 to line 101, column 39)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
