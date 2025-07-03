@@ -4,7 +4,7 @@
 #SBATCH --error=logs/test_%A_%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=8G
+#SBATCH --mem=12G
 #SBATCH --time=03:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
