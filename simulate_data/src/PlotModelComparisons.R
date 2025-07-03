@@ -239,7 +239,7 @@ accuracy = ggplot(sim_output, aes(x = true_average_foraging, y = model_average_f
   #ylim(c(0,300)) +
   theme_minimal()
 
-rhovsmu = ggplot(sim_output, aes(x = model_rho, y = model_mu, color = rho)) +
+rhovsmu = ggplot(sim_output, aes(x = model_rho, y = model_mu, color = model_approach)) +
   geom_point() +
   geom_abline(slope = 1, intercept = 0) +
   #xlim(c(0,300)) +
