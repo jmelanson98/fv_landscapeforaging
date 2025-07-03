@@ -24,7 +24,7 @@ functions {
     for (i in start:end) {
   	for (k in 1:K) {
     		real dis = sqrt(square(delta[i, 1] - trap[k, 1]) + square(delta[i, 2] - trap[k, 2]));
-    		real log_scale = log(rho) + alpha * landscape[i];
+    		real log_scale = log(rho) + alpha * landscape[k];
     		real lambda = -dis/exp(log_scale) + theta*floral[k] + mu + zeta[i]*tau_sqrt + eps[k]*sigma_sqrt;
     		total += poisson_log_lpmf(y[i,k] | lambda);
   }
@@ -42,7 +42,7 @@ array[C,K] int y; // counts of bees in traps
 real lowerbound; // uniform prior on colony location 
 real upperbound; // uniform prior on colony location
 vector[K] floral; // floral quality at traps
-vector[C] landscape; // landscape metric around each colony
+vector[K] landscape; // landscape metric around each trap
 real<lower=0> priorVa; // prior variance on std deviations
 real<lower=0> priorCo; // prior variance on other coefficients
 real<lower=0> rho_center; //prior median for length parameter, !! on log scale!!
