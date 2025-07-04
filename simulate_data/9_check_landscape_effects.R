@@ -33,29 +33,29 @@ set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2
 ##### Source functions #####
 source("simulate_data/src/GeneralizedSimFunctions.R")
 
-##### Load in floral quality landscape #####
-fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
-fq = terra::rast(fq)
-
-##### Simulate some data with landscape effects on foraging distance #####
-result <- draw_bees_colony_restricted(
-  sample_size     = 1000,
-  landscape_size  = 1500,
-  colonygrid_size = 700,
-  trapgrid_size   = 300,
-  number_traps    = 25,
-  number_colonies = 2000,
-  colony_sizes    = rep(100, 2000),
-  rho            = 50,
-  theta           = 0.2,
-  alpha = 3.5,
-  resource_landscape = fq,
-  nesting_landscape = NULL,
-  distance_decay = "exponential"
-)
-
-# Save results
-saveRDS(result, "simulate_data/methods_comparison/landscape_effects/simdata.rds")
+# ##### Load in floral quality landscape #####
+# fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
+# fq = terra::rast(fq)
+# 
+# ##### Simulate some data with landscape effects on foraging distance #####
+# result <- draw_bees_colony_restricted(
+#   sample_size     = 1000,
+#   landscape_size  = 1500,
+#   colonygrid_size = 700,
+#   trapgrid_size   = 300,
+#   number_traps    = 25,
+#   number_colonies = 2000,
+#   colony_sizes    = rep(100, 2000),
+#   rho            = 50,
+#   theta           = 0.2,
+#   alpha = 3.5,
+#   resource_landscape = fq,
+#   nesting_landscape = NULL,
+#   distance_decay = "exponential"
+# )
+# 
+# # Save results
+# saveRDS(result, "simulate_data/methods_comparison/landscape_effects/simdata.rds")
 result = readRDS("simulate_data/methods_comparison/landscape_effects/simdata.rds")
 
 # Write outputs to variables
