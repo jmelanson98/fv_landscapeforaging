@@ -89,7 +89,7 @@ data$grainsize = grainsize
 
 # compile model
 mod <- cmdstan_model(
-  "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/rs_landscape_exp.stan",
+  "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/rs_landscape_colonylevel.stan",
   force_recompile = TRUE, cpp_options = list(stan_threads = TRUE)
 )
 

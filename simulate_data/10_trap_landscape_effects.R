@@ -36,6 +36,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 
 ##### Simulate landscape characteristics "landscape" #####
 landscape_char = simulateLandscapeRaster(landscape_size = 1500, resource_range = 200)
+landscape_char = terra::rast(landscape_char)
 
 ##### Load in floral quality landscape #####
 fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
@@ -94,7 +95,7 @@ data$grainsize = grainsize
 
 # compile model
 mod <- cmdstan_model(
-  "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/rs_landscape_exp.stan",
+  "/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/models/rs_landscape_traplevel.stan",
   force_recompile = TRUE, cpp_options = list(stan_threads = TRUE)
 )
 

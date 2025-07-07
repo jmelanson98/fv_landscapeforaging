@@ -397,7 +397,9 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   trap_data = as.data.frame(cbind(trapid, coords))
   points <- terra::vect(trap_data[, c("trap_x", "trap_y")], geom = c("trap_x", "trap_y"), crs = crs(resource_landscape))
   trap_data$fq <- terra::extract(resource_landscape, points)[, 2]
+  print("Floral resource values extracted for traps")
   trap_data$landscape_metric <- terra::extract(configuration, points)[, 2]
+  print("Landscape values extracted for traps")
   print("Trap simulation complete.")
   
   # optional plotting step to visualize traps and colonies
