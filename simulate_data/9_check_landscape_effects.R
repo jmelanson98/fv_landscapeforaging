@@ -23,6 +23,7 @@ library(tidyr)
 library(gridExtra)
 library(tibble)
 library(posterior)
+library(future.apply)
 #library(ggpubr)
 
 ##### Set Environment #####

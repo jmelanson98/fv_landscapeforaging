@@ -30,16 +30,23 @@ simulateLandscapeRaster = function(landscape_size, # integer, same for x and y
                      beta = 0, model = vgm_model, nmax = 20)
   simulated_field <- predict(simulated, newdata = sp_points, nsim = 1)
   
+  grid[] <- simulated_field$sim1  # direct assignment for raster
+
+  plot(grid, main = "Simulated Resource Distribution (Brownian variogram)")
+  
+  return(grid)
+}
+
   # return as a raster
-  sim_df <- as.data.frame(simulated_field)
-  sim_rast <- grid
-  values(sim_rast) <- sim_df$sim1
+  #sim_df <- as.data.frame(simulated_field)
+  #sim_rast <- grid
+  #values(sim_rast) <- sim_df$sim1
   
   # plot
-  plot(sim_rast, main = "Simulated Resource Distribution (Brownian variogram)")
+  #plot(sim_rast, main = "Simulated Resource Distribution (Brownian variogram)")
   
-  return(sim_rast)
-}
+  #return(sim_rast)
+#}
 
 
 
