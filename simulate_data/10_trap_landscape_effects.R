@@ -35,8 +35,7 @@ set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2
 source("simulate_data/src/GeneralizedSimFunctions.R")
 
 ##### Simulate landscape characteristics "landscape" #####
-landscape_char = simulateLandscapeRaster(landscape_size = 1500, resource_range = 200)
-landscape_char = terra::rast(landscape_char)
+landscape_char = simulateLandscapeRaster(landscape_size = 150, resource_range = 20)
 
 ##### Load in floral quality landscape #####
 fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")

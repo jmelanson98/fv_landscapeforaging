@@ -30,23 +30,17 @@ simulateLandscapeRaster = function(landscape_size, # integer, same for x and y
                      beta = 0, model = vgm_model, nmax = 20)
   simulated_field <- predict(simulated, newdata = sp_points, nsim = 1)
   
-  grid[] <- simulated_field$sim1  # direct assignment for raster
-
-  plot(grid, main = "Simulated Resource Distribution (Brownian variogram)")
+  # now make a grid to convert to terra object
+  r_terra <- terra::rast(nrows = landscape_size, ncols = landscape_size,
+                         xmin = 0, xmax = landscape_size,
+                         ymin = 0, ymax = landscape_size)
   
-  return(grid)
+  values(r_terra) <- simulated_field$sim1
+
+  terra::plot(r_terra, main = "Simulated Resource Distribution (Brownian variogram)")
+  
+  return(r_terra)
 }
-
-  # return as a raster
-  #sim_df <- as.data.frame(simulated_field)
-  #sim_rast <- grid
-  #values(sim_rast) <- sim_df$sim1
-  
-  # plot
-  #plot(sim_rast, main = "Simulated Resource Distribution (Brownian variogram)")
-  
-  #return(sim_rast)
-#}
 
 
 
@@ -120,155 +114,6 @@ compute_visitation_on_raster <- function(colonies,
     total_vis = total_vis
   ))
 }
-
-
-##### compute visitation rates with landscape metrics specified for each colony
-compute_visitation_landscape_effects <- function(colonies, 
-                                         resource_quality_rast, 
-                                         rho, 
-                                         theta,
-                                         alpha,
-                                         distance_decay,
-                                         trap_data = trap_data,
-                                         number_colonies = number_colonies,
-                                         number_traps = number_traps) {
-  
-  # get coordinates for center of each pixel
-  xy_coords <- terra::crds(resource_quality_rast, df = TRUE)  # matrix of x and y
-  
-  
-  # flatten raster values into a vector
-  rq_vals <- values(resource_quality_rast)
-  
-  lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
-  trapcoords = as.matrix(trap_data[, c("trap_x", "trap_y")])
-  avg_distances <- numeric(nrow(colonies))
-  total_vis <- numeric(nrow(colonies))
-  
-  for (i in 1:nrow(colonies)) {
-    colony_x <- colonies$colony_x[i]
-    colony_y <- colonies$colony_y[i]
-    landscape = colonies$landscape_metric[i]
-    
-    # compute Euclidean distance from colony to each pixel
-    dx <- xy_coords[, 1] - colony_x
-    dy <- xy_coords[, 2] - colony_y
-    dist <- sqrt(dx^2 + dy^2)
-    
-    # compute visitation rate of colony at each pixel
-    if (distance_decay == "exponentiated_quadratic"){
-      visitation_vals <- exp(-0.5 * (dist / (rho*exp(alpha*landscape)))^2 + theta * rq_vals)
-    } else if (distance_decay == "exponential"){
-      visitation_vals <- exp(-dist / (rho*exp(alpha * landscape)) + theta * rq_vals)
-    } else {
-      print("Sorry, not a valid decay function.")
-    }
-    
-    total_visitation = sum(visitation_vals, na.rm = TRUE)
-    avg_distance = sum(visitation_vals * dist, na.rm = TRUE) / total_visitation
-    
-    visit_rast <- resource_quality_rast  # clone geometry
-    values(visit_rast) <- visitation_vals
-    
-    
-    # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
-    # pull out all trap visitation values for that colony
-    trap_vals <- terra::extract(visit_rast, trapcoords)
-    lambda_ik[i, ] <- trap_vals[, 1]
-    
-    # record average foraging distance and total visitation
-    avg_distances[i] <- avg_distance
-    total_vis[i] <- total_visitation
-    
-    # report
-    print(paste("Rho = ", rho, sep = ""))
-    print(paste("Edge density = ", landscape, sep = ""))
-    print(paste("Computed visitation for colony", i, sep = " "))
-    print(paste("Average foraging distance = ", avg_distance, sep = ""))
-  }
-  
-  return(list(
-    lambda_ik = lambda_ik,
-    avg_distances = avg_distances,
-    total_vis = total_vis
-  ))
-}
-
-
-
-
-##### compute visitation rates with landscape metrics specified for each colony
-compute_visitation_landscape_effects <- function(colonies, 
-                                         resource_quality_rast, 
-                                         rho, 
-                                         theta,
-                                         alpha,
-                                         distance_decay,
-                                         trap_data = trap_data,
-                                         number_colonies = number_colonies,
-                                         number_traps = number_traps) {
-  
-  # get coordinates for center of each pixel
-  xy_coords <- terra::crds(resource_quality_rast, df = TRUE)  # matrix of x and y
-  
-  
-  # flatten raster values into a vector
-  rq_vals <- values(resource_quality_rast)
-  
-  lambda_ik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
-  trapcoords = as.matrix(trap_data[, c("trap_x", "trap_y")])
-  avg_distances <- numeric(nrow(colonies))
-  total_vis <- numeric(nrow(colonies))
-  
-  for (i in 1:nrow(colonies)) {
-    colony_x <- colonies$colony_x[i]
-    colony_y <- colonies$colony_y[i]
-    landscape = colonies$landscape_metric[i]
-    
-    # compute Euclidean distance from colony to each pixel
-    dx <- xy_coords[, 1] - colony_x
-    dy <- xy_coords[, 2] - colony_y
-    dist <- sqrt(dx^2 + dy^2)
-    
-    # compute visitation rate of colony at each pixel
-    if (distance_decay == "exponentiated_quadratic"){
-      visitation_vals <- exp(-0.5 * (dist / (rho*exp(alpha*landscape)))^2 + theta * rq_vals)
-    } else if (distance_decay == "exponential"){
-      visitation_vals <- exp(-dist / (rho*exp(alpha * landscape)) + theta * rq_vals)
-    } else {
-      print("Sorry, not a valid decay function.")
-    }
-    
-    total_visitation = sum(visitation_vals, na.rm = TRUE)
-    avg_distance = sum(visitation_vals * dist, na.rm = TRUE) / total_visitation
-    
-    visit_rast <- resource_quality_rast  # clone geometry
-    values(visit_rast) <- visitation_vals
-    
-    
-    # calculate lambda_ik, e.g., visitation rates of each colony to specific traps
-    # pull out all trap visitation values for that colony
-    trap_vals <- terra::extract(visit_rast, trapcoords)
-    lambda_ik[i, ] <- trap_vals[, 1]
-    
-    # record average foraging distance and total visitation
-    avg_distances[i] <- avg_distance
-    total_vis[i] <- total_visitation
-    
-    # report
-    print(paste("Rho = ", rho, sep = ""))
-    print(paste("Edge density = ", landscape, sep = ""))
-    print(paste("Computed visitation for colony", i, sep = " "))
-    print(paste("Average foraging distance = ", avg_distance, sep = ""))
-  }
-  
-  return(list(
-    lambda_ik = lambda_ik,
-    avg_distances = avg_distances,
-    total_vis = total_vis
-  ))
-}
-
 
 
 ##### compute visitation rates with landscape metrics specified for each colony
