@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=12G
-#SBATCH --time=04:00:00
+#SBATCH --time=08:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 

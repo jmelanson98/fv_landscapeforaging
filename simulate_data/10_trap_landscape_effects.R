@@ -35,13 +35,14 @@ set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2
 source("simulate_data/src/GeneralizedSimFunctions.R")
 
 ##### Load in floral quality landscape #####
-fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
-fq = terra::rast(fq)
-print("testing fq")
-hasValues(fq)
+print('testing fq')
+fq = readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_003.rds")
+#fq = terra::rast(fq)
+#fq = terra::readValues(fq)
+terra::hasValues(fq)
 
 ##### Simulate landscape characteristics "landscape" #####
-landscape_char = simulateLandscapeRaster(landscape_size = 150, resource_range = 20)
+landscape_char = simulateLandscapeRaster(landscape_size = 1500, resource_range = 400)
 
 
 ##### Simulate some data with landscape effects on foraging distance #####
@@ -55,7 +56,7 @@ result <- draw_bees_colony_restricted(
   colony_sizes    = rep(100, 2000),
   rho            = 50,
   theta           = 0.2,
-  alpha = 0.2,
+  alpha = 0.5,
   resource_landscape = fq,
   configuration = landscape_char,
   nesting_landscape = NULL,
