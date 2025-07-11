@@ -153,17 +153,23 @@ colsToRemove = c("year",
                  "date", 
                  "julian_date", 
                  "BL15...1", 
-                 "BL15...2")
+                 "BL15...2",
+                 "BT28...1", 
+                 "BT28...2",
+                 "BL13...1", 
+                 "BL13...2",
+                 "BTMS0073...1", 
+                 "BTMS0073...2")
 impatiens2022 = impatiens2022[, !colnames(impatiens2022) %in% colsToRemove]
 impatiens2023 = impatiens2023[, !colnames(impatiens2023) %in% colsToRemove]
 
 #relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
 impatiens2022 = impatiens2022 %>% relocate(barcode_id)
-impatiens2022_forcolony = impatiens2022[rowSums(is.na(impatiens2022)) < 14,]
+impatiens2022_forcolony = impatiens2022[rowSums(is.na(impatiens2022)) <= 8,]
 impatiens2022_forcolony[is.na(impatiens2022_forcolony)] = 0
 
 impatiens2023 = impatiens2023 %>% relocate(barcode_id)
-impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) < 10,]
+impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) <= 8,]
 impatiens2023_forcolony[is.na(impatiens2023_forcolony)] = 0
 
 #write csvs for upload to colony
@@ -189,7 +195,7 @@ impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
                                 c("B96", 0, 0, 0.027),
                                 c("BTMS0059", 0, 0, 0.017),
                                 c("BTMS0081", 0, 0, 0.016),
-                                c("BL13", 0, 0, 0.011),
+                                #c("BL13", 0, 0, 0.011),
                                 c("BTMS0062", 0, 0, 0.022),
                                 c("B126", 0, 0, 0.01),
                                 c("BTERN01", 0, 0, 0.028),
@@ -197,13 +203,13 @@ impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
                                 c("BTMS0057", 0, 0, 0.017),
                                 c("BT30", 0, 0, 0.01),
                                 c("B10", 0, 0, 0.029),
-                                c("BTMS0083", 0, 0, 0.01),
-                                c("BTMS0073", 0, 0, 0.01),
-                                c("BT28", 0, 0, 0.01)
+                                c("BTMS0083", 0, 0, 0.01)
+                                #c("BTMS0073", 0, 0, 0.01),
+                                #c("BT28", 0, 0, 0.01)
                                 )
 
 write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates.txt", 
-            sep= "\t", col.names = FALSE, row.names = FALSE, quote = FALSE)
+            sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
 
 ###########################################
 # Prep sibship exclusion data for COLONY
@@ -306,13 +312,14 @@ write.table(
 # line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
 # line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
 # - Addition of exclusion threshold (0) for known paternity/maternity in cases wehre the number of known parentages is 0
-
+# If you do multiple runs, make sure to reset the seed for each!! you can do this by editing the text file rather than running
+# through the interactive bit every time
 
 # build .DAT files for both datasets
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2022.DAT", delim=",")
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2023.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2022_final1.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2023_final1.DAT", delim=",")
 
 # navigate to COLONY2 sub folder and run the following in terminal
 #NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
@@ -416,348 +423,4 @@ df_with_flags <- df_with_family %>%
   left_join(flag_df, by = "Family")
 
 
-
-############################################
-# Remove siblings before running genepop
-############################################
-
-# for 2022, join specimen dataframes from both years to include queens
-ctkeep = c("site", "round", "sample_pt", "sample_id", "year", "barcode_id", "active_flower", "final_id", "notes", "plate", "well")
-full = rbind(specimenData2022[,colnames(specimenData2022) %in% ctkeep],
-             specimenData2023[,colnames(specimenData2023) %in% ctkeep])
-nonsibs2022 = left_join(full, bestconfig2022, by = c("barcode_id" ="OffspringID")) %>%
-  filter(!is.na(ClusterIndex)) %>%
-  group_by(ClusterIndex) %>%
-  sample_n(1)
-
-testalleles2022 = impatiens2022_forcolony[impatiens2022_forcolony$barcode_id %in% nonsibs2022$barcode_id,]
-
-# repeat for 2023
-nonsibs2023 = left_join(specimenData2023, bestconfig2023, by = c("barcode_id" ="OffspringID")) %>%
-  filter(!is.na(ClusterIndex)) %>%
-  group_by(ClusterIndex) %>%
-  sample_n(1)
-
-testalleles2023 = impatiens2023_forcolony[impatiens2023_forcolony$barcode_id %in% nonsibs2023$barcode_id,]
-
-######################################
-# Prep alleles table for genepop
-#####################################
-
-### first for 2022! 
-#combine columns for each locus
-ms_i22 = data.table(testalleles2022)
-ms_i22[ms_i22 ==0] <- "000"
-
-
-i1 <- seq(1, length(ms_i22)-1, 2)
-i2 <- seq(2, length(ms_i22)-1, 2)
-msgenepop_i22 = ms_i22[, Map(paste,
-                         .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
-                         MoreArgs = list(sep="")), 
-                   by = "barcode_id"]
-colnames(msgenepop_i22) = c("barcode_id", "BT10", "B96", "BTMS0059", "BTMS0081",
-                        "BL13", "BTMS0062", "B126", "BTERN01","B124", "BTMS0057", 
-                        "BT30", "B10", "BTMS0083", "BTMS0073", "BT28")
-
-
-#select and join alleles
-
-#sort allele table by barcode ID
-msgenepop_i22 <- msgenepop_i22[order(msgenepop_i22$barcode_id),]
-msgenepop_i22$site = substring(msgenepop_i22$barcode_id, 1, 1)
-
-haplotypes_i22 <- as.data.frame(paste(msgenepop_i22$site, "_", msgenepop_i22$barcode_id, ","," ", 
-                                      msgenepop_i22$BT10," ", msgenepop_i22$B96, " ",
-                                      msgenepop_i22$BTMS0059," ", msgenepop_i22$BTMS0081, " ",
-                                      msgenepop_i22$BL13," ", msgenepop_i22$BTMS0062, " ",
-                                      msgenepop_i22$B126," ", msgenepop_i22$BTERN01, " ",
-                                      msgenepop_i22$B124," ", msgenepop_i22$BTMS0057," ",
-                                      msgenepop_i22$BT30," ", msgenepop_i22$B10, " ",
-                                      msgenepop_i22$BTMS0083," ", msgenepop_i22$BTMS0073," ",
-                                      msgenepop_i22$BT28,
-                                  sep = ""))
-
-#Build the Genepop format
-sink("data/genepop/ms_genepop_format_impatiens2022.txt")
-cat("Title: B. impatiens workers (2022) \n")
-cat("BT10 \n")
-cat("B96 \n")
-cat("BTMS0059 \n")
-cat("BTMS0081 \n")
-cat("BL13 \n")
-cat("BTMS0062 \n")
-cat("B126 \n")
-cat("BTERN01 \n")
-cat("B124 \n")
-cat("BTMS0057 \n")
-cat("BT30 \n")
-cat("B10 \n")
-cat("BTMS0083 \n")
-cat("BTMS0073 \n")
-cat("BT28 \n")
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i22[substring(haplotypes_i22[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-sink()
-
-
-# then again, for 2023!
-#combine columns for each locus
-ms_i23 = data.table(testalleles2023)
-ms_i23[ms_i23 ==0] <- "000"
-
-
-i1 <- seq(1, length(ms_i23)-1, 2)
-i2 <- seq(2, length(ms_i23)-1, 2)
-msgenepop_i23 = ms_i23[, Map(paste,
-                             .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
-                             MoreArgs = list(sep="")), 
-                       by = "barcode_id"]
-colnames(msgenepop_i23) = c("barcode_id", "BT10", "B96", "BTMS0059", "BTMS0081",
-                            "BL13", "BTMS0062", "B126", "BTERN01","B124", "BTMS0057", 
-                            "BT30", "B10", "BTMS0083", "BTMS0073", "BT28")
-
-
-#select and join alleles
-
-#sort allele table by barcode ID
-msgenepop_i23 <- msgenepop_i23[order(msgenepop_i23$barcode_id),]
-msgenepop_i23$site = substring(msgenepop_i23$barcode_id, 1, 1)
-
-haplotypes_i23 <- as.data.frame(paste(msgenepop_i23$site, "_", msgenepop_i23$barcode_id, ","," ", 
-                                      msgenepop_i23$BT10," ", msgenepop_i23$B96, " ",
-                                      msgenepop_i23$BTMS0059," ", msgenepop_i23$BTMS0081, " ",
-                                      msgenepop_i23$BL13," ", msgenepop_i23$BTMS0062, " ",
-                                      msgenepop_i23$B126," ", msgenepop_i23$BTERN01, " ",
-                                      msgenepop_i23$B124," ", msgenepop_i23$BTMS0057," ",
-                                      msgenepop_i23$BT30," ", msgenepop_i23$B10, " ",
-                                      msgenepop_i23$BTMS0083," ", msgenepop_i23$BTMS0073," ",
-                                      msgenepop_i23$BT28,
-                                      sep = ""))
-
-#Build the Genepop format
-sink("data/genepop/ms_genepop_format_impatiens2023.txt")
-cat("Title: B. impatiens workers (2023) \n")
-cat("BT10 \n")
-cat("B96 \n")
-cat("BTMS0059 \n")
-cat("BTMS0081 \n")
-cat("BL13 \n")
-cat("BTMS0062 \n")
-cat("B126 \n")
-cat("BTERN01 \n")
-cat("B124 \n")
-cat("BTMS0057 \n")
-cat("BT30 \n")
-cat("B10 \n")
-cat("BTMS0083 \n")
-cat("BTMS0073 \n")
-cat("BT28 \n")
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_i23[substring(haplotypes_i23[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-sink()
-
-######################################
-# Run genepop on samples
-#####################################
-
-#test for HWE
-test_HW("data/genepop/ms_genepop_format_impatiens2022.txt", which="Proba", "data/genepop/impatiensHWE2022.txt.D")
-test_HW("data/genepop/ms_genepop_format_impatiens2023.txt", which="Proba", "data/genepop/impatiensHWE2023.txt.D")
-
-#test for LD
-test_LD("data/genepop/ms_genepop_format_impatiens2022.txt","data/genepop/impatiensLD2022.txt.DIS")
-test_LD("data/genepop/ms_genepop_format_impatiens2023.txt","data/genepop/impatiensLD2023.txt.DIS")
-
-
-######################################
-# Auto-check LD results
-#####################################
-
-LD2022lines = readLines("data/genepop/impatiensLD2022.txt.DIS")
-split_linesLD2022 <- strsplit(LD2022lines, "\\s+")
-LD2022 = do.call(rbind, split_linesLD2022[13:482])
-colnames(LD2022) = LD2022[1,]
-colnames(LD2022)[colnames(LD2022) == 'P-Value'] = "pval"
-LD2022 = as.data.frame(LD2022[3:nrow(LD2022),])
-
-LD2023lines = readLines("data/genepop/impatiensLD2023.txt.DIS")
-split_linesLD2023 <- strsplit(LD2023lines, "\\s+")
-LD2023 = do.call(rbind, split_linesLD2023[13:482])
-colnames(LD2023) = LD2023[1,]
-colnames(LD2023)[colnames(LD2023) == 'P-Value'] = "pval"
-LD2023 = as.data.frame(LD2023[3:nrow(LD2023),])
-
-# check out loci that are below Bonferroni-corrected P-value
-alpha_imp = 3.9*10^-5
-
-LD2022_failed = LD2022[as.numeric(LD2022$pval) < alpha_imp,]
-LD2023_failed = LD2023[as.numeric(LD2023$pval) < alpha_imp, ]
-
-
-
-###########################################
-# Re-run COLONY with corrected locus sets
-###########################################
-
-##### prep genotype data for COLONY
-
-#remove all columns except barcode and scores
-# also remove loci with high error rates
-colsToRemove = c("year", 
-                 "final_id", 
-                 "notes", 
-                 "sample_id", 
-                 "date", 
-                 "julian_date", 
-                 "BL15...1", 
-                 "BL15...2",
-                 "BTMS0057...1",
-                 "BTMS0057...2")
-impatiens2022 = impatiens2022[, !colnames(impatiens2022) %in% colsToRemove]
-impatiens2023 = impatiens2023[, !colnames(impatiens2023) %in% colsToRemove]
-
-#relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
-impatiens2022 = impatiens2022 %>% relocate(barcode_id)
-impatiens2022_forcolony = impatiens2022[rowSums(is.na(impatiens2022)) < 12,]
-impatiens2022_forcolony[is.na(impatiens2022_forcolony)] = 0
-
-impatiens2023 = impatiens2023 %>% relocate(barcode_id)
-impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) < 12,]
-impatiens2023_forcolony[is.na(impatiens2023_forcolony)] = 0
-
-#write csvs for upload to colony
-column_names = colnames(impatiens2022_forcolony)
-
-write.table(impatiens2022_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2022_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(impatiens2023_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2023_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-
-
-write.csv(impatiens2022_forcolony, "data/merged_by_year/csvs/impatiens_2022_scores_finalloci.csv")
-write.csv(impatiens2023_forcolony, "data/merged_by_year/csvs/impatiens_2023_scores_finalloci.csv")
-
-# first value per column: marker name
-# second value per column: marker type (codominant for microsats -> 0)
-# third value per column: allelic dropout rate ?? (set to 0)
-# fourth value per column: error/mutation rate (empirically derived, see check_microsat_error_rates.R)
-impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
-                                   c("B96", 0, 0, 0.027),
-                                   c("BTMS0059", 0, 0, 0.017),
-                                   c("BTMS0081", 0, 0, 0.016),
-                                   c("BL13", 0, 0, 0.011),
-                                   c("BTMS0062", 0, 0, 0.022),
-                                   c("B126", 0, 0, 0.01),
-                                   c("BTERN01", 0, 0, 0.028),
-                                   c("B124", 0, 0, 0.011),
-                                   c("BT30", 0, 0, 0.01),
-                                   c("B10", 0, 0, 0.029),
-                                   c("BTMS0083", 0, 0, 0.01),
-                                   c("BTMS0073", 0, 0, 0.01),
-                                   c("BT28", 0, 0, 0.01)
-)
-write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_error_rates_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-
-##### No sibship exclusion this time??
-
-########################################
-# Generate .DAT file and run colony
-########################################
-# A few important notes!
-# For MacOS users: run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
-
-# Rcolony (a wrapper package for creating the .dat input file for COLONY2) is a 
-#bit out of date and is missing some important arguments. For this reason I have 
-# made some small updates to the package, available at https://github.com/jmelanson98/rcolony
-# Forked from the excellent original package at https://github.com/jonesor/rcolony
-
-# Changes include:
-# - Modification to the writing of siblingship exclusion table (remove excess padding of 
-# space at the end of lines)
-# - Addition of several arguments required by the latest version of COLONY2:
-# line 8 (after dioecious/monoecious): 0/1 for inbreeding (recommended for dioecious: no inbreeding (0))
-# line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
-# line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
-# - Addition of exclusion threshold (0) for known paternity/maternity in cases wehre the number of known parentages is 0
-
-
-# build .DAT files for both datasets
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022_1.DAT", delim=",")
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2023_1.DAT", delim=",")
-
-# navigate to COLONY2 sub folder and run the following in terminal
-#NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
-
-# cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
-# ./colony2s.out IFN:final/impatiens2022.DAT
-# ./colony2s.out IFN:final/impatiens.DAT
-
-
-
-#####################################
-## Load in results from colony UPDATE FROM HERE
-#####################################
-
-# read in and format 2022 data
-lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022_1.BestCluster"))
-split_lines2022 <- strsplit(lines2022, "\\s+")
-bestconfig2022 <- do.call(rbind, split_lines2022)
-colnames(bestconfig2022) <- bestconfig2022[1, ]
-bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
-bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
-
-# read in and format 2023 data
-lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2023_1.BestCluster"))
-split_lines2023 <- strsplit(lines2023, "\\s+")
-bestconfig2023 <- do.call(rbind, split_lines2023)
-colnames(bestconfig2023) <- bestconfig2023[1, ]
-bestconfig2023 <- as.data.frame(bestconfig2023[-1, ])
-bestconfig2023$Probability = as.numeric(bestconfig2023$Probability)
-
-# remove sibling relationships with p < 0.95
-counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
-for (i in 1:nrow(bestconfig2022)){
-  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
-  if (bestconfig2022$Probability[i] < 0.95){
-    bestconfig2022$ClusterIndex[i] = counter
-    counter = counter + 1
-  }
-}
-
-# repeat for 2023
-counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
-for (i in 1:nrow(bestconfig2023)){
-  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
-  if (bestconfig2023$Probability[i] < 0.95){
-    bestconfig2023$ClusterIndex[i] = counter
-    counter = counter + 1
-  }
-}
-
-#write csvs to file
-write.csv(bestconfig2022, "data/siblingships/imp_sibships_final_2022.csv")
-write.csv(bestconfig2023, "data/siblingships/imp_sibships_preliminary_2023.csv")
 

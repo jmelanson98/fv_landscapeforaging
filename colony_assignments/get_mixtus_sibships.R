@@ -150,7 +150,7 @@ unscoredmixtus = mixtus[rowSums(is.na(mixtus)) >10,]
 ##################################
 
 #remove all columns except barcode and scores
-# also remove loci with high error rates
+# also remove loci with high error rates and those out of equilibrium
 colsToRemove = c("year", 
                  "final_id", 
                  "notes", 
@@ -160,17 +160,23 @@ colsToRemove = c("year",
                  "BL15...1", 
                  "BL15...2", 
                  "BTMS0072...1", 
-                 "BTMS0072...2")
+                 "BTMS0072...2",
+                 "BTERN01...1",
+                 "BTERN01...1",
+                 "BTMS0104...1", 
+                 "BTMS0104...2",
+                 "BTMS0059...1", 
+                 "BTMS0059...2")
 mixtus2022 = mixtus2022[, !colnames(mixtus2022) %in% colsToRemove]
 mixtus2023 = mixtus2023[, !colnames(mixtus2023) %in% colsToRemove]
 
 #relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
 mixtus2022 = mixtus2022 %>% relocate(barcode_id)
-mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) < 10,]
+mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) <= 4,]
 mixtus2022_forcolony[is.na(mixtus2022_forcolony)] = 0
 
 mixtus2023 = mixtus2023 %>% relocate(barcode_id)
-mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) < 10,]
+mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) <= 4,]
 mixtus2023_forcolony[is.na(mixtus2023_forcolony)] = 0
 
 #write csvs for upload to colony
@@ -193,20 +199,20 @@ write.csv(mixtus2023_forcolony, "data/merged_by_year/csvs/mixtus_2023_scores.csv
 # third value per column: allelic dropout rate ?? (set to 0)
 # fourth value per column: error/mutation rate (empirically derived, see check_microsat_error_rates.R)
 mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
-                         c("BTMS0104", 0, 0, 0.01),
+                         #c("BTMS0104", 0, 0, 0.01),
                          c("BTMS0057", 0, 0, 0.01),
                          c("BTMS0086", 0, 0, 0.015),
                          c("BTMS0066", 0, 0, 0.01),
                          c("BTMS0062", 0, 0, 0.015),
                          c("BTMS0136", 0, 0, 0.01),
-                         c("BTERN01", 0, 0, 0.0215),
+                         #c("BTERN01", 0, 0, 0.0215),
                          c("BTMS0126", 0, 0, 0.0162),
-                         c("BTMS0059", 0, 0, 0.01),
+                         #c("BTMS0059", 0, 0, 0.01),
                          c("BL13", 0, 0, 0.0159),
                          c("BTMS0083", 0, 0, 0.01),
                          c("B126", 0, 0, 0.01))
 write.table(mixtus_error_rates, "data/merged_by_year/error_rates/mixtus_error_rates.txt", 
-            sep= "\t", col.names = FALSE, row.names = FALSE, quote = FALSE)
+            sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
 
 ###########################################
 # Prep sibship exclusion data for COLONY
@@ -312,10 +318,10 @@ write.table(
 
 
 # build .DAT files for both datasets
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/mixtus2022.DAT", delim=",")
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/mixtus2023.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/mixtus2022_final1.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/mixtus2023_final1.DAT", delim=",")
 
 # navigate to COLONY2 sub folder and run the following in terminal
 #NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
@@ -466,355 +472,3 @@ df_with_family <- consistentdyad_2022 %>%
 
 df_with_flags <- df_with_family %>%
   left_join(flag_df, by = "Family")
-
-############################################
-# Remove siblings before running genepop
-############################################
-nonsibs2022 = left_join(specimenData2022, bestconfig2022, by = c("barcode_id" ="OffspringID")) %>%
-  filter(!is.na(ClusterIndex)) %>%
-  group_by(ClusterIndex) %>%
-  sample_n(1)
-
-testalleles2022 = mixtus2022_forcolony[mixtus2022_forcolony$barcode_id %in% nonsibs2022$barcode_id,]
-
-
-nonsibs2023 = left_join(specimenData2023, bestconfig2023, by = c("barcode_id" ="OffspringID")) %>%
-  filter(!is.na(ClusterIndex)) %>%
-  group_by(ClusterIndex) %>%
-  sample_n(1)
-
-testalleles2023 = mixtus2023_forcolony[mixtus2023_forcolony$barcode_id %in% nonsibs2023$barcode_id,]
-
-######################################
-# Prep alleles table for genepop
-#####################################
-
-#combine columns for each locus
-ms_m22 = data.table(testalleles2022)
-ms_m22[ms_m22 ==0] <- "000"
-
-
-i1 <- seq(1, length(ms_m22)-1, 2)
-i2 <- seq(2, length(ms_m22)-1, 2)
-msgenepop_m22 = ms_m22[, Map(paste,
-                         .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
-                         MoreArgs = list(sep="")), 
-                   by = "barcode_id"]
-colnames(msgenepop_m22) = c("barcode_id", "BT10", "BTMS0104", "BTMS0057", "BTMS0086",
-                        "BTMS0066", "BTMS0062", "BTMS0136","BTERN01", "BTMS0126", 
-                        "BTMS0059", "BL13", "BTMS0083", "B126")
-
-
-#select and join alleles
-
-#sort allele table by barcode ID
-msgenepop_m22 <- msgenepop_m22[order(msgenepop_m22$barcode_id),]
-msgenepop_m22$site = substring(msgenepop_m22$barcode_id, 1, 1)
-
-haplotypes_m22 <- as.data.frame(paste(msgenepop_m22$site, "_", msgenepop_m22$barcode_id, ","," ", 
-                                      msgenepop_m22$BT10," ", msgenepop_m22$BTMS0104, " ",
-                                      msgenepop_m22$BTMS0057," ", msgenepop_m22$BTMS0086, " ",
-                                      msgenepop_m22$BTMS0066," ", msgenepop_m22$BTMS0062, " ",
-                                      msgenepop_m22$BTMS0136," ", msgenepop_m22$BTERN01, " ",
-                                      msgenepop_m22$BTMS0126," ", msgenepop_m22$BTMS0059," ",
-                                      msgenepop_m22$BL13," ", msgenepop_m22$BTMS0083, " ",
-                                      msgenepop_m22$B126,
-                                  sep = ""))
-
-#Build the Genepop format
-sink("data/genepop/ms_genepop_format_mixtus2022.txt")
-cat("Title: B. mixtus workers (2022) \n")
-cat("BT10 \n")
-cat("BTMS0104 \n")
-cat("BTMS0057 \n")
-cat("BTMS0086 \n")
-cat("BTMS0066 \n")
-cat("BTMS0062 \n")
-cat("BTMS0136 \n")
-cat("BTERN01 \n")
-cat("BTMS0126 \n")
-cat("BTMS0059 \n")
-cat("BL13 \n")
-cat("BTMS0083 \n")
-cat("B126 \n")
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m22[substring(haplotypes_m22[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-sink()
-
-
-
-######################################
-# Run genepop on samples
-#####################################
-
-#test for HWE
-test_HW("data/genepop/ms_genepop_format_mixtus2022.txt", which="Proba", "data/genepop/mixtusHWE2022.txt.D")
-
-#test for LD
-test_LD("data/genepop/ms_genepop_format_mixtus2022.txt","data/genepop/mixtusLD2022.txt.DIS")
-
-
-
-######################################
-# Repeat for 2023 mixtus !
-#####################################
-
-##### Prepare alleles table for genepop
-
-#combine columns for each locus
-ms_m23 = data.table(testalleles2023)
-ms_m23[ms_m23 ==0] <- "000"
-
-i1 <- seq(1, length(ms_m23)-1, 2)
-i2 <- seq(2, length(ms_m23)-1, 2)
-msgenepop_m23 = ms_m23[, Map(paste,
-                             .SD[, i1, with = FALSE], .SD[, i2, with = FALSE], 
-                             MoreArgs = list(sep="")), 
-                       by = "barcode_id"]
-colnames(msgenepop_m23) = c("barcode_id", "BT10", "BTMS0104", "BTMS0057", "BTMS0086",
-                            "BTMS0066", "BTMS0062", "BTMS0136","BTERN01", "BTMS0126", 
-                            "BTMS0059", "BL13", "BTMS0083", "B126")
-
-
-#select and join alleles
-
-#sort allele table by barcode ID
-msgenepop_m23 <- msgenepop_m23[order(msgenepop_m23$barcode_id),]
-msgenepop_m23$site = substring(msgenepop_m23$barcode_id, 1, 1)
-
-haplotypes_m23 <- as.data.frame(paste(msgenepop_m23$site, "_", msgenepop_m23$barcode_id, ","," ", 
-                                      msgenepop_m23$BT10," ", msgenepop_m23$BTMS0104, " ",
-                                      msgenepop_m23$BTMS0057," ", msgenepop_m23$BTMS0086, " ",
-                                      msgenepop_m23$BTMS0066," ", msgenepop_m23$BTMS0062, " ",
-                                      msgenepop_m23$BTMS0136," ", msgenepop_m23$BTERN01, " ",
-                                      msgenepop_m23$BTMS0126," ", msgenepop_m23$BTMS0059," ",
-                                      msgenepop_m23$BL13," ", msgenepop_m23$BTMS0083, " ",
-                                      msgenepop_m23$B126,
-                                      sep = ""))
-
-#Build the Genepop format
-sink("data/genepop/ms_genepop_format_mixtus2023.txt")
-cat("Title: B. mixtus workers (2023) \n")
-cat("BT10 \n")
-cat("BTMS0104 \n")
-cat("BTMS0057 \n")
-cat("BTMS0086 \n")
-cat("BTMS0066 \n")
-cat("BTMS0062 \n")
-cat("BTMS0136 \n")
-cat("BTERN01 \n")
-cat("BTMS0126 \n")
-cat("BTMS0059 \n")
-cat("BL13 \n")
-cat("BTMS0083 \n")
-cat("B126 \n")
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "E",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "W",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "S",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "N",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "P",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-invisible(apply(as.data.frame(haplotypes_m23[substring(haplotypes_m23[,1],1,1) == "H",]), 1,function(x) cat(x,"\n")))
-cat("Pop \n")
-sink()
-
-
-
-######################################
-# Run genepop on samples
-#####################################
-
-#test for HWE
-test_HW("data/genepop/ms_genepop_format_mixtus2023.txt", which="Proba", "data/genepop/mixtusHWE2023.txt.D")
-
-#test for LD
-test_LD("data/genepop/ms_genepop_format_mixtus2023.txt","data/genepop/mixtusLD2023.txt.DIS")
-
-
-######################################
-# Auto-check LD results
-#####################################
-
-LD2022lines = readLines("data/genepop/mixtusLD2022.txt.DIS")
-split_linesLD2022 <- strsplit(LD2022lines, "\\s+")
-LD2022 = do.call(rbind, split_linesLD2022[13:482])
-colnames(LD2022) = LD2022[1,]
-colnames(LD2022)[colnames(LD2022) == 'P-Value'] = "pval"
-LD2022 = as.data.frame(LD2022[3:nrow(LD2022),])
-
-LD2023lines = readLines("data/genepop/mixtusLD2023.txt.DIS")
-split_linesLD2023 <- strsplit(LD2023lines, "\\s+")
-LD2023 = do.call(rbind, split_linesLD2023[13:482])
-colnames(LD2023) = LD2023[1,]
-colnames(LD2023)[colnames(LD2023) == 'P-Value'] = "pval"
-LD2023 = as.data.frame(LD2023[3:nrow(LD2023),])
-
-# check out loci that are below Bonferroni-corrected P-value
-alpha_mix = 5.3*10^-5
-
-LD2022_failed = LD2022[as.numeric(LD2022$pval) < alpha_mix,]
-LD2023_failed = LD2023[as.numeric(LD2023$pval) < alpha_mix, ]
-
-
-##########################################
-# Re-run COLONY with corrected locus sets
-##########################################
-
-##### prep genotype data
-
-#remove all columns except barcode and scores
-# also discard loci with high errors or out of HWE/LD
-colsToRemove = c("year", 
-                 "final_id", 
-                 "notes", 
-                 "sample_id", 
-                 "date", 
-                 "julian_date", 
-                 "BL15...1", 
-                 "BL15...2", 
-                 "BTMS0072...1", 
-                 "BTMS0072...2",
-                 "BTERN01...1",
-                 "BTERN01...2")
-mixtus2022 = mixtus2022[, !colnames(mixtus2022) %in% colsToRemove]
-mixtus2023 = mixtus2023[, !colnames(mixtus2023) %in% colsToRemove]
-
-#relocate barcode, remove rows with more than 8 NAs, replace NAs with 0's
-# changing this to let some queens that were sequenced on impatiens plate pass the NA filter...
-mixtus2022 = mixtus2022 %>% relocate(barcode_id)
-mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) < 12,]
-mixtus2022_forcolony[is.na(mixtus2022_forcolony)] = 0
-
-mixtus2023 = mixtus2023 %>% relocate(barcode_id)
-mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) < 12,]
-mixtus2023_forcolony[is.na(mixtus2023_forcolony)] = 0
-
-#write csvs for upload to colony
-column_names = colnames(mixtus2022_forcolony)
-
-write.table(mixtus2022_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2022_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(mixtus2023_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2023_forcolony_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-
-
-write.csv(mixtus2022_forcolony, "data/merged_by_year/csvs/mixtus_2022_scores_finalloci.csv")
-write.csv(mixtus2023_forcolony, "data/merged_by_year/csvs/mixtus_2023_scores_finalloci.csv")
-
-
-##### prep microsat error rates
-
-# first value per column: marker name
-# second value per column: marker type (codominant for microsats -> 0)
-# third value per column: allelic dropout rate ?? (set to 0)
-# fourth value per column: error/mutation rate (empirically derived, see check_microsat_error_rates.R)
-mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
-                                c("BTMS0104", 0, 0, 0.01),
-                                c("BTMS0057", 0, 0, 0.01),
-                                c("BTMS0086", 0, 0, 0.015),
-                                c("BTMS0066", 0, 0, 0.01),
-                                c("BTMS0062", 0, 0, 0.015),
-                                c("BTMS0136", 0, 0, 0.01),
-                                c("BTMS0126", 0, 0, 0.0162),
-                                c("BTMS0059", 0, 0, 0.01),
-                                c("BL13", 0, 0, 0.0159),
-                                c("BTMS0083", 0, 0, 0.01),
-                                c("B126", 0, 0, 0.01))
-write.table(mixtus_error_rates, "data/merged_by_year/error_rates/mixtus_error_rates_finalloci.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-
-###### No sibship exclusion this time...
-
-########################################
-# Generate .DAT file and run colony
-########################################
-# A few important notes!
-# For MacOS users: run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
-
-# Rcolony (a wrapper package for creating the .dat input file for COLONY2) is a 
-#bit out of date and is missing some important arguments. For this reason I have 
-# made some small updates to the package, available at https://github.com/jmelanson98/rcolony
-# Forked from the excellent original package at https://github.com/jonesor/rcolony
-
-# Changes include:
-# - Modification to the writing of siblingship exclusion table (remove excess padding of 
-# space at the end of lines)
-# - Addition of several arguments required by the latest version of COLONY2:
-# line 8 (after dioecious/monoecious): 0/1 for inbreeding (recommended for dioecious: no inbreeding (0))
-# line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
-# line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
-# - Addition of exclusion threshold (0) for known paternity/maternity in cases wehre the number of known parentages is 0
-
-
-# build .DAT files for both datasets
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2022_1.DAT", delim=",")
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2023_1.DAT", delim=",")
-
-# navigate to COLONY2 sub folder and run the following in terminal
-#NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
-
-# cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
-# ./colony2s.out IFN:final/mixtus2022_1.DAT
-# ./colony2s.out IFN:final/mixtus2023_1.DAT
-
-
-
-#####################################
-## Load in results from colony UPDATE FROM HERE
-#####################################
-
-# read in and format 2022 data
-lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2022_1.BestCluster"))
-split_lines2022 <- strsplit(lines2022, "\\s+")
-bestconfig2022 <- do.call(rbind, split_lines2022)
-colnames(bestconfig2022) <- bestconfig2022[1, ]
-bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
-bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
-
-# read in and format 2023 data
-lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/mixtus2023_1.BestCluster"))
-split_lines2023 <- strsplit(lines2023, "\\s+")
-bestconfig2023 <- do.call(rbind, split_lines2023)
-colnames(bestconfig2023) <- bestconfig2023[1, ]
-bestconfig2023 <- as.data.frame(bestconfig2023[-1, ])
-bestconfig2023$Probability = as.numeric(bestconfig2023$Probability)
-
-# remove sibling relationships with p < 0.95
-counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
-for (i in 1:nrow(bestconfig2022)){
-  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
-  if (bestconfig2022$Probability[i] < 0.95){
-    bestconfig2022$ClusterIndex[i] = counter
-    counter = counter + 1
-  }
-}
-
-# repeat for 2023
-counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
-for (i in 1:nrow(bestconfig2023)){
-  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
-  if (bestconfig2023$Probability[i] < 0.95){
-    bestconfig2023$ClusterIndex[i] = counter
-    counter = counter + 1
-  }
-}
-
-
-#write csvs to file
-write.csv(bestconfig2022, "data/siblingships/mix_sibships_final_2022.csv")
-write.csv(bestconfig2023, "data/siblingships/mix_sibships_final_2023.csv")
