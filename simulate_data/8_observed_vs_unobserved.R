@@ -72,8 +72,8 @@ yobs_detected = yobs[rowSums(yobs) > 0,]
 data = list()
 data$K = 25
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
-data$lowerbound = 400
-data$upperbound = 1100
+data$lowerbound = 0
+data$upperbound = 1500
 data$floral = trap_data$fq
 data$priorVa = 1
 data$priorCo = 1
@@ -81,7 +81,7 @@ data$rho_center = 4.5
 data$rho_sd = 0.5
 
 
-data$y = yobs_detected
+data$y = yobs
 data$C = nrow(data$y)
 
 
@@ -89,11 +89,10 @@ data$C = nrow(data$y)
 stanfile = paste("models/exponential.stan")
 
 #fit and save model
-stanFitObserved = stan(file = stanfile,
+stanFitAll_widerlimit = stan(file = stanfile,
                data = data, seed = 5838299,
                chains = 4, cores = 4,
-               control = list(max_treedepth = 15),
-               iter = 10000,
+               iter = 2000,
                verbose = TRUE)
 saveRDS(stanFitAll, file="simulate_data/methods_comparison/observed_vs_unobserved/stanFitAll.RDS")
 

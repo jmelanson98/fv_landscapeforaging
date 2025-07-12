@@ -32,40 +32,40 @@ setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2.36.0")
 
 ##### Source functions #####
-source("simulate_data/src/GeneralizedSimFunctions.R")
-
-##### Load in floral quality landscape #####
-print('testing fq')
-fq = readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_003.rds")
-#fq = terra::rast(fq)
-#fq = terra::readValues(fq)
-terra::hasValues(fq)
-
-##### Simulate landscape characteristics "landscape" #####
-landscape_char = simulateLandscapeRaster(landscape_size = 1500, resource_range = 400)
-
-
-##### Simulate some data with landscape effects on foraging distance #####
-result <- draw_bees_colony_restricted(
-  sample_size     = 1000,
-  landscape_size  = 1500,
-  colonygrid_size = 700,
-  trapgrid_size   = 300,
-  number_traps    = 25,
-  number_colonies = 2000,
-  colony_sizes    = rep(100, 2000),
-  rho            = 50,
-  theta           = 0.2,
-  alpha = 0.5,
-  resource_landscape = fq,
-  configuration = landscape_char,
-  nesting_landscape = NULL,
-  distance_decay = "exponential"
-)
+# source("simulate_data/src/GeneralizedSimFunctions.R")
+# 
+# ##### Load in floral quality landscape #####
+# print('testing fq')
+# fq = readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_003.rds")
+# #fq = terra::rast(fq)
+# #fq = terra::readValues(fq)
+# terra::hasValues(fq)
+# 
+# ##### Simulate landscape characteristics "landscape" #####
+# landscape_char = simulateLandscapeRaster(landscape_size = 1500, resource_range = 400)
+# 
+# 
+# ##### Simulate some data with landscape effects on foraging distance #####
+# result <- draw_bees_colony_restricted(
+#   sample_size     = 1000,
+#   landscape_size  = 1500,
+#   colonygrid_size = 700,
+#   trapgrid_size   = 300,
+#   number_traps    = 25,
+#   number_colonies = 2000,
+#   colony_sizes    = rep(100, 2000),
+#   rho            = 50,
+#   theta           = 0.2,
+#   alpha = 0.5,
+#   resource_landscape = fq,
+#   configuration = landscape_char,
+#   nesting_landscape = NULL,
+#   distance_decay = "exponential"
+# )
 
 # Save results
-saveRDS(result, "simulate_data/methods_comparison/landscape_effects/traplevel_simdata.rds")
-#result = readRDS("simulate_data/methods_comparison/landscape_effects/traplevel_simdata.rds")
+#saveRDS(result, "simulate_data/methods_comparison/landscape_effects/trap-centric/traplevel_simdata.rds")
+result = readRDS("simulate_data/methods_comparison/landscape_effects/trap-centric/traplevel_simdata.rds")
 
 # Write outputs to variables
 yobs = result[[1]]
@@ -73,12 +73,12 @@ colony_data = result[[2]]
 trap_data = result[[3]]
 
 # # First try for only detected colonies
-# yobs_detected = yobs[rowSums(yobs) >0,]
-# colony_data_detected = colony_data[rowSums(yobs) > 0,]
+yobs_detected = yobs[rowSums(yobs) >0,]
+colony_data_detected = colony_data[rowSums(yobs) > 0,]
 
 # Prep data list for Stan
 data = list()
-data$y = yobs
+data$y = yobs_detected
 data$C = nrow(data$y)
 data$K = ncol(data$y)
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
@@ -116,9 +116,9 @@ fit <- mod$sample(
 )
 
 
-saveRDS(fit, "simulate_data/methods_comparison/landscape_effects/lanscape_all_traplevel.rds")
+saveRDS(fit, "simulate_data/methods_comparison/landscape_effects/lanscape_observed_traplevel_widerlimits.rds")
 posterior <- fit$draws(format = "df")
-write.csv(posterior, "simulate_data/methods_comparison/landscape_effects/traplevel_landscape_all_draws_.csv", row.names = FALSE)
+write.csv(posterior, "simulate_data/methods_comparison/landscape_effects/traplevel_landscape_observed_widerlimits_draws_.csv", row.names = FALSE)
 
 ###### Post hoc calculations of colony_dist
 # posterior_draws_matrix <- as_draws_matrix(fit$draws())
