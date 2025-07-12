@@ -1,0 +1,98 @@
+Lmod Warning:
+-------------------------------------------------------------------------------
+The following dependent module(s) are not currently loaded: proj/9.2.0
+(required by: libgeotiff/1.7.1, libspatialite/5.1.0, gdal/3.9.1)
+-------------------------------------------------------------------------------
+
+
+
+Loading required package: lattice
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:raster’:
+
+    intersect, select, union
+
+The following object is masked from ‘package:matrixStats’:
+
+    count
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: ‘tidyr’
+
+The following object is masked from ‘package:raster’:
+
+    extract
+
+The following object is masked from ‘package:reshape2’:
+
+    smiths
+
+
+Attaching package: ‘gridExtra’
+
+The following object is masked from ‘package:dplyr’:
+
+    combine
+
+This is posterior version 1.6.1
+
+Attaching package: ‘posterior’
+
+The following objects are masked from ‘package:raster’:
+
+    %in%, match
+
+The following objects are masked from ‘package:stats’:
+
+    mad, sd, var
+
+The following objects are masked from ‘package:base’:
+
+    %in%, match
+
+terra 1.8.54
+
+Attaching package: ‘terra’
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+Loading required package: Matrix
+
+Attaching package: ‘Matrix’
+
+The following objects are masked from ‘package:tidyr’:
+
+    expand, pack, unpack
+
+
+Attaching package: ‘lme4’
+
+The following object is masked from ‘package:raster’:
+
+    getData
+
+Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'i' in selecting a method for function '[': could not find function "ceil"
+Calls: [ -> .handleSimpleError -> h
+In addition: Warning messages:
+1: In trap_data$trap_x - doubleton_colonies$mean_x :
+  longer object length is not a multiple of shorter object length
+2: In abs(trap_data$trap_x - doubleton_colonies$mean_x) * row :
+  longer object length is not a multiple of shorter object length
+3: In trap_data$trap_y - doubleton_colonies$mean_y :
+  longer object length is not a multiple of shorter object length
+4: In abs(trap_data$trap_y - doubleton_colonies$mean_y) * row :
+  longer object length is not a multiple of shorter object length
+Execution halted
