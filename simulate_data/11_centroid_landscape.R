@@ -38,6 +38,7 @@ fq = readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape
 ##### Simulate landscape characteristics "landscape" #####
 landscape_char = simulateLandscapeRaster(landscape_size = 1500, resource_range = 400)
 saveRDS(landscape_char, "simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
+#landscape_char = readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
 
 ##### Simulate some data with landscape effects on foraging distance #####
 result <- draw_bees_colony_restricted(
@@ -49,7 +50,7 @@ result <- draw_bees_colony_restricted(
   number_colonies = 2000,
   colony_sizes    = rep(100, 2000),
   rho            = 50,
-  theta           = 0.2,
+  theta           = 0.5,
   alpha = 0.5,
   resource_landscape = fq,
   configuration = landscape_char,
@@ -59,7 +60,7 @@ result <- draw_bees_colony_restricted(
 
 # Save results
 saveRDS(result, "simulate_data/methods_comparison/landscape_effects/centroids/simdata.rds")
-#result = readRDS("simulate_data/methods_comparison/landscape_effects/traplevel_simdata.rds")
+#result = readRDS("simulate_data/methods_comparison/landscape_effects/centroids/simdata.rds")
 
 # Write outputs to variables
 yobs = result[[1]]
@@ -84,10 +85,12 @@ for (i in 1:nrow(ydoubleton)){
   doubleton_colonies$mean_dist[i] = sqrt(x_dist^2 + y_dist^2)
   
   # landscape value at mean center
-  doubleton_colonies$center_landscape[i] = landscape_char[ceil(doubleton_colonies$mean_x[i]), ceil(doubleton_colonies$mean_y[i])]
+  doubleton_colonies$center_landscape[i] = landscape_char[ceiling(doubleton_colonies$mean_x[i]), ceiling(doubleton_colonies$mean_y[i])]
   
 }
 
+# set center_landscape values to numeric? right now they're a list?
+doubleton_colonies$center_landscape = as.numeric(doubleton_colonies$center_landscape)
 
 # Linear model of mean_dist ~ landscape
 regression = lm(mean_dist ~ center_landscape, data = doubleton_colonies)
@@ -95,12 +98,11 @@ summary(regression)
 
 
 # Lil plot
-mean_center_plot = ggplot(doubleton_colonies, aes(x = mean_dist, y = center_landscape)) +
-  geom_point +
+mean_center_plot = ggplot(doubleton_colonies, aes(x = center_landscape, y = mean_dist)) +
+  geom_point() +
   xlab("Landscape characteristic at mean center") +
   ylab("Colony mean foraging distance") +
-  theme_minimal() +
-  stat_summary(fun.data= mean_cl_normal) + 
+  theme_minimal() + 
   geom_smooth(method='lm')
 
 ggsave("simulate_data/methods_comparison/landscape_effects/centroids/mean_center_plot", mean_center_plot,
