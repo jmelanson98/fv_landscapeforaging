@@ -75,16 +75,16 @@ for (i in 1:nrow(ydoubleton)){
   row = ydoubleton[i,]
   
   #mean center
-  doubleton_colonies$mean_x = sum(row*trap_data$trap_x)/sum(row)
-  doubleton_colonies$mean_y = sum(row*trap_data$trap_y)/sum(row)
+  doubleton_colonies$mean_x[i] = sum(row*trap_data$trap_x)/sum(row)
+  doubleton_colonies$mean_y[i] = sum(row*trap_data$trap_y)/sum(row)
   
   #mean distance of workers from mean center
-  x_dist = sum(abs(trap_data$trap_x - doubleton_colonies$mean_x)*row)/sum(row)
-  y_dist = sum(abs(trap_data$trap_y - doubleton_colonies$mean_y)*row)/sum(row)
-  doubleton_colonies$mean_dist = sqrt(x_dist^2 + y_dist^2)
+  x_dist = sum(abs(trap_data$trap_x - doubleton_colonies$mean_x[i])*row)/sum(row)
+  y_dist = sum(abs(trap_data$trap_y - doubleton_colonies$mean_y[i])*row)/sum(row)
+  doubleton_colonies$mean_dist[i] = sqrt(x_dist^2 + y_dist^2)
   
   # landscape value at mean center
-  doubleton_colonies$center_landscape = landscape_char[ceil(doubleton_colonies$mean_x), ceil(doubleton_colonies$mean_y)]
+  doubleton_colonies$center_landscape[i] = landscape_char[ceil(doubleton_colonies$mean_x[i]), ceil(doubleton_colonies$mean_y[i])]
   
 }
 

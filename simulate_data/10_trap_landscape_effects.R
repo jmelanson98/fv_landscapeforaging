@@ -29,7 +29,7 @@ library(terra)
 ##### Set Environment #####
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 #setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
-set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan/cmdstan-2.36.0")
+set_cmdstan_path("/home/melanson/projects/def-ckremen/melanson/cmdstan")
 
 ##### Source functions #####
 # source("simulate_data/src/GeneralizedSimFunctions.R")
