@@ -10,7 +10,6 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 # first, load in packages
 source('colony_assignments/src/init.R')
-source('colony_assignments/src/joinFunctions.R')
 source('colony_assignments/src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
@@ -564,7 +563,7 @@ singletons2022 <- data.frame(
 
 #combine the two dataframes and save
 impatiens2022colonies = rbind(sibship2022, singletons2022)
-write.csv(impatiens2022colonies, "impatiens_sibships_2022.csv", row.names = FALSE)
+write.csv(impatiens2022colonies, "data/siblingships/impatiens_sibships_2022.csv", row.names = FALSE)
 
 
 ###############################################################################
@@ -807,4 +806,4 @@ singletons2023 <- data.frame(
 
 #combine the two dataframes and save
 impatiens2023colonies = rbind(sibship2023, singletons2023)
-write.csv(impatiens2023colonies, "impatiens_sibships_2023.csv", row.names = FALSE)
+write.csv(impatiens2023colonies, "data/siblingships/impatiens_sibships_2023.csv", row.names = FALSE)
