@@ -11,6 +11,7 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 # first, load in packages
 source('colony_assignments/src/init.R')
 source('colony_assignments/src/joinFunctions.R')
+source('colony_assignments/src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -224,7 +225,6 @@ excluded_sibships_2022 = list()
 excluded_sibships_2023 = list()
 sample.names.2022 = impatiens2022_forcolony[,1]
 sample.names.2023 = impatiens2023_forcolony[,1]
-'%!in%' <- function(x,y)!('%in%'(x,y))
 
 for (i in 1:6){
   site = sites[i]
@@ -334,14 +334,6 @@ rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_la
 ## Load in results from colony
 #####################################
 
-# read in dyad data from COLONY
-fsDyad2022_1 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2022_final1.FullSibDyad"))
-fsDyad2022_2 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2022_final2.FullSibDyad"))
-fsDyad2022_3 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2022_final3.FullSibDyad"))
-fsDyad2022_4 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2022_final4.FullSibDyad"))
-fsDyad2022_5 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2022_final5.FullSibDyad"))
-
-# format properly
 list_of_results = list()
 for (i in 1:5){
   # read in dyad data from COLONY
@@ -360,14 +352,11 @@ for (i in 1:5){
   list_of_results[[i]] = bestdyads2022
 }
 
+######################################
+## Retain dyads present in all 5 runs
+######################################
 
-# retain dyads which are present in all 5 runs
 # first, collapse pairs into an ordered character string
-collapse <- function(df) {
-  apply(df, 1, function(row) paste(sort(row[c("OffspringID1", "OffspringID2")]), collapse = "-"))
-}
-
-# generate pairs
 pairs_df1 <- collapse(list_of_results[[1]])
 pairs_df2 <- collapse(list_of_results[[2]])
 pairs_df3 <- collapse(list_of_results[[3]])
@@ -388,7 +377,7 @@ bestdyads2022$in5 =  in_df5
 bestdyads2022$inall = in_df2 & in_df3 & in_df4 & in_df5
 bestdyads2022$num_true = 1 + rowSums(bestdyads2022[,colnames(bestdyads2022) %in% c("in2", "in3", "in4", "in5")])
 
-# subset to the consistent subset
+# subset to the consistent dyads
 consistentdyad_2022 = bestdyads2022[bestdyads2022$inall ==TRUE,]
 
 
@@ -396,44 +385,37 @@ consistentdyad_2022 = bestdyads2022[bestdyads2022$inall ==TRUE,]
 ### Identify missing links to establish complete cliques
 ###########################################################
 
-missing_links <- list()
+# make igraph object
+edges = consistentdyad_2022[, c("OffspringID1", "OffspringID2")]
+graph_22 = graph_from_data_frame(d = edges, directed = FALSE)
+components <- decompose(graph_22)
 
-for (i in seq_len(components$no)) {
-  member_names <- V(graph_22)[components$membership == i]$name
-  subgraph <- induced_subgraph(graph_22, vids = member_names)
-  
-  # Total number of nodes
-  n <- vcount(subgraph)
-  
-  # Total number of edges in a clique of size n
-  expected_edges <- n * (n - 1) / 2
-  
-  # If not a clique, find missing links
-  if (ecount(subgraph) < expected_edges) {
-    # Get all possible pairs of nodes (unordered)
-    node_pairs <- t(combn(member_names, 2))
+missing_links = lapply(components, function(comp) {
+  if (!is_clique(comp)){
+    # get all possible pairs of nodes (unordered)
+    nodes = V(comp)$name
+    node_pairs = t(combn(nodes, 2))
     
-    # Filter out pairs that already have an edge
+    # filter out pairs that already have an edge
     missing <- apply(node_pairs, 1, function(pair) {
-      !are_adjacent(subgraph, pair[1], pair[2])
+      !are_adjacent(comp, pair[1], pair[2])
     })
     
-    # Format missing edges like "A-B"
-    missing_names <- apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+    # make collapsed pair names for eaching missing link
+    missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
       paste(sort(pair), collapse = "-")
     })
     
-    df <- data.frame(
-      component = i,
+    df = data.frame(
       missing_pair = missing_names,
       stringsAsFactors = FALSE
     )
-    missing_links[[length(missing_links) + 1]] <- df
+    return(df)
   }
-}
+})
 
 # Combine all rows into one dataframe
-missing_df <- do.call(rbind, missing_links)
+missing_df = do.call(rbind, missing_links)
 
 
 #########################################################
@@ -484,44 +466,16 @@ gooddyads2022$pairname = collapse(gooddyads2022)
 partial99 = gooddyads2022[gooddyads2022$pairname %in% missing_df$missing_pair,]
 
 # add these to consistent dyad
-final_set_2022 = rbind(consistentdyad_2022, partial99[,!colnames(partial99) %in% c("pairname", "num_true")])
+intermediate_set_2022 = rbind(consistentdyad_2022, partial99[,!colnames(partial99) %in% c("pairname", "num_true")])
 
 ###########################################################
 ### Create graph object and plot families as components
 ###########################################################
 
-# get edges (links between siblings)
-edges = consistentdyad_2022[, c("OffspringID1", "OffspringID2")]
-
-# make igraph object from edges
-graph_22 = graph_from_data_frame(d = edges, directed = FALSE)
-
-# find connected components (families)
-components <- components(graph_22)
-
 # initialize edge color vector
 igraph::E(graph_22)$color <- rep("gray", ecount(graph_22))
 
-# # loop through and check for circularity
-# for (i in seq_len(components$no)) {
-#   subgraph_nodes <- which(components$membership == i)
-#   subgraph <- induced_subgraph(graph_22, subgraph_nodes)
-#   n = gorder(subgraph)
-#   
-#   expected_edges <- n * (n - 1) / 2
-#   actual_edges <- gsize(subgraph)
-#   
-#   noncircular = actual_edges < expected_edges
-#   print(noncircular)
-#   
-#   if (noncircular){
-#     edge_ids <- igraph::E(graph_22)[.from(V(subgraph)$name) & .to(V(subgraph)$name)]
-#     print(edge_ids)
-#     igraph::E(graph_22)[edge_ids]$color = rep("red", length(edge_ids))
-#   }
-# }
-
-# color in the links that we added
+# color in the new links as we add them
 new_edges = unlist(str_split(partial99$pairname, "-"))
 graph_22 <- add_edges(graph_22, new_edges)
 new_edge_ids <- (ecount(graph_22) - (length(new_edges)/2) + 1):ecount(graph_22)
@@ -529,36 +483,11 @@ igraph::E(graph_22)$color[new_edge_ids] <- "black"
 
 #color in all the links that are still missing
 still_missing = missing_df[!missing_df$missing_pair %in% partial99$pairname,]
-#still_missing = still_missing %>%
-#  separate(col = missing_pair, into = c("sib1", "sib2"), sep = "-")
-missing_edges = unlist(str_split(still_missing$missing_pair, "-"))
+missing_edges = unlist(str_split(still_missing, "-"))
 graph_22_withmissing <- add_edges(graph_22, missing_edges)
 new_edge_ids <- (ecount(graph_22_withmissing) - (length(new_edges)/2) + 1):ecount(graph_22_withmissing)
 igraph::E(graph_22_withmissing)$color[new_edge_ids] <- "red"
 
-# set size and label
-V(graph_22)$label = V(graph_22)$name
-V(graph_22)$size <- 2
-V(graph_22)$label.cex <- 0.6
-
-# Set consistent layout
-#set.seed(123)
-layout <- layout_with_fr(graph_22)
-
-
-# save
-png("figures/manuscript_figures/impatiens2022_familystructure.png", width = 2000, height = 2000)
-imp22 = plot(graph_22,
-             layout = layout,
-             vertex.label.cex = 0.6,
-             vertex.label.color = "black",
-             edge.width = 2,
-             main = "Impatiens Family Structures in 2022")
-dev.off()
-
-
-
-# now with missing links plotted
 # set size and label
 V(graph_22_withmissing)$label = V(graph_22_withmissing)$name
 V(graph_22_withmissing)$size <- 4
@@ -579,6 +508,56 @@ plot(graph_22_withmissing,
 dev.off()
 
 
+###########################################################
+### Remove links to create circular cliques
+###########################################################
+
+# make graph
+edges = intermediate_set_2022[, c("OffspringID1", "OffspringID2")]
+graph_22 = graph_from_data_frame(d = edges, directed = FALSE)
+components <- decompose(graph_22)
+
+# For each component, keep only the largest clique
+filtered_components <- lapply(components, function(comp) {
+  if (is_clique(comp)) {
+    return(comp)
+  } else {
+    cliques <- largest_cliques(comp)
+    # randomly choose one if there's a tie
+    chosen_clique <- sample(cliques, 1)[[1]]
+    # induce subgraph on that clique
+    return(induced_subgraph(comp, chosen_clique))
+  }
+})
+
+# Recombine the components into a single graph
+final_graph <- do.call(disjoint_union, filtered_components)
+
+# color by family
+V(final_graph)$family_id = components$membership
+num_families <- components$no
+family_colors <- rainbow(num_families)
+V(graph_22)$color = family_colors[V(graph_22)$family_id]
+
+png("figures/manuscript_figures/impatiens2022_familystructure.png", width = 2000, height = 2000)
+plot(final_graph,
+     vertex.label = name,
+     vertex.label.cex = 0.6,
+     vertex.label.color = "black",
+     edge.width = 2,
+     vertex.size = 2,
+     main = "Impatiens Family Structures in 2022")
+dev.off()
+
+
+
+
+
+
+
+
+
+
 
 # assign component membership as a vertex attribute
 V(graph_22)$family_id = components$membership
@@ -587,104 +566,3 @@ V(graph_22)$family_id = components$membership
 num_families <- components$no
 family_colors <- rainbow(num_families)
 V(graph_22)$color <- family_colors[V(graph_22)$family_id]
-
-
-
-
-
-
-
-
-# assign family ID to each individual
-membership_df <- data.frame(
-  OffspringID = names(components$membership),
-  Family = components$membership
-)
-
-# then, check for non-circularity (e.g., A related to B, B related to C, A not related to C)
-flags <- lapply(unique(membership_df$Family), function(fam_id) {
-  nodes <- membership_df$OffspringID[membership_df$Family == fam_id]
-  subg <- induced_subgraph(graph_22, vids = nodes)
-  
-  n <- gorder(subg)
-  expected_edges <- n * (n - 1) / 2
-  actual_edges <- gsize(subg)
-  
-  data.frame(Family = fam_id, FlagIncomplete = actual_edges < expected_edges)
-})
-
-flag_df <- bind_rows(flags)
-
-# add flags to output
-df_with_family = consistentdyad_2022 %>%
-  left_join(membership_df, by = c("OffspringID1" = "OffspringID")) %>%
-  rename(Family = Family)
-
-df_with_flags = df_with_family %>%
-  left_join(flag_df, by = "Family")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### OLD IMPATIENS STUFF
-dyads2022_1 = do.call(rbind, strsplit(fsDyad2022_1, ","))
-colnames(dyads2022_1) = dyads2022_1[1,]
-dyads2022_1 = as.data.frame(dyads2022_1[-1,])
-dyads2022_1$Probability = as.numeric(dyads2022_1$Probability)
-
-
-# remove sibpairs below threshold probability (p = 1)
-bestdyads2022_filtered = bestdyads2022 %>% filter(Probability == 1)
-
-# make an undirected graph of families
-graph_22 <- graph_from_data_frame(bestdyads2022_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
-
-# find connected components (families)
-components <- components(graph_22)
-
-# assign family ID to each individual
-membership_df <- data.frame(
-  OffspringID = names(components$membership),
-  Family = components$membership
-)
-
-# then, check for non-circularity (e.g., A related to B, B related to C, A not related to C)
-flags <- lapply(unique(membership_df$Family), function(fam_id) {
-  nodes <- membership_df$OffspringID[membership_df$Family == fam_id]
-  subg <- induced_subgraph(graph_22, vids = nodes)
-  
-  n <- gorder(subg)
-  expected_edges <- n * (n - 1) / 2
-  actual_edges <- gsize(subg)
-  
-  data.frame(Family = fam_id, FlagIncomplete = actual_edges < expected_edges)
-})
-
-flag_df <- bind_rows(flags)
-
-# add flags to output
-df_with_family <- bestdyads2022_filtered %>%
-  left_join(membership_df, by = c("OffspringID1" = "OffspringID")) %>%
-  rename(Family = Family)
-
-df_with_flags <- df_with_family %>%
-  left_join(flag_df, by = "Family")
-
-
-
