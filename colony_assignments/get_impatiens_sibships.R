@@ -484,7 +484,7 @@ igraph::E(graph_22)$color[new_edge_ids] <- "black"
 still_missing = missing_df[!missing_df$missing_pair %in% partial99$pairname,]
 missing_edges = unlist(str_split(still_missing, "-"))
 graph_22_withmissing <- add_edges(graph_22, missing_edges)
-new_edge_ids <- (ecount(graph_22_withmissing) - (length(new_edges)/2) + 1):ecount(graph_22_withmissing)
+new_edge_ids <- (ecount(graph_22_withmissing) - (length(missing_edges)/2) + 1):ecount(graph_22_withmissing)
 igraph::E(graph_22_withmissing)$color[new_edge_ids] <- "red"
 
 # save
@@ -728,7 +728,7 @@ igraph::E(graph_23)$color[new_edge_ids] <- "black"
 still_missing = missing_df[!missing_df$missing_pair %in% partial99$pairname,]
 missing_edges = unlist(str_split(still_missing, "-"))
 graph_23_withmissing <- add_edges(graph_23, missing_edges)
-new_edge_ids <- (ecount(graph_23_withmissing) - (length(new_edges)/2) + 1):ecount(graph_23_withmissing)
+new_edge_ids <- (ecount(graph_23_withmissing) - (length(missing_edges)/2) + 1):ecount(graph_23_withmissing)
 igraph::E(graph_23_withmissing)$color[new_edge_ids] <- "red"
 
 # save
@@ -807,3 +807,4 @@ singletons2023 <- data.frame(
 #combine the two dataframes and save
 impatiens2023colonies = rbind(sibship2023, singletons2023)
 write.csv(impatiens2023colonies, "data/siblingships/impatiens_sibships_2023.csv", row.names = FALSE)
+
