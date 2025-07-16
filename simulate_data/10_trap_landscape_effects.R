@@ -116,9 +116,9 @@ fit <- mod$sample(
 )
 
 
-saveRDS(fit, "simulate_data/methods_comparison/landscape_effects/lanscape_observed_traplevel.rds")
+saveRDS(fit, "simulate_data/methods_comparison/landscape_effects/trap-centric/landscape_observed_traplevel.rds")
 posterior <- fit$draws(format = "df")
-write.csv(posterior, "simulate_data/methods_comparison/landscape_effects/traplevel_landscape_observed_draws_.csv", row.names = FALSE)
+write.csv(posterior, "simulate_data/methods_comparison/landscape_effects/trap-centric/traplevel_landscape_observed_draws.csv", row.names = FALSE)
 
 ###### Post hoc calculations of colony_dist
 # posterior_draws_matrix <- as_draws_matrix(fit$draws())

@@ -105,5 +105,5 @@ mean_center_plot = ggplot(doubleton_colonies, aes(x = center_landscape, y = mean
   theme_minimal() + 
   geom_smooth(method='lm')
 
-ggsave("simulate_data/methods_comparison/landscape_effects/centroids/mean_center_plot", mean_center_plot,
+ggsave("simulate_data/methods_comparison/landscape_effects/centroids/mean_center_plot.png", mean_center_plot,
        width = 500, height = 500, units = "px")
