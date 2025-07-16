@@ -81,7 +81,7 @@ data$rho_center = 4.5
 data$rho_sd = 0.5
 
 
-data$y = yobs
+data$y = yobs_detected
 data$C = nrow(data$y)
 
 
@@ -94,7 +94,7 @@ stanFitAll_widerlimit = stan(file = stanfile,
                chains = 4, cores = 4,
                iter = 2000,
                verbose = TRUE)
-saveRDS(stanFitAll, file="simulate_data/methods_comparison/observed_vs_unobserved/stanFitAll.RDS")
+saveRDS(stanFitwiderlimit, file="simulate_data/methods_comparison/observed_vs_unobserved/stanFitWiderLimit.RDS")
 
 # load in the other model
 stanFitObserved = readRDS("simulate_data/methods_comparison/observed_vs_unobserved/stanFitObserved.RDS")
