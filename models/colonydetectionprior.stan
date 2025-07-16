@@ -1,13 +1,17 @@
 //Pope & Jha, 2017, Cons. Genetics
 // Modified to use rho rather than beta parametrization of length scale
+// Includes soft prior on colony location (for detection probability at different spatial locations)
+// right now as a normal distribution, but would be better if it were a function of distance to trap (e.g., colonies close to traps
+// are more likely to be detected)
 
 data {
 int<lower=1> C; // number of colonies 
 int<lower=1> K; // number of traps
 matrix[K, 2] trap; // trap coordinates 
 int y[C, K]; // counts of bees in traps
-real lowerbound; // uniform prior on colony location 
-real upperbound; // uniform prior on colony location
+real lowerbound; // hard bound on colony location 
+real upperbound; // hard bound on colony location
+real nestrange; // soft prior on *detected* colony locations
 vector[K] floral; // floral quality at traps
 real<lower=0> priorVa; // prior variance on std deviations
 real<lower=0> priorCo; // prior variance on other coefficients
@@ -48,6 +52,9 @@ tau ~ normal(0, priorVa);
 rho ~ lognormal(rho_center, rho_sd);
 mu ~ normal(0, priorCo); 
 theta ~ normal(0, priorCo);
+for (c in 1:C){
+  delta[c] ~ normal(750, nestrange);
+}
 
 // random effects for traps
 eps ~ normal(0, 1); 

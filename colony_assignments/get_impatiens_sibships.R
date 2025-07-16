@@ -10,7 +10,7 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 # first, load in packages
 source('colony_assignments/src/init.R')
-source('colony_assignments/src/joinFunctions.R')
+source('colony_assignments/src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -224,7 +224,6 @@ excluded_sibships_2022 = list()
 excluded_sibships_2023 = list()
 sample.names.2022 = impatiens2022_forcolony[,1]
 sample.names.2023 = impatiens2023_forcolony[,1]
-'%!in%' <- function(x,y)!('%in%'(x,y))
 
 for (i in 1:6){
   site = sites[i]
@@ -334,93 +333,478 @@ rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_la
 ## Load in results from colony
 #####################################
 
-# read in and format 2022 data
-lines2022 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022_1.BestCluster"))
-split_lines2022 <- strsplit(lines2022, "\\s+")
-bestconfig2022 <- do.call(rbind, split_lines2022)
-colnames(bestconfig2022) <- bestconfig2022[1, ]
-bestconfig2022 <- as.data.frame(bestconfig2022[-1, ])
-bestconfig2022$Probability = as.numeric(bestconfig2022$Probability)
-
-
-# read in and format 2023 data
-lines2023 <- trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/initial/impatiens2023.BestCluster"))
-split_lines2023 <- strsplit(lines2023, "\\s+")
-bestconfig2023 <- do.call(rbind, split_lines2023)
-colnames(bestconfig2023) <- bestconfig2023[1, ]
-bestconfig2023 <- as.data.frame(bestconfig2023[-1, ])
-bestconfig2023$Probability = as.numeric(bestconfig2023$Probability)
-
-# remove sibling relationships with p < 0.95
-counter = max(as.numeric(bestconfig2022$ClusterIndex)) + 1
-for (i in 1:nrow(bestconfig2022)){
-  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
-  if (bestconfig2022$Probability[i] < 1){
-    bestconfig2022$ClusterIndex[i] = counter
-    counter = counter + 1
-  }
+list_of_results = list()
+for (i in 1:5){
+  # read in dyad data from COLONY
+  fsDyad2022 = trimws(readLines(paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2022_final", i, ".FullSibDyad")))
+  
+  #format
+  dyads2022 = do.call(rbind, strsplit(fsDyad2022, ","))
+  colnames(dyads2022) = dyads2022[1,]
+  dyads2022 = as.data.frame(dyads2022[-1,])
+  dyads2022$Probability = as.numeric(dyads2022$Probability)
+  
+  # remove sibpairs below some threshold probability
+  bestdyads2022 = dyads2022 %>% filter(Probability ==1)
+  
+  # add results to list
+  list_of_results[[i]] = bestdyads2022
 }
 
-# repeat for 2023
-counter = max(as.numeric(bestconfig2023$ClusterIndex)) + 1
-for (i in 1:nrow(bestconfig2023)){
-  # if the probability of inclusion in the cluster is < 0.95, make a new cluster
-  if (bestconfig2023$Probability[i] < 1){
-    bestconfig2023$ClusterIndex[i] = counter
-    counter = counter + 1
+######################################
+## Retain dyads present in all 5 runs
+######################################
+
+# first, collapse pairs into an ordered character string
+pairs_df1 <- collapse(list_of_results[[1]])
+pairs_df2 <- collapse(list_of_results[[2]])
+pairs_df3 <- collapse(list_of_results[[3]])
+pairs_df4 <- collapse(list_of_results[[4]])
+pairs_df5 <- collapse(list_of_results[[5]])
+
+# check matches of df1 against other dfs
+in_df2 <- pairs_df1 %in% pairs_df2
+in_df3 <- pairs_df1 %in% pairs_df3
+in_df4 <- pairs_df1 %in% pairs_df4
+in_df5 <- pairs_df1 %in% pairs_df5
+
+bestdyads2022 = list_of_results[[1]]
+bestdyads2022$in2 = in_df2
+bestdyads2022$in3 =  in_df3
+bestdyads2022$in4 =  in_df4
+bestdyads2022$in5 =  in_df5
+bestdyads2022$inall = in_df2 & in_df3 & in_df4 & in_df5
+bestdyads2022$num_true = 1 + rowSums(bestdyads2022[,colnames(bestdyads2022) %in% c("in2", "in3", "in4", "in5")])
+
+# subset to the consistent dyads
+consistentdyad_2022 = bestdyads2022[bestdyads2022$inall ==TRUE,]
+
+
+###########################################################
+### Identify missing links to establish complete cliques
+###########################################################
+
+# make igraph object
+edges = consistentdyad_2022[, c("OffspringID1", "OffspringID2")]
+graph_22 = graph_from_data_frame(d = edges, directed = FALSE)
+components <- decompose(graph_22)
+
+missing_links = lapply(components, function(comp) {
+  if (!is_clique(comp)){
+    # get all possible pairs of nodes (unordered)
+    nodes = V(comp)$name
+    node_pairs = t(combn(nodes, 2))
+    
+    # filter out pairs that already have an edge
+    missing <- apply(node_pairs, 1, function(pair) {
+      !are_adjacent(comp, pair[1], pair[2])
+    })
+    
+    # make collapsed pair names for eaching missing link
+    missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+      paste(sort(pair), collapse = "-")
+    })
+    
+    df = data.frame(
+      missing_pair = missing_names,
+      stringsAsFactors = FALSE
+    )
+    return(df)
   }
-}
-
-#write csvs to file
-write.csv(bestconfig2022, "data/siblingships/imp_sibships_preliminary_2022.csv")
-write.csv(bestconfig2023, "data/siblingships/imp_sibships_preliminary_2023.csv")
-
-
-
-# try with FS dyads instead of FS clusters (more stringent?)
-fsDyad2022 = trimws(readLines("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/final/impatiens2022_1.FullSibDyad"))
-split_dyads2022 <- strsplit(fsDyad2022, ",")
-bestdyads2022 <- do.call(rbind, split_dyads2022)
-colnames(bestdyads2022) <- bestdyads2022[1, ]
-bestdyads2022 <- as.data.frame(bestdyads2022[-1, ])
-bestdyads2022$Probability = as.numeric(bestdyads2022$Probability)
-
-# remove sibpairs below threshold probability (p = 1)
-bestdyads2022_filtered = bestdyads2022 %>% filter(Probability == 1)
-
-# make an undirected graph of families
-graph_22 <- graph_from_data_frame(bestdyads2022_filtered[, c("OffspringID1", "OffspringID2")], directed = FALSE)
-
-# find connected components (families)
-components <- components(graph_22)
-
-# assign family ID to each individual
-membership_df <- data.frame(
-  OffspringID = names(components$membership),
-  Family = components$membership
-)
-
-# then, check for non-circularity (e.g., A related to B, B related to C, A not related to C)
-flags <- lapply(unique(membership_df$Family), function(fam_id) {
-  nodes <- membership_df$OffspringID[membership_df$Family == fam_id]
-  subg <- induced_subgraph(graph_22, vids = nodes)
-  
-  n <- gorder(subg)
-  expected_edges <- n * (n - 1) / 2
-  actual_edges <- gsize(subg)
-  
-  data.frame(Family = fam_id, FlagIncomplete = actual_edges < expected_edges)
 })
 
-flag_df <- bind_rows(flags)
-
-# add flags to output
-df_with_family <- bestdyads2022_filtered %>%
-  left_join(membership_df, by = c("OffspringID1" = "OffspringID")) %>%
-  rename(Family = Family)
-
-df_with_flags <- df_with_family %>%
-  left_join(flag_df, by = "Family")
+# Combine all rows into one dataframe
+missing_df = do.call(rbind, missing_links)
 
 
+#########################################################
+#### Check if missing pairs are present with > 99% prob
+########################################################
+
+list_of_results_99 = list()
+for (i in 1:5){
+  # read in dyad data from COLONY
+  fsDyad2022 = trimws(readLines(paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2022_final", i, ".FullSibDyad")))
+  
+  #format
+  dyads2022 = do.call(rbind, strsplit(fsDyad2022, ","))
+  colnames(dyads2022) = dyads2022[1,]
+  dyads2022 = as.data.frame(dyads2022[-1,])
+  dyads2022$Probability = as.numeric(dyads2022$Probability)
+  
+  # remove sibpairs below some threshold probability
+  bestdyads2022 = dyads2022 %>% filter(Probability > 0.99)
+  
+  # add results to list
+  list_of_results_99[[i]] = bestdyads2022
+}
+
+# generate pairs
+pairs_df1_99 = collapse(list_of_results_99[[1]])
+pairs_df2_99 = collapse(list_of_results_99[[2]])
+pairs_df3_99 = collapse(list_of_results_99[[3]])
+pairs_df4_99 = collapse(list_of_results_99[[4]])
+pairs_df5_99 = collapse(list_of_results_99[[5]])
+
+# check matches of df1 against other dfs
+in_df2_99 <- pairs_df1_99 %in% pairs_df2_99
+in_df3_99 <- pairs_df1_99 %in% pairs_df3_99
+in_df4_99 <- pairs_df1_99 %in% pairs_df4_99
+in_df5_99 <- pairs_df1_99 %in% pairs_df5_99
+
+gooddyads2022 = list_of_results_99[[1]]
+gooddyads2022$in2 = in_df2_99
+gooddyads2022$in3 =  in_df3_99
+gooddyads2022$in4 =  in_df4_99
+gooddyads2022$in5 =  in_df5_99
+gooddyads2022$inall = in_df2_99 & in_df3_99 & in_df4_99 & in_df5_99
+gooddyads2022$num_true = 1 + rowSums(gooddyads2022[,colnames(gooddyads2022) %in% c("in2_99", "in3_99", "in4_99", "in5_99")])
+gooddyads2022$pairname = collapse(gooddyads2022)
+
+# check which missing links are "good" but not "best"
+partial99 = gooddyads2022[gooddyads2022$pairname %in% missing_df$missing_pair,]
+
+# add these to consistent dyad
+intermediate_set_2022 = rbind(consistentdyad_2022, partial99[,!colnames(partial99) %in% c("pairname")])
+
+###########################################################
+### Create graph object and plot families as components
+###########################################################
+
+# initialize edge color vector
+igraph::E(graph_22)$color <- rep("gray", ecount(graph_22))
+
+# color in the new links as we add them
+new_edges = unlist(str_split(partial99$pairname, "-"))
+graph_22 <- add_edges(graph_22, new_edges)
+new_edge_ids <- (ecount(graph_22) - (length(new_edges)/2) + 1):ecount(graph_22)
+igraph::E(graph_22)$color[new_edge_ids] <- "black"
+
+#color in all the links that are still missing
+still_missing = missing_df[!missing_df$missing_pair %in% partial99$pairname,]
+missing_edges = unlist(str_split(still_missing, "-"))
+graph_22_withmissing <- add_edges(graph_22, missing_edges)
+new_edge_ids <- (ecount(graph_22_withmissing) - (length(missing_edges)/2) + 1):ecount(graph_22_withmissing)
+igraph::E(graph_22_withmissing)$color[new_edge_ids] <- "red"
+
+# save
+set.seed(123)
+layout <- layout_with_fr(graph_22_withmissing)
+png("figures/manuscript_figures/impatiens2022_familystructure_showmissinglinks.png", width = 2000, height = 2000)
+plot(graph_22_withmissing,
+     vertex.label = V(graph_22_withmissing)$name,
+     vertex.label.cex = 1,
+     vertex.label.color = "black",
+     edge.width = 4,
+     vertex.size = 2,
+     main = "Impatiens Family Structures in 2022 -- Missing Links in Red")
+dev.off()
+
+
+###########################################################
+### Remove links to create circular cliques
+###########################################################
+
+# make graph
+edges = intermediate_set_2022[, c("OffspringID1", "OffspringID2")]
+graph_22 = graph_from_data_frame(d = edges, directed = FALSE)
+components <- decompose(graph_22)
+
+# For each component, keep only the largest clique
+filtered_components <- lapply(components, function(comp) {
+  if (is_clique(comp)) {
+    return(comp)
+  } else {
+    cliques <- largest_cliques(comp)
+    # randomly choose one if there's a tie
+    chosen_clique <- sample(cliques, 1)[[1]]
+    # induce subgraph on that clique
+    return(induced_subgraph(comp, chosen_clique))
+  }
+})
+
+# Recombine the components into a single graph
+final_graph = do.call(disjoint_union, filtered_components)
+comp_info = components(final_graph)
+
+# color by family
+V(final_graph)$family_id = comp_info$membership
+num_families <- comp_info$no
+family_colors <- rainbow(num_families)
+V(final_graph)$color = family_colors[V(final_graph)$family_id]
+
+png("figures/manuscript_figures/impatiens2022_familystructure.png", width = 2000, height = 2000)
+plot(final_graph,
+     vertex.label = V(final_graph)$name,
+     vertex.label.cex = 0.6,
+     vertex.label.color = "black",
+     edge.width = 2,
+     vertex.size = 2,
+     main = "Impatiens Family Structures in 2022")
+dev.off()
+
+
+#####################################
+### Make final output dataframe
+#####################################
+sibship2022 =  data.frame(
+  barcode_id = V(final_graph)$name,
+  sibship_id = comp_info$membership
+)
+
+# identify barcodes not in a sibship
+singleton_barcodes <- impatiens2022_forcolony$barcode_id[!impatiens2022_forcolony$barcode_id %in% sibship2022$barcode_id]
+
+# create singleton rows with unique sibship IDs
+singletons2022 <- data.frame(
+  barcode_id = singleton_barcodes,
+  sibship_id = max(sibship2022$sibship_id) + seq_along(singleton_barcodes)
+)
+
+#combine the two dataframes and save
+impatiens2022colonies = rbind(sibship2022, singletons2022)
+write.csv(impatiens2022colonies, "data/siblingships/impatiens_sibships_2022.csv", row.names = FALSE)
+
+
+###############################################################################
+###############################################################################
+# Now repeat all of that for 2023 impatiens.....
+###############################################################################
+###############################################################################
+
+
+#####################################
+## Load in results from colony
+#####################################
+
+list_of_results = list()
+for (i in 1:5){
+  # read in dyad data from COLONY
+  fsDyad2023 = trimws(readLines(paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2023_final", i, ".FullSibDyad")))
+  
+  #format
+  dyads2023 = do.call(rbind, strsplit(fsDyad2023, ","))
+  colnames(dyads2023) = dyads2023[1,]
+  dyads2023 = as.data.frame(dyads2023[-1,])
+  dyads2023$Probability = as.numeric(dyads2023$Probability)
+  
+  # remove sibpairs below some threshold probability
+  bestdyads2023 = dyads2023 %>% filter(Probability ==1)
+  
+  # add results to list
+  list_of_results[[i]] = bestdyads2023
+}
+
+######################################
+## Retain dyads present in all 5 runs
+######################################
+
+# first, collapse pairs into an ordered character string
+pairs_df1 <- collapse(list_of_results[[1]])
+pairs_df2 <- collapse(list_of_results[[2]])
+pairs_df3 <- collapse(list_of_results[[3]])
+pairs_df4 <- collapse(list_of_results[[4]])
+pairs_df5 <- collapse(list_of_results[[5]])
+
+# check matches of df1 against other dfs
+in_df2 <- pairs_df1 %in% pairs_df2
+in_df3 <- pairs_df1 %in% pairs_df3
+in_df4 <- pairs_df1 %in% pairs_df4
+in_df5 <- pairs_df1 %in% pairs_df5
+
+bestdyads2023 = list_of_results[[1]]
+bestdyads2023$in2 = in_df2
+bestdyads2023$in3 =  in_df3
+bestdyads2023$in4 =  in_df4
+bestdyads2023$in5 =  in_df5
+bestdyads2023$inall = in_df2 & in_df3 & in_df4 & in_df5
+bestdyads2023$num_true = 1 + rowSums(bestdyads2023[,colnames(bestdyads2023) %in% c("in2", "in3", "in4", "in5")])
+
+# subset to the consistent dyads
+consistentdyad_2023 = bestdyads2023[bestdyads2023$inall ==TRUE,]
+
+
+###########################################################
+### Identify missing links to establish complete cliques
+###########################################################
+
+# make igraph object
+edges = consistentdyad_2023[, c("OffspringID1", "OffspringID2")]
+graph_23 = graph_from_data_frame(d = edges, directed = FALSE)
+components <- decompose(graph_23)
+
+missing_links = lapply(components, function(comp) {
+  if (!is_clique(comp)){
+    # get all possible pairs of nodes (unordered)
+    nodes = V(comp)$name
+    node_pairs = t(combn(nodes, 2))
+    
+    # filter out pairs that already have an edge
+    missing <- apply(node_pairs, 1, function(pair) {
+      !are_adjacent(comp, pair[1], pair[2])
+    })
+    
+    # make collapsed pair names for eaching missing link
+    missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+      paste(sort(pair), collapse = "-")
+    })
+    
+    df = data.frame(
+      missing_pair = missing_names,
+      stringsAsFactors = FALSE
+    )
+    return(df)
+  }
+})
+
+# Combine all rows into one dataframe
+missing_df = do.call(rbind, missing_links)
+
+
+#########################################################
+#### Check if missing pairs are present with > 99% prob
+########################################################
+
+list_of_results_99 = list()
+for (i in 1:5){
+  # read in dyad data from COLONY
+  fsDyad2023 = trimws(readLines(paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/impatiens2023_final", i, ".FullSibDyad")))
+  
+  #format
+  dyads2023 = do.call(rbind, strsplit(fsDyad2023, ","))
+  colnames(dyads2023) = dyads2023[1,]
+  dyads2023 = as.data.frame(dyads2023[-1,])
+  dyads2023$Probability = as.numeric(dyads2023$Probability)
+  
+  # remove sibpairs below some threshold probability
+  bestdyads2023 = dyads2023 %>% filter(Probability > 0.99)
+  
+  # add results to list
+  list_of_results_99[[i]] = bestdyads2023
+}
+
+# generate pairs
+pairs_df1_99 = collapse(list_of_results_99[[1]])
+pairs_df2_99 = collapse(list_of_results_99[[2]])
+pairs_df3_99 = collapse(list_of_results_99[[3]])
+pairs_df4_99 = collapse(list_of_results_99[[4]])
+pairs_df5_99 = collapse(list_of_results_99[[5]])
+
+# check matches of df1 against other dfs
+in_df2_99 <- pairs_df1_99 %in% pairs_df2_99
+in_df3_99 <- pairs_df1_99 %in% pairs_df3_99
+in_df4_99 <- pairs_df1_99 %in% pairs_df4_99
+in_df5_99 <- pairs_df1_99 %in% pairs_df5_99
+
+gooddyads2023 = list_of_results_99[[1]]
+gooddyads2023$in2 = in_df2_99
+gooddyads2023$in3 =  in_df3_99
+gooddyads2023$in4 =  in_df4_99
+gooddyads2023$in5 =  in_df5_99
+gooddyads2023$inall = in_df2_99 & in_df3_99 & in_df4_99 & in_df5_99
+gooddyads2023$num_true = 1 + rowSums(gooddyads2023[,colnames(gooddyads2023) %in% c("in2_99", "in3_99", "in4_99", "in5_99")])
+gooddyads2023$pairname = collapse(gooddyads2023)
+
+# check which missing links are "good" but not "best"
+partial99 = gooddyads2023[gooddyads2023$pairname %in% missing_df$missing_pair,]
+
+# add these to consistent dyad
+intermediate_set_2023 = rbind(consistentdyad_2023, partial99[,!colnames(partial99) %in% c("pairname")])
+
+###########################################################
+### Create graph object and plot families as components
+###########################################################
+
+# initialize edge color vector
+igraph::E(graph_23)$color <- rep("gray", ecount(graph_23))
+
+# color in the new links as we add them
+new_edges = unlist(str_split(partial99$pairname, "-"))
+graph_23 <- add_edges(graph_23, new_edges)
+new_edge_ids <- (ecount(graph_23) - (length(new_edges)/2) + 1):ecount(graph_23)
+igraph::E(graph_23)$color[new_edge_ids] <- "black"
+
+#color in all the links that are still missing
+still_missing = missing_df[!missing_df$missing_pair %in% partial99$pairname,]
+missing_edges = unlist(str_split(still_missing, "-"))
+graph_23_withmissing <- add_edges(graph_23, missing_edges)
+new_edge_ids <- (ecount(graph_23_withmissing) - (length(missing_edges)/2) + 1):ecount(graph_23_withmissing)
+igraph::E(graph_23_withmissing)$color[new_edge_ids] <- "red"
+
+# save
+set.seed(123)
+layout <- layout_with_fr(graph_23_withmissing)
+png("figures/manuscript_figures/impatiens2023_familystructure_showmissinglinks.png", width = 2000, height = 2000)
+plot(graph_23_withmissing,
+     vertex.label = V(graph_23_withmissing)$name,
+     vertex.label.cex = 0.6,
+     vertex.label.color = "black",
+     edge.width = 4,
+     vertex.size = 2,
+     main = "Impatiens Family Structures in 2023 -- Missing Links in Red")
+dev.off()
+
+
+###########################################################
+### Remove links to create circular cliques
+###########################################################
+
+# make graph
+edges = intermediate_set_2023[, c("OffspringID1", "OffspringID2")]
+graph_23 = graph_from_data_frame(d = edges, directed = FALSE)
+components <- decompose(graph_23)
+
+# For each component, keep only the largest clique
+filtered_components <- lapply(components, function(comp) {
+  if (is_clique(comp)) {
+    return(comp)
+  } else {
+    cliques <- largest_cliques(comp)
+    # randomly choose one if there's a tie
+    chosen_clique <- sample(cliques, 1)[[1]]
+    # induce subgraph on that clique
+    return(induced_subgraph(comp, chosen_clique))
+  }
+})
+
+# Recombine the components into a single graph
+final_graph = do.call(disjoint_union, filtered_components)
+comp_info = components(final_graph)
+
+# color by family
+V(final_graph)$family_id = comp_info$membership
+num_families <- comp_info$no
+family_colors <- rainbow(num_families)
+V(final_graph)$color = family_colors[V(final_graph)$family_id]
+
+png("figures/manuscript_figures/impatiens2023_familystructure.png", width = 2000, height = 2000)
+plot(final_graph,
+     vertex.label = V(final_graph)$name,
+     vertex.label.cex = 0.6,
+     vertex.label.color = "black",
+     edge.width = 2,
+     vertex.size = 2,
+     main = "Impatiens Family Structures in 2023")
+dev.off()
+
+#####################################
+### Make final output dataframe
+#####################################
+sibship2023 =  data.frame(
+  barcode_id = V(final_graph)$name,
+  sibship_id = max(impatiens2022colonies$sibship_id) + comp_info$membership
+)
+
+# identify barcodes not in a sibship
+singleton_barcodes <- impatiens2023_forcolony$barcode_id[!impatiens2023_forcolony$barcode_id %in% sibship2023$barcode_id]
+
+# create singleton rows with unique sibship IDs
+singletons2023 <- data.frame(
+  barcode_id = singleton_barcodes,
+  sibship_id = max(sibship2023$sibship_id) + seq_along(singleton_barcodes)
+)
+
+#combine the two dataframes and save
+impatiens2023colonies = rbind(sibship2023, singletons2023)
+write.csv(impatiens2023colonies, "data/siblingships/impatiens_sibships_2023.csv", row.names = FALSE)
 
