@@ -18,6 +18,7 @@ library(rcolony)
 library(genepop)
 library(data.table)
 library(cowplot)
+library(igraph)
 
 
 # next; load in specimen data and allele tables
@@ -187,7 +188,6 @@ write.table(mixtus2023_forcolony, "data/merged_by_year/sib_scores_for_colony/mix
 
 write.csv(mixtus2022_forcolony, "data/merged_by_year/csvs/mixtus_2022_scores.csv")
 write.csv(mixtus2023_forcolony, "data/merged_by_year/csvs/mixtus_2023_scores.csv")
-
 
 ###########################################
 # Prep microsat error rates for COLONY
