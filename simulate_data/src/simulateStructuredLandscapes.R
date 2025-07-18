@@ -367,6 +367,7 @@ data$nesting_landscape = log_prob_nest_mat
 
 
 ###### Fit model in Stan
+# not possible in stan lol
 stanFit = stan(file = "models/colony_prior.stan",
                data = data, seed = 5838299,
                chains = 4, cores = 4,

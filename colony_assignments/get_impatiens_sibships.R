@@ -1,8 +1,8 @@
-########
+################################################################################
 ## Get colony IDs from microsatellite genotyping results--Bombus impatiens
 ## Started by J Melanson
 ## February 13, 2025
-########
+################################################################################
 
 # prep workspace
 rm(list = ls())

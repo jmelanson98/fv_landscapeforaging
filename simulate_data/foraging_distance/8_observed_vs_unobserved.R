@@ -39,7 +39,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 # this distribution won't be totally accurate but it's hard to fit a model with 8000 background colonies
 
 # Get landscape from saved file
-fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
+fq <- readRDS("simulate_data/landscapes/random_field_range10/landscape_003.rds")
 #fq = terra::rast(fq)
 
 # Run simulation
@@ -59,7 +59,7 @@ result <- draw_bees_colony_restricted(
 )
 
 # Save results
-saveRDS(result, "simulate_data/methods_comparison/observed_vs_unobserved/simdata.rds")
+saveRDS(result, "simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/simdata.rds")
 #result = readRDS("simulate_data/methods_comparison/observed_vs_unobserved/simdata.rds")
 
 # Write outputs to variables
@@ -94,7 +94,7 @@ stanFitObs_widerlimit = stan(file = stanfile,
                chains = 4, cores = 4,
                iter = 4000, warmup = 1000,
                verbose = TRUE)
-saveRDS(stanFitObs_widerlimit, file="simulate_data/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
+saveRDS(stanFitObs_widerlimit, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
 
 # when I ran these, the generated quantities block of exponential.stan had an error :(
 # so ignore the colony dist estimates, they're all wrong

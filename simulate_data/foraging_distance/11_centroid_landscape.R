@@ -33,11 +33,11 @@ setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 source("simulate_data/src/GeneralizedSimFunctions.R")
 
 ##### Load in floral quality landscape #####
-fq = readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_003.rds")
+fq = readRDS("simulate_data/landscapes/random_field_range10/landscape_003.rds")
 
 ##### Simulate landscape characteristics "landscape" #####
 landscape_char = simulateLandscapeRaster(landscape_size = 1500, resource_range = 400)
-saveRDS(landscape_char, "simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
+saveRDS(landscape_char, "simulate_data/landscapes/random_field_range400/landscape_001.rds")
 #landscape_char = readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
 
 ##### Simulate some data with landscape effects on foraging distance #####
@@ -59,7 +59,7 @@ result <- draw_bees_colony_restricted(
 )
 
 # Save results
-saveRDS(result, "simulate_data/methods_comparison/landscape_effects/centroids/simdata.rds")
+saveRDS(result, "simulate_data/foraging_distance/methods_comparison/landscape_effects/centroids/simdata.rds")
 #result = readRDS("simulate_data/methods_comparison/landscape_effects/centroids/simdata.rds")
 
 # Write outputs to variables
@@ -105,5 +105,5 @@ mean_center_plot = ggplot(doubleton_colonies, aes(x = center_landscape, y = mean
   theme_minimal() + 
   geom_smooth(method='lm')
 
-ggsave("simulate_data/methods_comparison/landscape_effects/centroids/mean_center_plot.png", mean_center_plot,
+ggsave("simulate_data/foraging_distance/methods_comparison/landscape_effects/centroids/mean_center_plot.png", mean_center_plot,
        width = 500, height = 500, units = "px")
