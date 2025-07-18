@@ -39,7 +39,8 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 # this distribution won't be totally accurate but it's hard to fit a model with 8000 background colonies
 
 # Get landscape from saved file
-fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_001.rds")
+fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_003.rds")
+hasValues(fq)
 #fq = terra::rast(fq)
 
 # Run simulation
