@@ -39,13 +39,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 # this distribution won't be totally accurate but it's hard to fit a model with 8000 background colonies
 
 # Get landscape from saved file
-<<<<<<< HEAD:simulate_data/8_observed_vs_unobserved.R
 fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_003.rds")
-hasValues(fq)
-=======
-fq <- readRDS("simulate_data/landscapes/random_field_range10/landscape_003.rds")
->>>>>>> ef06a6aa0c953088f78a9b941719545bbdc9deaa:simulate_data/foraging_distance/8_observed_vs_unobserved.R
-#fq = terra::rast(fq)
 
 # Run simulation
 result <- draw_bees_colony_restricted(
