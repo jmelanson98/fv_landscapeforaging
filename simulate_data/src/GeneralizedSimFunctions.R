@@ -381,6 +381,7 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
   colony_data$colony_x = runif(number_colonies, 0, landscape_size*3)
   colony_data$colony_y = runif(number_colonies, 0, landscape_size*(num_landscape / 3))
   print("Colony simulation complete.")
+  print(dim(colony_data))
   
   ##### Define trap characteristics #####
   trapid = 1:(number_traps*num_landscape)
@@ -395,6 +396,7 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
   coords$trap_y = coords$trap_y + (coords$row - 1)*landscape_size
   trap_data = as.data.frame(cbind(trapid, coords))
   print("Trap simulation complete.")
+  print(dim(trap_data))
   
   # optional plotting step to visualize traps and colonies
   plot(colony_data$colony_x, colony_data$colony_y, col = "red", pch = 16, cex = 0.5)
@@ -414,6 +416,7 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
       dist_ik[col,trap] = sqrt(dx^2 + dy^2)
     }
   }
+  print("Done computing distance.")
   
   # compute visitation rate of colony at each trap
   if (distance_decay == "exponentiated_quadratic"){
@@ -425,7 +428,7 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
   }
   
   ##### Start sampling #####
-  yik = allocMatrix(nrow = number_colonies, ncol = number_traps, value = 0)
+  yik = allocMatrix(nrow = number_colonies, ncol = number_traps*num_landscape, value = 0)
   N = numbees_start
   colony_data$ni = colony_sizes
   
@@ -460,6 +463,7 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
     
     # record visitation event to yik
     yik[colony, trap] = yik[colony, trap] + 1
+  
     
     #update ni and N
     N = N-1
