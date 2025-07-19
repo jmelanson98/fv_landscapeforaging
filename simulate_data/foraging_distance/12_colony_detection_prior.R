@@ -25,7 +25,8 @@ library(tibble)
 library(terra)
 
 ##### Set Environment #####
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
+#setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging") # local
+setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 rstan_options(auto_write = TRUE) 
 options(mc.cores = parallel::detectCores())
 
@@ -58,7 +59,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 
 # Save results
 #saveRDS(result, "simulate_data/methods_comparison/observed_vs_unobserved/simdata.rds")
-result = readRDS("simulate_data/methods_comparison/observed_vs_unobserved/simdata.rds")
+result = readRDS("simulate_data/foraing_distance/methods_comparison/observed_vs_unobserved/simdata.rds")
 
 # Write outputs to variables
 yobs = result[[1]]
@@ -93,7 +94,8 @@ stanFitCPrior = stan(file = stanfile,
                              chains = 4, cores = 4,
                              iter = 4000, warmup = 1000,
                              verbose = TRUE)
-saveRDS(stanFitCPrior, file="simulate_data/methods_comparison/observed_vs_unobserved/stanFitCPrior.RDS")
+saveRDS(stanFitCPrior, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitCPrior.RDS")
+
 
 
 
@@ -106,7 +108,7 @@ colony_observed = colony_data[rowSums(yobs) > 0,]
 
 for (i in 1:numplots){
   c_id = colony_observed$colonyid[i]
-  delta_draws = as.data.frame(rstan::extract(stanFitAll_widerlimit, pars = "delta")$delta[, c_id,])
+  delta_draws = as.data.frame(rstan::extract(stanFitCPrior, pars = "delta")$delta[, c_id,])
   colnames(delta_draws) = c("x","y")
   trap_data$trap_count = yobs_detected[c_id, ]
   

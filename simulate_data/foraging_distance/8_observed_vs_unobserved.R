@@ -39,27 +39,27 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 # this distribution won't be totally accurate but it's hard to fit a model with 8000 background colonies
 
 # Get landscape from saved file
-fq <- readRDS("simulate_data/landscapes/landscapes/random_field_range10/landscape_003.rds")
+fq <- readRDS("simulate_data/landscapes/random_field_range10/landscape_003.rds")
 
 # Run simulation
-result <- draw_bees_colony_restricted(
-  sample_size     = 1000,
-  landscape_size  = 1500,
-  colonygrid_size = 700,
-  trapgrid_size   = 300,
-  number_traps    = 25,
-  number_colonies = 2000,
-  colony_sizes    = rep(100, 2000),
-  rho            = 50,
-  theta           = 0.5,
-  resource_landscape = fq,
-  nesting_landscape = NULL,
-  distance_decay = "exponential"
-)
+#result <- draw_bees_colony_restricted(
+#  sample_size     = 1000,
+#  landscape_size  = 1500,
+#  colonygrid_size = 700,
+#  trapgrid_size   = 300,
+#  number_traps    = 25,
+#  number_colonies = 2000,
+#  colony_sizes    = rep(100, 2000),
+#  rho            = 50,
+#  theta           = 0.5,
+#  resource_landscape = fq,
+#  nesting_landscape = NULL,
+#  distance_decay = "exponential"
+#)
 
 # Save results
-saveRDS(result, "simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/simdata.rds")
-#result = readRDS("simulate_data/methods_comparison/observed_vs_unobserved/simdata.rds")
+#saveRDS(result, "simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/simdata.rds")
+result = readRDS("simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/simdata.rds")
 
 # Write outputs to variables
 yobs = result[[1]]
@@ -88,13 +88,13 @@ data$C = nrow(data$y)
 stanfile = paste("models/exponential.stan")
 
 #fit and save model
-stanFitObs_widerlimit = stan(file = stanfile,
-               data = data, seed = 5838299,
-               chains = 4, cores = 4,
-               iter = 4000, warmup = 1000,
-               verbose = TRUE)
-saveRDS(stanFitObs_widerlimit, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
-
+#stanFitObs_widerlimit = stan(file = stanfile,
+#               data = data, seed = 5838299,
+#               chains = 4, cores = 4,
+#               iter = 4000, warmup = 1000,
+#               verbose = TRUE)
+#saveRDS(stanFitObs_widerlimit, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
+stanFitObs_widerlimit = readRDS("simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObs_widerlimit.RDS")
 # when I ran these, the generated quantities block of exponential.stan had an error :(
 # so ignore the colony dist estimates, they're all wrong
 
@@ -114,7 +114,7 @@ colony_observed = colony_data[rowSums(yobs) > 0,]
 
 for (i in 1:numplots){
   c_id = colony_observed$colonyid[i]
-  delta_draws = as.data.frame(rstan::extract(stanFitAll_widerlimit, pars = "delta")$delta[, c_id,])
+  delta_draws = as.data.frame(rstan::extract(stanFitObs_widerlimit, pars = "delta")$delta[, c_id,])
   colnames(delta_draws) = c("x","y")
   trap_data$trap_count = yobs_detected[c_id, ]
   
