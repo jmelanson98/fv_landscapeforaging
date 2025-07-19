@@ -11,6 +11,7 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 # first, load in packages
 source('simulate_data/src/GeneralizedSimFunctions.R')
+source('simulate_data/src/GenotypeSimFunctions.R')
 source('colony_assignments/src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
@@ -25,18 +26,19 @@ library(matrixStats)
 
 
 # First simulate some observations of bees at multiple landscapes
-result = draw_simple_multi_landscape(sample_size = 2000,
+result = draw_simple_multi_landscape(sample_size = 1000,
                                    num_landscape = 6,
                                    landscape_size = 1500,
                                    trapgrid_size = 300,
                                    number_traps = 25,
-                                   number_colonies = 20000,
-                                   colony_sizes = rep(100,15000),
+                                   number_colonies = 10000,
+                                   colony_sizes = rep(100,10000),
                                    rho = 100,
                                    distance_decay = "exponential")
 yobs = result[[1]]
 yobs_detected = yobs[rowSums(yobs)>0,]
 colony_data = result[[2]]
+colony_data_detected = colony_data[rowSums(yobs) > 0,]
 trap_data = result[[3]]
 
 
@@ -116,61 +118,102 @@ impsum = impsibs %>%
 # load in allele frequency data
 impatiens_alellefreq = read.csv("colony_assignments/Colony2_Linux/impatiens2023_final1.AlleleFreq")
 mixtus_alellefreq = read.csv("colony_assignments/Colony2_Linux/mixtus2023_final1.AlleleFreq")
-colony_data_detected = colony_data[rowSums(yobs) > 1,]
 
-impatienssample_df = data.frame(individual = NA, truecolony = NA,
-                                BT10_1 = NA, BT10_2 = NA,
-                                B96_1 = NA, B96_2 = NA,
-                                BTMS0059_1 = NA, BTMS0059_2 = NA,
-                                BTMS0081_1 = NA, BTMS0081_2 = NA,
-                                BTMS0062_1 = NA, BTMS0062_2 = NA,
-                                B126_1 = NA, B126_2 = NA,
-                                BTERN01_1 = NA, BTERN01_2 = NA,
-                                B124_1 = NA, B124_2 = NA,
-                                BTMS0057_1 = NA, BTMS0057_2 = NA,
-                                BT30_1 = NA, BT30_2 = NA,
-                                B10_1 = NA, B10_2 = NA,
-                                BTMS0083_1 = NA, BTMS0083_2 = NA
-                           )
-count = 0
+# create a set of simulations to perform
+paternity_probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)
+impGenotypesList = list()
+mixGenotypesList = list()
 
-for (colony in 1:nrow(colony_data_detected)){
+# simulate genotypes for each species and mating condition
+for (i in 1:length(paternity_probs)){
+  impGenotypesList[[i]] = simulateGenotypes(alleleFreqs = impatiens_alellefreq,
+                                            colonyDataDetected = colony_data_detected,
+                                            observationMatrix = yobs_detected,
+                                            probMultiplePaternity = paternity_probs[i])
   
-  # make a dataframe to hold genotypes for the focal colony
-  numsibs = rowSums(yobs_detected)[colony]
-  singlesibship_df = data.frame(individual = (count + 1):(count+numsibs), truecolony = rep(colony_data_detected$colonyid[colony], numsibs),
-                                  BT10_1 = NA, BT10_2 = NA,
-                                  B96_1 = NA, B96_2 = NA,
-                                  BTMS0059_1 = NA, BTMS0059_2 = NA,
-                                  BTMS0081_1 = NA, BTMS0081_2 = NA,
-                                  BTMS0062_1 = NA, BTMS0062_2 = NA,
-                                  B126_1 = NA, B126_2 = NA,
-                                  BTERN01_1 = NA, BTERN01_2 = NA,
-                                  B124_1 = NA, B124_2 = NA,
-                                  BTMS0057_1 = NA, BTMS0057_2 = NA,
-                                  BT30_1 = NA, BT30_2 = NA,
-                                  B10_1 = NA, B10_2 = NA,
-                                  BTMS0083_1 = NA, BTMS0083_2 = NA
-  )
-  count = max(singlesibship_df$individual)
-  
-  # for each allele, assign some values to the parents and then to each offspring
-  allelecounter = 2
-  for (allele in unique(impatiens_alellefreq$MarkerID)){
-    # assign parental genotypes
-    queen = sample(impatiens_alellefreq$AlleleID[impatiens_alellefreq$MarkerID == allele], 
-                   size = 2, replace = TRUE, 
-                   prob = impatiens_alellefreq$UpdatedFreq[impatiens_alellefreq$MarkerID == allele])
-    male = sample(impatiens_alellefreq$AlleleID[impatiens_alellefreq$MarkerID == allele], 
-                   size = 1, replace = TRUE, 
-                   prob = impatiens_alellefreq$UpdatedFreq[impatiens_alellefreq$MarkerID == allele])
-    
-    # assign daughter genotypes
-    singlesibship_df[,allelecounter + 1] = rep(male, numsibs)
-    singlesibship_df[,allelecounter + 2] = sample(queen, size = numsibs, replace = TRUE, prob = c(0.5, 0.5))
-    
-    allelecounter = allelecounter + 2
-  }
-  impatienssample_df=rbind(impatienssample_df, singlesibship_df)
+  mixGenotypesList[[i]] = simulateGenotypes(alleleFreqs = mixtus_alellefreq,
+                                            colonyDataDetected = colony_data_detected,
+                                            observationMatrix = yobs_detected,
+                                            probMultiplePaternity = paternity_probs[i])
 }
- 
+
+all_data = list(yobs, yobs_detected, colony_data, colony_data_detected, trap_data, impGenotypesList, mixGenotypesList)
+saveRDS(all_data, "simulate_data/colony_assignments/test_effective_paternity/firstsim.RDS")
+
+
+# write files to .txt for COLONY
+write.table(impGenotypesList[[1]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp0.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impGenotypesList[[2]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp0.2.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impGenotypesList[[3]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp0.4.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impGenotypesList[[4]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp0.6.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impGenotypesList[[5]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp0.8.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impGenotypesList[[6]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp1.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixGenotypesList[[1]][,!colnames(mixGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp0.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixGenotypesList[[2]][,!colnames(mixGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp0.2.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixGenotypesList[[3]][,!colnames(mixGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp0.4.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixGenotypesList[[4]][,!colnames(mixGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp0.6.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixGenotypesList[[5]][,!colnames(mixGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp0.8.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixGenotypesList[[6]][,!colnames(mixGenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp1.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+
+# construct error rates files -- all zeros for now
+imp_columns = unique(impatiens_alellefreq$MarkerID)
+impatiens_error_rates = as.data.frame(matrix(0, nrow = 4, ncol = length(imp_columns)))
+names(impatiens_error_rates) = imp_columns
+write.table(impatiens_error_rates, "simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_error_rates.txt", 
+            sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+mix_columns = unique(mixtus_alellefreq$MarkerID)
+mixtus_error_rates = as.data.frame(matrix(0, nrow = 4, ncol = length(mix_columns)))
+names(mixtus_error_rates) = mix_columns
+write.table(mixtus_error_rates, "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_error_rates.txt", 
+            sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+# construct .DAT files for COLONY
+# manually change these files to run colony with or without female monogamy -- it's faster than running through all the steps again
+# no multiple paternity
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_pp0.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_pp0.DAT", delim=",")
+
+ # multiple paternity 0.2
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_pp0.2.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_pp0.2.DAT", delim=",")
+
+# multiple paternity 0.4
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_pp0.4.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_pp0.4.DAT", delim=",")
+
+# multiple paternity 0.6
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_pp0.6.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_pp0.6.DAT", delim=",")
+
+# multiple paternity 0.8
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_pp0.8.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_pp0.8.DAT", delim=",")
+
+# multiple paternity 1
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_pp1.DAT", delim=",")
+rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_pp1.DAT", delim=",")
