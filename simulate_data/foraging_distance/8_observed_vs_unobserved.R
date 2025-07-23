@@ -153,7 +153,7 @@ for (i in 1:numplots){
 
 fig = grid.arrange(grobs = plot_list, ncol = 3)
 #fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
-ggsave("figures/simfigs/colonyposteriors_widelimits.png", fig, height = 750, width = 1500)
+ggsave("figures/simfigs/colonyposteriors_widelimits.png", fig, height = 750, width = 1500, units = "px")
 
 
 # # check worker distributions

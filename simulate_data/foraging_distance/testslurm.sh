@@ -1,7 +1,7 @@
 #!/bin/bash
 ##SBATCH --job-name=test
-#SBATCH --output=logs/widelimits_withprior_%A_%a.out
-#SBATCH --error=logs/widelimits_withprior_%A_%a.err
+#SBATCH --output=logs/widelimits_%A_%a.out
+#SBATCH --error=logs/widelimits_%A_%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
