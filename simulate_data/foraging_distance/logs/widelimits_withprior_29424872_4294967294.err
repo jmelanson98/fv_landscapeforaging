@@ -72,3 +72,14 @@ The following object is masked from ‘package:rstan’:
 
     extract
 
+Error in `ggsave()`:
+! Dimensions exceed 50 inches (`height` and `width` are specified in
+  inches not pixels).
+ℹ If you're sure you want a plot that big, use `limitsize = FALSE`.
+Backtrace:
+    ▆
+ 1. └─ggplot2::ggsave(...)
+ 2.   └─ggplot2:::plot_dim(...)
+ 3.     └─cli::cli_abort(...)
+ 4.       └─rlang::abort(...)
+Execution halted
