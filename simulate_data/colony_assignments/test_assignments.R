@@ -257,7 +257,7 @@ files = c("impatiens_pp0", "impatiens_pp0.2", "impatiens_pp0.4", "impatiens_pp0.
 
 errors = data.frame(test_condition = files,
                   FPR = NA,
-                  FN = NA)
+                  FNR = NA)
 family_plots = list()
 for (i in 1:length(files)){
     filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output/", files[i], ".BestCluster")
@@ -327,6 +327,13 @@ ggplot(errors, aes(x = test_condition, y = FPR)) +
   geom_point() +
   xlab("Simulation and COLONY Conditions") +
   ylab(expression(FPR == frac(FP, TP + FN))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
+
+ggplot(errors, aes(x = test_condition, y = FNR)) +
+  geom_point() +
+  xlab("Simulation and COLONY Conditions") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 

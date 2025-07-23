@@ -20,16 +20,27 @@ library(terra)
 ##### Source Helper Functions #####
 source("src/GeneralizedSimFunctions.R")
 
-##### Create directory to save landscapes #####
-dir.create("landscapes/landscapes/random_field_range10_large", recursive = TRUE, showWarnings = FALSE)
-
 ##### Set up run #####
 # Get task ID from SLURM environment variable
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
-# Simulate landscape
-fq <- simulateLandscapeRaster(landscape_size = 1500, resource_range = 10)
+# Simulate landscape (range 400)
+fq = simulateLandscapeRaster(landscape_size = 1500, resource_range = 400)
 
 # Save landscape
-saveRDS(fq, file = paste(sprintf("landscapes/landscapes/random_field_range10_large/landscape_%03d", task_id), ".rds", sep = ""))
+saveRDS(fq, file = paste(sprintf("landscapes/random_field_range400/landscape_%03d", task_id), ".rds", sep = ""))
+
+
+# Simulate landscape (range 300)
+fq = simulateLandscapeRaster(landscape_size = 1500, resource_range = 300)
+
+# Save landscape
+saveRDS(fq, file = paste(sprintf("landscapes/random_field_range300/landscape_%03d", task_id), ".rds", sep = ""))
+
+
+# Simulate landscape (range 200)
+fq = simulateLandscapeRaster(landscape_size = 1500, resource_range = 200)
+
+# Save landscape
+saveRDS(fq, file = paste(sprintf("landscapes/random_field_range200/landscape_%03d", task_id), ".rds", sep = ""))
 
