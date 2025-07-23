@@ -89,13 +89,13 @@ data$rho_sd = 0.5
 stanfile = paste("models/colonydetectionprior.stan")
 
 #fit and save model
-stanFitCPrior = stan(file = stanfile,
-                             data = data, seed = 5838299,
-                             chains = 4, cores = 4,
-                             iter = 4000, warmup = 1000,
-                             verbose = TRUE)
-saveRDS(stanFitCPrior, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitCPrior.RDS")
-
+#stanFitCPrior = stan(file = stanfile,
+#                             data = data, seed = 5838299,
+#                             chains = 4, cores = 4,
+#                             iter = 4000, warmup = 1000,
+#                             verbose = TRUE)
+#saveRDS(stanFitCPrior, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitCPrior.RDS")
+stanFitCPrior = readRDS("simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitCPrior.RDS")
 
 
 
@@ -147,5 +147,5 @@ for (i in 1:numplots){
 
 fig = grid.arrange(grobs = plot_list, ncol = 3)
 #fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
-ggsave("figures/simfigs/colonyposteriors_detectionprior.png", fig, height = 750, width = 1500)
+ggsave("figures/simfigs/colonyposteriors_detectionprior.png", fig, height = 750, width = 1500, units = "px")
 

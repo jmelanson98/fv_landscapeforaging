@@ -1,11 +1,11 @@
 #!/bin/bash
 ##SBATCH --job-name=test
-#SBATCH --output=logs/widelimits_%A_%a.out
-#SBATCH --error=logs/widelimits_%A_%a.err
+#SBATCH --output=logs/widelimits_withprior_%A_%a.out
+#SBATCH --error=logs/widelimits_withprior_%A_%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
-#SBATCH --time=01:00:00
+#SBATCH --time=00:30:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
@@ -13,4 +13,4 @@ module load StdEnv/2023 gcc r/4.3.1 gdal proj
 export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.3
 
 
-Rscript 8_observed_vs_unobserved.R
+Rscript 12_colony_detection_prior.R
