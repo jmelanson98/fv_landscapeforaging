@@ -75,5 +75,6 @@ simulateGenotypes = function(alleleFreqs,
     }
     sample_df=rbind(sample_df, singlesibship_df)
   }
+  sample_df$individual = paste0("Ind", sample_df$individual)
   return(sample_df)
 }
