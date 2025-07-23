@@ -59,7 +59,7 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 
 # Save results
 #saveRDS(result, "simulate_data/methods_comparison/observed_vs_unobserved/simdata.rds")
-result = readRDS("simulate_data/foraing_distance/methods_comparison/observed_vs_unobserved/simdata.rds")
+result = readRDS("simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/simdata.rds")
 
 # Write outputs to variables
 yobs = result[[1]]

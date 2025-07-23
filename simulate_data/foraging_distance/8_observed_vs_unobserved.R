@@ -94,7 +94,7 @@ stanfile = paste("models/exponential.stan")
 #               iter = 4000, warmup = 1000,
 #               verbose = TRUE)
 #saveRDS(stanFitObs_widerlimit, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
-stanFitObs_widerlimit = readRDS("simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObs_widerlimit.RDS")
+stanFitObs_widerlimit = readRDS("simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
 # when I ran these, the generated quantities block of exponential.stan had an error :(
 # so ignore the colony dist estimates, they're all wrong
 
