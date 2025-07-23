@@ -67,7 +67,7 @@ ggplot() +
   theme_minimal()
 
 
-# check worker distributions
+# Check worker distributions
 # prep real data
 mixsibs22 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
 mixsibs23 = read.csv("data/siblingships/mixtus_sibships_2023.csv")
@@ -115,16 +115,16 @@ impsum = impsibs %>%
 
 
  
-# load in allele frequency data
+# Load in allele frequency data
 impatiens_alellefreq = read.csv("colony_assignments/Colony2_Linux/impatiens2023_final1.AlleleFreq")
 mixtus_alellefreq = read.csv("colony_assignments/Colony2_Linux/mixtus2023_final1.AlleleFreq")
 
-# create a set of simulations to perform
+# Create a set of simulations to perform
 paternity_probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)
 impGenotypesList = list()
 mixGenotypesList = list()
 
-# simulate genotypes for each species and mating condition
+# Simulate genotypes for each species and mating condition
 for (i in 1:length(paternity_probs)){
   impGenotypesList[[i]] = simulateGenotypes(alleleFreqs = impatiens_alellefreq,
                                             colonyDataDetected = colony_data_detected,
@@ -167,7 +167,7 @@ write.table(mixGenotypesList[[5]][,!colnames(mixGenotypesList[[1]]) %in% c("true
 write.table(mixGenotypesList[[6]][,!colnames(mixGenotypesList[[1]]) %in% c("truecolony")], 
             "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp1.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
-# construct error rates files -- all zeros for now
+# Construct error rates files -- all zeros for now
 imp_columns = unique(impatiens_alellefreq$MarkerID)
 impatiens_error_rates = as.data.frame(matrix(0, nrow = 4, ncol = length(imp_columns)))
 impatiens_error_rates[1,] = imp_columns
@@ -180,7 +180,7 @@ mixtus_error_rates[1,] = mix_columns
 write.table(mixtus_error_rates, "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_error_rates.txt", 
             sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
 
-# construct .DAT files for COLONY
+# Construct .DAT files for COLONY
 # manually change these files to run colony with or without female monogamy -- it's faster than running through all the steps again
 # no multiple paternity
 rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
@@ -220,6 +220,17 @@ rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/f
 
 
 
+# Load in results from COLONY
+files = c("impatiens_pp0", "impatiens_pp0", "impatiens_pp0.4", "impatiens_pp0.6", "impatiens_pp0.8", "impatiens_pp1",
+         "impatiens_pp0_poly", "impatiens_pp0.2_poly", "impatiens_pp0.4_poly", "impatiens_pp0.6_poly", "impatiens_pp0.8_poly", 
+         "impatiens_pp1_poly", "mixtus_pp0", "mixtus_pp0.2", "mixtus_pp0.4", "mixtus_pp0.6", "mixtus_pp0.8", "mixtus_pp1",
+         "mixtus_pp0_poly", "mixtus_pp0.2_poly", "mixtus_pp0.4_poly", "mixtus_pp0.6_poly", "mixtus_pp0.8_poly", 
+         "mixtus_pp1_poly")
+
+list_of_outputs = list()
+for (i in 1:length(files)){
+    list_of_outputs[[i]] = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/", files[i], ".")
+}
 
 
 
