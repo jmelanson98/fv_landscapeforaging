@@ -167,6 +167,34 @@ write.table(mixGenotypesList[[5]][,!colnames(mixGenotypesList[[1]]) %in% c("true
 write.table(mixGenotypesList[[6]][,!colnames(mixGenotypesList[[1]]) %in% c("truecolony")], 
             "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp1.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
+# Write files to .csv to save true colony IDs
+write.csv(impGenotypesList[[1]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp0.csv")
+write.csv(impGenotypesList[[2]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp0.2.csv")
+write.csv(impGenotypesList[[3]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp0.4.csv")
+write.csv(impGenotypesList[[4]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp0.6.csv")
+write.csv(impGenotypesList[[5]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp0.8.csv")
+write.csv(impGenotypesList[[6]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp1.csv")
+write.csv(mixGenotypesList[[1]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/mixtus_pp0.csv")
+write.csv(mixGenotypesList[[2]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/mixtus_pp0.2.csv")
+write.csv(mixGenotypesList[[3]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/mixtus_pp0.4.csv")
+write.csv(mixGenotypesList[[4]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/mixtus_pp0.6.csv")
+write.csv(mixGenotypesList[[5]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/mixtus_pp0.8.csv")
+write.csv(mixGenotypesList[[6]], 
+            "simulate_data/colony_assignments/test_effective_paternity/true_data/mixtus_pp1.csv")
+
+
+
 # Construct error rates files -- all zeros for now
 imp_columns = unique(impatiens_alellefreq$MarkerID)
 impatiens_error_rates = as.data.frame(matrix(0, nrow = 4, ncol = length(imp_columns)))
@@ -221,17 +249,79 @@ rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/f
 
 
 # Load in results from COLONY
-files = c("impatiens_pp0", "impatiens_pp0", "impatiens_pp0.4", "impatiens_pp0.6", "impatiens_pp0.8", "impatiens_pp1",
+files = c("impatiens_pp0", "impatiens_pp0.2", "impatiens_pp0.4", "impatiens_pp0.6", "impatiens_pp0.8", "impatiens_pp1",
          "impatiens_pp0_poly", "impatiens_pp0.2_poly", "impatiens_pp0.4_poly", "impatiens_pp0.6_poly", "impatiens_pp0.8_poly", 
          "impatiens_pp1_poly", "mixtus_pp0", "mixtus_pp0.2", "mixtus_pp0.4", "mixtus_pp0.6", "mixtus_pp0.8", "mixtus_pp1",
          "mixtus_pp0_poly", "mixtus_pp0.2_poly", "mixtus_pp0.4_poly", "mixtus_pp0.6_poly", "mixtus_pp0.8_poly", 
          "mixtus_pp1_poly")
 
-list_of_outputs = list()
+errors = data.frame(test_condition = files,
+                  FPR = NA,
+                  FN = NA)
+family_plots = list()
 for (i in 1:length(files)){
-    list_of_outputs[[i]] = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/", files[i], ".")
-}
-
+    filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output/", files[i], ".BestCluster")
+    colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
+    colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
+    
+    genotypesim = paste(unlist(strsplit(files[i], "_"))[1:2], collapse = "_")
+    true_data = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/", genotypesim, ".csv"))
+    
+    # set probability threshold
+    prob_thresh = 0.95
+    
+    # filter colony outputs
+    colony_output = colony_output %>% filter(Probability > prob_thresh)
+    
+    # make edge lists
+    true_edges = true_data %>%
+      group_by(truecolony) %>%
+      filter(n() > 1) %>%
+      summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+      mutate(from = map_chr(pairs, 1),
+             to = map_chr(pairs, 2)) %>%
+      select(from, to)
+    
+    inferred_edges = colony_output %>%
+      group_by(ClusterIndex) %>%
+      filter(n() > 1) %>%
+      summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+      mutate(from = map_chr(pairs, 1),
+             to = map_chr(pairs, 2)) %>%
+      select(from, to)
+    
+    # combine and classify edges by type (FN, FP, TP)
+    # get true positives
+    tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
+    tp_edges$type = "TP"
+    
+    # initialize other types as FN and FP
+    true_edges$type = "FN"
+    inferred_edges$type = "FP"
+    
+    # remove true positives from FN and FP dataframes
+    fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+    fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
+    
+    # combine all edges
+    all_edges = rbind(tp_edges, fn_edges, fp_edges)
+    
+    # make an igraph object
+    graph = graph_from_data_frame(all_edges, directed = FALSE)
+    E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
+    families = plot(graph, 
+         edge.color = E(graph)$color,
+         vertex.label = NA,
+         vertex.size = 2,
+         main = files[i]
+    )
+    family_plots[[i]] = families
+    
+    # record FPR and FNR
+    errors$FPR[errors$test_condition == files[i]] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
+    errors$FNR[errors$test_condition == files[i]] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+    
+    }
 
 
 
