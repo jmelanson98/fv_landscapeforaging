@@ -62,7 +62,7 @@ simulateGenotypes = function(alleleFreqs,
                       prob = alleleFreqs$UpdatedFreq[alleleFreqs$MarkerID == allele])
         # assign paternal allele -- following Bird et al 2021, we assume that the secondary
         # father contributes alleles to ~30% of offspring (e.g., skewed paternity)
-        singlesibship_df[,allelecounter + 2] = sample(male, size = numsibs, replace = TRUE, prob = c(0.7, 0.3))
+        singlesibship_df[,allelecounter + 1] = sample(male, size = numsibs, replace = TRUE, prob = c(0.7, 0.3))
       } else{
         male = sample(alleleFreqs$AlleleID[alleleFreqs$MarkerID == allele], 
                       size = 1, replace = TRUE, 
