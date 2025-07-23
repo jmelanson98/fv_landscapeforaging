@@ -323,7 +323,12 @@ for (i in 1:length(files)){
     
     }
 
-
+ggplot(errors, aes(x = test_condition, y = FPR)) +
+  geom_point() +
+  xlab("Simulation and COLONY Conditions") +
+  ylab(expression(FPR == frac(FP, TP + FN))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
 
 
 

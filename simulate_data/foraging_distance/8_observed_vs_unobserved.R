@@ -108,7 +108,7 @@ stanFitObs_widerlimit = readRDS("simulate_data/foraging_distance/methods_compari
 # plot colony posteriors
 #Plot the posteriors of ten colonies
 plot_list = list()
-numplots = 6
+numplots = 9
 legends = list()
 colony_observed = colony_data[rowSums(yobs) > 0,]
 
@@ -122,11 +122,11 @@ for (i in 1:numplots){
     geom_density_2d_filled(alpha = 0.8) +
     
     #plot colony location
-    geom_point(data = colony_observed[c_id,], aes(x = colony_x, y = colony_y), colour = "lightgreen", show.legend = TRUE) +
+    geom_point(data = colony_observed[c_id,], aes(x = colony_x, y = colony_y), colour = "hotpink", show.legend = TRUE) +
     
     #plot trap locations / sizes / quality
     geom_point(data = trap_data, aes(x = trap_x, y = trap_y, size = trap_count, colour = fq)) +
-    scale_colour_gradient(low = "white", high = "red") +
+    scale_colour_gradient(low = "white", high = "purple") +
     scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
     
     #miscellaneous
@@ -144,7 +144,7 @@ for (i in 1:numplots){
   #legend <- g$grobs[[legend_index]]
   
   # remove legend from plot
-  #p <- p + theme(legend.position = "none")
+  p <- p + theme(legend.position = "none")
   
   #save plot
   plot_list[[i]] = p
@@ -153,7 +153,7 @@ for (i in 1:numplots){
 
 fig = grid.arrange(grobs = plot_list, ncol = 3)
 #fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
-ggsave("figures/simfigs/colonyposteriors_widelimits.png", fig, height = 750, width = 1500, units = "px")
+ggsave("figures/simfigs/colonyposteriors_widelimits.png", fig, height = 1500, width = 1500, units = "px")
 
 
 # # check worker distributions
