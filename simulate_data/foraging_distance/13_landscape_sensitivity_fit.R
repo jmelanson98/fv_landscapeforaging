@@ -74,7 +74,7 @@ data$rho_sd = 0.5
 
 
 #select stan model to fit
-stanfile = paste("models/", current_params$distance_decay, ".stan", sep = "")
+stanfile = "models/landscape_exp.stan"
   
 #fit and save model
 stanFit = stan(file = stanfile,
