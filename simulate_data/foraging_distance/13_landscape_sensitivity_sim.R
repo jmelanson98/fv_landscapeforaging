@@ -83,11 +83,11 @@ params <- param_grid[param_grid$task_id == task_id, ]
 
 # Get floral resource landscape from saved file
 print("Loading floral resource raster.")
-fq = readRDS(paste0(sprintf("simulate_data/landscapes/landscapes/random_field_range10/landscape_%03d", params$landscape_id), ".rds"))
+fq = readRDS(paste0(sprintf("simulate_data/landscapes/random_field_range10/landscape_%03d", params$landscape_id), ".rds"))
 
 # Get landscape metrics from saved file
 print("Loading landscape metric raster.")
-lmq = readRDS(paste0(sprintf(paste0("simulate_data/landscapes/landscapes/random_field_range", params$autocorrelation), "/landscape_%03d", params$landscape_id), ".rds"))
+lmq = readRDS(paste0(sprintf(paste0("simulate_data/landscapes/random_field_range", params$autocorrelation), "/landscape_%03d", params$landscape_id), ".rds"))
 
 
 # Run simulation
