@@ -15,6 +15,7 @@ source('simulate_data/src/GenotypeSimFunctions.R')
 source('colony_assignments/src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
+library(purrr)
 library(stringr)
 library(rcolony)
 library(genepop)
@@ -23,6 +24,7 @@ library(cowplot)
 library(raster)
 library(igraph)
 library(matrixStats)
+library(ggplot2)
 
 
 # First simulate some observations of bees at multiple landscapes
@@ -139,7 +141,14 @@ for (i in 1:length(paternity_probs)){
 
 all_data = list(yobs, yobs_detected, colony_data, colony_data_detected, trap_data, impGenotypesList, mixGenotypesList)
 saveRDS(all_data, "simulate_data/colony_assignments/test_effective_paternity/firstsim.RDS")
-
+# all_data = readRDS("simulate_data/colony_assignments/test_effective_paternity/firstsim.RDS")
+# yobs = all_data[[1]]
+# yobs_detected = all_data[[2]]
+# colony_data = all_data[[3]]
+# colony_data_detected = all_data[[4]]
+# trap_data = all_data[[5]]
+# impGenotypesList = all_data[[6]]
+# mixGenotypesList = all_data[[7]]
 
 # write files to .txt for COLONY
 write.table(impGenotypesList[[1]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
@@ -216,7 +225,7 @@ rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/f
 rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
                             name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_pp0.DAT", delim=",")
 
- # multiple paternity 0.2
+# multiple paternity 0.2
 rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
                             name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_pp0.2.DAT", delim=",")
 rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
@@ -256,6 +265,10 @@ files = c("impatiens_pp0", "impatiens_pp0.2", "impatiens_pp0.4", "impatiens_pp0.
          "mixtus_pp1_poly")
 
 errors = data.frame(test_condition = files,
+                  numFP = NA,
+                  numFN = NA,
+                  numTP = NA,
+                  total_real = NA,
                   FPR = NA,
                   FNR = NA)
 family_plots = list()
@@ -268,10 +281,10 @@ for (i in 1:length(files)){
     true_data = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/", genotypesim, ".csv"))
     
     # set probability threshold
-    prob_thresh = 0.95
+    prob_thresh = 1
     
     # filter colony outputs
-    colony_output = colony_output %>% filter(Probability > prob_thresh)
+    colony_output = colony_output %>% filter(Probability >= prob_thresh)
     
     # make edge lists
     true_edges = true_data %>%
@@ -280,7 +293,7 @@ for (i in 1:length(files)){
       summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
       mutate(from = map_chr(pairs, 1),
              to = map_chr(pairs, 2)) %>%
-      select(from, to)
+      dplyr::select(from, to)
     
     inferred_edges = colony_output %>%
       group_by(ClusterIndex) %>%
@@ -288,7 +301,7 @@ for (i in 1:length(files)){
       summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
       mutate(from = map_chr(pairs, 1),
              to = map_chr(pairs, 2)) %>%
-      select(from, to)
+      dplyr::select(from, to)
     
     # combine and classify edges by type (FN, FP, TP)
     # get true positives
@@ -320,8 +333,28 @@ for (i in 1:length(files)){
     # record FPR and FNR
     errors$FPR[errors$test_condition == files[i]] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
     errors$FNR[errors$test_condition == files[i]] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+    errors$total_real[errors$test_condition == files[i]] = nrow(tp_edges) + nrow(fn_edges)
+    errors$numFP[errors$test_condition == files[i]] = nrow(fp_edges)
+    errors$numFN[errors$test_condition == files[i]] = nrow(fn_edges)
+    errors$numTP[errors$test_condition == files[i]] = nrow(tp_edges)
+    
     
     }
+
+
+# make a results table without poly
+errors_subset = errors %>%
+  filter(!str_detect(test_condition, "poly"))
+
+ggplot(errors_subset) +
+  geom_point(aes(x = test_condition, y = numFP, color = "Number FP")) +
+  geom_point(aes(x = test_condition, y = numFN, color = "Number FN")) +
+  geom_point(aes(x = test_condition, y = total_real, color = "Total true")) +
+  xlab("Simulation and COLONY Conditions") +
+  ylab("Number of inferred or true relationships") +
+  labs(title = "Sibship inclusion: P = 0.95") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
 
 ggplot(errors, aes(x = test_condition, y = FPR)) +
   geom_point() +
