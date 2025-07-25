@@ -10,7 +10,7 @@ impatiens_pp0 ! C, Main output file name, Length<21
 1 1 ! B, 0/1=Polygamy/Monogamy for males & females
 0 ! 0/1=No clone inference/clone inference
 0 ! 0/1=No scaling/sibship size scaling
-0 0 0 ! B, R, R : Use sibship prior, Y/N=1/0. If Yes, give mean paternal, maternal sibship size
+1 1 1 ! B, R, R : Use sibship prior, Y/N=1/0. If Yes, give mean paternal, maternal sibship size
 0 ! B, 0/1=Unknown/Known population allele frequency
 
 1 ! I, Number of runs

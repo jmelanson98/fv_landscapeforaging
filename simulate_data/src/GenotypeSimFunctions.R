@@ -3,7 +3,7 @@
 # By: Jenna Melanson
 # Goal: functions for simulating:
 # (1) genotypes of simulated colonies
-# (2) COMIN SOON: single or multiple paternity
+# (2) single or multiple paternity
 # (3) COMING SOON: errors and missing data
 
 
@@ -77,4 +77,15 @@ simulateGenotypes = function(alleleFreqs,
   }
   sample_df$individual = paste0("Ind", sample_df$individual)
   return(sample_df)
+}
+
+
+# Function to induce realistic error rates and missing data to sibship genotype table
+induceErrors = function(genotypeDF,
+                        errorRates,
+                        missingRates
+){
+  
+  
+  
 }
