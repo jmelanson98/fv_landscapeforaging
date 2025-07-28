@@ -77,7 +77,7 @@ data$rho_sd = 0.5
 
 
 #select stan model to fit
-stanfile = "models/landscape_exp.stan"
+stanfile = "models/multinomial_landscape.stan"
   
 #fit and save model
 stanFit = stan(file = stanfile,
