@@ -73,11 +73,11 @@ yobs_detected = yobs[rowSums(yobs) > 0,]
 data = list()
 data$K = 25
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
-data$lowerbound = 0
-data$upperbound = 1500
+data$lowerbound = 400
+data$upperbound = 1100
 data$floral = trap_data$fq
 data$priorVa = 1
-data$priorCo = 1
+data$priorCo = 3
 data$rho_center = 4.5
 data$rho_sd = 0.5
 data$y = yobs_detected
@@ -85,15 +85,15 @@ data$C = nrow(data$y)
 
 
 #select stan model to fit
-stanfile = paste("models/exponential.stan")
+stanfile = paste("models/multinomial_muprior.stan")
 
 #fit and save model
-#stanFitObs_widerlimit = stan(file = stanfile,
-#               data = data, seed = 5838299,
-#               chains = 4, cores = 4,
-#               iter = 4000, warmup = 1000,
-#               verbose = TRUE)
-#saveRDS(stanFitObs_widerlimit, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
+stanFitMultinomialNegPrior = stan(file = stanfile,
+              data = data, seed = 5838299,
+              chains = 4, cores = 4,
+              iter = 4000, warmup = 1000,
+              verbose = TRUE)
+saveRDS(stanFitObs_widerlimit, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
 stanFitObs_widerlimit = readRDS("simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
 # when I ran these, the generated quantities block of exponential.stan had an error :(
 # so ignore the colony dist estimates, they're all wrong
