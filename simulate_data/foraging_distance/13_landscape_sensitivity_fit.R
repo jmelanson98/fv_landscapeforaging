@@ -45,7 +45,9 @@ yobs = readRDS(paste(inputfilepath, "/yobs.RDS", sep = ""))
 colony_data = readRDS(paste(inputfilepath, "/colonydata.RDS", sep = ""))
 trap_data = readRDS(paste(inputfilepath, "/trapdata.RDS", sep = ""))
 print("Loading landscape metric raster.")
-lmq = readRDS(paste0(sprintf(paste0("simulate_data/landscapes/landscapes/random_field_range", params$autocorrelation), "/landscape_%03d", params$landscape_id), ".rds"))
+repo_name = paste0("simulate_data/landscapes/random_field_range", params$autocorrelation)
+landscape_name = sprintf("/landscape_%03d", params$landscape_id)
+lmq = readRDS(paste0(repo_name, landscape_name, ".rds"))
 
 
 ### Current params
@@ -139,7 +141,7 @@ result = tibble(current_params)
 
 # use lock to make sure multiple tasks don't write to output at the same time
 lockfile <- "output.lock"
-rds_file <- "simulate_data/methods_comparison/output_fit.rds"
+rds_file <- "simulate_data/foraging_distance/methods_comparison/landscape_effects/output_fit.rds"
 
 # try to acquire the lock (waits up to 60 seconds)
 lock <- lock(lockfile, timeout = 60000)
