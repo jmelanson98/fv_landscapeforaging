@@ -40,18 +40,19 @@ source("simulate_data/src/GeneralizedSimFunctions.R")
 ##### Load in param grid and simulated data #####
 param_grid = readRDS("simulate_data/foraging_distance/methods_comparison/landscape_effects/output_sim.rds")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
+params = param_grid[param_grid$task_id == task_id,]
 inputfilepath <- sprintf("simulate_data/foraging_distance/methods_comparison/landscape_effects/data/sim_result_%03d", task_id)
 yobs = readRDS(paste(inputfilepath, "/yobs.RDS", sep = ""))
 colony_data = readRDS(paste(inputfilepath, "/colonydata.RDS", sep = ""))
 trap_data = readRDS(paste(inputfilepath, "/trapdata.RDS", sep = ""))
 print("Loading landscape metric raster.")
 repo_name = paste0("simulate_data/landscapes/random_field_range", params$autocorrelation)
-landscape_name = sprintf("/landscape_%03d", params$landscape_id)
+landscape_name = as.character(sprintf("/landscape_%03d", params$landscape_id))
 lmq = readRDS(paste0(repo_name, landscape_name, ".rds"))
 
 
 ### Current params
-current_params = param_grid[task_id,]
+current_params = params
 
 ##### Fit Models ######
 
