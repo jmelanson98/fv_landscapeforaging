@@ -64,7 +64,7 @@ zeta ~ normal(0, 1);
     for(i in 1:C){
       for(k in 1:K){
         dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-        lambda[i, k] = dis[i,k]/(-rho*exp(alpha*landscape[i])) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+        lambda[i, k] = dis[i,k]/(-rho*exp(alpha*landscape[k])) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
       }
     // compute  multinomial probabilities for colony i
     multi_probs = softmax(lambda[i,]');
@@ -90,7 +90,7 @@ generated quantities {
     for(i in 1:C){
       for(k in 1:K){
         dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-        lambda[i, k] = dis[i,k]/(-rho*exp(alpha*landscape[i])) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+        lambda[i, k] = dis[i,k]/(-rho*exp(alpha*landscape[k])) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
       }
     }
     
