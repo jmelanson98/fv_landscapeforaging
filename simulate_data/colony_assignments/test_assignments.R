@@ -273,7 +273,7 @@ errors = data.frame(test_condition = files,
                   FNR = NA)
 family_plots = list()
 for (i in 1:length(files)){
-    filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output/", files[i], ".BestCluster")
+    filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output_withprior/", files[i], ".BestCluster")
     colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
     colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
     
@@ -346,7 +346,7 @@ for (i in 1:length(files)){
 errors_subset = errors %>%
   filter(!str_detect(test_condition, "poly"))
 
-ggplot(errors_subset) +
+ggplot(errors) +
   geom_point(aes(x = test_condition, y = numFP, color = "Number FP")) +
   geom_point(aes(x = test_condition, y = numFN, color = "Number FN")) +
   geom_point(aes(x = test_condition, y = total_real, color = "Total true")) +
@@ -356,14 +356,14 @@ ggplot(errors_subset) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
-ggplot(errors, aes(x = test_condition, y = FPR)) +
+ggplot(errors_subset, aes(x = test_condition, y = FPR)) +
   geom_point() +
   xlab("Simulation and COLONY Conditions") +
   ylab(expression(FPR == frac(FP, TP + FN))) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
-ggplot(errors, aes(x = test_condition, y = FNR)) +
+ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
   geom_point() +
   xlab("Simulation and COLONY Conditions") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
@@ -371,4 +371,94 @@ ggplot(errors, aes(x = test_condition, y = FNR)) +
   theme(axis.text.x = element_text(angle = 90))
 
 
+
+# Siblingship size prior greatly improves FPR rate when we run COLONY assuming female monogamy, but 
+# if we assume female polygamy we get a whole mess of false sibships
+# Check: could we improve this tendency by simulating a fake data set with twice as many loci?
+
+# Load in allele frequency data
+impatiens_alellefreq = read.csv("colony_assignments/Colony2_Linux/impatiens2023_final1.AlleleFreq")
+mixtus_alellefreq = read.csv("colony_assignments/Colony2_Linux/mixtus2023_final1.AlleleFreq")
+
+# combine frequency data!
+impatiens_alellefreq$MarkerID = paste0("impatiens_", impatiens_alellefreq$MarkerID)
+mixtus_alellefreq$MarkerID = paste0("mixtus_", mixtus_alellefreq$MarkerID)
+combined_allelefreq = rbind(impatiens_alellefreq, mixtus_alellefreq)
+
+# Create a set of simulations to perform
+paternity_probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)
+GenotypesList = list()
+
+# Simulate genotypes for each species and mating condition
+for (i in 1:length(paternity_probs)){
+  GenotypesList[[i]] = simulateGenotypes(alleleFreqs = combined_allelefreq,
+                                            colonyDataDetected = colony_data_detected,
+                                            observationMatrix = yobs_detected,
+                                            probMultiplePaternity = paternity_probs[i])
+}
+
+saveRDS(GenotypesList, "simulate_data/colony_assignments/test_effective_paternity/augmentedsim.RDS")
+
+
+# write files to .txt for COLONY
+write.table(GenotypesList[[1]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(GenotypesList[[2]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.2.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(GenotypesList[[3]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.4.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(GenotypesList[[4]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.6.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(GenotypesList[[5]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.8.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(GenotypesList[[6]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
+            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp1.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+
+# Write files to .csv to save true colony IDs
+write.csv(GenotypesList[[1]], 
+          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.csv")
+write.csv(GenotypesList[[2]], 
+          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.2.csv")
+write.csv(GenotypesList[[3]], 
+          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.4.csv")
+write.csv(GenotypesList[[4]], 
+          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.6.csv")
+write.csv(GenotypesList[[5]], 
+          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.8.csv")
+write.csv(GenotypesList[[6]], 
+          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp1.csv")
+
+
+# Construct error rates files -- all zeros for now
+columns = unique(combined_allelefreq$MarkerID)
+all_error_rates = as.data.frame(matrix(0, nrow = 4, ncol = length(columns)))
+all_error_rates[1,] = columns
+write.table(all_error_rates, "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_error_rates.txt", 
+            sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+# Construct .DAT files for COLONY
+# manually change these files to run colony with or without female monogamy -- it's faster than running through all the steps again
+# no multiple paternity
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.DAT", delim=",")
+
+# multiple paternity 0.2
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.2.DAT", delim=",")
+
+# multiple paternity 0.4
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.4.DAT", delim=",")
+
+# multiple paternity 0.6
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.6.DAT", delim=",")
+
+# multiple paternity 0.8
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.8.DAT", delim=",")
+
+# multiple paternity 1
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp1.DAT", delim=",")
 
