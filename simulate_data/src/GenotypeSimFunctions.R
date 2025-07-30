@@ -4,7 +4,7 @@
 # Goal: functions for simulating:
 # (1) genotypes of simulated colonies
 # (2) single or multiple paternity
-# (3) COMING SOON: errors and missing data
+# (3) errors and missing data
 
 
 
@@ -101,9 +101,43 @@ simulateGenotypes = function(alleleFreqs,
 # Function to induce realistic error rates and missing data to sibship genotype table
 induceErrors = function(genotypeDF,
                         errorRates,
-                        missingRates
+                        missingRates,
+                        alleleFreqs
 ){
+  # for now this function will introduce both errors and missingness uniformly at random;
+  # meaning that missingness will be equally likely at all loci
+  # in real data, I believe that if an individual is missing data for one alelle, they are more
+  # likely to also be missing data for the second. could incorporate this later
   
+  alleles = unique(colnames(errorRates))
+  errorRates[] = lapply(errorRates, function(x) as.numeric(x))
   
-  
+  for (i in 1:length(alleles)){
+    allele = alleles[i]
+    current_cols = colnames(genotypeDF[,str_detect(colnames(genotypeDF), allele)])
+    for (individual in 1:nrow(genotypeDF)){
+      
+      # induce errors on locus 1
+      if (runif(1,0,1) < errorRates[3, i]/2){
+        genotypeDF[individual,colnames(genotypeDF) %in% current_cols][1] = sample(alleleFreqs$AlleleID[alleleFreqs$MarkerID == allele], 
+                                                                                  size = 1, replace = TRUE, 
+                                                                                  prob = alleleFreqs$UpdatedFreq[alleleFreqs$MarkerID == allele])
+      }
+      
+      # induce errors on locus 2
+      if (runif(1,0,1) < errorRates[3, i]/2){
+        genotypeDF[individual,colnames(genotypeDF) %in% current_cols][2] = sample(alleleFreqs$AlleleID[alleleFreqs$MarkerID == allele], 
+                                                                                  size = 1, replace = TRUE, 
+                                                                                  prob = alleleFreqs$UpdatedFreq[alleleFreqs$MarkerID == allele])
+      }
+      
+      #induce missingness on both loci
+      if (runif(1,0,1) < missingRates[[allele]]/3){
+        genotypeDF[individual,colnames(genotypeDF) %in% current_cols] = 0
+      } else if (runif(1,0,1) < missingRates[[allele]]/3) {
+        genotypeDF[individual,colnames(genotypeDF) %in% current_cols][2] = 0
+      }
+    }
+  }
+  return(genotypeDF)
 }

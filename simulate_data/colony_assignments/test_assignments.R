@@ -26,6 +26,9 @@ library(igraph)
 library(matrixStats)
 library(ggplot2)
 
+################################################################################
+## Test different rates of multiple paternity in mixtus and impatiens
+################################################################################
 
 # First simulate some observations of bees at multiple landscapes
 result = draw_simple_multi_landscape(sample_size = 1000,
@@ -281,7 +284,7 @@ for (i in 1:length(files)){
     true_data = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/", genotypesim, ".csv"))
     
     # set probability threshold
-    prob_thresh = 1
+    prob_thresh = 0.95
     
     # filter colony outputs
     colony_output = colony_output %>% filter(Probability >= prob_thresh)
@@ -371,7 +374,9 @@ ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
   theme(axis.text.x = element_text(angle = 90))
 
 
-
+################################################################################
+## Test multiple paternity for higher resolution genetic dataset
+################################################################################
 # Siblingship size prior greatly improves FPR rate when we run COLONY assuming female monogamy, but 
 # if we assume female polygamy we get a whole mess of false sibships
 # Check: could we improve this tendency by simulating a fake data set with twice as many loci?
@@ -462,3 +467,161 @@ rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/f
 rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
                                 name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp1.DAT", delim=",")
 
+# Load in results from COLONY
+files = c("augmented_pp0", "augmented_pp0.2", "augmented_pp0.4", "augmented_pp0.6", "augmented_pp0.8", "augmented_pp1",
+          "augmented_pp0_poly", "augmented_pp0.2_poly", "augmented_pp0.4_poly", "augmented_pp0.6_poly", "augmented_pp0.8_poly", "augmented_pp1_poly")
+
+errors = data.frame(test_condition = files,
+                    numFP = NA,
+                    numFN = NA,
+                    numTP = NA,
+                    total_real = NA,
+                    FPR = NA,
+                    FNR = NA)
+family_plots = list()
+for (i in 1:length(files)){
+  filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output_augmented/", files[i], ".BestCluster")
+  colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
+  colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
+  
+  genotypesim = paste(unlist(strsplit(files[i], "_"))[1:2], collapse = "_")
+  true_data = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/", genotypesim, ".csv"))
+  
+  # set probability threshold
+  prob_thresh = 0.95
+  
+  # filter colony outputs
+  colony_output = colony_output %>% filter(Probability >= prob_thresh)
+  
+  # make edge lists
+  true_edges = true_data %>%
+    group_by(truecolony) %>%
+    filter(n() > 1) %>%
+    summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+    mutate(from = map_chr(pairs, 1),
+           to = map_chr(pairs, 2)) %>%
+    dplyr::select(from, to)
+  
+  inferred_edges = colony_output %>%
+    group_by(ClusterIndex) %>%
+    filter(n() > 1) %>%
+    summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+    mutate(from = map_chr(pairs, 1),
+           to = map_chr(pairs, 2)) %>%
+    dplyr::select(from, to)
+  
+  # combine and classify edges by type (FN, FP, TP)
+  # get true positives
+  tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
+  tp_edges$type = "TP"
+  
+  # initialize other types as FN and FP
+  true_edges$type = "FN"
+  inferred_edges$type = "FP"
+  
+  # remove true positives from FN and FP dataframes
+  fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+  fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
+  
+  # combine all edges
+  all_edges = rbind(tp_edges, fn_edges, fp_edges)
+  
+  # make an igraph object
+  graph = graph_from_data_frame(all_edges, directed = FALSE)
+  E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
+  families = plot(graph, 
+                  edge.color = E(graph)$color,
+                  vertex.label = NA,
+                  vertex.size = 2,
+                  main = files[i]
+  )
+  family_plots[[i]] = families
+  
+  # record FPR and FNR
+  errors$FPR[errors$test_condition == files[i]] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
+  errors$FNR[errors$test_condition == files[i]] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+  errors$total_real[errors$test_condition == files[i]] = nrow(tp_edges) + nrow(fn_edges)
+  errors$numFP[errors$test_condition == files[i]] = nrow(fp_edges)
+  errors$numFN[errors$test_condition == files[i]] = nrow(fn_edges)
+  errors$numTP[errors$test_condition == files[i]] = nrow(tp_edges)
+  
+  
+}
+
+
+# make a results table without poly
+errors_subset = errors %>%
+  filter(!str_detect(test_condition, "poly"))
+
+ggplot(errors) +
+  geom_point(aes(x = test_condition, y = numFP, color = "Number FP")) +
+  geom_point(aes(x = test_condition, y = numFN, color = "Number FN")) +
+  geom_point(aes(x = test_condition, y = total_real, color = "Total true")) +
+  xlab("Simulation and COLONY Conditions") +
+  ylab("Number of inferred or true relationships") +
+  labs(title = "Sibship inclusion: P = 0.95") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
+
+ggplot(errors_subset, aes(x = test_condition, y = FPR)) +
+  geom_point() +
+  xlab("Simulation and COLONY Conditions") +
+  ylab(expression(FPR == frac(FP, TP + FN))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
+
+ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
+  geom_point() +
+  xlab("Simulation and COLONY Conditions") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
+
+
+################################################################################
+## Test accuracy across datasets of different sizes, with realistic error rates
+################################################################################
+
+# read in real error rate files
+mixtus_errors = read.table("data/merged_by_year/error_rates/mixtus_error_rates.txt", sep = ",")
+colnames(mixtus_errors) = mixtus_errors[1,]
+mixtus_errors = mixtus_errors[-1,]
+
+impatiens_errors = read.table("data/merged_by_year/error_rates/impatiens_error_rates.txt", sep = ",")
+colnames(impatiens_errors) = impatiens_errors[1,]
+impatiens_errors = impatiens_errors[-1,]
+
+# get allele names
+mixtus_alleles = colnames(mixtus_errors)
+impatiens_alleles = colnames(impatiens_errors)
+
+# load in real genotype files and get missing rates
+mixtus_scores = read.csv("data/merged_by_year/csvs/mixtus_2023_scores.csv")[,-1]
+impatiens_scores = read.csv("data/merged_by_year/csvs/impatiens_2023_scores.csv")[,-1]
+
+mixtus_missing =  setNames(data.frame(matrix(ncol = length(mixtus_alleles), nrow = 0)), mixtus_alleles)
+for (i in 1:length(mixtus_alleles)){
+  allele = mixtus_alleles[i]
+  mixtus_missing[1,i] = sum(colSums(mixtus_scores[,str_detect(colnames(mixtus_scores), allele)] ==0)) / (2*nrow(mixtus_scores))
+}
+
+impatiens_missing =  setNames(data.frame(matrix(ncol = length(impatiens_alleles), nrow = 0)), impatiens_alleles)
+for (i in 1:length(impatiens_alleles)){
+  allele = impatiens_alleles[i]
+  impatiens_missing[1,i] = sum(colSums(impatiens_scores[,str_detect(colnames(impatiens_scores), allele)] ==0)) / (2*nrow(impatiens_scores))
+}
+
+
+# to induce errors and missingness
+example_mix = mixGenotypesList[[1]]
+example_imp = impGenotypesList[[1]]
+
+mixInduced = induceErrors(genotypeDF = example_mix,
+                          errorRates = mixtus_errors,
+                          missingRates = mixtus_missing,
+                          alleleFreqs = mixtus_alellefreq)
+
+impInduced = induceErrors(genotypeDF = example_imp,
+                          errorRates = impatiens_errors,
+                          missingRates = impatiens_missing,
+                          alleleFreqs = impatiens_alellefreq)
