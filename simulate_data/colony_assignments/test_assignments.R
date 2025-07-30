@@ -612,16 +612,117 @@ for (i in 1:length(impatiens_alleles)){
 }
 
 
-# to induce errors and missingness
-example_mix = mixGenotypesList[[1]]
-example_imp = impGenotypesList[[1]]
+# Generate three sibship data sets (e.g., 3 x yobs) of 2000 individuals each
+yobs_list = list()
+yobs_detected_list = list()
+colony_data_list = list()
+colony_data_detected_list = list()
+trap_data_list = list()
 
-mixInduced = induceErrors(genotypeDF = example_mix,
-                          errorRates = mixtus_errors,
-                          missingRates = mixtus_missing,
-                          alleleFreqs = mixtus_alellefreq)
+for (i in 1:3){
+  result = draw_simple_multi_landscape(sample_size = 2000,
+                                       num_landscape = 6,
+                                       landscape_size = 1500,
+                                       trapgrid_size = 300,
+                                       number_traps = 25,
+                                       number_colonies = 20000,
+                                       colony_sizes = rep(100,20000),
+                                       rho = 100,
+                                       distance_decay = "exponential")
+  yobs_list[[i]] = result[[1]]
+  yobs_detected_list[[i]] = yobs_list[[i]][rowSums(yobs_list[[i]]) > 0,]
+  colony_data_list[[i]] = result[[2]]
+  colony_data_detected_list[[i]] = result[[2]][rowSums(yobs_list[[i]]) > 0,]
+  trap_data_list[[i]] = result[[3]]
+  
+  sibship_data = list(yobs_list[[i]], yobs_detected_list[[i]], colony_data_list[[i]], colony_data_detected_list[[i]], trap_data_list[[i]])
+  saveRDS(sibship_data, paste0("simulate_data/colony_assignments/test_sample_size/sim", i, ".RDS"))
+}
 
-impInduced = induceErrors(genotypeDF = example_imp,
-                          errorRates = impatiens_errors,
-                          missingRates = impatiens_missing,
-                          alleleFreqs = impatiens_alellefreq)
+
+# For each data set, simulate genotypes assuming single paternity (mixtus and impatiens)
+impGenotypesList = list()
+mixGenotypesList = list()
+
+# Simulate genotypes for each species and mating condition
+for (i in 1:length(yobs_list)){
+  sibship_data = readRDS(paste0("simulate_data/colony_assignments/test_sample_size/sim", i, ".RDS"))
+  # simulate imp genotypes
+  tempImp = simulateGenotypes(alleleFreqs = impatiens_alellefreq,
+                           colonyDataDetected = sibship_data[[4]],
+                           observationMatrix = sibship_data[[2]],
+                           probMultiplePaternity = 0)
+  # induce errors and missingness
+  impGenotypesList[[i]] = induceErrors(genotypeDF = tempImp,
+                                       errorRates = impatiens_errors,
+                                       missingRates = impatiens_missing,
+                                       alleleFreqs = impatiens_alellefreq)
+  tempMix = simulateGenotypes(alleleFreqs = mixtus_alellefreq,
+                              colonyDataDetected = sibship_data[[4]],
+                              observationMatrix = sibship_data[[2]],
+                              probMultiplePaternity = 0)
+  mixGenotypesList[[i]] = induceErrors(genotypeDF = tempMix,
+                                       errorRates = mixtus_errors,
+                                       missingRates = mixtus_missing,
+                                       alleleFreqs = mixtus_alellefreq)
+}
+
+sibship_genotypes = list(mixGenotypesList, impGenotypesList)
+saveRDS(sibship_genotypes, "simulate_data/colony_assignments/test_sample_size/sibship_genotypes.RDS")
+
+# Now, subset each dataset to contain 100%, 80%, 60%, 40%, 20%, 10%, 5%, 2.5% of individuals
+subsets = c(1, 0.8, 0.6, 0.4, 0.2, 0.1, 0.05, 0.025)
+for (i in 1:length(mixGenotypesList)){
+    genotypes_mix = mixGenotypesList[[i]]
+    genotypes_imp = impGenotypesList[[i]]
+    
+  for (j in 1:length(subsets)){
+    rows_keep = nrow(genotypes_mix)*subsets[j]
+    
+    # make subset for mixtus
+    genotypes_subset_mix = genotypes_mix[sample(nrow(genotypes_mix), rows_keep), ]
+
+    # write txt file for colony
+    write.table(genotypes_subset_mix[,!colnames(genotypes_subset_mix) %in% c("truecolony")], 
+                paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_sub", subsets[j], ".txt"),
+                sep= ",", col.names = FALSE, row.names = FALSE)
+    # save full csv
+    write.csv(genotypes_subset_mix, 
+              paste0("simulate_data/colony_assignments/test_sample_size/true_data/mixtus_sub", subsets[j], ".csv"))
+    
+    # make subset for impatiens
+    genotypes_subset_imp = genotypes_imp[sample(nrow(genotypes_imp), rows_keep), ]
+    # write txt file for colony
+    write.table(genotypes_subset_imp[,!colnames(genotypes_subset_imp) %in% c("truecolony")], 
+                paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_sub", subsets[j], ".txt"),
+                sep= ",", col.names = FALSE, row.names = FALSE)
+    # save full csv
+    write.csv(genotypes_subset_imp, 
+              paste0("simulate_data/colony_assignments/test_sample_size/true_data/impatiens_sub", subsets[j], ".csv"))
+  }
+}
+
+
+
+# Construct .DAT files for COLONY
+# manually change these files to run colony with or without female monogamy -- it's faster than running through all the steps again
+# impatiens
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.DAT", delim=",")
+
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.2.DAT", delim=",")
+
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.4.DAT", delim=",")
+
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.6.DAT", delim=",")
+
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.8.DAT", delim=",")
+
+rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
+                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp1.DAT", delim=",")
+
+

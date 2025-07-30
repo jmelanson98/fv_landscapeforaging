@@ -60,11 +60,11 @@ zeta ~ normal(0, 1);
         dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
         lambda[i, k] = (-dis[i,k]/rho) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
       }
-    // compute  multinomial probabilities for colony i
-    multi_probs = softmax(lambda[i,]');
+      // compute  multinomial probabilities for colony i
+      multi_probs = softmax(lambda[i,]');
     
-    // add to target likelihood (trap counts for colony i)
-    y[i,] ~ multinomial(multi_probs);
+      // add to target likelihood (trap counts for colony i)
+      y[i,] ~ multinomial(multi_probs);
     }
 }
 
