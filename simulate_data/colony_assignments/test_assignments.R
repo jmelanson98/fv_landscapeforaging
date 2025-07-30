@@ -581,3 +581,47 @@ ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
 ################################################################################
 ## Test accuracy across datasets of different sizes, with realistic error rates
 ################################################################################
+
+# read in real error rate files
+mixtus_errors = read.table("data/merged_by_year/error_rates/mixtus_error_rates.txt", sep = ",")
+colnames(mixtus_errors) = mixtus_errors[1,]
+mixtus_errors = mixtus_errors[-1,]
+
+impatiens_errors = read.table("data/merged_by_year/error_rates/impatiens_error_rates.txt", sep = ",")
+colnames(impatiens_errors) = impatiens_errors[1,]
+impatiens_errors = impatiens_errors[-1,]
+
+# get allele names
+mixtus_alleles = colnames(mixtus_errors)
+impatiens_alleles = colnames(impatiens_errors)
+
+# load in real genotype files and get missing rates
+mixtus_scores = read.csv("data/merged_by_year/csvs/mixtus_2023_scores.csv")[,-1]
+impatiens_scores = read.csv("data/merged_by_year/csvs/impatiens_2023_scores.csv")[,-1]
+
+mixtus_missing =  setNames(data.frame(matrix(ncol = length(mixtus_alleles), nrow = 0)), mixtus_alleles)
+for (i in 1:length(mixtus_alleles)){
+  allele = mixtus_alleles[i]
+  mixtus_missing[1,i] = sum(colSums(mixtus_scores[,str_detect(colnames(mixtus_scores), allele)] ==0)) / (2*nrow(mixtus_scores))
+}
+
+impatiens_missing =  setNames(data.frame(matrix(ncol = length(impatiens_alleles), nrow = 0)), impatiens_alleles)
+for (i in 1:length(impatiens_alleles)){
+  allele = impatiens_alleles[i]
+  impatiens_missing[1,i] = sum(colSums(impatiens_scores[,str_detect(colnames(impatiens_scores), allele)] ==0)) / (2*nrow(impatiens_scores))
+}
+
+
+# to induce errors and missingness
+example_mix = mixGenotypesList[[1]]
+example_imp = impGenotypesList[[1]]
+
+mixInduced = induceErrors(genotypeDF = example_mix,
+                          errorRates = mixtus_errors,
+                          missingRates = mixtus_missing,
+                          alleleFreqs = mixtus_alellefreq)
+
+impInduced = induceErrors(genotypeDF = example_imp,
+                          errorRates = impatiens_errors,
+                          missingRates = impatiens_missing,
+                          alleleFreqs = impatiens_alellefreq)
