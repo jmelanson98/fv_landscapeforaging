@@ -669,6 +669,9 @@ for (i in 1:length(yobs_list)){
 
 sibship_genotypes = list(mixGenotypesList, impGenotypesList)
 saveRDS(sibship_genotypes, "simulate_data/colony_assignments/test_sample_size/sibship_genotypes.RDS")
+# sibship_genotypes = readRDS("simulate_data/colony_assignments/test_sample_size/sibship_genotypes.RDS")
+# mixGenotypesList = sibship_genotypes[[1]]
+# impGenotypesList = sibship_genotypes[[2]]
 
 # Now, subset each dataset to contain 100%, 80%, 60%, 40%, 20%, 10%, 5%, 2.5% of individuals
 subsets = c(1, 0.8, 0.6, 0.4, 0.2, 0.1, 0.05, 0.025)
@@ -684,45 +687,60 @@ for (i in 1:length(mixGenotypesList)){
 
     # write txt file for colony
     write.table(genotypes_subset_mix[,!colnames(genotypes_subset_mix) %in% c("truecolony")], 
-                paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_sub", subsets[j], ".txt"),
+                paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_set", i, "_sub", subsets[j], ".txt"),
                 sep= ",", col.names = FALSE, row.names = FALSE)
     # save full csv
     write.csv(genotypes_subset_mix, 
-              paste0("simulate_data/colony_assignments/test_sample_size/true_data/mixtus_sub", subsets[j], ".csv"))
+              paste0("simulate_data/colony_assignments/test_sample_size/true_data/mixtusset", i, "_sub", subsets[j], ".csv"))
     
     # make subset for impatiens
     genotypes_subset_imp = genotypes_imp[sample(nrow(genotypes_imp), rows_keep), ]
     # write txt file for colony
     write.table(genotypes_subset_imp[,!colnames(genotypes_subset_imp) %in% c("truecolony")], 
-                paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_sub", subsets[j], ".txt"),
+                paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_set", i, "_sub", subsets[j], ".txt"),
                 sep= ",", col.names = FALSE, row.names = FALSE)
     # save full csv
     write.csv(genotypes_subset_imp, 
-              paste0("simulate_data/colony_assignments/test_sample_size/true_data/impatiens_sub", subsets[j], ".csv"))
+              paste0("simulate_data/colony_assignments/test_sample_size/true_data/impatiens_set", i, "_sub", subsets[j], ".csv"))
   }
 }
 
 
 
 # Construct .DAT files for COLONY
-# manually change these files to run colony with or without female monogamy -- it's faster than running through all the steps again
-# impatiens
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.DAT", delim=",")
+mixtus_errors_filepath = "data/merged_by_year/error_rates/mixtus_error_rates.txt"
+impatiens_errors_filepath = "data/merged_by_year/error_rates/impatiens_error_rates.txt"
 
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.2.DAT", delim=",")
-
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.4.DAT", delim=",")
-
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.6.DAT", delim=",")
-
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.8.DAT", delim=",")
-
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp1.DAT", delim=",")
-
-
+for (i in 1:length(mixGenotypesList)){
+  for (j in 1:length(subsets)){
+    # get sample size, working directory
+    size = nrow(mixGenotypesList[[i]]) * subsets[j]
+    workingdir = "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux"
+    
+    # get genotype filepaths
+    mixtus_genotypes_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_set", i, "_sub", subsets[j], ".txt")
+    impatiens_genotypes_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_set", i, "_sub", subsets[j], ".txt")
+    
+    #build .DAT for mixtus
+    rcolony::build.colony.superauto(wd=workingdir, 
+                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_set", i, "_sub", subsets[j], ".DAT"), 
+                                    datasetname = paste0("mixtus_set", i, "_sub", subsets[j]),
+                                    delim=",",
+                                    sample_size = size,
+                                    num_loci = 10,
+                                    error_rates_path = mixtus_errors_filepath,
+                                    genotypes_path = mixtus_genotypes_filepath
+                                    )
+    
+    # build .DAT for impatiens
+    rcolony::build.colony.superauto(wd=workingdir, 
+                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_set", i, "_sub", subsets[j], ".DAT"), 
+                                    datasetname = paste0("impatiens_set", i, "_sub", subsets[j]),
+                                    delim=",",
+                                    sample_size = size,
+                                    num_loci = 12,
+                                    error_rates_path = impatiens_errors_filepath,
+                                    genotypes_path = impatiens_genotypes_filepath
+    )
+  }
+}
