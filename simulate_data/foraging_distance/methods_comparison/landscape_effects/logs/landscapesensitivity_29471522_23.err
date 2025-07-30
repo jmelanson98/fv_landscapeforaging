@@ -72,3 +72,11 @@ The following object is masked from ‘package:rstan’:
 
     extract
 
+Warning message:
+Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
+Running the chains for more iterations may help. See
+https://mc-stan.org/misc/warnings.html#tail-ess 
+Error in `$<-.data.frame`(`*tmp*`, model_estimate, value = c(`colony_dist[1]` = 165.937646490011,  : 
+  replacement has 475 rows, data has 7000
+Calls: $<- -> $<-.data.frame
+Execution halted
