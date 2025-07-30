@@ -72,3 +72,7 @@ The following object is masked from ‘package:rstan’:
 
     extract
 
+Error in `$<-.data.frame`(`*tmp*`, model_estimate, value = c(`colony_dist[1]` = 137.437588135969,  : 
+  replacement has 377 rows, data has 7000
+Calls: $<- -> $<-.data.frame
+Execution halted
