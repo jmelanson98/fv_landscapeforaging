@@ -73,8 +73,8 @@ yobs_detected = yobs[rowSums(yobs) > 0,]
 data = list()
 data$K = 25
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
-data$lowerbound = 400
-data$upperbound = 1100
+data$lowerbound = 0
+data$upperbound = 1500
 data$floral = trap_data$fq
 data$priorVa = 1
 data$priorCo = 3
@@ -85,10 +85,10 @@ data$C = nrow(data$y)
 
 
 #select stan model to fit
-stanfile = paste("models/multinomial_muprior.stan")
+stanfile = paste("models/multinomial.stan")
 
 #fit and save model
-stanFitMultinomialNegPrior = stan(file = stanfile,
+stanFitMultinomialWide = stan(file = stanfile,
               data = data, seed = 5838299,
               chains = 4, cores = 4,
               iter = 4000, warmup = 1000,
