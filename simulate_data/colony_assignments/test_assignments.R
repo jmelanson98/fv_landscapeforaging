@@ -613,13 +613,8 @@ for (i in 1:length(impatiens_alleles)){
 
 
 # Generate three sibship data sets (e.g., 3 x yobs) of 2000 individuals each
-yobs_list = list()
-yobs_detected_list = list()
-colony_data_list = list()
-colony_data_detected_list = list()
-trap_data_list = list()
-
-for (i in 1:3){
+numsims = 5
+for (i in 4:5){
   result = draw_simple_multi_landscape(sample_size = 2000,
                                        num_landscape = 6,
                                        landscape_size = 1500,
@@ -629,13 +624,7 @@ for (i in 1:3){
                                        colony_sizes = rep(100,20000),
                                        rho = 100,
                                        distance_decay = "exponential")
-  yobs_list[[i]] = result[[1]]
-  yobs_detected_list[[i]] = yobs_list[[i]][rowSums(yobs_list[[i]]) > 0,]
-  colony_data_list[[i]] = result[[2]]
-  colony_data_detected_list[[i]] = result[[2]][rowSums(yobs_list[[i]]) > 0,]
-  trap_data_list[[i]] = result[[3]]
-  
-  sibship_data = list(yobs_list[[i]], yobs_detected_list[[i]], colony_data_list[[i]], colony_data_detected_list[[i]], trap_data_list[[i]])
+  sibship_data = list(result[[1]], result[[1]][rowSums(result[[1]])>0,], result[[2]], result[[2]][rowSums(result[[1]])>0,], result[[3]])
   saveRDS(sibship_data, paste0("simulate_data/colony_assignments/test_sample_size/sim", i, ".RDS"))
 }
 
@@ -645,12 +634,13 @@ impGenotypesList = list()
 mixGenotypesList = list()
 
 # Simulate genotypes for each species and mating condition
-for (i in 1:length(yobs_list)){
+for (i in 1:numsims){
   sibship_data = readRDS(paste0("simulate_data/colony_assignments/test_sample_size/sim", i, ".RDS"))
   # simulate imp genotypes
   tempImp = simulateGenotypes(alleleFreqs = impatiens_alellefreq,
                            colonyDataDetected = sibship_data[[4]],
                            observationMatrix = sibship_data[[2]],
+                           trapData = sibship_data[[5]],
                            probMultiplePaternity = 0)
   # induce errors and missingness
   impGenotypesList[[i]] = induceErrors(genotypeDF = tempImp,
@@ -660,6 +650,7 @@ for (i in 1:length(yobs_list)){
   tempMix = simulateGenotypes(alleleFreqs = mixtus_alellefreq,
                               colonyDataDetected = sibship_data[[4]],
                               observationMatrix = sibship_data[[2]],
+                              trapData = sibship_data[[5]],
                               probMultiplePaternity = 0)
   mixGenotypesList[[i]] = induceErrors(genotypeDF = tempMix,
                                        errorRates = mixtus_errors,
@@ -673,8 +664,8 @@ saveRDS(sibship_genotypes, "simulate_data/colony_assignments/test_sample_size/si
 # mixGenotypesList = sibship_genotypes[[1]]
 # impGenotypesList = sibship_genotypes[[2]]
 
-# Now, subset each dataset to contain 100%, 80%, 60%, 40%, 20%, 10%, 5%, 2.5% of individuals
-subsets = c(1, 0.8, 0.6, 0.4, 0.2, 0.1, 0.05, 0.025)
+# Now, subset each dataset to contain 100%, 80%, 60%, 40%, 20%, 10% of individuals
+subsets = c(1, 0.8, 0.6, 0.4, 0.2, 0.1)
 for (i in 1:length(mixGenotypesList)){
     genotypes_mix = mixGenotypesList[[i]]
     genotypes_imp = impGenotypesList[[i]]
@@ -684,27 +675,53 @@ for (i in 1:length(mixGenotypesList)){
     
     # make subset for mixtus
     genotypes_subset_mix = genotypes_mix[sample(nrow(genotypes_mix), rows_keep), ]
+    
+    # make sibship exclusion table
+    subset_exclusion_mix = createExclusionTable(genotypes_subset_mix)
 
     # write txt file for colony
-    write.table(genotypes_subset_mix[,!colnames(genotypes_subset_mix) %in% c("truecolony")], 
+    write.table(genotypes_subset_mix[,!colnames(genotypes_subset_mix) %in% c("truecolony", "landscape_id", "trap_id")], 
                 paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_set", i, "_sub", subsets[j], ".txt"),
                 sep= ",", col.names = FALSE, row.names = FALSE)
     # save full csv
     write.csv(genotypes_subset_mix, 
-              paste0("simulate_data/colony_assignments/test_sample_size/true_data/mixtusset", i, "_sub", subsets[j], ".csv"))
+              paste0("simulate_data/colony_assignments/test_sample_size/true_data/mixtus_set", i, "_sub", subsets[j], ".csv"))
+    # write sibship exclusion table
+    write.table(
+      subset_exclusion_mix,
+      file = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_exclusion", i, "_sub", subsets[j], ".txt"),
+      sep = ",",
+      quote = FALSE,
+      row.names = FALSE,
+      col.names = FALSE,
+      na = ""
+    )
     
     # make subset for impatiens
     genotypes_subset_imp = genotypes_imp[sample(nrow(genotypes_imp), rows_keep), ]
+    
+    # make exclusion table
+    subset_exclusion_imp = createExclusionTable(genotypes_subset_imp)
+    
     # write txt file for colony
-    write.table(genotypes_subset_imp[,!colnames(genotypes_subset_imp) %in% c("truecolony")], 
+    write.table(genotypes_subset_imp[,!colnames(genotypes_subset_imp) %in% c("truecolony", "landscape_id", "trap_id")], 
                 paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_set", i, "_sub", subsets[j], ".txt"),
                 sep= ",", col.names = FALSE, row.names = FALSE)
     # save full csv
     write.csv(genotypes_subset_imp, 
               paste0("simulate_data/colony_assignments/test_sample_size/true_data/impatiens_set", i, "_sub", subsets[j], ".csv"))
+    # write exclusion table
+    write.table(
+      subset_exclusion_imp,
+      file = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_exclusion", i, "_sub", subsets[j], ".txt"),
+      sep = ",",
+      quote = FALSE,
+      row.names = FALSE,
+      col.names = FALSE,
+      na = ""
+    )
   }
 }
-
 
 
 # Construct .DAT files for COLONY
@@ -713,6 +730,7 @@ impatiens_errors_filepath = "data/merged_by_year/error_rates/impatiens_error_rat
 
 for (i in 1:length(mixGenotypesList)){
   for (j in 1:length(subsets)){
+    for (k in c("exclusion", "no_exclusion")){
     # get sample size, working directory
     size = nrow(mixGenotypesList[[i]]) * subsets[j]
     workingdir = "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux"
@@ -721,27 +739,39 @@ for (i in 1:length(mixGenotypesList)){
     mixtus_genotypes_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_set", i, "_sub", subsets[j], ".txt")
     impatiens_genotypes_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_set", i, "_sub", subsets[j], ".txt")
     
+    # get exclusion paths
+    if (k == "exclusion"){
+      mixtus_exclusion_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_exclusion", i, "_sub", subsets[j], ".txt")
+      impatiens_exclusion_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_exclusion", i, "_sub", subsets[j], ".txt")
+    } else {
+      mixtus_exclusion_filepath = NULL
+      impatiens_exclusion_filepath = NULL
+    }
+    
     #build .DAT for mixtus
     rcolony::build.colony.superauto(wd=workingdir, 
-                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_set", i, "_sub", subsets[j], ".DAT"), 
-                                    datasetname = paste0("mixtus_set", i, "_sub", subsets[j]),
+                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_set", i, "_sub", subsets[j], "_", k, ".DAT"), 
+                                    datasetname = paste0("mixtus_set", i, "_sub", subsets[j], "_", k),
                                     delim=",",
                                     sample_size = size,
                                     num_loci = 10,
                                     error_rates_path = mixtus_errors_filepath,
-                                    genotypes_path = mixtus_genotypes_filepath
+                                    genotypes_path = mixtus_genotypes_filepath,
+                                    exclusion_path = mixtus_exclusion_filepath
                                     )
     
     # build .DAT for impatiens
     rcolony::build.colony.superauto(wd=workingdir, 
-                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_set", i, "_sub", subsets[j], ".DAT"), 
-                                    datasetname = paste0("impatiens_set", i, "_sub", subsets[j]),
+                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_set", i, "_sub", subsets[j], "_", k, ".DAT"), 
+                                    datasetname = paste0("impatiens_set", i, "_sub", subsets[j], "_", k),
                                     delim=",",
                                     sample_size = size,
                                     num_loci = 12,
                                     error_rates_path = impatiens_errors_filepath,
-                                    genotypes_path = impatiens_genotypes_filepath
+                                    genotypes_path = impatiens_genotypes_filepath,
+                                    exclusion_path = impatiens_exclusion_filepath
     )
+    }
   }
 }
 
@@ -750,7 +780,7 @@ for (i in 1:length(mixGenotypesList)){
 # Load in results from COLONY
 files = c("mixtus_set1_sub0.8", "mixtus_set1_sub0.6", "mixtus_set1_sub0.4", "mixtus_set1_sub0.2", "mixtus_set1_sub0.1", "mixtus_set1_sub0.05",
           "mixtus_set2_sub0.8", "mixtus_set2_sub0.6", "mixtus_set2_sub0.4", "mixtus_set2_sub0.2", "mixtus_set2_sub0.1", "mixtus_set2_sub0.05", "mixtus_set2_sub0.025",
-          "mixtus_set3_sub0.8", "mixtus_set3_sub0.6", "mixtus_set3_sub0.4", "mixtus_set3_sub0.2", "mixtus_set3_sub0.1", "mixtus_set3_sub0.05")
+          "mixtus_set3_sub0.8", "mixtus_set3_sub0.6", "mixtus_set3_sub0.4", "mixtus_set3_sub0.2", "mixtus_set3_sub0.1", "mixtus_set3_sub0.05",
           "impatiens_set1_sub0.8", "impatiens_set1_sub0.4", "impatiens_set1_sub0.2", "impatiens_set1_sub0.1", "impatiens_set1_sub0.05", "impatiens_set1_sub0.025",
           "impatiens_set2_sub0.8", "impatiens_set2_sub0.6", "impatiens_set2_sub0.4", "impatiens_set2_sub0.2", "impatiens_set2_sub0.1", "impatiens_set2_sub0.05", "impatiens_set2_sub0.025",
           "impatiens_set3_sub0.8", "impatiens_set3_sub0.6", "impatiens_set3_sub0.4", "impatiens_set3_sub0.2", "impatiens_set3_sub0.1", "impatiens_set3_sub0.05", "impatiens_set3_sub0.025")
@@ -778,7 +808,7 @@ for (i in 1:length(files)){
   true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", genotypesim, ".csv"))
   
   # set probability threshold
-  prob_thresh = 0.99
+  prob_thresh = 0.1
   
   # filter colony outputs
   colony_output = colony_output %>% filter(Probability >= prob_thresh)
@@ -842,9 +872,9 @@ errors$sub_value = str_extract(errors$test_condition, "(?<=sub)[0-9.]+")
 errors$numbees = 2000*as.numeric(errors$sub_value)
 
 ggplot(errors) +
-  geom_point(aes(x = test_condition, y = numFP, color = "Number FP")) +
-  geom_point(aes(x = test_condition, y = numFN, color = "Number FN")) +
-  geom_point(aes(x = test_condition, y = total_real, color = "Total true")) +
+  geom_point(aes(x = numbees, y = numFP, color = "Number FP")) +
+  geom_point(aes(x = numbees, y = numFN, color = "Number FN")) +
+  geom_point(aes(x = numbees, y = total_real, color = "Total true")) +
   xlab("Simulation and COLONY Conditions") +
   ylab("Number of inferred or true relationships") +
   labs(title = "Sibship inclusion: P = 0.95") +
@@ -865,7 +895,7 @@ ggplot(errors, aes(x = test_condition, y = FNR)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
-ggplot(errors, aes(x = numbees, y = FNR)) +
+ggplot(errors, aes(x = numbees, y = FPR)) +
   geom_point() +
   xlab("Simulation and COLONY Conditions") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
