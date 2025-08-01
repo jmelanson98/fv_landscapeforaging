@@ -1,0 +1,52 @@
+
+-----------------------------------------------------------------------------------------
+COLONY, Version 2.0.7.1, Build 20240225, Expire Date 20340225
+Copyright (C) 2005-2024 Jinliang Wang, Institute of Zoology, Zoological Society of London
+Email: jinliang.wang@ioz.ac.uk
+-----------------------------------------------------------------------------------------
+
+Opening & reading data input file: mixtus_set3_sub0.025.DAT
+Reading 50 offspring genotypes at 10 loci...
+/  
+Writing updated allele frequency...
+Writing data to files...
+Estimating sibship with pairwise approach...
+Computing likelihood of initial config
+/-\|/  Done for all 50 families                       
+  
+------------------------------------------------------------
+Run=1, Tmr=29, Itr=2849307, NSucc=8615, NSuccLmt=43750, NFail1=184988, NFail1Lmt=700000
+NFail2=2385822, NFail2Lmt=3500000, SucRate%=4.6571, SucLmt%=19.6914, FailLmt%=26.4269, IterLmt%=2.1141
+CrLogL=-1.61392E+03, #F1=50, #F2=50, #F3=50, #FS=50, HSPair=0, FSPair=0, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
+BtLogL=-1.60577E+03, #F1=47, #F2=47, #F3=47, #FS=47, HSPair=0, FSPair=3, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
+Initiated:D=30/07/2025 T=01/50/19  Started:D=30/07/2025 T=01/50/19  Current:D=30/07/2025 T=01/51/19, TotalRunningTime(Min)=1.00E+00
+------------------------------------------------------------
+Run=1, Tmr=33, Itr=5615936, NSucc=3057, NSuccLmt=43750, NFail1=151617, NFail1Lmt=700000
+NFail2=5152451, NFail2Lmt=3500000, SucRate%=2.0163, SucLmt%=6.9874, FailLmt%=21.6596, IterLmt%=1.7328
+CrLogL=-1.61048E+03, #F1=49, #F2=49, #F3=49, #FS=49, HSPair=0, FSPair=1, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
+BtLogL=-1.60577E+03, #F1=47, #F2=47, #F3=47, #FS=47, HSPair=0, FSPair=3, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
+Initiated:D=30/07/2025 T=01/50/19  Started:D=30/07/2025 T=01/50/19  Current:D=30/07/2025 T=02/52/19, TotalRunningTime(Min)=2.00E+00
+--------------------------------------------------------
+
+Preparing & outputing results...
+Computing FS family likelihood...
+  
+Computing FS family probabilities...
+/-\|/-\|/- 
+Output archived configurations and summary statistics...
+/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/- 
+Computing sib dyad probabilities...
+/-\|/-\| 
+Computing parent-offspring dyad probabilities...
+Inferring genotypes and allele frequencies...
+  Locus: 1 - 10
+Computing likelihood of initial config
+/-\|  Done for all 47 families                       
+  
+
+Estimating genotyping error rates...
+/  Done for all loci.
+               
+Estimating Ne by sibship frequencies...
+
+Output to file : mixtus_set3_sub0.025
