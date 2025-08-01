@@ -95,8 +95,6 @@ stanFitMultinomialWide = stan(file = stanfile,
               verbose = TRUE)
 saveRDS(stanFitObs_widerlimit, file="simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
 stanFitObs_widerlimit = readRDS("simulate_data/foraging_distance/methods_comparison/observed_vs_unobserved/stanFitObsWiderLimit.RDS")
-# when I ran these, the generated quantities block of exponential.stan had an error :(
-# so ignore the colony dist estimates, they're all wrong
 
 # okay so initial thoughts...maintaining the zeros makes a HUGE difference
 # for all colonies included, rho = 53 
@@ -114,7 +112,7 @@ colony_observed = colony_data[rowSums(yobs) > 0,]
 
 for (i in 1:numplots){
   c_id = colony_observed$colonyid[i]
-  delta_draws = as.data.frame(rstan::extract(stanFitObs_widerlimit, pars = "delta")$delta[, c_id,])
+  delta_draws = as.data.frame(rstan::extract(stanFitMultinomialWide, pars = "delta")$delta[, c_id,])
   colnames(delta_draws) = c("x","y")
   trap_data$trap_count = yobs_detected[c_id, ]
   
@@ -153,7 +151,7 @@ for (i in 1:numplots){
 
 fig = grid.arrange(grobs = plot_list, ncol = 3)
 #fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
-ggsave("figures/simfigs/colonyposteriors_widelimits.png", fig, height = 1500, width = 1500, units = "px")
+ggsave("figures/simfigs/colonyposteriors_multinomial_wide.png", fig, height = 1500, width = 1500, units = "px")
 
 
 # # check worker distributions
