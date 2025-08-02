@@ -583,21 +583,64 @@ ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
 ################################################################################
 
 # read in real error rate files
-mixtus_errors = read.table("data/merged_by_year/error_rates/mixtus_error_rates.txt", sep = ",")
+mixtus_error_rates = data.frame(#c("BT10", 0, 0, 0.01),
+                                #c("BTMS0104", 0, 0, 0.01),
+                                #c("BTMS0057", 0, 0, 0.01),
+                                c("BTMS0086", 0, 0, 0.015),
+                                c("BTMS0066", 0, 0, 0.01),
+                                c("BTMS0062", 0, 0, 0.015),
+                                c("BTMS0136", 0, 0, 0.01),
+                                #c("BTERN01", 0, 0, 0.0215),
+                                c("BTMS0126", 0, 0, 0.0162),
+                                #c("BTMS0059", 0, 0, 0.01),
+                                c("BL13", 0, 0, 0.0159),
+                                c("BTMS0083", 0, 0, 0.01),
+                                c("B126", 0, 0, 0.01))
+write.table(mixtus_error_rates, "simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_error_rates.txt", 
+            sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
+mixtus_errors = read.table("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_error_rates.txt", sep = ",")
 colnames(mixtus_errors) = mixtus_errors[1,]
 mixtus_errors = mixtus_errors[-1,]
 
-impatiens_errors = read.table("data/merged_by_year/error_rates/impatiens_error_rates.txt", sep = ",")
+impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
+                                   c("B96", 0, 0, 0.027),
+                                   c("BTMS0059", 0, 0, 0.017),
+                                   c("BTMS0081", 0, 0, 0.016),
+                                   c("BL13", 0, 0, 0.011),
+                                   c("BTMS0062", 0, 0, 0.022),
+                                   #c("B126", 0, 0, 0.01),
+                                   c("BTERN01", 0, 0, 0.028),
+                                   c("B124", 0, 0, 0.011),
+                                   #c("BTMS0057", 0, 0, 0.017),
+                                   c("BT30", 0, 0, 0.01),
+                                   c("B10", 0, 0, 0.029),
+                                   c("BTMS0083", 0, 0, 0.01)
+                                   #c("BTMS0073", 0, 0, 0.01),
+                                   #c("BT28", 0, 0, 0.01)
+)
+write.table(impatiens_error_rates, "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt", 
+            sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
+impatiens_errors = read.table("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt", sep = ",")
 colnames(impatiens_errors) = impatiens_errors[1,]
 impatiens_errors = impatiens_errors[-1,]
 
+
 # get allele names
-mixtus_alleles = colnames(mixtus_errors)
-impatiens_alleles = colnames(impatiens_errors)
+mixtus_alleles = as.vector(as.matrix(mixtus_error_rates[1, ]))
+impatiens_alleles = as.vector(as.matrix(impatiens_error_rates[1,]))
+
+# load in allele frequency files
+impatiens_alellefreq = read.csv("colony_assignments/Colony2/initial/impatiens2023.AlleleFreq")
+mixtus_alellefreq = read.csv("colony_assignments/Colony2/initial/mixtus2023.AlleleFreq")
+
+# remove loci not being used
+impatiens_alellefreq = impatiens_alellefreq %>% filter(MarkerID %in% impatiens_alleles)
+mixtus_alellefreq = mixtus_alellefreq %>% filter(MarkerID %in% mixtus_alleles)
+
 
 # load in real genotype files and get missing rates
-mixtus_scores = read.csv("data/merged_by_year/csvs/mixtus_2023_scores.csv")[,-1]
-impatiens_scores = read.csv("data/merged_by_year/csvs/impatiens_2023_scores.csv")[,-1]
+mixtus_scores = read.csv("data/merged_by_year/csvs/mixtus_2023_scores_finalloci.csv")[,-1]
+impatiens_scores = read.csv("data/merged_by_year/csvs/impatiens_2023_scores_finalloci.csv")[,-1]
 
 mixtus_missing =  setNames(data.frame(matrix(ncol = length(mixtus_alleles), nrow = 0)), mixtus_alleles)
 for (i in 1:length(mixtus_alleles)){
@@ -614,7 +657,7 @@ for (i in 1:length(impatiens_alleles)){
 
 # Generate three sibship data sets (e.g., 3 x yobs) of 2000 individuals each
 numsims = 5
-for (i in 4:5){
+for (i in 1:numsims){
   result = draw_simple_multi_landscape(sample_size = 2000,
                                        num_landscape = 6,
                                        landscape_size = 1500,
@@ -642,20 +685,24 @@ for (i in 1:numsims){
                            observationMatrix = sibship_data[[2]],
                            trapData = sibship_data[[5]],
                            probMultiplePaternity = 0)
+  print("Imp sim done")
   # induce errors and missingness
   impGenotypesList[[i]] = induceErrors(genotypeDF = tempImp,
                                        errorRates = impatiens_errors,
                                        missingRates = impatiens_missing,
                                        alleleFreqs = impatiens_alellefreq)
+  print("imp errors done")
   tempMix = simulateGenotypes(alleleFreqs = mixtus_alellefreq,
                               colonyDataDetected = sibship_data[[4]],
                               observationMatrix = sibship_data[[2]],
                               trapData = sibship_data[[5]],
                               probMultiplePaternity = 0)
+  print("mix sim done")
   mixGenotypesList[[i]] = induceErrors(genotypeDF = tempMix,
                                        errorRates = mixtus_errors,
                                        missingRates = mixtus_missing,
                                        alleleFreqs = mixtus_alellefreq)
+  print("mix errors done")
 }
 
 sibship_genotypes = list(mixGenotypesList, impGenotypesList)
@@ -725,8 +772,8 @@ for (i in 1:length(mixGenotypesList)){
 
 
 # Construct .DAT files for COLONY
-mixtus_errors_filepath = "data/merged_by_year/error_rates/mixtus_error_rates.txt"
-impatiens_errors_filepath = "data/merged_by_year/error_rates/impatiens_error_rates.txt"
+mixtus_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
+impatiens_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
 
 for (i in 1:length(mixGenotypesList)){
   for (j in 1:length(subsets)){

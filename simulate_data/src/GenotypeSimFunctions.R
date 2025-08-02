@@ -151,7 +151,7 @@ induceErrors = function(genotypeDF,
 createExclusionTable = function(genotypeDF){
   # each row is excluded sibships for an individual; 
   # column 1 is the focal sibling, column 2 is number of excluded sibs, additional columns are excluded sibs
-  sites = genotypeDF$landscape_id
+  sites = unique(genotypeDF$landscape_id)
   excluded_sibships = list()
   sample.names = genotypeDF$individual
   
