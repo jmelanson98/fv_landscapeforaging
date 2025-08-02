@@ -772,7 +772,7 @@ for (i in 1:length(mixGenotypesList)){
 
 
 # Construct .DAT files for COLONY
-mixtus_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
+mixtus_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_error_rates.txt"
 impatiens_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
 
 for (i in 1:nsim){
@@ -797,11 +797,11 @@ for (i in 1:nsim){
     
     #build .DAT for mixtus
     rcolony::build.colony.superauto(wd=workingdir, 
-                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/mixtus_set", i, "_sub", subsets[j], "_", k, ".DAT"), 
+                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_sample_size/colony_output/mixtus_set", i, "_sub", subsets[j], "_", k, ".DAT"), 
                                     datasetname = paste0("mixtus_set", i, "_sub", subsets[j], "_", k),
                                     delim=",",
                                     sample_size = size,
-                                    num_loci = 10,
+                                    num_loci = 8,
                                     error_rates_path = mixtus_errors_filepath,
                                     genotypes_path = mixtus_genotypes_filepath,
                                     exclusion_path = mixtus_exclusion_filepath
@@ -809,11 +809,11 @@ for (i in 1:nsim){
     
     # build .DAT for impatiens
     rcolony::build.colony.superauto(wd=workingdir, 
-                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/impatiens_set", i, "_sub", subsets[j], "_", k, ".DAT"), 
+                                    name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_sample_size/colony_output/impatiens_set", i, "_sub", subsets[j], "_", k, ".DAT"), 
                                     datasetname = paste0("impatiens_set", i, "_sub", subsets[j], "_", k),
                                     delim=",",
                                     sample_size = size,
-                                    num_loci = 12,
+                                    num_loci = 11,
                                     error_rates_path = impatiens_errors_filepath,
                                     genotypes_path = impatiens_genotypes_filepath,
                                     exclusion_path = impatiens_exclusion_filepath
