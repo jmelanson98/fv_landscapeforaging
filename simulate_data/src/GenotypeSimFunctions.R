@@ -10,6 +10,7 @@
 
 simulateGenotypes = function(alleleFreqs,
                             colonyDataDetected,
+                            trapData,
                             observationMatrixDetected,
                             probMultiplePaternity = NULL
 ){
@@ -21,7 +22,7 @@ simulateGenotypes = function(alleleFreqs,
     temp = c(paste0(name, "_1"), paste0(name, "_2"))
     df_columns = c(df_columns, temp)
   }
-  df_columns = c("individual", "truecolony", df_columns)
+  df_columns = c("individual", "truecolony", "landscape_id", "trap_id", df_columns)
   
   #create master dataframe
   sample_df =  setNames(data.frame(matrix(ncol = length(df_columns), nrow = 0)), df_columns)
@@ -44,12 +45,15 @@ simulateGenotypes = function(alleleFreqs,
     # Fill known columns with data
     singlesibship_df$individual = (count+1):(count+numsibs)
     singlesibship_df$truecolony = rep(colonyDataDetected$colonyid[colony], numsibs)
+    trap_detected = which(observationMatrixDetected[colony,] >0)
+    singlesibship_df$trap_id = rep(trap_detected, times = observationMatrixDetected[colony, trap_detected])
+    singlesibship_df$landscape_id = trapData$landscapeid[match(singlesibship_df$trap_id, trapData$trapid)]
     
     #increase count for next sibship df
     count = max(singlesibship_df$individual)
     
     # for each allele, assign some values to the queen
-    allelecounter = 2
+    allelecounter = 4
     
     for (allele in alleles){
       # assign queen genotypes
@@ -140,4 +144,48 @@ induceErrors = function(genotypeDF,
     }
   }
   return(genotypeDF)
+}
+
+
+
+createExclusionTable = function(genotypeDF){
+  # each row is excluded sibships for an individual; 
+  # column 1 is the focal sibling, column 2 is number of excluded sibs, additional columns are excluded sibs
+  sites = genotypeDF$landscape_id
+  excluded_sibships = list()
+  sample.names = genotypeDF$individual
+  
+  for (i in 1:length(sites)){
+    site = sites[i]
+    
+    # grep names for focal site
+    site.names = sample.names[grep(site, sample.names)]
+    
+    # list of excluded siblings
+    excluded = sample.names[!sample.names %in% site.names]
+    numex = length(excluded)
+    
+    # make a matrix of excluded samples
+    excluded.matrix <- matrix(rep(excluded, times = length(site.names)),
+                                   nrow = length(site.names), byrow = TRUE)
+    colnames(excluded.matrix) <- paste0("excluded_", seq_len(ncol(excluded.matrix)))
+    
+    
+    # create full df
+    sitedf = data.frame(focal = site.names,
+                            num_exc = numex,
+                            excluded.matrix,
+                            stringsAsFactors = FALSE
+    )
+    
+    # save exclusion dfs to list
+    excluded_sibships[[i]] = sitedf
+  }
+  
+  # make exclusion table!
+  sibexclusions = bind_rows(excluded_sibships)
+  
+  sib_reduced = sibexclusions[,!colnames(sibexclusions) %in% c("num_exc")]
+  
+  return(sib_reduced)
 }

@@ -18,7 +18,7 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 # first, load in packages
 source('colony_assignments/src/init.R')
-source('colony_assignments/src/joinFunctions.R')
+source('colony_assignments/src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -948,6 +948,23 @@ genind_imp2023 <- read.genepop("data/genepop/ms_genepop_format_impatiens2023.gen
 # calculate PIC
 pic_values_2022 <- pic_calc(genind_imp2022, ploidy = 2, bypop = FALSE)
 pic_values_2023 <- pic_calc(genind_imp2023, ploidy = 2, bypop = FALSE)
+
+#pic_values_2022
+#pic_values_2023
+
+# repeat for mixtus
+# load genepop files
+file.copy("data/genepop/ms_genepop_format_mixtus2022.txt",
+          "data/genepop/ms_genepop_format_mixtus2022.gen")
+file.copy("data/genepop/ms_genepop_format_mixtus2023.txt",
+          "data/genepop/ms_genepop_format_mixtus2023.gen")
+
+genind_mix2022 <- read.genepop("data/genepop/ms_genepop_format_mixtus2022.gen", ncode = 3)
+genind_mix2023 <- read.genepop("data/genepop/ms_genepop_format_mixtus2023.gen", ncode = 3)
+
+# calculate PIC
+pic_values_2022 <- pic_calc(genind_mix2022, ploidy = 2, bypop = FALSE)
+pic_values_2023 <- pic_calc(genind_mix2023, ploidy = 2, bypop = FALSE)
 
 #pic_values_2022
 #pic_values_2023
