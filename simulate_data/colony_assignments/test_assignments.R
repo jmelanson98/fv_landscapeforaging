@@ -775,7 +775,7 @@ for (i in 1:length(mixGenotypesList)){
 mixtus_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
 impatiens_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
 
-for (i in 1:length(mixGenotypesList)){
+for (i in 1:nsim){
   for (j in 1:length(subsets)){
     for (k in c("exclusion", "no_exclusion")){
     # get sample size, working directory
@@ -828,13 +828,11 @@ for (i in 1:length(mixGenotypesList)){
 files = c("mixtus_set1_sub0.8", "mixtus_set1_sub0.6", "mixtus_set1_sub0.4", "mixtus_set1_sub0.2", "mixtus_set1_sub0.1", "mixtus_set1_sub0.05",
           "mixtus_set2_sub0.8", "mixtus_set2_sub0.6", "mixtus_set2_sub0.4", "mixtus_set2_sub0.2", "mixtus_set2_sub0.1", "mixtus_set2_sub0.05", "mixtus_set2_sub0.025",
           "mixtus_set3_sub0.8", "mixtus_set3_sub0.6", "mixtus_set3_sub0.4", "mixtus_set3_sub0.2", "mixtus_set3_sub0.1", "mixtus_set3_sub0.05",
-          "impatiens_set1_sub0.8", "impatiens_set1_sub0.4", "impatiens_set1_sub0.2", "impatiens_set1_sub0.1", "impatiens_set1_sub0.05", "impatiens_set1_sub0.025",
-          "impatiens_set2_sub0.8", "impatiens_set2_sub0.6", "impatiens_set2_sub0.4", "impatiens_set2_sub0.2", "impatiens_set2_sub0.1", "impatiens_set2_sub0.05", "impatiens_set2_sub0.025",
-          "impatiens_set3_sub0.8", "impatiens_set3_sub0.6", "impatiens_set3_sub0.4", "impatiens_set3_sub0.2", "impatiens_set3_sub0.1", "impatiens_set3_sub0.05", "impatiens_set3_sub0.025")
+          "impatiens_set1_sub0.8", "impatiens_set1_sub0.4", "impatiens_set1_sub0.2", "impatiens_set1_sub0.1", "impatiens_set1_sub0.05",
+          "impatiens_set2_sub0.8", "impatiens_set2_sub0.6", "impatiens_set2_sub0.4", "impatiens_set2_sub0.2", "impatiens_set2_sub0.1", "impatiens_set2_sub0.05",
+          "impatiens_set3_sub0.8", "impatiens_set3_sub0.6", "impatiens_set3_sub0.4", "impatiens_set3_sub0.2", "impatiens_set3_sub0.1",
+          "mixtus_set1_sub1", "mixtus_set2_sub1", "mixtus_set3_sub1", "impatiens_set1_sub1", "impatiens_set2_sub1", "impatiens_set3_sub1", "impatiens_set1_sub0.6")
 
-notdone = c("mixtus_set1_sub1", "mixtus_set2_sub1", "mixtus_set3_sub1",
-            "impatiens_set1_sub1", "impatiens_set2_sub1", "impatiens_set3_sub1", "impatiens_set1_sub0.6")
-nosibs = c("mixtus_set1_sub0.025", "mixtus_set3_sub0.025")
 
 errors = data.frame(test_condition = files,
                     numFP = NA,
@@ -855,7 +853,7 @@ for (i in 1:length(files)){
   true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", genotypesim, ".csv"))
   
   # set probability threshold
-  prob_thresh = 0.1
+  prob_thresh = 0.95
   
   # filter colony outputs
   colony_output = colony_output %>% filter(Probability >= prob_thresh)

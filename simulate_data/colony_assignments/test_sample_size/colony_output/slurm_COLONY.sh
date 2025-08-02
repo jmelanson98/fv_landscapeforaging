@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=colony_run
-#SBATCH --array=0-47
+#SBATCH --array=0-119
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
 #SBATCH --time=12:00:00
@@ -10,14 +10,27 @@
 # Load any needed modules
 module load gcc
 
-# Your list of .DAT files (replace with real names or glob dynamically)
-FILES=(mixtus_set3_sub1.DAT mixtus_set3_sub0.8.DAT mixtus_set3_sub0.6.DAT mixtus_set3_sub0.4.DAT
-mixtus_set3_sub0.2.DAT mixtus_set3_sub0.1.DAT mixtus_set3_sub0.05.DAT mixtus_set3_sub0.025.DAT
-mixtus_set2_sub1.DAT mixtus_set2_sub0.8.DAT mixtus_set2_sub0.6.DAT mixtus_set2_sub0.4.DAT
-mixtus_set2_sub0.2.DAT mixtus_set2_sub0.1.DAT mixtus_set2_sub0.05.DAT mixtus_set2_sub0.025.DAT
-mixtus_set1_sub1.DAT mixtus_set1_sub0.8.DAT mixtus_set1_sub0.6.DAT mixtus_set1_sub0.4.DAT
-mixtus_set1_sub0.2.DAT mixtus_set1_sub0.1.DAT mixtus_set1_sub0.05.DAT mixtus_set1_sub0.025.DAT
-impatiens_set3_sub1.DAT impatiens_set3_sub0.8.DAT impatiens_set3_sub0.6.DAT impatiens_set3_sub0.4.DAT impatiens_set3_sub0.2.DAT impatiens_set3_sub0.1.DAT impatiens_set3_sub0.05.DAT impatiens_set3_sub0.025.DAT impatiens_set2_sub1.DAT impatiens_set2_sub0.8.DAT impatiens_set2_sub0.6.DAT impatiens_set2_sub0.4.DAT impatiens_set2_sub0.2.DAT impatiens_set2_sub0.1.DAT impatiens_set2_sub0.05.DAT impatiens_set2_sub0.025.DAT impatiens_set1_sub1.DAT impatiens_set1_sub0.8.DAT impatiens_set1_sub0.6.DAT impatiens_set1_sub0.4.DAT impatiens_set1_sub0.2.DAT impatiens_set1_sub0.1.DAT impatiens_set1_sub0.05.DAT impatiens_set1_sub0.025.DAT
+# Your list of _no_exclusion.DAT files (replace with real names or glob dynamically)
+FILES=(mixtus_set3_sub1_exclusion.DAT mixtus_set3_sub0.8_exclusion.DAT mixtus_set3_sub0.6_exclusion.DAT mixtus_set3_sub0.4_exclusion.DAT mixtus_set3_sub0.2_exclusion.DAT mixtus_set3_sub0.1_exclusion.DAT 
+mixtus_set2_sub1_exclusion.DAT mixtus_set2_sub0.8_exclusion.DAT mixtus_set2_sub0.6_exclusion.DAT mixtus_set2_sub0.4_exclusion.DAT mixtus_set2_sub0.2_exclusion.DAT mixtus_set2_sub0.1_exclusion.DAT 
+mixtus_set1_sub1_exclusion.DAT mixtus_set1_sub0.8_exclusion.DAT mixtus_set1_sub0.6_exclusion.DAT mixtus_set1_sub0.4_exclusion.DAT mixtus_set1_sub0.2_exclusion.DAT mixtus_set1_sub0.1_exclusion.DAT 
+mixtus_set4_sub1_exclusion.DAT mixtus_set4_sub0.8_exclusion.DAT mixtus_set4_sub0.6_exclusion.DAT mixtus_set4_sub0.4_exclusion.DAT mixtus_set4_sub0.2_exclusion.DAT mixtus_set4_sub0.1_exclusion.DAT 
+mixtus_set5_sub1_exclusion.DAT mixtus_set5_sub0.8_exclusion.DAT mixtus_set5_sub0.6_exclusion.DAT mixtus_set5_sub0.4_exclusion.DAT mixtus_set5_sub0.2_exclusion.DAT mixtus_set5_sub0.1_exclusion.DAT 
+impatiens_set3_sub1_exclusion.DAT impatiens_set3_sub0.8_exclusion.DAT impatiens_set3_sub0.6_exclusion.DAT impatiens_set3_sub0.4_exclusion.DAT impatiens_set3_sub0.2_exclusion.DAT impatiens_set3_sub0.1_exclusion.DAT 
+impatiens_set2_sub1_exclusion.DAT impatiens_set2_sub0.8_exclusion.DAT impatiens_set2_sub0.6_exclusion.DAT impatiens_set2_sub0.4_exclusion.DAT impatiens_set2_sub0.2_exclusion.DAT impatiens_set2_sub0.1_exclusion.DAT 
+impatiens_set1_sub1_exclusion.DAT impatiens_set1_sub0.8_exclusion.DAT impatiens_set1_sub0.6_exclusion.DAT impatiens_set1_sub0.4_exclusion.DAT impatiens_set1_sub0.2_exclusion.DAT impatiens_set1_sub0.1_exclusion.DAT 
+impatiens_set1_sub4_exclusion.DAT impatiens_set4_sub0.8_exclusion.DAT impatiens_set4_sub0.6_exclusion.DAT impatiens_set4_sub0.4_exclusion.DAT impatiens_set4_sub0.2_exclusion.DAT impatiens_set4_sub0.1_exclusion.DAT 
+impatiens_set1_sub5_exclusion.DAT impatiens_set5_sub0.8_exclusion.DAT impatiens_set5_sub0.6_exclusion.DAT impatiens_set5_sub0.4_exclusion.DAT impatiens_set5_sub0.2_exclusion.DAT impatiens_set5_sub0.1_exclusion.DAT 
+mixtus_set3_sub1_no_exclusion.DAT mixtus_set3_sub0.8_no_exclusion.DAT mixtus_set3_sub0.6_no_exclusion.DAT mixtus_set3_sub0.4_no_exclusion.DAT mixtus_set3_sub0.2_no_exclusion.DAT mixtus_set3_sub0.1_no_exclusion.DAT 
+mixtus_set2_sub1_no_exclusion.DAT mixtus_set2_sub0.8_no_exclusion.DAT mixtus_set2_sub0.6_no_exclusion.DAT mixtus_set2_sub0.4_no_exclusion.DAT mixtus_set2_sub0.2_no_exclusion.DAT mixtus_set2_sub0.1_no_exclusion.DAT 
+mixtus_set1_sub1_no_exclusion.DAT mixtus_set1_sub0.8_no_exclusion.DAT mixtus_set1_sub0.6_no_exclusion.DAT mixtus_set1_sub0.4_no_exclusion.DAT mixtus_set1_sub0.2_no_exclusion.DAT mixtus_set1_sub0.1_no_exclusion.DAT 
+mixtus_set4_sub1_no_exclusion.DAT mixtus_set4_sub0.8_no_exclusion.DAT mixtus_set4_sub0.6_no_exclusion.DAT mixtus_set4_sub0.4_no_exclusion.DAT mixtus_set4_sub0.2_no_exclusion.DAT mixtus_set4_sub0.1_no_exclusion.DAT 
+mixtus_set5_sub1_no_exclusion.DAT mixtus_set5_sub0.8_no_exclusion.DAT mixtus_set5_sub0.6_no_exclusion.DAT mixtus_set5_sub0.4_no_exclusion.DAT mixtus_set5_sub0.2_no_exclusion.DAT mixtus_set5_sub0.1_no_exclusion.DAT 
+impatiens_set3_sub1_no_exclusion.DAT impatiens_set3_sub0.8_no_exclusion.DAT impatiens_set3_sub0.6_no_exclusion.DAT impatiens_set3_sub0.4_no_exclusion.DAT impatiens_set3_sub0.2_no_exclusion.DAT impatiens_set3_sub0.1_no_exclusion.DAT 
+impatiens_set2_sub1_no_exclusion.DAT impatiens_set2_sub0.8_no_exclusion.DAT impatiens_set2_sub0.6_no_exclusion.DAT impatiens_set2_sub0.4_no_exclusion.DAT impatiens_set2_sub0.2_no_exclusion.DAT impatiens_set2_sub0.1_no_exclusion.DAT 
+impatiens_set1_sub1_no_exclusion.DAT impatiens_set1_sub0.8_no_exclusion.DAT impatiens_set1_sub0.6_no_exclusion.DAT impatiens_set1_sub0.4_no_exclusion.DAT impatiens_set1_sub0.2_no_exclusion.DAT impatiens_set1_sub0.1_no_exclusion.DAT 
+impatiens_set1_sub4_no_exclusion.DAT impatiens_set4_sub0.8_no_exclusion.DAT impatiens_set4_sub0.6_no_exclusion.DAT impatiens_set4_sub0.4_no_exclusion.DAT impatiens_set4_sub0.2_no_exclusion.DAT impatiens_set4_sub0.1_no_exclusion.DAT 
+impatiens_set1_sub5_no_exclusion.DAT impatiens_set5_sub0.8_no_exclusion.DAT impatiens_set5_sub0.6_no_exclusion.DAT impatiens_set5_sub0.4_no_exclusion.DAT impatiens_set5_sub0.2_no_exclusion.DAT impatiens_set5_sub0.1_no_exclusion.DAT
 )
 
 # Run COLONY on the file for this array task
