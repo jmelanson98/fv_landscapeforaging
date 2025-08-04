@@ -670,7 +670,7 @@ for (i in 1:numsims){
   sibship_data = list(result[[1]], result[[1]][rowSums(result[[1]])>0,], result[[2]], result[[2]][rowSums(result[[1]])>0,], result[[3]])
   saveRDS(sibship_data, paste0("simulate_data/colony_assignments/test_sample_size/sim", i, ".RDS"))
 }
-
+#sibdata = readRDS(paste0("simulate_data/colony_assignments/test_sample_size/sim1.RDS"))
 
 # For each data set, simulate genotypes assuming single paternity (mixtus and impatiens)
 impGenotypesList = list()
@@ -825,7 +825,7 @@ for (i in 1:nsim){
 
 
 # Load in results from COLONY
-errors = data.frame(count = 1:120,
+errors = data.frame(count = 1:50,
                     test_condition = NA,
                     exclusion = NA,
                     numFP = NA,
@@ -838,10 +838,10 @@ family_plots = list()
 count = 1
 for (i in 1:nsim){
   for (j in 1:length(subsets)){
-    for (k in c("exclusion", "no_exclusion")){
+    for (k in c("exclusion")){
       for (species in c("mixtus", "impatiens")){
       name = paste0(species, "_set", i, "_sub", subsets[j], "_", k)
-        
+      print(paste0("Loading ", name))
       filename = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".BestCluster")
       colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
       colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
