@@ -825,16 +825,9 @@ for (i in 1:nsim){
 
 
 # Load in results from COLONY
-files = c("mixtus_set1_sub0.8", "mixtus_set1_sub0.6", "mixtus_set1_sub0.4", "mixtus_set1_sub0.2", "mixtus_set1_sub0.1", "mixtus_set1_sub0.05",
-          "mixtus_set2_sub0.8", "mixtus_set2_sub0.6", "mixtus_set2_sub0.4", "mixtus_set2_sub0.2", "mixtus_set2_sub0.1", "mixtus_set2_sub0.05", "mixtus_set2_sub0.025",
-          "mixtus_set3_sub0.8", "mixtus_set3_sub0.6", "mixtus_set3_sub0.4", "mixtus_set3_sub0.2", "mixtus_set3_sub0.1", "mixtus_set3_sub0.05",
-          "impatiens_set1_sub0.8", "impatiens_set1_sub0.4", "impatiens_set1_sub0.2", "impatiens_set1_sub0.1", "impatiens_set1_sub0.05",
-          "impatiens_set2_sub0.8", "impatiens_set2_sub0.6", "impatiens_set2_sub0.4", "impatiens_set2_sub0.2", "impatiens_set2_sub0.1", "impatiens_set2_sub0.05",
-          "impatiens_set3_sub0.8", "impatiens_set3_sub0.6", "impatiens_set3_sub0.4", "impatiens_set3_sub0.2", "impatiens_set3_sub0.1",
-          "mixtus_set1_sub1", "mixtus_set2_sub1", "mixtus_set3_sub1", "impatiens_set1_sub1", "impatiens_set2_sub1", "impatiens_set3_sub1", "impatiens_set1_sub0.6")
-
-
-errors = data.frame(test_condition = files,
+errors = data.frame(count = 1:120,
+                    test_condition = NA,
+                    exclusion = NA,
                     numFP = NA,
                     numFN = NA,
                     numTP = NA,
@@ -842,77 +835,94 @@ errors = data.frame(test_condition = files,
                     FPR = NA,
                     FNR = NA)
 family_plots = list()
-
-for (i in 1:length(files)){
-  filename = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", files[i], ".BestCluster")
-  colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
-  colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
+count = 1
+for (i in 1:nsim){
+  for (j in 1:length(subsets)){
+    for (k in c("exclusion", "no_exclusion")){
+      for (species in c("mixtus", "impatiens")){
+      name = paste0(species, "_set", i, "_sub", subsets[j], "_", k)
+        
+      filename = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".BestCluster")
+      colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
+      colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
+      true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
+      
+      print(paste0("Files loaded for ", name))
+      
+      # set probability threshold
+      prob_thresh = 0.95
+      
+      # filter colony outputs
+      colony_output = colony_output %>% filter(Probability >= prob_thresh)
+      
+      # make edge lists
+      true_edges = true_data %>%
+        group_by(truecolony) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      
+      inferred_edges = colony_output %>%
+        group_by(ClusterIndex) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      
+      # combine and classify edges by type (FN, FP, TP)
+      # get true positives
+      tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
+      tp_edges$type = "TP"
+      
+      # initialize other types as FN and FP
+      true_edges$type = "FN"
+      inferred_edges$type = "FP"
+      
+      # remove true positives from FN and FP dataframes
+      fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+      fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
+      
+      # combine all edges
+      all_edges = rbind(tp_edges, fn_edges, fp_edges)
+      
+      print(paste0("Edges computed for ", name))
+      
+      # make an igraph object
+      graph = graph_from_data_frame(all_edges, directed = FALSE)
+      E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
+      families = plot(graph, 
+                      edge.color = E(graph)$color,
+                      vertex.label = NA,
+                      vertex.size = 2,
+                      main = name
+      )
+      family_plots[[count]] = families
+      
+      # record FPR and FNR
+      print(paste0("Start saving data for ", name))
+      print(paste0("Count = ", count))
+      errors$test_condition[count] = name
+      print(paste0("Step 1 ", name))
+      errors$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
+      errors$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+      print(paste0("Midpoint data save for ", name))
+      errors$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+      errors$numFP[count] = nrow(fp_edges)
+      errors$numFN[count] = nrow(fn_edges)
+      errors$numTP[count] = nrow(tp_edges)
+      errors$exclusion[count] = k
+      
+      print(paste0("Data saved for ", name))
+      
+      count = count +1
   
-  genotypesim = paste(unlist(strsplit(files[i], "_"))[1:3], collapse = "_")
-  print(genotypesim)
-  true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", genotypesim, ".csv"))
-  
-  # set probability threshold
-  prob_thresh = 0.95
-  
-  # filter colony outputs
-  colony_output = colony_output %>% filter(Probability >= prob_thresh)
-  
-  # make edge lists
-  true_edges = true_data %>%
-    group_by(truecolony) %>%
-    filter(n() > 1) %>%
-    summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
-    mutate(from = map_chr(pairs, 1),
-           to = map_chr(pairs, 2)) %>%
-    dplyr::select(from, to)
-  
-  inferred_edges = colony_output %>%
-    group_by(ClusterIndex) %>%
-    filter(n() > 1) %>%
-    summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
-    mutate(from = map_chr(pairs, 1),
-           to = map_chr(pairs, 2)) %>%
-    dplyr::select(from, to)
-  
-  # combine and classify edges by type (FN, FP, TP)
-  # get true positives
-  tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
-  tp_edges$type = "TP"
-  
-  # initialize other types as FN and FP
-  true_edges$type = "FN"
-  inferred_edges$type = "FP"
-  
-  # remove true positives from FN and FP dataframes
-  fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
-  fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
-  
-  # combine all edges
-  all_edges = rbind(tp_edges, fn_edges, fp_edges)
-  
-  # make an igraph object
-  graph = graph_from_data_frame(all_edges, directed = FALSE)
-  E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
-  families = plot(graph, 
-                  edge.color = E(graph)$color,
-                  vertex.label = NA,
-                  vertex.size = 2,
-                  main = files[i]
-  )
-  family_plots[[i]] = families
-  
-  # record FPR and FNR
-  errors$FPR[errors$test_condition == files[i]] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
-  errors$FNR[errors$test_condition == files[i]] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
-  errors$total_real[errors$test_condition == files[i]] = nrow(tp_edges) + nrow(fn_edges)
-  errors$numFP[errors$test_condition == files[i]] = nrow(fp_edges)
-  errors$numFN[errors$test_condition == files[i]] = nrow(fn_edges)
-  errors$numTP[errors$test_condition == files[i]] = nrow(tp_edges)
-  
-  
+      }
+    }
+  }  
 }
-
 errors$sub_value = str_extract(errors$test_condition, "(?<=sub)[0-9.]+")
 errors$numbees = 2000*as.numeric(errors$sub_value)
 
