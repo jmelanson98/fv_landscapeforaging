@@ -825,7 +825,7 @@ for (i in 1:nsim){
 
 
 # Load in results from COLONY
-errors = data.frame(count = 1:50,
+errors = data.frame(count = 1:120,
                     test_condition = NA,
                     exclusion = NA,
                     numFP = NA,
@@ -838,7 +838,7 @@ family_plots = list()
 count = 1
 for (i in 1:nsim){
   for (j in 1:length(subsets)){
-    for (k in c("exclusion")){
+    for (k in c("exclusion", "no_exclusion")){
       for (species in c("mixtus", "impatiens")){
       name = paste0(species, "_set", i, "_sub", subsets[j], "_", k)
       print(paste0("Loading ", name))
@@ -926,10 +926,12 @@ for (i in 1:nsim){
 errors$sub_value = str_extract(errors$test_condition, "(?<=sub)[0-9.]+")
 errors$numbees = 2000*as.numeric(errors$sub_value)
 
-ggplot(errors) +
-  geom_point(aes(x = numbees, y = numFP, color = "Number FP")) +
-  geom_point(aes(x = numbees, y = numFN, color = "Number FN")) +
-  geom_point(aes(x = numbees, y = total_real, color = "Total true")) +
+mixtus_errors = errors[grep("mixtus", errors$test_condition),]
+
+ggplot(mixtus_errors) +
+  geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
+  geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
+  geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
   xlab("Simulation and COLONY Conditions") +
   ylab("Number of inferred or true relationships") +
   labs(title = "Sibship inclusion: P = 0.95") +
