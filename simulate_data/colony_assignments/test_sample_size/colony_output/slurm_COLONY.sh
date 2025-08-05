@@ -3,7 +3,7 @@
 #SBATCH --array=0-119
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
-#SBATCH --time=12:00:00
+#SBATCH --time=18:00:00
 #SBATCH --output=logs/colony_%A_%a.out
 #SBATCH --error=logs/colony_%A_%a.err
 
