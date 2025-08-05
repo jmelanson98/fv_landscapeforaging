@@ -159,7 +159,7 @@ createExclusionTable = function(genotypeDF){
     site = sites[i]
     
     # grep names for focal site
-    site.names = genotypeDF$individual[genotypeDF$landscape_id == i]
+    site.names = genotypeDF$individual[genotypeDF$landscape_id == site]
     
     # list of excluded siblings
     excluded = sample.names[!sample.names %in% site.names]
