@@ -153,23 +153,23 @@ colsToRemove = c("year",
                  "date", 
                  "julian_date", 
                  "BL15...1", 
-                 "BL15...2",
-                 "BT28...1", 
-                 "BT28...2",
-                 "BL13...1", 
-                 "BL13...2",
-                 "BTMS0073...1", 
-                 "BTMS0073...2")
+                 "BL15...2")
+                 #"BT28...1", 
+                 #"BT28...2",
+                 #"BL13...1", 
+                 #"BL13...2",
+                 #"BTMS0073...1", 
+                 #"BTMS0073...2")
 impatiens2022 = impatiens2022[, !colnames(impatiens2022) %in% colsToRemove]
 impatiens2023 = impatiens2023[, !colnames(impatiens2023) %in% colsToRemove]
 
 #relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
 impatiens2022 = impatiens2022 %>% relocate(barcode_id)
-impatiens2022_forcolony = impatiens2022[rowSums(is.na(impatiens2022)) <= 8,]
+impatiens2022_forcolony = impatiens2022[rowSums(is.na(impatiens2022)) <= 14,]
 impatiens2022_forcolony[is.na(impatiens2022_forcolony)] = 0
 
 impatiens2023 = impatiens2023 %>% relocate(barcode_id)
-impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) <= 8,]
+impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) <= 14,]
 impatiens2023_forcolony[is.na(impatiens2023_forcolony)] = 0
 
 #write csvs for upload to colony
