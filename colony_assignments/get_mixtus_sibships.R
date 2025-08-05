@@ -158,25 +158,25 @@ colsToRemove = c("year",
                  "date", 
                  "julian_date", 
                  "BL15...1", 
-                 "BL15...2", 
-                 "BTMS0072...1", 
-                 "BTMS0072...2",
-                 "BTERN01...1",
-                 "BTERN01...1",
-                 "BTMS0104...1", 
-                 "BTMS0104...2",
-                 "BTMS0059...1", 
-                 "BTMS0059...2")
+                 "BL15...2") 
+                 #"BTMS0072...1", 
+                 #"BTMS0072...2",
+                 #"BTERN01...1",
+                 #"BTERN01...2",
+                 #"BTMS0104...1", 
+                 #"BTMS0104...2",
+                 #"BTMS0059...1", 
+                 #"BTMS0059...2")
 mixtus2022 = mixtus2022[, !colnames(mixtus2022) %in% colsToRemove]
 mixtus2023 = mixtus2023[, !colnames(mixtus2023) %in% colsToRemove]
 
 #relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
 mixtus2022 = mixtus2022 %>% relocate(barcode_id)
-mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) <= 4,]
+mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) <= 12,]
 mixtus2022_forcolony[is.na(mixtus2022_forcolony)] = 0
 
 mixtus2023 = mixtus2023 %>% relocate(barcode_id)
-mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) <= 4,]
+mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) <= 12,]
 mixtus2023_forcolony[is.na(mixtus2023_forcolony)] = 0
 
 #write csvs for upload to colony
