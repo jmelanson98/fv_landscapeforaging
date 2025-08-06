@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=colony_run
-#SBATCH --array=48, 54, 108, 114
+#SBATCH --array=0-119
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
 #SBATCH --time=18:00:00
