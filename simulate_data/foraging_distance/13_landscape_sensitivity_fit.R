@@ -91,8 +91,9 @@ print("Model saved.")
 
 
 #### save stan fit results
-colony_data$model_estimate = summary(stanFit, pars = c("colony_dist"))$summary[,1]
-saveRDS(colony_data, paste(inputfilepath, "/colonydata.RDS", sep = ""))
+colony_data_partial = colony_data[rowSums(yobs) > 1,]
+colony_data_partial$model_estimate = summary(stanFit, pars = c("colony_dist"))$summary[,1]
+saveRDS(colony_data_partial, paste(inputfilepath, "/colonydata_partial.RDS", sep = ""))
 
 # save the result of *this* simulation only
 current_params$model_average_foraging = mean(colony_data$model_estimate)
