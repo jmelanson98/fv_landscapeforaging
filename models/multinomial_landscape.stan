@@ -11,6 +11,7 @@ real lowerbound; // uniform prior on colony location
 real upperbound; // uniform prior on colony location
 vector[K] floral; // floral quality at traps
 vector[K] landscape; // landscape metric around each colony
+real nestrange; // soft prior on *detected* colony locations
 real<lower=0> rho_center; //prior median for length parameter, !! on log scale!!
 real<lower=0> rho_sd; //prior sd of length parameter, !!on log scale!!
 real<lower=0> priorVa; // prior variance on std deviations
@@ -60,9 +61,14 @@ zeta ~ normal(0, 1);
 
 
 
-// calculate intensity
     for(i in 1:C){
+      
+      //prior on colony locations
+      delta[i] ~ normal(750, nestrange);
+      
       for(k in 1:K){
+        
+        // calculate intensity
         dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
         lambda[i, k] = dis[i,k]/(-rho*exp(alpha*landscape[k])) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
       }

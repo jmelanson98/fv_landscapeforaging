@@ -68,6 +68,7 @@ data$K = ncol(data$y)
 data$trap = as.matrix(cbind(trap_data$trap_x, trap_data$trap_y))
 data$lowerbound = 400
 data$upperbound = 1100
+data$nestrange = 100
 data$landscape = trap_data$landscape_metric
 data$floral = trap_data$fq
 data$priorVa = 1
@@ -171,3 +172,32 @@ if (!is.null(lock)) {
   stop("Could not acquire lock on output file.")
 }
 
+
+
+
+
+###################
+# Test results
+###################
+
+# output_fit = readRDS("simulate_data/foraging_distance/methods_comparison/landscape_effects/output_fit.rds")
+# output_fit$condition = paste(output_fit$alpha, output_fit$autocorrelation, output_fit$rho, output_fit$landscape_id, sep = "_")
+# 
+# 
+# # plot rho estimate distributions
+# ggplot(output_fit, aes(x = model_rho, color = as.factor(alpha))) +
+#   geom_histogram(binwidth = 1) +
+#   facet_wrap(~ rho, ncol = 1, scales = "free_y") +
+#   xlab("Model rho estimate") +
+#   theme_minimal()
+# 
+# 
+# # plot landscape (alpha) estimates
+# ggplot(data = output_fit[output_fit$rho == 20 & output_fit$autocorrelation == 400,], aes(x = model_alpha, y = condition)) +
+#   geom_errorbarh(aes(xmin = model_alpha_min, xmax = model_alpha_max)) +
+#   theme_minimal()
+# 
+# # plot centroid landscape estimates
+# ggplot(data = output_fit[output_fit$rho == 20 & output_fit$autocorrelation == 400,], aes(x = mean_center_alpha, y = condition)) +
+#   geom_errorbarh(aes(xmin = mean_center_alpha - 2*mean_center_alpha_sd, xmax = mean_center_alpha + 2*mean_center_alpha_sd)) +
+#   theme_minimal()
