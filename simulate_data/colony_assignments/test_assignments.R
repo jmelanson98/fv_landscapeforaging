@@ -825,6 +825,8 @@ for (i in 1:nsim){
 
 
 # Load in results from COLONY
+
+### Check error rates with sibships...
 errors = data.frame(count = 1:120,
                     test_condition = NA,
                     exclusion = NA,
@@ -850,7 +852,7 @@ for (i in 1:nsim){
       print(paste0("Files loaded for ", name))
       
       # set probability threshold
-      prob_thresh = 0.95
+      prob_thresh = 1
       
       # filter colony outputs
       colony_output = colony_output %>% filter(Probability >= prob_thresh)
@@ -927,8 +929,9 @@ errors$sub_value = str_extract(errors$test_condition, "(?<=sub)[0-9.]+")
 errors$numbees = 2000*as.numeric(errors$sub_value)
 
 mixtus_errors = errors[grep("mixtus", errors$test_condition),]
+impatiens_errors = errors[grep("impatiens", errors$test_condition),]
 
-ggplot(mixtus_errors) +
+ggplot(impatiens_errors) +
   geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
   geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
   geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
@@ -938,27 +941,150 @@ ggplot(mixtus_errors) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
-ggplot(errors, aes(x = test_condition, y = FPR)) +
+ggplot(mixtus_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
   geom_point() +
   xlab("Simulation and COLONY Conditions") +
   ylab(expression(FPR == frac(FP, TP + FN))) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
+  theme(axis.text.x = element_text(angle = 90)) +
+  ylim(c(0,1))
 
-ggplot(errors, aes(x = test_condition, y = FNR)) +
+ggplot(mixtus_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
   geom_point() +
   xlab("Simulation and COLONY Conditions") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
-ggplot(errors, aes(x = numbees, y = FPR)) +
+
+
+### Check error rates with dyads...
+errors = data.frame(count = 1:120,
+                    test_condition = NA,
+                    exclusion = NA,
+                    numFP = NA,
+                    numFN = NA,
+                    numTP = NA,
+                    total_real = NA,
+                    FPR = NA,
+                    FNR = NA)
+family_plots = list()
+count = 1
+for (i in 1:nsim){
+  for (j in 1:length(subsets)){
+    for (k in c("exclusion", "no_exclusion")){
+      for (species in c("mixtus", "impatiens")){
+        name = paste0(species, "_set", i, "_sub", subsets[j], "_", k)
+        print(paste0("Loading ", name))
+        filename = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".FullSibDyad")
+        colony_output = read.table(filename, sep = ",")
+        colnames(colony_output) = c("from", "to", "Probability")
+        colony_output = colony_output[-1,]
+        true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
+        
+        print(paste0("Files loaded for ", name))
+        
+        # set probability threshold
+        prob_thresh = 0.99
+        
+        # filter colony outputs
+        colony_output = colony_output %>% filter(as.numeric(Probability) >= prob_thresh)
+        
+        # make edge lists
+        true_edges = true_data %>%
+          group_by(truecolony) %>%
+          filter(n() > 1) %>%
+          summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+          mutate(from = map_chr(pairs, 1),
+                 to = map_chr(pairs, 2)) %>%
+          dplyr::select(from, to)
+        
+        inferred_edges = colony_output[,1:2]
+        
+        # combine and classify edges by type (FN, FP, TP)
+        # get true positives
+        tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
+        tp_edges$type = "TP"
+        
+        # initialize other types as FN and FP
+        true_edges$type = "FN"
+        inferred_edges$type = "FP"
+        
+        # remove true positives from FN and FP dataframes
+        fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+        fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
+        
+        # combine all edges
+        all_edges = rbind(tp_edges, fn_edges, fp_edges)
+        
+        print(paste0("Edges computed for ", name))
+        
+        # make an igraph object
+        graph = graph_from_data_frame(all_edges, directed = FALSE)
+        E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
+        families = plot(graph, 
+                        edge.color = E(graph)$color,
+                        vertex.label = NA,
+                        vertex.size = 2,
+                        main = name
+        )
+        family_plots[[count]] = families
+        
+        # record FPR and FNR
+        print(paste0("Start saving data for ", name))
+        print(paste0("Count = ", count))
+        errors$test_condition[count] = name
+        print(paste0("Step 1 ", name))
+        errors$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
+        errors$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+        print(paste0("Midpoint data save for ", name))
+        errors$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+        errors$numFP[count] = nrow(fp_edges)
+        errors$numFN[count] = nrow(fn_edges)
+        errors$numTP[count] = nrow(tp_edges)
+        errors$exclusion[count] = k
+        
+        print(paste0("Data saved for ", name))
+        
+        count = count +1
+        
+      }
+    }
+  }  
+}
+errors$sub_value = str_extract(errors$test_condition, "(?<=sub)[0-9.]+")
+errors$numbees = 2000*as.numeric(errors$sub_value)
+
+mixtus_errors = errors[grep("mixtus", errors$test_condition),]
+impatiens_errors = errors[grep("impatiens", errors$test_condition),]
+
+ggplot(impatiens_errors) +
+  geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
+  geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
+  geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
+  xlab("Simulation and COLONY Conditions") +
+  ylab("Number of inferred or true relationships") +
+  labs(title = "Sibship inclusion: P = 0.95") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
+
+ggplot(impatiens_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
   geom_point() +
   xlab("Simulation and COLONY Conditions") +
-  ylab(expression(FNR == frac(FN, TP + FN))) +
+  ylab(expression(FPR == frac(FP, TP + FN))) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90)) +
-  ylim(c(0,0.5))
+  ylim(c(0,1))
+
+ggplot(impatiens_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
+  geom_point() +
+  xlab("Simulation and COLONY Conditions") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
+
+
+
 
 
 
