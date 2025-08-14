@@ -50,7 +50,7 @@ simulateLandscapeRaster = function(landscape_size, # integer, same for x and y
 
 
 ########################################################
-################ Simulate landscapes ###################
+################ Simulate visitation ###################
 ########################################################
 
 
@@ -357,6 +357,8 @@ draw_bees_colony_restricted = function(sample_size, # number of bees to sample
   output = list(yik, colony_data, trap_data)
   return(output)
 }
+
+
 
 
 

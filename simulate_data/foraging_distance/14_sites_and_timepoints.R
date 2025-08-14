@@ -74,6 +74,7 @@ for (s in 1:100) {
 
 }
 
-par(mfrow=c(1,1), mar = c(4, 4, 1, 1))
-hist(yobs[yobs > 0])
+tbl <- table(rowSums(yobs)[rowSums(yobs) > 0])
+prop_tbl <- prop.table(tbl)  # gives proportions
+barplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
 
