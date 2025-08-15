@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.6.17)  14 AUG 2025 16:19
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.6.17)  14 AUG 2025 18:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**foragingdistMS.tex
-(./foragingdistMS.tex
+**appendix1.tex
+(./appendix1.tex
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-05-26>
 (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/base/article.cls
@@ -578,16 +578,23 @@ Package: rotating 2025/01/14 v2.16e rotated objects in LaTeX
 Package: chngcntr 2018/04/09 v1.1a change counter resetting
 Package chngcntr Info: \counterwithout already defined.
 (chngcntr)             Quitting chngcntr on input line 21.
+) (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count450
+\float@exts=\toks31
+\float@box=\box61
+\@float@everytoks=\toks32
+\@floatcapt=\box62
 ) (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/parskip/parskip.sty
 Package: parskip 2021-03-14 v2.0h non-zero parskip adjustments
 ) (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/titlesec/titlesec.sty
 Package: titlesec 2025/01/04 v2.17 Sectioning titles
-\ttl@box=\box61
+\ttl@box=\box63
 \beforetitleunit=\skip97
 \aftertitleunit=\skip98
 \ttl@plus=\dimen181
 \ttl@minus=\dimen182
-\ttl@toksa=\toks31
+\ttl@toksa=\toks33
 \titlewidth=\dimen183
 \titlewidthlast=\dimen184
 \titlewidthfirst=\dimen185
@@ -597,18 +604,18 @@ Package: longtable 2024-12-18 v4.23 Multi-page Table package (DPC)
 \LTright=\skip100
 \LTpre=\skip101
 \LTpost=\skip102
-\LTchunksize=\count450
+\LTchunksize=\count451
 \LTcapwidth=\dimen186
-\LT@head=\box62
-\LT@firsthead=\box63
-\LT@foot=\box64
-\LT@lastfoot=\box65
-\LT@gbox=\box66
-\LT@cols=\count451
-\LT@rows=\count452
-\c@LT@tables=\count453
-\c@LT@chunks=\count454
-\LT@p@ftn=\toks32
+\LT@head=\box64
+\LT@firsthead=\box65
+\LT@foot=\box66
+\LT@lastfoot=\box67
+\LT@gbox=\box68
+\LT@cols=\count452
+\LT@rows=\count453
+\c@LT@tables=\count454
+\c@LT@chunks=\count455
+\LT@p@ftn=\toks34
 ) (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty
 Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
 ) (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/tools/xr.sty
@@ -627,8 +634,9 @@ Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
 \caption@hangindent=\dimen194
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count455
-\c@continuedfloat=\count456
+\c@caption@flags=\count456
+\c@continuedfloat=\count457
+Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
 Package caption Info: longtable package is loaded.
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/caption/ltcaption.sty
@@ -637,42 +645,42 @@ Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
 Package caption Info: rotating package is loaded.
 ) (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/siunitx/siunitx.sty
 Package: siunitx 2025-05-22 v3.4.12 A comprehensive (SI) units package
-\l__siunitx_number_uncert_offset_int=\count457
-\l__siunitx_number_exponent_fixed_int=\count458
-\l__siunitx_number_min_decimal_int=\count459
-\l__siunitx_number_min_integer_int=\count460
-\l__siunitx_number_round_precision_int=\count461
-\l__siunitx_number_lower_threshold_int=\count462
-\l__siunitx_number_upper_threshold_int=\count463
-\l__siunitx_number_group_first_int=\count464
-\l__siunitx_number_group_size_int=\count465
-\l__siunitx_number_group_minimum_int=\count466
+\l__siunitx_number_uncert_offset_int=\count458
+\l__siunitx_number_exponent_fixed_int=\count459
+\l__siunitx_number_min_decimal_int=\count460
+\l__siunitx_number_min_integer_int=\count461
+\l__siunitx_number_round_precision_int=\count462
+\l__siunitx_number_lower_threshold_int=\count463
+\l__siunitx_number_upper_threshold_int=\count464
+\l__siunitx_number_group_first_int=\count465
+\l__siunitx_number_group_size_int=\count466
+\l__siunitx_number_group_minimum_int=\count467
 \l__siunitx_angle_tmp_dim=\dimen195
-\l__siunitx_angle_marker_box=\box67
-\l__siunitx_angle_unit_box=\box68
-\l__siunitx_compound_count_int=\count467
-\l__siunitx_table_tmp_box=\box69
+\l__siunitx_angle_marker_box=\box69
+\l__siunitx_angle_unit_box=\box70
+\l__siunitx_compound_count_int=\count468
+\l__siunitx_table_tmp_box=\box71
 \l__siunitx_table_tmp_dim=\dimen196
 \l__siunitx_table_column_width_dim=\dimen197
-\l__siunitx_table_integer_box=\box70
-\l__siunitx_table_decimal_box=\box71
-\l__siunitx_table_uncert_box=\box72
-\l__siunitx_table_before_box=\box73
-\l__siunitx_table_after_box=\box74
+\l__siunitx_table_integer_box=\box72
+\l__siunitx_table_decimal_box=\box73
+\l__siunitx_table_uncert_box=\box74
+\l__siunitx_table_before_box=\box75
+\l__siunitx_table_after_box=\box76
 \l__siunitx_table_before_dim=\dimen198
 \l__siunitx_table_carry_dim=\dimen199
-\l__siunitx_unit_tmp_int=\count468
-\l__siunitx_unit_position_int=\count469
-\l__siunitx_unit_total_int=\count470
+\l__siunitx_unit_tmp_int=\count469
+\l__siunitx_unit_position_int=\count470
+\l__siunitx_unit_total_int=\count471
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/tools/array.sty
 Package: array 2025/06/08 v2.6j Tabular extension package (FMi)
 \col@sep=\dimen256
-\ar@mcellbox=\box75
+\ar@mcellbox=\box77
 \extrarowheight=\dimen257
-\NC@list=\toks33
+\NC@list=\toks35
 \extratabsurround=\skip103
 \backup@length=\skip104
-\ar@cellbox=\box76
+\ar@cellbox=\box78
 )) (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2024/12/21 v2.1c Standard LaTeX package
 LaTeX Font Info:    Trying to load font information for T1+ppl on input line 116.
@@ -693,55 +701,55 @@ Package siunitx Info: Option "detect-all" has been deprecated in this release.
 Package hyperref Info: Option `colorlinks' set `true' on input line 40.
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/lineno/lineno.sty
 Package: lineno 2025/05/13 line numbers on paragraphs v5.5
-\linenopenalty=\count471
-\output=\toks34
-\linenoprevgraf=\count472
+\linenopenalty=\count472
+\output=\toks36
+\linenoprevgraf=\count473
 \linenumbersep=\dimen258
 \linenumberwidth=\dimen259
-\c@linenumber=\count473
-\c@pagewiselinenumber=\count474
-\c@LN@truepage=\count475
-\c@internallinenumber=\count476
-\c@internallinenumbers=\count477
+\c@linenumber=\count474
+\c@pagewiselinenumber=\count475
+\c@LN@truepage=\count476
+\c@internallinenumber=\count477
+\c@internallinenumbers=\count478
 \quotelinenumbersep=\dimen260
 \bframerule=\dimen261
 \bframesep=\dimen262
-\bframebox=\box77
-\@LN@amsmath@ams@eqpen=\count478
+\bframebox=\box79
+\@LN@amsmath@ams@eqpen=\count479
 )
-\@quotelevel=\count479
-\@quotereset=\count480
+\@quotelevel=\count480
+\@quotereset=\count481
+ (./appendix1.aux)
+\openout1 = `appendix1.aux'.
 
-No file foragingdistMS.aux.
-\openout1 = `foragingdistMS.aux'.
-
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-(/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+ (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 101.
+Package hyperref Info: Link coloring ON on input line 53.
+ (./appendix1.out) (./appendix1.out)
 \@outlinefile=\write4
-\openout4 = `foragingdistMS.out'.
+\openout4 = `appendix1.out'.
 
 Package biblatex Info: Trying to load language 'english' -> 'english-apa'...
 Package biblatex Info: ... file 'english-apa.lbx' found.
@@ -768,363 +776,135 @@ File: english.lbx 2024/03/21 v3.20 biblatex localization (PK/MW)
 Package biblatex Info: Input encoding 'utf8' detected.
 Package biblatex Info: Automatic encoding selection.
 (biblatex)             Assuming data encoding 'utf8'.
-\openout3 = `foragingdistMS.bcf'.
+\openout3 = `appendix1.bcf'.
 
 Package biblatex Info: Trying to load bibliographic data...
-Package biblatex Info: ... file 'foragingdistMS.bbl' found.
- (./foragingdistMS.bbl)
-Package biblatex Info: Reference section=0 on input line 101.
-Package biblatex Info: Reference segment=0 on input line 101.
+Package biblatex Info: ... file 'appendix1.bbl' not found.
+
+No file appendix1.bbl.
+Package biblatex Info: Reference section=0 on input line 53.
+Package biblatex Info: Reference segment=0 on input line 53.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
 \symgns@font=\mathgroup7
 LaTeX Font Info:    Overwriting symbol font `gns@font' in version `bold'
-(Font)                  TS1/ppl/m/n --> TS1/ppl/b/n on input line 101.
-Package gensymb Info: Math companion symbols declared on input line 101.
-LaTeX Info: Redefining \degree on input line 101.
-LaTeX Info: Redefining \celsius on input line 101.
-Package gensymb Info: Using text companion symbols for \degree, \celsius and \perthousand on input line 101.
-LaTeX Info: Redefining \ohm on input line 101.
-Package gensymb Info: Using \textohm for \ohm on input line 101.
-LaTeX Info: Redefining \micro on input line 101.
-Package gensymb Info: Using \textmu for \micro on input line 101.
-LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 102.
- (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ot1ppl.fd
+(Font)                  TS1/ppl/m/n --> TS1/ppl/b/n on input line 53.
+Package gensymb Info: Math companion symbols declared on input line 53.
+LaTeX Info: Redefining \degree on input line 53.
+LaTeX Info: Redefining \celsius on input line 53.
+Package gensymb Info: Using text companion symbols for \degree, \celsius and \perthousand on input line 53.
+LaTeX Info: Redefining \ohm on input line 53.
+Package gensymb Info: Using \textohm for \ohm on input line 53.
+LaTeX Info: Redefining \micro on input line 53.
+Package gensymb Info: Using \textmu for \micro on input line 53.
+LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 58.
+(/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ot1ppl.fd
 File: ot1ppl.fd 2001/06/04 font definitions for OT1/ppl.
 )
-LaTeX Font Info:    Trying to load font information for OML+zplm on input line 102.
+LaTeX Font Info:    Trying to load font information for OML+zplm on input line 58.
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 102.
+LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 58.
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 102.
+LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 58.
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 15.0049pt on input line 102.
+(Font)              scaled to size 12.50409pt on input line 58.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 102.
+(Font)              scaled to size 9.37807pt on input line 58.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 8.33606pt on input line 102.
+(Font)              scaled to size 7.29405pt on input line 58.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 15.0049pt on input line 102.
+(Font)              scaled to size 12.50409pt on input line 58.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 102.
+(Font)              scaled to size 9.37807pt on input line 58.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 8.33606pt on input line 102.
-LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 102.
+(Font)              scaled to size 7.29405pt on input line 58.
+LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 58.
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ot1zplm.fd
 File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 )
-LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 102.
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 58.
  (/Users/jenna1/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
 )
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 12.50409pt on input line 102.
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 102.
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 102.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 12.50409pt on input line 102.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 102.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 102.
 
-Underfull \hbox (badness 10000) in paragraph at lines 102--102
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 58.
 
- []
 
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 58.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 58.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 58.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 58.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 58.
+
+<appendix_figures/Fis.jpg, id=16, 2007.5pt x 1505.625pt>
+File: appendix_figures/Fis.jpg Graphic file (type jpg)
+<use appendix_figures/Fis.jpg>
+Package pdftex.def Info: appendix_figures/Fis.jpg  used on input line 62.
+(pdftex.def)             Requested size: 390.0pt x 292.48146pt.
+<appendix_figures/marginalmeans.jpg, id=17, 2007.5pt x 2007.5pt>
+File: appendix_figures/marginalmeans.jpg Graphic file (type jpg)
+<use appendix_figures/marginalmeans.jpg>
+Package pdftex.def Info: appendix_figures/marginalmeans.jpg  used on input line 70.
+(pdftex.def)             Requested size: 390.0pt x 389.97528pt.
 
 
 [1
 
+{/Users/jenna1/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/jenna1/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc} <./appendix_figures/Fis.jpg>]
+<appendix_figures/siteFis.jpg, id=29, 2007.5pt x 1003.75pt>
+File: appendix_figures/siteFis.jpg Graphic file (type jpg)
+<use appendix_figures/siteFis.jpg>
+Package pdftex.def Info: appendix_figures/siteFis.jpg  used on input line 78.
+(pdftex.def)             Requested size: 390.0pt x 194.98764pt.
 
-{/Users/jenna1/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/jenna1/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}]
 
-[2
+[2 <./appendix_figures/marginalmeans.jpg>]
 
-{/Users/jenna1/Library/TinyTeX/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
-
-LaTeX Warning: Citation 'paulTrackingChangesSoil2020a' on page 3 undefined on input line 116.
-
-
-Overfull \hbox (72.1279pt too wide) in paragraph at lines 116--117
-\T1/ppl/m/n/12 ing from con-ver-sion to ur-ban or agri-cul-tural land use ([]).
- []
-
-
-Overfull \hbox (1.28024pt too wide) in paragraph at lines 118--119
-\T1/ppl/m/n/12 through-out the Lower Fraser Val-ley. Each land-scape en-com-passed roughly
- []
-
-
-Overfull \hbox (0.46454pt too wide) in paragraph at lines 120--121
-\T1/ppl/m/n/12 land-scape, spaced as evenly as pos-si-ble based on land-access and the avail-
- []
-
-
-
-[3
-
-]
-
-[4]
-
-LaTeX Warning: Reference `tab:landscapetable' on page 5 undefined on input line 131.
-
-
-LaTeX Warning: Citation 'QGIS_software' on page 5 undefined on input line 131.
-
-
-Overfull \hbox (2.85161pt too wide) in paragraph at lines 131--132
-\T1/ppl/m/n/12 clas-si-fi-ca-tion of Google Earth satel-lite im-agery (2021) and site vis-its. Briefly,
- []
-
-
-Overfull \hbox (3.24841pt too wide) in paragraph at lines 131--132
-\T1/ppl/m/n/12 grassy field mar-gins, hedgerows (tree-dominated), hedgerows (blackberry-
- []
-
-
-Overfull \hbox (0.26744pt too wide) in paragraph at lines 133--134
-[]\T1/ppl/m/it/12 INSERT EX-PLA-NA-TION OF LAND-SCAPE MET-RICS AND HOW WE CAL-
- []
-
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 142.
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 142.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 142.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 142.
-
-Underfull \hbox (badness 10000) in paragraph at lines 144--144
-[]|\T1/ppl/b/n/10 Landcover
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 144--144
-[]|\T1/ppl/b/n/10 Vegetation
- []
-
-
-Overfull \hbox (13.41048pt too wide) in paragraph at lines 144--145
-[]|\T1/ppl/b/n/10 Disturbance
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 146--146
-[]|\T1/ppl/m/n/10 monoculture an-nual
- []
-
-
-Underfull \hbox (badness 6592) in paragraph at lines 146--146
-[]|\T1/ppl/m/n/10 sometimes (re-
- []
-
-
-Underfull \hbox (badness 3460) in paragraph at lines 148--148
-[]|\T1/ppl/m/n/10 mixed an-nual crops,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 150--150
-[]|\T1/ppl/m/n/10 sometimes
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 156--156
-[]|\T1/ppl/m/n/10 yes (re-source
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 158--158
-[]|\T1/ppl/m/n/10 perennial, flooded
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 158--158
-[]|\T1/ppl/m/n/10 yes (re-source
- []
-
-
-Underfull \hbox (badness 1902) in paragraph at lines 160--160
-[]|\T1/ppl/m/n/10 orchards, tree farms,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 162--162
-[]|\T1/ppl/b/n/10 hedgerow
- []
-
-
-Underfull \hbox (badness 6316) in paragraph at lines 162--162
-[]|\T1/ppl/m/n/10 field mar-gins dom-i-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 162--162
-[]|\T1/ppl/m/n/10 yes (re-source
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 166--166
-[]|\T1/ppl/b/n/10 hedgerow
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 166--166
-[]|\T1/ppl/m/n/10 planted or rem-nant
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 166--166
-\T1/ppl/m/n/10 by trees; planted
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 166--166
-\T1/ppl/m/n/10 hedgerows con-tain
- []
-
-
-Underfull \hbox (badness 1817) in paragraph at lines 166--166
-\T1/ppl/m/n/10 flow-er-ing species se-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 168--168
-[]|\T1/ppl/m/n/10 paved/impermeable
- []
-
-
-Underfull \hbox (badness 2856) in paragraph at lines 170--170
-[]|\T1/ppl/b/n/10 grassy mar-
- []
-
-
-Underfull \hbox (badness 3746) in paragraph at lines 170--170
-\T1/ppl/m/n/10 gins with-out woody
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 172--172
-[]|\T1/ppl/b/n/10 suburban/
- []
-
-
-Overfull \hbox (66.11215pt too wide) in paragraph at lines 142--176
- [][] 
- []
-
-
-LaTeX Warning: Citation '' on page 5 undefined on input line 180.
-
-
-LaTeX Warning: Reference `tab:microsatloci' on page 5 undefined on input line 180.
-
-
-Overfull \hbox (1.62909pt too wide) in paragraph at lines 180--181
-\T1/ppl/m/n/12 B124, BTMS0073, and BTMS0081 (\T1/ppl/m/it/12 B. im-pa-tiens \T1/ppl/m/n/12 only) CITE STOLLE, REBER-
- []
-
-
-
-[5]
-
-[6]
-
-[7]
-Overfull \hbox (12.07285pt too wide) in paragraph at lines 187--188
-\T1/ppl/m/n/12 from pop-u-la-tion mean $\OML/zplm/m/it/12 F[]$ \T1/ppl/m/n/12 as a cri-te-rion for marker in-clu-sion/exclusion. 
- []
-
-
-LaTeX Warning: Reference `fig:Fis' on page 8 undefined on input line 189.
-
-
-LaTeX Warning: Reference `fig:marginalmeans' on page 8 undefined on input line 189.
-
-
-LaTeX Warning: Reference `fig:marginalmeans' on page 8 undefined on input line 189.
-
-
-
-[8]
-
-[9]
-
-LaTeX Warning: Reference `fig:siteFis' on page 10 undefined on input line 193.
-
-
-Overfull \hbox (10.30357pt too wide) in paragraph at lines 197--198
-\T1/ppl/m/n/12 COLONY run for each species-year com-bi-na-tion, where early-season queens
- []
-
-
-
-[10]
-
-[11]
-
-LaTeX Warning: Empty bibliography on input line 204.
-
-
-
-[12]
-
-[13
-
-] (./foragingdistMS.aux)
+[3 <./appendix_figures/siteFis.jpg>] (./appendix1.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-05-26>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `foragingdistMS.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `foragingdistMS.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  8CD4D3F979CCFC0A0ED11F387D703193;1330.
-
-Package biblatex Warning: Please (re)run Biber on the file:
-(biblatex)                foragingdistMS
-(biblatex)                and rerun LaTeX afterwards.
-
-Package logreq Info: Writing requests to 'foragingdistMS.run.xml'.
-\openout1 = `foragingdistMS.run.xml'.
+Package rerunfilecheck Info: File `appendix1.out' has not changed.
+(rerunfilecheck)             Checksum: 86ACBFB7D5DD06F5202E467BBD831EAE;781.
+Package logreq Info: Writing requests to 'appendix1.run.xml'.
+\openout1 = `appendix1.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 25169 strings out of 469867
- 482043 string characters out of 5483572
- 1390951 words of memory out of 5000000
- 53131 multiletter control sequences out of 15000+600000
- 673899 words of font info for 144 fonts, out of 8000000 for 9000
+ 24957 strings out of 469867
+ 478482 string characters out of 5483572
+ 1373486 words of memory out of 5000000
+ 52942 multiletter control sequences out of 15000+600000
+ 644663 words of font info for 83 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,10n,117p,2335b,5185s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/public/cm-super/sfss0800.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on foragingdistMS.pdf (13 pages, 134456 bytes).
+ 75i,6n,117p,1198b,5185s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/jenna1/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on appendix1.pdf (3 pages, 1795917 bytes).
 PDF statistics:
- 129 PDF objects out of 1000 (max. 8388607)
- 95 compressed objects within 1 object stream
- 27 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 68 PDF objects out of 1000 (max. 8388607)
+ 49 compressed objects within 1 object stream
+ 10 named destinations out of 1000 (max. 500000)
+ 40 words of extra memory for PDF output out of 10000 (max. 10000000)
 

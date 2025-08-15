@@ -902,16 +902,18 @@ impHWE$species = "B. impatiens"
 mixHWE$species = "B. mixtus"
 HWE = rbind(impHWE, mixHWE)
 
-ggplot(HWE, aes(x = FisWC)) +
-  geom_histogram(binwidth = 0.02) +
+fis = ggplot(HWE, aes(x = FisWC)) +
+  geom_histogram(binwidth = 0.02, color = "black", fill = "gray") +
   geom_vline(xintercept = 0, color = "blue", linetype = "dotted") +
   geom_vline(xintercept = -0.1, color = "red", linetype = "dotted") +
   geom_vline(xintercept = 0.1, color = "red", linetype = "dotted") +
-  theme_minimal() +
-  labs(y = "Count", x = expression(F[is] * " (W&C)"), title = expression(F[is] * " Distributions Across Sites and Species")) +
+  labs(y = "Count", x = expression(F[is] * " (W&C)")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x = element_text(size = 4)) +
+  theme_minimal() +
   facet_grid(species ~ site)
+
+ggsave("docs/appendix_figures/Fis.jpg", fis, height = 1500, width = 2000, units = "px")
 
 # ggplot(HWE, aes(x = FisWC)) +
 #   geom_histogram() +
@@ -949,7 +951,7 @@ impatiens_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
   theme_minimal() +
-  labs(y = "", x = "Locus", title = substitute(italic("B. impatiens"))) +
+  labs(y = "", x = "", title = substitute(italic("B. impatiens"))) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1))
 
@@ -977,7 +979,7 @@ mixtus_locus_init = ggplot(emm_df, aes(x = locus, y = emmean)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
   theme_minimal() +
-  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus", title = substitute(italic("B. mixtus"))) +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "", title = substitute(italic("B. mixtus"))) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1))
 
@@ -1035,7 +1037,7 @@ impatiens_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
   theme_minimal() +
-  labs(y = "", x = "Locus", title = substitute(italic("B. impatiens"))) +
+  labs(y = "", x = "Locus") +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1))
 
@@ -1110,7 +1112,7 @@ mixtus_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
   theme_minimal() +
-  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus", title = substitute(italic("B. mixtus"))) +
+  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Locus") +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1))
 
@@ -1119,7 +1121,14 @@ mixtus_locus = ggplot(emm_df, aes(x = locus, y = emmean)) +
 This process resulted in the removal of loci BTERN01, BTMS0104, and BTMS0059 from downstream analyses for *B. mixtus* and removal of BTMS0073 and BT28 for *B. impatiens*. $F_{is}$ estimates for the remaining loci (n = 10 for *B. mixtus*, n = 13 for *B. impatiens*) are shown below.
 
 ```{r plots of remaining loci after Fis removals, fig.width = 6, fig.height = 2.5, fig.align = "center", echo = FALSE, cache = TRUE}
-grid.arrange(mixtus_locus, impatiens_locus, ncol =2)
+emmeans_plot = grid.arrange(mixtus_locus_init, nullGrob(), impatiens_locus_init, mixtus_locus, nullGrob(), impatiens_locus, ncol =3, widths = c(8,1,8))
+emmeans_plot = ggdraw() +
+  draw_plot(emmeans_plot, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), 
+                  x = c(0, 0.51, 0, 0.51), 
+                  y = c(1, 1, 0.53, 0.53))
+
+ggsave("docs/appendix_figures/marginalmeans.jpg", emmeans_plot, height = 2000, width = 2000, units = "px")
 
 ```
 ## Check markers for linkage disequilibrium
@@ -1328,7 +1337,7 @@ impatiens_site = ggplot(emm_df, aes(x = site, y = emmean)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_hline(yintercept = model$coefficients[1], linetype = "dashed", color = "red") +
   theme_minimal() +
-  labs(y = expression("Estimated mean " * F[is] * " (W&C)"), x = "Site", title = substitute(italic("B. impatiens"))) +
+  labs(y = "", x = "Site", title = substitute(italic("B. impatiens"))) +
   theme(axis.text.x = element_text(size = 10))
 
 
@@ -1355,7 +1364,13 @@ mixtus_site = ggplot(emm_df, aes(x = site, y = emmean)) +
   theme(axis.text.x = element_text(size = 10))
 
 # plot those puppies
-grid.arrange(mixtus_site, impatiens_site, ncol =2)
+siteFis = grid.arrange(mixtus_site, nullGrob(), impatiens_site, ncol =3, widths=c(8,1,8))
+siteFis = ggdraw() +
+  draw_plot(siteFis, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)"), 
+                  x = c(0, 0.51), 
+                  y = c(1, 1))
+ggsave("docs/appendix_figures/siteFis.jpg", height = 1000, width = 2000, units = "px")
 ```
 
 ## Finalize siblingship assignments
