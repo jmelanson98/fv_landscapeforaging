@@ -34,7 +34,9 @@ simu <- stan(file="simulate_data/src/sq_simu.stan",
 delta <- rstan::extract(simu)$delta[1,,]
 rho <- rstan::extract(simu)$rho[1]
 trap_pos <- rstan::extract(simu)$trap_pos[1,,]
-yobs <- rstan::extract(simu)$yobs[1,,]
+yobs_array <- rstan::extract(simu)$yobs#[1,,,]
+#yobs_array <- rstan::extract(simu, pars = "yobs")$yobs
+yobs_sum = apply(yobs_array, c(1,2), sum)
 sq_dist <- rstan::extract(simu)$sq_dist[1,,]
 
 # Visualize detector array and source locations
