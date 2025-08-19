@@ -27,16 +27,28 @@ source('simulate_data/from_mike/mcmc_visualization_tools.R', local=util)
 ######################################################################
 # Simulate And Explore Data
 ######################################################################
+data = list()
+data$T = 10
+data$C = 1000
+data$K = 25
+data$L = 6
+data$alpha = log(0.01)
+data$theta = 1
 
 simu <- stan(file="simulate_data/src/sq_simu.stan",
              algorithm="Fixed_param", 
+             data = data,
              seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
+yobs_array <- rstan::extract(simu)$yobs[1,,,]
+yobs_sum = apply(yobs_array, c(1,2), sum)
+tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])
+prop_tbl <- prop.table(tbl)  # gives proportions
+barplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+
+
 delta <- rstan::extract(simu)$delta[1,,]
 rho <- rstan::extract(simu)$rho[1]
 trap_pos <- rstan::extract(simu)$trap_pos[1,,]
-yobs_array <- rstan::extract(simu)$yobs#[1,,,]
-#yobs_array <- rstan::extract(simu, pars = "yobs")$yobs
-yobs_sum = apply(yobs_array, c(1,2), sum)
 sq_dist <- rstan::extract(simu)$sq_dist[1,,]
 
 # Visualize detector array and source locations
@@ -76,7 +88,8 @@ for (s in 1:100) {
 
 }
 
-tbl <- table(rowSums(yobs)[rowSums(yobs) > 0])
+tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])
 prop_tbl <- prop.table(tbl)  # gives proportions
 barplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
-
+dim(tbl)
+View(tbl)

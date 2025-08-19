@@ -1,0 +1,14 @@
+10+10
+getwd()
+setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/")
+library(rstan)
+rstan_options(auto_write = TRUE)            # Cache compiled Stan programsoptions(mc.cores = parallel::detectCores()) # Parallelize chainsparallel:::setDefaultClusterOptions(setup_strategy = "sequential")
+data = list()data$T = 10data$C = 1000data$K = 25data$L = 6
+simu <- stan(file="simulate_data/src/sq_simu.stan",             data = data,             algorithm="Fixed_param",              seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
+simu <- rstan::stan(file="simulate_data/src/sq_simu.stan",             data = data,             algorithm="Fixed_param",              seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
+install.packages('rethinking')
+library(rethinking)
+file.exists("~/.Rprofile")
+vim ~/.Rprofile
+vim ""~/.Rprofile"
+search()

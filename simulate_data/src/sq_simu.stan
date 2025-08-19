@@ -13,13 +13,15 @@ functions {
 }
 
 data {
+  int<lower=0> C; // Number of colonies
+  int<lower=0> K;      // Number of traps
+  int<lower=1> L; // Number of landscapes
+  int<lower=1> T; // Number of timepoints
+  real alpha; // Intercept
+  real theta; // Floral resource effect 
 }
 
 transformed data {
-  int<lower=0> C = 10000; // Number of colonies
-  int<lower=0> K = 25;      // Number of traps
-  int<lower=1> L = 6; // Number of landscapes
-  int<lower=1> T = 10; // Number of timepoints
   int<lower=0> landscapesize = 1500; // Size of each landscape
   int<lower=0> trapgridsize = 300; // Size of each trapping grid
   real gridsize = sqrt(K); // Number of rows/columns in trap grid
@@ -29,9 +31,8 @@ transformed data {
   real<lower=0> upperbound_x = 3*landscapesize;   // upper limit for colony locations (x direction)
   real<lower=0> upperbound_y = (L/3)*landscapesize;   // upper limit for colony locations (y direction)
   
-  real alpha = log(0.1);
-  real<lower=0> rho = 50;
-  real theta = 0.5;
+  real<lower=0> rho = 100;
+  real theta = 0.25;
 }
 
 generated quantities {
@@ -69,6 +70,7 @@ generated quantities {
         for (t in 1:T){ // iterate over timepoints
           fq[trapnum, t] = normal_rng(0,1);
           yobs[i, trapnum, t] = poisson_log_rng(alpha - 0.5*d / square(rho) + theta*fq[trapnum, t]);
+          // yobs[i, trapnum, t] = poisson_log_rng(alpha - 0.5*d / (square(rho)*exp(theta*fq[trapnum, t])));
         }
       }
     }
