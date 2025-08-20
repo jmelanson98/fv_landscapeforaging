@@ -583,9 +583,9 @@ ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
 ################################################################################
 
 # read in real error rate files
-mixtus_error_rates = data.frame(#c("BT10", 0, 0, 0.01),
+mixtus_error_rates = data.frame(c("BT10", 0, 0, 0.01),
                                 #c("BTMS0104", 0, 0, 0.01),
-                                #c("BTMS0057", 0, 0, 0.01),
+                                c("BTMS0057", 0, 0, 0.01),
                                 c("BTMS0086", 0, 0, 0.015),
                                 c("BTMS0066", 0, 0, 0.01),
                                 c("BTMS0062", 0, 0, 0.015),
@@ -606,12 +606,12 @@ impatiens_error_rates = data.frame(c("BT10", 0, 0, 0.017),
                                    c("B96", 0, 0, 0.027),
                                    c("BTMS0059", 0, 0, 0.017),
                                    c("BTMS0081", 0, 0, 0.016),
-                                   c("BL13", 0, 0, 0.011),
+                                   #c("BL13", 0, 0, 0.011),
                                    c("BTMS0062", 0, 0, 0.022),
-                                   #c("B126", 0, 0, 0.01),
+                                   c("B126", 0, 0, 0.01),
                                    c("BTERN01", 0, 0, 0.028),
                                    c("B124", 0, 0, 0.011),
-                                   #c("BTMS0057", 0, 0, 0.017),
+                                   c("BTMS0057", 0, 0, 0.017),
                                    c("BT30", 0, 0, 0.01),
                                    c("B10", 0, 0, 0.029),
                                    c("BTMS0083", 0, 0, 0.01)
@@ -655,7 +655,7 @@ for (i in 1:length(impatiens_alleles)){
 }
 
 
-# Generate three sibship data sets (e.g., 3 x yobs) of 2000 individuals each
+# Generate five sibship data sets (e.g., 5 x yobs) of 2000 individuals each
 numsims = 5
 for (i in 1:numsims){
   result = draw_simple_multi_landscape(sample_size = 2000,
