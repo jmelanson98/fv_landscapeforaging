@@ -1087,5 +1087,53 @@ ggplot(impatiens_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
 
 
 
+################################################################################
+## Test performance of higher Pinc threshold vs repeat runs
+################################################################################
+
+# use 0.6X datasets, e.g., 1200 individuals
+nsims = 5
+nruns = 5
+workingdir = "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux"
+sub = 0.6
+mixtus_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_error_rates.txt"
+impatiens_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
+
+for (i in 1:nsims){
+  for (j in 1:nruns){
+      # get genotype filepaths
+      mixtus_genotypes_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_set", i, "_sub0.6.txt")
+      impatiens_genotypes_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_set", i, "_sub0.6.txt")
+      
+      # get exclusion paths
+      mixtus_exclusion_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_exclusion", i, "_sub0.6.txt")
+      impatiens_exclusion_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_exclusion", i, "_sub0.6.txt")
+
+      
+      #build .DAT for mixtus
+      rcolony::build.colony.superauto(wd=workingdir, 
+                                      name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_repetition/mixtus_set", i, "_sub0.6_run", j, ".DAT"), 
+                                      datasetname = paste0("mixtus_set", i, "_sub0.6_run", j),
+                                      delim=",",
+                                      sample_size = 1200,
+                                      num_loci = 10,
+                                      error_rates_path = mixtus_errors_filepath,
+                                      genotypes_path = mixtus_genotypes_filepath,
+                                      exclusion_path = mixtus_exclusion_filepath
+      )
+      
+      # build .DAT for impatiens
+      rcolony::build.colony.superauto(wd=workingdir, 
+                                      name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_repetition/impatiens_set", i, "_sub0.6_run", j, ".DAT"), 
+                                      datasetname = paste0("impatiens_set", i, "_sub0.6_run", j),
+                                      delim=",",
+                                      sample_size = 1200,
+                                      num_loci = 12,
+                                      error_rates_path = impatiens_errors_filepath,
+                                      genotypes_path = impatiens_genotypes_filepath,
+                                      exclusion_path = impatiens_exclusion_filepath
+      )
+    }
+  }
 
 
