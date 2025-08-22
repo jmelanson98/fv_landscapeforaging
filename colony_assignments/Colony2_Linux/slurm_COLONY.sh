@@ -11,7 +11,7 @@
 module load gcc
 
 # Your list of .DAT files (replace with real names or glob dynamically)
-FILES=(impatiens2022.DAT impatiens2023.DAT mixtus2022.DAT mixtus2023.DAT)
+FILES=(impatiens_2022.DAT impatiens_2023.DAT mixtus_2022.DAT mixtus_2023.DAT)
 
 # Run COLONY on the file for this array task
 INPUT=${FILES[$SLURM_ARRAY_TASK_ID]}
