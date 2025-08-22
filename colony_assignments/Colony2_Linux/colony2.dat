@@ -1,0 +1,182 @@
+'example1'  !Dataset name
+'example1'  !Output file name
+40          ! Number of offspring in the sample
+5           ! Number of loci
+1234        ! Seed for random number generator
+0           ! 0/1=Not updating/updating allele frequency
+2           ! 2/1=Dioecious/Monoecious species
+0           ! 0/1=No inbreeding/inbreeding
+0           ! 0/1=Diploid species/HaploDiploid species
+0  0        ! 0/1=Polygamy/Monogamy for males & females
+0           ! 0/1=Clone inference =No/Yes
+1           ! 0/1=Full sibship size scaling =No/Yes
+1 1.0 1.0   ! 0,1,2,3=No,weak,medium,strong sibship size prior; mean paternal & meteral sibship size
+1           ! 0/1=Unknown/Known population allele frequency
+12 13 14 15 16  !Number of alleles per locus
+       1       2       3       4       5       6       7       8       9      10      11      12
+  0.1000  0.0600  0.0350  0.0700  0.0700  0.1400  0.1500  0.0550  0.0550  0.0250  0.1350  0.1050
+       1       2       3       4       5       6       7       8       9      10      11      12      13
+  0.0550  0.1000  0.0950  0.0400  0.0300  0.0550  0.0600  0.0950  0.1050  0.0800  0.1250  0.0900  0.0700
+       1       2       3       4       5       6       7       8       9      10      11      12      13      14
+  0.0350  0.0350  0.1150  0.0900  0.0550  0.1100  0.0800  0.0200  0.0400  0.1150  0.0550  0.1000  0.1100  0.0400
+       1       2       3       4       5       6       7       8       9      10      11      12      13      14      15
+  0.0800  0.0650  0.0600  0.0300  0.1250  0.0800  0.0500  0.0600  0.0900  0.0650  0.1250  0.0700  0.0500  0.0200  0.0300
+       1       2       3       4       5       6       7       8       9      10      11      12      13      14      15      16
+  0.0900  0.1500  0.0200  0.0500  0.0550  0.0750  0.0850  0.0650  0.0600  0.1000  0.0400  0.0550  0.0300  0.0400  0.0200  0.0650
+
+1         ! Number of runs
+2         ! Length of run
+0         ! 0/1=Monitor method by Iterate#/Time in second
+100000    ! Monitor interval in Iterate# / in seconds
+0         ! non-Windows version
+1         ! Fulllikelihood
+3         ! 1/2/3=low/medium/high Precision for Fulllikelihood
+
+     mk1     mk2     mk3     mk4     mk5        !Marker names
+       0       0       0       0       0        !Marker types, 0/1 = codominant/dominant
+  0.0000  0.0000  0.0000  0.0000  0.0000        !Allelic dropout rate  
+  0.0001  0.0001  0.0001  0.0001  0.0001        !false allele rate
+
+
+   O1  11  11   8  11  11   3   9   2   1   2
+   O2  11  11   8   3  11   3   9  12   1   1
+   O3  11   1   8   3  11   4   9  11   1   8
+   O4  11   9   8   2  11   4   9  11   1   8
+   O5  12  12   3   1   4  12   2   3   2  16
+   O6  11  12   3   1   3   4   2   3   2  16
+   O7   1  12   3   1   4   4  11   3  16   5
+   O8   1  12   2   1   4   5  11   3   8  16
+   O9   1   4   9   4   3  12   8   5   9  10
+  O10   1   4   3   9   3  12   8   5   9   4
+  O11   1   5   1   9   3   3   3   8  16   9
+  O12   1  10   1   9   3  12   3   8   2   9
+  O13   5   8   4  13  12   7  11   5  10   4
+  O14   4   5   3  13   7  13  11   7  10  10
+  O15   5  10   3  13   3   7  11  10   2  10
+  O16   5  10   1  13   3   7  11  10  16  10
+  O17   1   7  11   9   4  14  11   5   2  13
+  O18   1   7  11   9  12  14   9   5   2  13
+  O19   7   6   9   4  13  14  11   5   2   7
+  O20   7   6   9   4  14   6  11   5   2  10
+  O21   1   7   8   2   4   8   9   1   8   4
+  O22   4   7  11   2   4   8   9   1   8   4
+  O23   7   6   2  12   6   8  11   1   8   7
+  O24   7   6   2  12  13   8  11   1   8  10
+  O25   6   2   2   2  13  10   7   6   4   6
+  O26   6   2  11   2  13  10   7   6   4   7
+  O27   6   2   2  12   3  10  10   6   5   4
+  O28   6   6   2  12   3  10  10   6   5   4
+  O29  11   2   2   5  13   1   7   6   6  11
+  O30  11   2  11   5  13  13   7   6   7  11
+  O31  11   2   5   6   3  13  10   6   5  11
+  O32  11   2   5   6   3  13   7   6  11  12
+  O33   7   7  12  10   4   9  12   1   1   6
+  O34   7   3  12  10  10   9  12   6   1   6
+  O35   7   2   3  10   5   9  12  10   1  11
+  O36   7   2   3  10  10   9  12  10   1  11
+  O37  12   7   3   9   4   6   5   1   7   7
+  O38  12   7   3   9   4   6   5   6   7   6
+  O39  12   5   8   3   5   6   5   7   7   6
+  O40  12   2   3   3   6  10   5   7   7   6
+
+
+0.5  0.5     !prob. of dad/mum included in the candidates
+30  30       !numbers of candiadte males & females
+
+   M1  11  12  11   3   3  12   2  12   1   2
+   M2   4   8   3   4  12  13   5   7  10   4
+   M3   6   6   4  12  13   6  11  10  10   7
+   M4  12   7   8  11   5   1   8   1   2  10
+   M5   5   2  12  12   7   6   3   5  13   6
+   M6   7   3  11  10   7  13  12   1   1   3
+   M7  11   7  11   5   7  13   5  13   8  14
+   M8   8   6   8   7   3  12  11  15  16  12
+   M9  11   9   9   6   9   2   2   3   2  14
+  M10   1   6  11   9   6   1   1  15   7  15
+  M11  11   6  12   7  12   6  12   5   2  14
+  M12   1   3   2  10  12   6  11  11   9  13
+  M13   5   8  11  12  10   2   8   1   9  12
+  M14   9   8  11   6   4  10   2  11   2   9
+  M15  11   1  11   7  11  13   8  10  10  10
+  M16   1   5   9  10  10  10   8   1   6  14
+  M17   7   7   8   7   5   7   9  10   2   8
+  M18  10   6  13  10  11  14   2   5   8  16
+  M19   9   4   1  10   7  10  13   4   1   5
+  M20   4   4  11   1   6   1   9  14   2   7
+  M21  11   6   8  13  12   5   9   9   5   7
+  M22   5   6   8  12  12   9  15   4   5  15
+  M23  12  12  13   7   5  13  12  14   1   6
+  M24   8   7   6   7  11   6   3   6   2  16
+  M25   9  12   2   9   7  14   9  13   9   6
+  M26   7   6   9   6   4   2   2  12  16   5
+  M27   7   6   8  13   6   2  11   4  12   3
+  M28  11   1   2  10   3   3   5  13   2  12
+  M29   4   3   9  13   4  10   5   6   2  12
+  M30   9  12   2   6  10  10   6  13  10  11
+
+
+   F1  11  12  11   3   3  12   2  12   1   2
+   F2   4   8   3   4  12  13   5   7  10   4
+   F3   6   6   4  12  13   6  11  10  10   7
+   F4  12   7   8  11   5   1   8   1   2  10
+   F5   5   2  12  12   7   6   3   5  13   6
+   F6   7   3  11  10   7  13  12   1   1   3
+   F7  11   7  11   5   7  13   5  13   8  14
+   F8   8   6   8   7   3  12  11  15  16  12
+   F9  11   9   9   6   9   2   2   3   2  14
+  F10   1   6  11   9   6   1   1  15   7  15
+  F11  11   6  12   7  12   6  12   5   2  14
+  F12   1   3   2  10  12   6  11  11   9  13
+  F13   5   8  11  12  10   2   8   1   9  12
+  F14   9   8  11   6   4  10   2  11   2   9
+  F15  11   1  11   7  11  13   8  10  10  10
+  F16   1   5   9  10  10  10   8   1   6  14
+  F17   7   7   8   7   5   7   9  10   2   8
+  F18  10   6  13  10  11  14   2   5   8  16
+  F19   9   4   1  10   7  10  13   4   1   5
+  F20   4   4  11   1   6   1   9  14   2   7
+  F21  11   6   8  13  12   5   9   9   5   7
+  F22   5   6   8  12  12   9  15   4   5  15
+  F23  12  12  13   7   5  13  12  14   1   6
+  F24   8   7   6   7  11   6   3   6   2  16
+  F25   9  12   2   9   7  14   9  13   9   6
+  F26   7   6   9   6   4   2   2  12  16   5
+  F27   7   6   8  13   6   2  11   4  12   3
+  F28  11   1   2  10   3   3   5  13   2  12
+  F29   4   3   9  13   4  10   5   6   2  12
+  F30   9  12   2   6  10  10   6  13  10  11
+
+
+3  5          !#known fater-offspring dyads, paternity exclusion threshold
+O33 M1
+O34 M1
+O1 M2
+
+
+0  0          !#known moter-offspring dyads, maternity exclusion threshold
+
+
+2             !#known paternal sibship with unknown fathers
+2  O23 O25 
+3  O7 O21 O39 
+
+
+2             !#known maternal sibship with unknown mothers
+2  O15 O20 
+4  O11 O12 O19 O27 
+
+
+2             !#known paternity exclusions
+O31 3 M3 M5 M7 
+O1  1 M9 
+
+
+2             !#known maternity exclusions
+O31 3 F3 F5 F7 
+O1  1 F9 
+
+
+0             !#known paternal sibship exclusions
+
+
+0             !#known maternal sibship exclusions

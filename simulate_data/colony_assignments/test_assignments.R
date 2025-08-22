@@ -801,7 +801,7 @@ for (i in 1:nsim){
                                     datasetname = paste0("mixtus_set", i, "_sub", subsets[j], "_", k),
                                     delim=",",
                                     sample_size = size,
-                                    num_loci = 8,
+                                    num_loci = 10,
                                     error_rates_path = mixtus_errors_filepath,
                                     genotypes_path = mixtus_genotypes_filepath,
                                     exclusion_path = mixtus_exclusion_filepath
@@ -813,7 +813,7 @@ for (i in 1:nsim){
                                     datasetname = paste0("impatiens_set", i, "_sub", subsets[j], "_", k),
                                     delim=",",
                                     sample_size = size,
-                                    num_loci = 11,
+                                    num_loci = 12,
                                     error_rates_path = impatiens_errors_filepath,
                                     genotypes_path = impatiens_genotypes_filepath,
                                     exclusion_path = impatiens_exclusion_filepath

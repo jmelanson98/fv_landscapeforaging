@@ -7,6 +7,7 @@
 # prep workspace
 rm(list = ls())
 setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+workingdir = getwd()
 
 # first, load in packages
 source('colony_assignments/src/init.R')
@@ -160,23 +161,23 @@ colsToRemove = c("year",
                  "BL15...1", 
                  "BL15...2", 
                  "BTMS0072...1", 
-                 "BTMS0072...2")
-                 #"BTERN01...1",
-                 #"BTERN01...2",
-                 #"BTMS0104...1", 
-                 #"BTMS0104...2",
-                 #"BTMS0059...1", 
-                 #"BTMS0059...2")
+                 "BTMS0072...2",
+                 "BTERN01...1",
+                 "BTERN01...2",
+                 "BTMS0104...1", 
+                 "BTMS0104...2",
+                 "BTMS0059...1", 
+                 "BTMS0059...2")
 mixtus2022 = mixtus2022[, !colnames(mixtus2022) %in% colsToRemove]
 mixtus2023 = mixtus2023[, !colnames(mixtus2023) %in% colsToRemove]
 
-#relocate barcode, remove rows with more than 10 NAs, replace NAs with 0's
+#relocate barcode, remove rows with more than 4 NAs (e.g., at least 8 scored loci), replace NAs with 0's
 mixtus2022 = mixtus2022 %>% relocate(barcode_id)
-mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) <= 10,]
+mixtus2022_forcolony = mixtus2022[rowSums(is.na(mixtus2022)) <= 4,]
 mixtus2022_forcolony[is.na(mixtus2022_forcolony)] = 0
 
 mixtus2023 = mixtus2023 %>% relocate(barcode_id)
-mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) <= 10,]
+mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) <= 4,]
 mixtus2023_forcolony[is.na(mixtus2023_forcolony)] = 0
 
 #write csvs for upload to colony
@@ -300,6 +301,7 @@ write.table(
 ########################################
 # A few important notes!
 # For MacOS users: run colony in Rosetta terminal -- colony2 expects Intel versions of shared libraries (x86_64) not Apple Silicon (ARM 64)
+# I ran this code using the Linux version of COLONY, on the AllianceCan server
 
 # Rcolony (a wrapper package for creating the .dat input file for COLONY2) is a 
 #bit out of date and is missing some important arguments. For this reason I have 
@@ -313,22 +315,33 @@ write.table(
 # line 8 (after dioecious/monoecious): 0/1 for inbreeding (recommended for dioecious: no inbreeding (0))
 # line 11 (after mating systems): 0/1 for clone/duplicate inference (0 = no inference, 1 = yes inference)
 # line 12 (after clone inference): sibship size scaling (1=yes, 0=no) --> default yes, but if the maximal full sibship size is small (<20) then a run with alternative (no scaling) is necessary
-# - Addition of exclusion threshold (0) for known paternity/maternity in cases wehre the number of known parentages is 0
+# - Addition of exclusion threshold (0) for known paternity/maternity in cases where the number of known parentages is 0
+
+# I also made some updated functions which are a bit more "automatic" so that I don't have to run through all of the prompts. See below.
 
 
 # build .DAT files for both datasets
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/mixtus2022_final1.DAT", delim=",")
-rcolony::build.colony.input(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2/_Linux", 
-                            name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/mixtus2023_final1.DAT", delim=",")
+rcolony::build.colony.superauto(wd=workingdir, 
+                                name=paste0(workingdir, "/colony_assignments/Colony2_Linux/mixtus_2022.DAT"), 
+                                datasetname = "mixtus2022",
+                                delim=",",
+                                sample_size = 864,
+                                num_loci = 10,
+                                error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/mixtus_error_rates.txt"),
+                                genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/mixtus2022_forcolony.txt"),
+                                exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2022.txt")
+)
 
-# navigate to COLONY2 sub folder and run the following in terminal
-#NOTE: ensure that mixtus2022.DAT and mixtus2023.DAT are in the same directory at the colony2s.out executable
-
-# cd /Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2
-# ./colony2s.out IFN:mixtus2022.DAT
-# ./colony2s.out IFN:mixtus2023.DAT
-
+rcolony::build.colony.superauto(wd=workingdir, 
+                                name=paste0(workingdir, "/colony_assignments/Colony2_Linux/mixtus_2023.DAT"), 
+                                datasetname = "mixtus2023",
+                                delim=",",
+                                sample_size = 1147,
+                                num_loci = 10,
+                                error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/mixtus_error_rates.txt"),
+                                genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/mixtus2023_forcolony.txt"),
+                                exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023.txt")
+)
 
 
 #####################################
