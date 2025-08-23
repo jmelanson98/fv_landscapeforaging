@@ -25,6 +25,7 @@ library(raster)
 library(igraph)
 library(matrixStats)
 library(ggplot2)
+library(gridExtra)
 
 ################################################################################
 ## Test different rates of multiple paternity in mixtus and impatiens
@@ -827,7 +828,8 @@ for (i in 1:nsim){
 # Load in results from COLONY
 
 ### Check error rates with sibships...
-errors = data.frame(count = 1:120,
+subsets = c(1, 0.8, 0.6, 0.4, 0.2)
+errors = data.frame(count = 1:100,
                     test_condition = NA,
                     exclusion = NA,
                     numFP = NA,
@@ -908,7 +910,7 @@ for (i in 1:nsim){
       print(paste0("Count = ", count))
       errors$test_condition[count] = name
       print(paste0("Step 1 ", name))
-      errors$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
+      errors$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
       errors$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
       print(paste0("Midpoint data save for ", name))
       errors$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
@@ -931,35 +933,59 @@ errors$numbees = 2000*as.numeric(errors$sub_value)
 mixtus_errors = errors[grep("mixtus", errors$test_condition),]
 impatiens_errors = errors[grep("impatiens", errors$test_condition),]
 
-ggplot(impatiens_errors) +
+ggplot(mixtus_errors) +
   geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
   geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
   geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
   xlab("Simulation and COLONY Conditions") +
   ylab("Number of inferred or true relationships") +
-  labs(title = "Sibship inclusion: P = 0.95") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
-ggplot(mixtus_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
+mixtus_FPR_families = ggplot(mixtus_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
   geom_point() +
-  xlab("Simulation and COLONY Conditions") +
-  ylab(expression(FPR == frac(FP, TP + FN))) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90)) +
-  ylim(c(0,1))
+  xlab("") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
 
-ggplot(mixtus_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
+mixtus_FNR_families = ggplot(mixtus_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
   geom_point() +
-  xlab("Simulation and COLONY Conditions") +
+  xlab("") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+impatiens_FPR_families = ggplot(impatiens_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+impatiens_FNR_families = ggplot(impatiens_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
 
 
 
 ### Check error rates with dyads...
-errors = data.frame(count = 1:120,
+errors_dyad = data.frame(count = 1:100,
                     test_condition = NA,
                     exclusion = NA,
                     numFP = NA,
@@ -985,7 +1011,7 @@ for (i in 1:nsim){
         print(paste0("Files loaded for ", name))
         
         # set probability threshold
-        prob_thresh = 0.99
+        prob_thresh = 1
         
         # filter colony outputs
         colony_output = colony_output %>% filter(as.numeric(Probability) >= prob_thresh)
@@ -1033,16 +1059,16 @@ for (i in 1:nsim){
         # record FPR and FNR
         print(paste0("Start saving data for ", name))
         print(paste0("Count = ", count))
-        errors$test_condition[count] = name
+        errors_dyad$test_condition[count] = name
         print(paste0("Step 1 ", name))
-        errors$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
-        errors$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+        errors_dyad$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
+        errors_dyad$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
         print(paste0("Midpoint data save for ", name))
-        errors$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
-        errors$numFP[count] = nrow(fp_edges)
-        errors$numFN[count] = nrow(fn_edges)
-        errors$numTP[count] = nrow(tp_edges)
-        errors$exclusion[count] = k
+        errors_dyad$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+        errors_dyad$numFP[count] = nrow(fp_edges)
+        errors_dyad$numFN[count] = nrow(fn_edges)
+        errors_dyad$numTP[count] = nrow(tp_edges)
+        errors_dyad$exclusion[count] = k
         
         print(paste0("Data saved for ", name))
         
@@ -1052,13 +1078,13 @@ for (i in 1:nsim){
     }
   }  
 }
-errors$sub_value = str_extract(errors$test_condition, "(?<=sub)[0-9.]+")
-errors$numbees = 2000*as.numeric(errors$sub_value)
+errors_dyad$sub_value = str_extract(errors_dyad$test_condition, "(?<=sub)[0-9.]+")
+errors_dyad$numbees = 2000*as.numeric(errors_dyad$sub_value)
 
-mixtus_errors = errors[grep("mixtus", errors$test_condition),]
-impatiens_errors = errors[grep("impatiens", errors$test_condition),]
+mixtus_errors_dyad = errors_dyad[grep("mixtus", errors_dyad$test_condition),]
+impatiens_errors_dyad = errors_dyad[grep("impatiens", errors_dyad$test_condition),]
 
-ggplot(impatiens_errors) +
+ggplot(impatiens_errors_dyad) +
   geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
   geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
   geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
@@ -1068,22 +1094,106 @@ ggplot(impatiens_errors) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
-ggplot(impatiens_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
+mixtus_FPR_dyads = ggplot(mixtus_errors_dyad, aes(x = numbees, y = FPR, colour = exclusion)) +
   geom_point() +
-  xlab("Simulation and COLONY Conditions") +
-  ylab(expression(FPR == frac(FP, TP + FN))) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90)) +
-  ylim(c(0,1))
+  xlab("") +
+  ylab("") +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
 
-ggplot(impatiens_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
+mixtus_FNR_dyads = ggplot(mixtus_errors_dyad, aes(x = numbees, y = FNR, colour = exclusion)) +
   geom_point() +
-  xlab("Simulation and COLONY Conditions") +
-  ylab(expression(FNR == frac(FN, TP + FN))) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
+  xlab("") +
+  ylab("") +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+impatiens_FPR_dyads = ggplot(impatiens_errors_dyad, aes(x = numbees, y = FPR, colour = exclusion)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab("") +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+impatiens_FNR_dyads = ggplot(impatiens_errors_dyad, aes(x = numbees, y = FNR, colour = exclusion)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab("") +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
 
 
+
+# Make some grid plots for appendix
+#get legend
+g = ggplotGrob(mixtus_FPR_dyads)
+legend_index = which(g$layout$name == "guide-box-right")
+legend = g$grobs[[legend_index]]
+
+# remove legend from plots
+mixtus_FPR_families = mixtus_FPR_families + theme(legend.position = "none")
+mixtus_FNR_families = mixtus_FNR_families + theme(legend.position = "none")
+mixtus_FPR_dyads = mixtus_FPR_dyads + theme(legend.position = "none")
+mixtus_FNR_dyads = mixtus_FNR_dyads + theme(legend.position = "none")
+impatiens_FPR_families = impatiens_FPR_families + theme(legend.position = "none")
+impatiens_FNR_families = impatiens_FNR_families + theme(legend.position = "none")
+impatiens_FPR_dyads = impatiens_FPR_dyads + theme(legend.position = "none")
+impatiens_FNR_dyads = impatiens_FNR_dyads + theme(legend.position = "none")
+
+# make some text grobs
+imp = textGrob(
+  expression(italic("Bombus impatiens")),
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+mix = textGrob(
+  expression(italic("Bombus mixtus")),
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+family = textGrob(
+  "Best Family Clusters",
+  gp = gpar(fontsize = 12, col = "black")
+)
+dyad = textGrob(
+  "Full Sibling Dyads",
+  gp = gpar(fontsize = 12, col = "black")
+)
+
+
+# arrange and plot
+FPR_grid = grid.arrange(family, nullGrob(), dyad, nullGrob(),
+                        mixtus_FPR_families, nullGrob(), mixtus_FPR_dyads, mix,
+                        impatiens_FPR_families, nullGrob(), impatiens_FPR_dyads, imp, ncol =4, widths = c(8,1,8,1), heights = c(1,8,8))
+FPR_grid = grid.arrange(FPR_grid, legend, ncol = 2, widths = c(8,2))
+FPR_grid = ggdraw() +
+  draw_plot(FPR_grid, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.4, 0, 0.4), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/fpr_excl_prob.jpg", FPR_grid, height = 1000, width = 3000, units = "px")
+
+
+FNR_grid = grid.arrange(family, nullGrob(), dyad, nullGrob(),
+                        mixtus_FNR_families, nullGrob(), mixtus_FNR_dyads, mix,
+                        impatiens_FNR_families, nullGrob(), impatiens_FNR_dyads, imp, ncol =4, widths = c(8,1,8,1), heights = c(1,8,8))
+FNR_grid = grid.arrange(FNR_grid, legend, ncol = 2, widths = c(8,2))
+FNR_grid = ggdraw() +
+  draw_plot(FNR_grid, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.4, 0, 0.4), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/fpr_excl_prob.jpg", FPR_grid, height = 1000, width = 3000, units = "px")
 
 
 
@@ -1137,3 +1247,57 @@ for (i in 1:nsims){
   }
 
 
+################################################################################
+## Test use of sibship prior
+################################################################################
+
+# Construct .DAT files for COLONY
+mixtus_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_error_rates.txt"
+impatiens_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
+workingdir = "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux"
+
+for (i in 1:nsim){
+  for (j in 1:length(subsets)){
+    for (k in c("exclusion")){
+      # get sample size, working directory
+      size = nrow(mixGenotypesList[[i]]) * subsets[j]
+      
+      # get genotype filepaths
+      mixtus_genotypes_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_set", i, "_sub", subsets[j], ".txt")
+      impatiens_genotypes_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_set", i, "_sub", subsets[j], ".txt")
+      
+      # get exclusion paths
+      if (k == "exclusion"){
+        mixtus_exclusion_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/mixtus_exclusion", i, "_sub", subsets[j], ".txt")
+        impatiens_exclusion_filepath = paste0("simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_exclusion", i, "_sub", subsets[j], ".txt")
+      } else {
+        mixtus_exclusion_filepath = NULL
+        impatiens_exclusion_filepath = NULL
+      }
+      
+      #build .DAT for mixtus
+      rcolony::build.colony.superauto(wd=workingdir, 
+                                      name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_sibprior/mixtus_set", i, "_sub", subsets[j], "_", k, "nosibprior.DAT"), 
+                                      datasetname = paste0("mixtus_set", i, "_sub", subsets[j], "_", k, "_nosibprior"),
+                                      delim=",",
+                                      sample_size = size,
+                                      num_loci = 10,
+                                      error_rates_path = mixtus_errors_filepath,
+                                      genotypes_path = mixtus_genotypes_filepath,
+                                      exclusion_path = mixtus_exclusion_filepath
+      )
+      
+      # build .DAT for impatiens
+      rcolony::build.colony.superauto(wd=workingdir, 
+                                      name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_sibprior/impatiens_set", i, "_sub", subsets[j], "_", k, "nosibprior.DAT"), 
+                                      datasetname = paste0("impatiens_set", i, "_sub", subsets[j], "_", k, "_nosibprior"),
+                                      delim=",",
+                                      sample_size = size,
+                                      num_loci = 12,
+                                      error_rates_path = impatiens_errors_filepath,
+                                      genotypes_path = impatiens_genotypes_filepath,
+                                      exclusion_path = impatiens_exclusion_filepath
+      )
+    }
+  }
+}
