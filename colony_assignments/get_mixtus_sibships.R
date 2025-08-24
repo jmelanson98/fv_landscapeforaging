@@ -351,7 +351,7 @@ rcolony::build.colony.superauto(wd=workingdir,
 list_of_results = list()
 for (i in 1:5){
   # read in dyad data from COLONY
-  fsDyad2022 = trimws(readLines(paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/mixtus2022_final", i, ".FullSibDyad")))
+  fsDyad2022 = trimws(readLines(paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/colony_assignments/Colony2_Linux/mixtus2022.FullSibDyad")))
   
   #format
   dyads2022 = do.call(rbind, strsplit(fsDyad2022, ","))

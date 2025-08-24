@@ -1247,41 +1247,29 @@ for (i in 1:nsims){
 }
 
 # Load in results from COLONY
-#### THIS CODE NEEDS TO BE UPDATED STILL!!!!!!
-
-### Check error rates with sibships...
-subsets = c(1, 0.8, 0.6, 0.4, 0.2)
-errors = data.frame(count = 1:100,
-                    test_condition = NA,
-                    exclusion = NA,
+number_runs = c(1, 5)
+prob_threshholds = c(1, 0.99, 0.975, 0.95)
+errors = data.frame(count = 1:160,
+                    species = NA,
                     numFP = NA,
                     numFN = NA,
                     numTP = NA,
                     total_real = NA,
                     FPR = NA,
-                    FNR = NA)
-family_plots = list()
+                    FNR = NA,
+                    prob_thresh = NA,
+                    repetition = NA,
+                    data_type = NA)
 count = 1
 for (i in 1:nsim){
-  for (j in 1:length(subsets)){
-    for (k in c("exclusion", "no_exclusion")){
-      for (species in c("mixtus", "impatiens")){
-        name = paste0(species, "_set", i, "_sub", subsets[j], "_", k)
-        print(paste0("Loading ", name))
-        filename = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".BestCluster")
-        colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
-        colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
-        true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
+  for (species in c("mixtus", "impatiens")){
+    for (prob_thresh in prob_threshholds){
+      for (runs in number_runs){
+          
+        # load in true data
+        true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", species, "_set", i, "_sub0.6.csv"))
         
-        print(paste0("Files loaded for ", name))
-        
-        # set probability threshold
-        prob_thresh = 1
-        
-        # filter colony outputs
-        colony_output = colony_output %>% filter(Probability >= prob_thresh)
-        
-        # make edge lists
+        # make true edge lists
         true_edges = true_data %>%
           group_by(truecolony) %>%
           filter(n() > 1) %>%
@@ -1290,64 +1278,135 @@ for (i in 1:nsim){
                  to = map_chr(pairs, 2)) %>%
           dplyr::select(from, to)
         
-        inferred_edges = colony_output %>%
-          group_by(ClusterIndex) %>%
-          filter(n() > 1) %>%
-          summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
-          mutate(from = map_chr(pairs, 1),
-                 to = map_chr(pairs, 2)) %>%
-          dplyr::select(from, to)
+        # get inferred edges from appropriate COLONY output files
+        family_inferred_edges = list()
+        dyad_inferred_edges = list()
+        for (index in 1:runs){
+          name = paste0(species, "_set", i, "_sub0.6", "_run", index)
+          
+          # first get family files
+          familyfile = paste0("simulate_data/colony_assignments/test_repetition/", name, ".BestCluster")
+          family = as.data.frame(do.call(rbind, strsplit(trimws(readLines(familyfile)), "\\s+")[-1]))
+          colnames(family) = unlist(strsplit(readLines(familyfile), "\\s+")[1])
+          
+          # then get dyad files
+          dyadfile = paste0("simulate_data/colony_assignments/test_repetition/", name, ".FullSibDyad")
+          dyads = read.table(dyadfile, sep = ",")
+          colnames(dyads) = c("from", "to", "Probability")
+          dyads = dyads[-1,]
+          
+          # filter based on probability threshhold
+          family = family %>% filter(Probability >= prob_thresh)
+          dyads = dyads %>% filter(Probability >= prob_thresh)
+          
+          # get edge lists for family method
+          family_inferred_edges[[index]] = family %>%
+            group_by(ClusterIndex) %>%
+            filter(n() > 1) %>%
+            summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+            mutate(from = map_chr(pairs, 1),
+                   to = map_chr(pairs, 2)) %>%
+            dplyr::select(from, to)
+          
+          # get edge lists for dyads method
+          dyad_inferred_edges[[index]] = dyads[,1:2]
+          
+        }
         
-        # combine and classify edges by type (FN, FP, TP)
-        # get true positives
-        tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
-        tp_edges$type = "TP"
+        ######################################
+        # Identify dyads which are present in all of the runs
         
-        # initialize other types as FN and FP
-        true_edges$type = "FN"
-        inferred_edges$type = "FP"
         
-        # remove true positives from FN and FP dataframes
-        fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
-        fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
+        # first, collapse pairs into an ordered character string
+        pairs_df1 <- collapse(list_of_results[[1]])
+        pairs_df2 <- collapse(list_of_results[[2]])
+        pairs_df3 <- collapse(list_of_results[[3]])
+        pairs_df4 <- collapse(list_of_results[[4]])
+        pairs_df5 <- collapse(list_of_results[[5]])
         
-        # combine all edges
-        all_edges = rbind(tp_edges, fn_edges, fp_edges)
+        # check matches of df1 against other dfs
+        in_df2 <- pairs_df1 %in% pairs_df2
+        in_df3 <- pairs_df1 %in% pairs_df3
+        in_df4 <- pairs_df1 %in% pairs_df4
+        in_df5 <- pairs_df1 %in% pairs_df5
         
-        print(paste0("Edges computed for ", name))
+        bestdyads2022 = list_of_results[[1]]
+        bestdyads2022$in2 = in_df2
+        bestdyads2022$in3 =  in_df3
+        bestdyads2022$in4 =  in_df4
+        bestdyads2022$in5 =  in_df5
+        bestdyads2022$inall = in_df2 & in_df3 & in_df4 & in_df5
+        bestdyads2022$num_true = 1 + rowSums(bestdyads2022[,colnames(bestdyads2022) %in% c("in2", "in3", "in4", "in5")])
         
-        # make an igraph object
-        graph = graph_from_data_frame(all_edges, directed = FALSE)
-        E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
-        families = plot(graph, 
-                        edge.color = E(graph)$color,
-                        vertex.label = NA,
-                        vertex.size = 2,
-                        main = name
-        )
-        family_plots[[count]] = families
-        
-        # record FPR and FNR
-        print(paste0("Start saving data for ", name))
-        print(paste0("Count = ", count))
-        errors$test_condition[count] = name
-        print(paste0("Step 1 ", name))
-        errors$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
-        errors$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
-        print(paste0("Midpoint data save for ", name))
-        errors$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
-        errors$numFP[count] = nrow(fp_edges)
-        errors$numFN[count] = nrow(fn_edges)
-        errors$numTP[count] = nrow(tp_edges)
-        errors$exclusion[count] = k
-        
-        print(paste0("Data saved for ", name))
+        # subset to the consistent dyads
+        consistentdyad_2022 = bestdyads2022[bestdyads2022$inall ==TRUE,]
+          
+          #######################################
+          # combine and classify edges (FAMILY)
+          # get true positives
+          tp_edges_family = inner_join(true_edges, inferred_edges_family, by = c("from", "to"))
+          tp_edges_family$type = "TP"
+          
+          # initialize other types as FN and FP
+          true_edges$type = "FN"
+          inferred_edges_family$type = "FP"
+          
+          # remove true positives from FN and FP dataframes
+          fn_edges_family = anti_join(true_edges, tp_edges_family, by = c("from", "to"))
+          fp_edges_family = anti_join(inferred_edges_family, tp_edges_family, by = c("from", "to"))
+          
+          # combine all edges
+          all_edges_family = rbind(tp_edges_family, fn_edges_family, fp_edges_family)
+          
+          
+          #######################################
+          # combine and classify edges (DYADS)
+          # get true positives
+          tp_edges_dyads = inner_join(true_edges, inferred_edges_dyads, by = c("from", "to"))
+          tp_edges_dyads$type = "TP"
+          
+          # initialize other types as FN and FP
+          true_edges$type = "FN"
+          inferred_edges_dyads$type = "FP"
+          
+          # remove true positives from FN and FP dataframes
+          fn_edges_dyads = anti_join(true_edges, tp_edges_dyads, by = c("from", "to"))
+          fp_edges_dyads = anti_join(inferred_edges_dyads, tp_edges_dyads, by = c("from", "to"))
+          
+          # combine all edges
+          all_edges_dyads = rbind(tp_edges_dyads, fn_edges_dyads, fp_edges_dyads)
+         
+            # first for families
+            errors$species[count] = species
+            errors$numFP[count] = nrow(fp_edges_family)
+            errors$numFN[count] = nrow(fn_edges_family)
+            errors$numTP[count] = nrow(tp_edges_family)
+            errors$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+            errors$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+            errors$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+            errors$prob_thresh[count] = prob_thresh
+            errors$repetition[count] = 1
+            errors$data_type[count] = "family"
+            
+            # first for dyads
+            errors$species[count + 1] = species
+            errors$numFP[count + 1] = nrow(fp_edges)
+            errors$numFN[count + 1] = nrow(fn_edges)
+            errors$numTP[count + 1] = nrow(tp_edges)
+            errors$total_real[count + 1] = nrow(tp_edges) + nrow(fn_edges)
+            errors$FPR[count + 1] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+            errors$FNR[count + 1] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+            errors$prob_thresh[count + 1] = prob_thresh
+            errors$repetition[count + 1] = 1
+            errors$data_type[count + 1] = "dyads"
+
         
         count = count +1
         
       }
     }
   }  
+  }
 }
 errors$sub_value = str_extract(errors$test_condition, "(?<=sub)[0-9.]+")
 errors$numbees = 2000*as.numeric(errors$sub_value)
@@ -1355,54 +1414,7 @@ errors$numbees = 2000*as.numeric(errors$sub_value)
 mixtus_errors = errors[grep("mixtus", errors$test_condition),]
 impatiens_errors = errors[grep("impatiens", errors$test_condition),]
 
-ggplot(mixtus_errors) +
-  geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
-  geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
-  geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
-  xlab("Simulation and COLONY Conditions") +
-  ylab("Number of inferred or true relationships") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
 
-mixtus_FPR_families = ggplot(mixtus_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
-  geom_point() +
-  xlab("") +
-  ylab(expression(FPR == frac(FP, TP + FP))) +
-  labs(colour = "Across-site sibships") +
-  scale_color_manual(
-    labels = c("Excluded", "Not excluded"),
-    values = c("darkslateblue", "salmon")) +
-  theme_minimal()
-
-mixtus_FNR_families = ggplot(mixtus_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
-  geom_point() +
-  xlab("") +
-  ylab(expression(FNR == frac(FN, TP + FN))) +
-  labs(colour = "Across-site sibships") +
-  scale_color_manual(
-    labels = c("Excluded", "Not excluded"),
-    values = c("darkslateblue", "salmon")) +
-  theme_minimal()
-
-impatiens_FPR_families = ggplot(impatiens_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
-  geom_point() +
-  xlab("Number of Observed Bees") +
-  ylab(expression(FPR == frac(FP, TP + FP))) +
-  labs(colour = "Across-site sibships") +
-  scale_color_manual(
-    labels = c("Excluded", "Not excluded"),
-    values = c("darkslateblue", "salmon")) +
-  theme_minimal()
-
-impatiens_FNR_families = ggplot(impatiens_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
-  geom_point() +
-  xlab("Number of Observed Bees") +
-  ylab(expression(FNR == frac(FN, TP + FN))) +
-  labs(colour = "Across-site sibships") +
-  scale_color_manual(
-    labels = c("Excluded", "Not excluded"),
-    values = c("darkslateblue", "salmon")) +
-  theme_minimal()
 
 
 
