@@ -1244,7 +1244,382 @@ for (i in 1:nsims){
                                       exclusion_path = impatiens_exclusion_filepath
       )
     }
-  }
+}
+
+# Load in results from COLONY
+#### THIS CODE NEEDS TO BE UPDATED STILL!!!!!!
+
+### Check error rates with sibships...
+subsets = c(1, 0.8, 0.6, 0.4, 0.2)
+errors = data.frame(count = 1:100,
+                    test_condition = NA,
+                    exclusion = NA,
+                    numFP = NA,
+                    numFN = NA,
+                    numTP = NA,
+                    total_real = NA,
+                    FPR = NA,
+                    FNR = NA)
+family_plots = list()
+count = 1
+for (i in 1:nsim){
+  for (j in 1:length(subsets)){
+    for (k in c("exclusion", "no_exclusion")){
+      for (species in c("mixtus", "impatiens")){
+        name = paste0(species, "_set", i, "_sub", subsets[j], "_", k)
+        print(paste0("Loading ", name))
+        filename = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".BestCluster")
+        colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
+        colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
+        true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
+        
+        print(paste0("Files loaded for ", name))
+        
+        # set probability threshold
+        prob_thresh = 1
+        
+        # filter colony outputs
+        colony_output = colony_output %>% filter(Probability >= prob_thresh)
+        
+        # make edge lists
+        true_edges = true_data %>%
+          group_by(truecolony) %>%
+          filter(n() > 1) %>%
+          summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+          mutate(from = map_chr(pairs, 1),
+                 to = map_chr(pairs, 2)) %>%
+          dplyr::select(from, to)
+        
+        inferred_edges = colony_output %>%
+          group_by(ClusterIndex) %>%
+          filter(n() > 1) %>%
+          summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+          mutate(from = map_chr(pairs, 1),
+                 to = map_chr(pairs, 2)) %>%
+          dplyr::select(from, to)
+        
+        # combine and classify edges by type (FN, FP, TP)
+        # get true positives
+        tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
+        tp_edges$type = "TP"
+        
+        # initialize other types as FN and FP
+        true_edges$type = "FN"
+        inferred_edges$type = "FP"
+        
+        # remove true positives from FN and FP dataframes
+        fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+        fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
+        
+        # combine all edges
+        all_edges = rbind(tp_edges, fn_edges, fp_edges)
+        
+        print(paste0("Edges computed for ", name))
+        
+        # make an igraph object
+        graph = graph_from_data_frame(all_edges, directed = FALSE)
+        E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
+        families = plot(graph, 
+                        edge.color = E(graph)$color,
+                        vertex.label = NA,
+                        vertex.size = 2,
+                        main = name
+        )
+        family_plots[[count]] = families
+        
+        # record FPR and FNR
+        print(paste0("Start saving data for ", name))
+        print(paste0("Count = ", count))
+        errors$test_condition[count] = name
+        print(paste0("Step 1 ", name))
+        errors$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+        errors$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+        print(paste0("Midpoint data save for ", name))
+        errors$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+        errors$numFP[count] = nrow(fp_edges)
+        errors$numFN[count] = nrow(fn_edges)
+        errors$numTP[count] = nrow(tp_edges)
+        errors$exclusion[count] = k
+        
+        print(paste0("Data saved for ", name))
+        
+        count = count +1
+        
+      }
+    }
+  }  
+}
+errors$sub_value = str_extract(errors$test_condition, "(?<=sub)[0-9.]+")
+errors$numbees = 2000*as.numeric(errors$sub_value)
+
+mixtus_errors = errors[grep("mixtus", errors$test_condition),]
+impatiens_errors = errors[grep("impatiens", errors$test_condition),]
+
+ggplot(mixtus_errors) +
+  geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
+  geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
+  geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
+  xlab("Simulation and COLONY Conditions") +
+  ylab("Number of inferred or true relationships") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
+
+mixtus_FPR_families = ggplot(mixtus_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
+  geom_point() +
+  xlab("") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+mixtus_FNR_families = ggplot(mixtus_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
+  geom_point() +
+  xlab("") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+impatiens_FPR_families = ggplot(impatiens_errors, aes(x = numbees, y = FPR, colour = exclusion)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+impatiens_FNR_families = ggplot(impatiens_errors, aes(x = numbees, y = FNR, colour = exclusion)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+
+
+### Check error rates with dyads...
+errors_dyad = data.frame(count = 1:100,
+                         test_condition = NA,
+                         exclusion = NA,
+                         numFP = NA,
+                         numFN = NA,
+                         numTP = NA,
+                         total_real = NA,
+                         FPR = NA,
+                         FNR = NA)
+family_plots = list()
+count = 1
+for (i in 1:nsim){
+  for (j in 1:length(subsets)){
+    for (k in c("exclusion", "no_exclusion")){
+      for (species in c("mixtus", "impatiens")){
+        name = paste0(species, "_set", i, "_sub", subsets[j], "_", k)
+        print(paste0("Loading ", name))
+        filename = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".FullSibDyad")
+        colony_output = read.table(filename, sep = ",")
+        colnames(colony_output) = c("from", "to", "Probability")
+        colony_output = colony_output[-1,]
+        true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
+        
+        print(paste0("Files loaded for ", name))
+        
+        # set probability threshold
+        prob_thresh = 1
+        
+        # filter colony outputs
+        colony_output = colony_output %>% filter(as.numeric(Probability) >= prob_thresh)
+        
+        # make edge lists
+        true_edges = true_data %>%
+          group_by(truecolony) %>%
+          filter(n() > 1) %>%
+          summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+          mutate(from = map_chr(pairs, 1),
+                 to = map_chr(pairs, 2)) %>%
+          dplyr::select(from, to)
+        
+        inferred_edges = colony_output[,1:2]
+        
+        # combine and classify edges by type (FN, FP, TP)
+        # get true positives
+        tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
+        tp_edges$type = "TP"
+        
+        # initialize other types as FN and FP
+        true_edges$type = "FN"
+        inferred_edges$type = "FP"
+        
+        # remove true positives from FN and FP dataframes
+        fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+        fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
+        
+        # combine all edges
+        all_edges = rbind(tp_edges, fn_edges, fp_edges)
+        
+        print(paste0("Edges computed for ", name))
+        
+        # make an igraph object
+        graph = graph_from_data_frame(all_edges, directed = FALSE)
+        E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
+        families = plot(graph, 
+                        edge.color = E(graph)$color,
+                        vertex.label = NA,
+                        vertex.size = 2,
+                        main = name
+        )
+        family_plots[[count]] = families
+        
+        # record FPR and FNR
+        print(paste0("Start saving data for ", name))
+        print(paste0("Count = ", count))
+        errors_dyad$test_condition[count] = name
+        print(paste0("Step 1 ", name))
+        errors_dyad$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
+        errors_dyad$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+        print(paste0("Midpoint data save for ", name))
+        errors_dyad$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+        errors_dyad$numFP[count] = nrow(fp_edges)
+        errors_dyad$numFN[count] = nrow(fn_edges)
+        errors_dyad$numTP[count] = nrow(tp_edges)
+        errors_dyad$exclusion[count] = k
+        
+        print(paste0("Data saved for ", name))
+        
+        count = count +1
+        
+      }
+    }
+  }  
+}
+errors_dyad$sub_value = str_extract(errors_dyad$test_condition, "(?<=sub)[0-9.]+")
+errors_dyad$numbees = 2000*as.numeric(errors_dyad$sub_value)
+
+mixtus_errors_dyad = errors_dyad[grep("mixtus", errors_dyad$test_condition),]
+impatiens_errors_dyad = errors_dyad[grep("impatiens", errors_dyad$test_condition),]
+
+ggplot(impatiens_errors_dyad) +
+  geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
+  geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
+  geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
+  xlab("Simulation and COLONY Conditions") +
+  ylab("Number of inferred or true relationships") +
+  labs(title = "Sibship inclusion: P = 0.95") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
+
+mixtus_FPR_dyads = ggplot(mixtus_errors_dyad, aes(x = numbees, y = FPR, colour = exclusion)) +
+  geom_point() +
+  xlab("") +
+  ylab("") +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+mixtus_FNR_dyads = ggplot(mixtus_errors_dyad, aes(x = numbees, y = FNR, colour = exclusion)) +
+  geom_point() +
+  xlab("") +
+  ylab("") +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+impatiens_FPR_dyads = ggplot(impatiens_errors_dyad, aes(x = numbees, y = FPR, colour = exclusion)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab("") +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+impatiens_FNR_dyads = ggplot(impatiens_errors_dyad, aes(x = numbees, y = FNR, colour = exclusion)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab("") +
+  labs(colour = "Across-site sibships") +
+  scale_color_manual(
+    labels = c("Excluded", "Not excluded"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()
+
+
+
+# Make some grid plots for appendix
+#get legend
+g = ggplotGrob(mixtus_FPR_dyads)
+legend_index = which(g$layout$name == "guide-box-right")
+legend = g$grobs[[legend_index]]
+
+# remove legend from plots
+mixtus_FPR_families = mixtus_FPR_families + theme(legend.position = "none")
+mixtus_FNR_families = mixtus_FNR_families + theme(legend.position = "none")
+mixtus_FPR_dyads = mixtus_FPR_dyads + theme(legend.position = "none")
+mixtus_FNR_dyads = mixtus_FNR_dyads + theme(legend.position = "none")
+impatiens_FPR_families = impatiens_FPR_families + theme(legend.position = "none")
+impatiens_FNR_families = impatiens_FNR_families + theme(legend.position = "none")
+impatiens_FPR_dyads = impatiens_FPR_dyads + theme(legend.position = "none")
+impatiens_FNR_dyads = impatiens_FNR_dyads + theme(legend.position = "none")
+
+# make some text grobs
+imp = textGrob(
+  expression(italic("Bombus impatiens")),
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+mix = textGrob(
+  expression(italic("Bombus mixtus")),
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+family = textGrob(
+  "Best Family Clusters",
+  gp = gpar(fontsize = 12, col = "black")
+)
+dyad = textGrob(
+  "Full Sibling Dyads",
+  gp = gpar(fontsize = 12, col = "black")
+)
+
+
+# arrange and plot
+FPR_grid = grid.arrange(family, nullGrob(), dyad, nullGrob(),
+                        mixtus_FPR_families, nullGrob(), mixtus_FPR_dyads, mix,
+                        impatiens_FPR_families, nullGrob(), impatiens_FPR_dyads, imp, ncol =4, widths = c(8,1,8,1), heights = c(1,8,8))
+FPR_grid = grid.arrange(FPR_grid, legend, ncol = 2, widths = c(8,2))
+FPR_grid = ggdraw() +
+  draw_plot(FPR_grid, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.4, 0, 0.4), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/fpr_excl_prob.jpg", FPR_grid, height = 1000, width = 3000, units = "px")
+
+
+FNR_grid = grid.arrange(family, nullGrob(), dyad, nullGrob(),
+                        mixtus_FNR_families, nullGrob(), mixtus_FNR_dyads, mix,
+                        impatiens_FNR_families, nullGrob(), impatiens_FNR_dyads, imp, ncol =4, widths = c(8,1,8,1), heights = c(1,8,8))
+FNR_grid = grid.arrange(FNR_grid, legend, ncol = 2, widths = c(8,2))
+FNR_grid = ggdraw() +
+  draw_plot(FNR_grid, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.4, 0, 0.4), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/fpr_excl_prob.jpg", FPR_grid, height = 1000, width = 3000, units = "px")
+
+
+
+
 
 
 ################################################################################
