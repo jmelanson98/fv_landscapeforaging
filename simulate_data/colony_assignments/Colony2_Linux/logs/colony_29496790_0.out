@@ -1,880 +1,0 @@
-
------------------------------------------------------------------------------------------
-COLONY, Version 2.0.7.1, Build 20240225, Expire Date 20340225
-Copyright (C) 2005-2024 Jinliang Wang, Institute of Zoology, Zoological Society of London
-Email: jinliang.wang@ioz.ac.uk
------------------------------------------------------------------------------------------
-
-Opening & reading data input file: augmented_pp0_poly.DAT
-Reading 1000 offspring genotypes at 22 loci...
-/-\|/-\|/-\|/-\|/-\|  
-Writing updated allele frequency...
-Writing data to files...
-Estimating sibship with pairwise approach...
- Dyad:26-352     Dyad:52-380     Dyad:79-163     Dyad:106-675     Dyad:135-185     Dyad:164-536     Dyad:194-922     Dyad:226-659     Dyad:259-679     Dyad:294-375     Dyad:330-626     Dyad:368-908     Dyad:409-858     Dyad:453-845     Dyad:501-766     Dyad:554-751     Dyad:614-822     Dyad:685-973     Dyad:779-829                                
-Computing likelihood of initial config
-/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|  Done for all 1000 families                       
-  
-------------------------------------------------------------
-Run=1, Tmr=2, Itr=5808492, NSucc=486705, NSuccLmt=1481563, NFail1=9248, NFail1Lmt=23705000
-NFail2=9248, NFail2Lmt=118525000, SucRate%=8.3806, SucLmt%=32.8508, FailLmt%=0.0390, IterLmt%=1.9599
-CrLogL=-6.429422E+04, #F1=823, #F2=706, #F3=706, #FS=823, HSPair=122, FSPair=218, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.417554E+04, #F1=823, #F2=719, #F3=719, #FS=823, HSPair=110, FSPair=218, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=51/21/15, TotalRunningTime(Min)=1.00E+00
-------------------------------------------------------------
-Run=1, Tmr=2, Itr=11753135, NSucc=950220, NSuccLmt=1481563, NFail1=1785374, NFail1Lmt=23705000
-NFail2=1785374, NFail2Lmt=118525000, SucRate%=8.0855, SucLmt%=64.1363, FailLmt%=7.5316, IterLmt%=3.9661
-CrLogL=-6.425533E+04, #F1=822, #F2=692, #F3=692, #FS=822, HSPair=140, FSPair=219, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.402495E+04, #F1=816, #F2=713, #F3=713, #FS=816, HSPair=107, FSPair=225, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=51/22/15, TotalRunningTime(Min)=2.00E+00
-------------------------------------------------------------
-Run=1, Tmr=2, Itr=17673734, NSucc=1430388, NSuccLmt=1481563, NFail1=7705973, NFail1Lmt=23705000
-NFail2=7705973, NFail2Lmt=118525000, SucRate%=8.0938, SucLmt%=96.5459, FailLmt%=32.5078, IterLmt%=5.9642
-CrLogL=-6.443480E+04, #F1=826, #F2=695, #F3=695, #FS=826, HSPair=137, FSPair=213, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.402495E+04, #F1=816, #F2=713, #F3=713, #FS=816, HSPair=107, FSPair=225, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=51/23/15, TotalRunningTime(Min)=3.00E+00
-------------------------------------------------------------
-Run=1, Tmr=3, Itr=23672980, NSucc=370086, NSuccLmt=1481563, NFail1=592303, NFail1Lmt=23705000
-NFail2=592303, NFail2Lmt=118525000, SucRate%=6.8872, SucLmt%=24.9794, FailLmt%=2.4986, IterLmt%=1.8135
-CrLogL=-6.421634E+04, #F1=824, #F2=719, #F3=719, #FS=824, HSPair=108, FSPair=216, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.387801E+04, #F1=814, #F2=721, #F3=721, #FS=814, HSPair=98, FSPair=227, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=52/24/15, TotalRunningTime(Min)=4.00E+00
-------------------------------------------------------------
-Run=1, Tmr=3, Itr=29617446, NSucc=799260, NSuccLmt=1481563, NFail1=6536769, NFail1Lmt=23705000
-NFail2=6536769, NFail2Lmt=118525000, SucRate%=7.0618, SucLmt%=53.9471, FailLmt%=27.5755, IterLmt%=3.8196
-CrLogL=-6.443066E+04, #F1=829, #F2=718, #F3=718, #FS=829, HSPair=114, FSPair=210, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.387801E+04, #F1=814, #F2=721, #F3=721, #FS=814, HSPair=98, FSPair=227, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=52/25/15, TotalRunningTime(Min)=5.00E+00
-------------------------------------------------------------
-Run=1, Tmr=3, Itr=35536669, NSucc=1239012, NSuccLmt=1481563, NFail1=1587414, NFail1Lmt=23705000
-NFail2=1587414, NFail2Lmt=118525000, SucRate%=7.1880, SucLmt%=83.6287, FailLmt%=6.6965, IterLmt%=5.8173
-CrLogL=-6.422462E+04, #F1=820, #F2=700, #F3=700, #FS=820, HSPair=124, FSPair=221, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.382916E+04, #F1=813, #F2=713, #F3=713, #FS=813, HSPair=102, FSPair=228, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=52/26/15, TotalRunningTime(Min)=6.00E+00
-------------------------------------------------------------
-Run=1, Tmr=4, Itr=41480034, NSucc=169905, NSuccLmt=1481563, NFail1=673449, NFail1Lmt=23705000
-NFail2=673449, NFail2Lmt=118525000, SucRate%=6.2038, SucLmt%=11.4680, FailLmt%=2.8410, IterLmt%=0.9243
-CrLogL=-6.401313E+04, #F1=811, #F2=698, #F3=698, #FS=811, HSPair=118, FSPair=230, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.381096E+04, #F1=813, #F2=727, #F3=727, #FS=813, HSPair=87, FSPair=228, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=52/27/15, TotalRunningTime(Min)=7.00E+00
-------------------------------------------------------------
-Run=1, Tmr=4, Itr=47446675, NSucc=557217, NSuccLmt=1481563, NFail1=5787835, NFail1Lmt=23705000
-NFail2=5787835, NFail2Lmt=118525000, SucRate%=6.4008, SucLmt%=37.6101, FailLmt%=24.4161, IterLmt%=2.9379
-CrLogL=-6.407423E+04, #F1=817, #F2=710, #F3=710, #FS=817, HSPair=110, FSPair=224, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.375907E+04, #F1=810, #F2=719, #F3=719, #FS=810, HSPair=95, FSPair=231, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=53/28/15, TotalRunningTime(Min)=8.00E+00
-------------------------------------------------------------
-Run=1, Tmr=4, Itr=53351505, NSucc=953801, NSuccLmt=1481563, NFail1=11692665, NFail1Lmt=23705000
-NFail2=11692665, NFail2Lmt=118525000, SucRate%=6.5283, SucLmt%=64.3780, FailLmt%=49.3257, IterLmt%=4.9307
-CrLogL=-6.392321E+04, #F1=819, #F2=710, #F3=710, #FS=819, HSPair=119, FSPair=220, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.375907E+04, #F1=810, #F2=719, #F3=719, #FS=810, HSPair=95, FSPair=231, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=53/29/15, TotalRunningTime(Min)=9.00E+00
-------------------------------------------------------------
-Run=1, Tmr=5, Itr=59307754, NSucc=336502, NSuccLmt=1481563, NFail1=3668567, NFail1Lmt=23705000
-NFail2=3668567, NFail2Lmt=118525000, SucRate%=5.8053, SucLmt%=22.7126, FailLmt%=15.4759, IterLmt%=1.9562
-CrLogL=-6.386321E+04, #F1=812, #F2=720, #F3=720, #FS=812, HSPair=97, FSPair=229, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.370870E+04, #F1=811, #F2=735, #F3=735, #FS=811, HSPair=81, FSPair=230, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=54/30/15, TotalRunningTime(Min)=1.00E+01
-------------------------------------------------------------
-Run=1, Tmr=5, Itr=65227237, NSucc=693440, NSuccLmt=1481563, NFail1=5793430, NFail1Lmt=23705000
-NFail2=5793430, NFail2Lmt=118525000, SucRate%=5.9188, SucLmt%=46.8046, FailLmt%=24.4397, IterLmt%=3.9539
-CrLogL=-6.397143E+04, #F1=815, #F2=718, #F3=718, #FS=815, HSPair=103, FSPair=225, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.369645E+04, #F1=808, #F2=728, #F3=728, #FS=808, HSPair=84, FSPair=233, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=54/31/15, TotalRunningTime(Min)=1.10E+01
-------------------------------------------------------------
-Run=1, Tmr=5, Itr=71122926, NSucc=1055848, NSuccLmt=1481563, NFail1=3416781, NFail1Lmt=23705000
-NFail2=3416781, NFail2Lmt=118525000, SucRate%=5.9952, SucLmt%=71.2658, FailLmt%=14.4138, IterLmt%=5.9436
-CrLogL=-6.388966E+04, #F1=814, #F2=718, #F3=718, #FS=814, HSPair=102, FSPair=227, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.367503E+04, #F1=810, #F2=723, #F3=723, #FS=810, HSPair=97, FSPair=231, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=54/32/15, TotalRunningTime(Min)=1.20E+01
-------------------------------------------------------------
-Run=1, Tmr=5, Itr=76980383, NSucc=1427684, NSuccLmt=1481563, NFail1=9274238, NFail1Lmt=23705000
-NFail2=9274238, NFail2Lmt=118525000, SucRate%=6.0833, SucLmt%=96.3634, FailLmt%=39.1236, IterLmt%=7.9204
-CrLogL=-6.383755E+04, #F1=811, #F2=715, #F3=715, #FS=811, HSPair=102, FSPair=230, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.367503E+04, #F1=810, #F2=723, #F3=723, #FS=810, HSPair=97, FSPair=231, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=55/33/15, TotalRunningTime(Min)=1.30E+01
-------------------------------------------------------------
-Run=1, Tmr=6, Itr=82908115, NSucc=267124, NSuccLmt=1481563, NFail1=2924931, NFail1Lmt=23705000
-NFail2=2924931, NFail2Lmt=118525000, SucRate%=5.2590, SucLmt%=18.0299, FailLmt%=12.3389, IterLmt%=1.7142
-CrLogL=-6.379895E+04, #F1=809, #F2=711, #F3=711, #FS=809, HSPair=100, FSPair=232, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.363371E+04, #F1=809, #F2=726, #F3=726, #FS=809, HSPair=91, FSPair=232, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=55/34/15, TotalRunningTime(Min)=1.40E+01
-------------------------------------------------------------
-Run=1, Tmr=6, Itr=88827123, NSucc=586403, NSuccLmt=1481563, NFail1=4039748, NFail1Lmt=23705000
-NFail2=4039748, NFail2Lmt=118525000, SucRate%=5.3317, SucLmt%=39.5800, FailLmt%=17.0418, IterLmt%=3.7117
-CrLogL=-6.382051E+04, #F1=811, #F2=727, #F3=727, #FS=811, HSPair=87, FSPair=230, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.359442E+04, #F1=809, #F2=742, #F3=742, #FS=809, HSPair=72, FSPair=231, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=55/35/15, TotalRunningTime(Min)=1.50E+01
-------------------------------------------------------------
-Run=1, Tmr=6, Itr=94676609, NSucc=916382, NSuccLmt=1481563, NFail1=9889234, NFail1Lmt=23705000
-NFail2=9889234, NFail2Lmt=118525000, SucRate%=5.4392, SucLmt%=61.8524, FailLmt%=41.7179, IterLmt%=5.6858
-CrLogL=-6.380484E+04, #F1=812, #F2=714, #F3=714, #FS=812, HSPair=104, FSPair=229, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.359442E+04, #F1=809, #F2=742, #F3=742, #FS=809, HSPair=72, FSPair=231, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=56/36/15, TotalRunningTime(Min)=1.60E+01
-------------------------------------------------------------
-Run=1, Tmr=7, Itr=100608232, NSucc=185616, NSuccLmt=1481563, NFail1=2947978, NFail1Lmt=23705000
-NFail2=2947978, NFail2Lmt=118525000, SucRate%=4.6774, SucLmt%=12.5284, FailLmt%=12.4361, IterLmt%=1.3392
-CrLogL=-6.364564E+04, #F1=807, #F2=740, #F3=740, #FS=807, HSPair=70, FSPair=234, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.356159E+04, #F1=806, #F2=738, #F3=738, #FS=806, HSPair=70, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=56/37/15, TotalRunningTime(Min)=1.70E+01
-------------------------------------------------------------
-Run=1, Tmr=7, Itr=106515480, NSucc=471695, NSuccLmt=1481563, NFail1=3989508, NFail1Lmt=23705000
-NFail2=3989508, NFail2Lmt=118525000, SucRate%=4.7764, SucLmt%=31.8377, FailLmt%=16.8298, IterLmt%=3.3328
-CrLogL=-6.375729E+04, #F1=808, #F2=724, #F3=724, #FS=808, HSPair=89, FSPair=233, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.354993E+04, #F1=807, #F2=736, #F3=736, #FS=807, HSPair=73, FSPair=234, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=57/38/15, TotalRunningTime(Min)=1.80E+01
-------------------------------------------------------------
-Run=1, Tmr=7, Itr=112408131, NSucc=766360, NSuccLmt=1481563, NFail1=497501, NFail1Lmt=23705000
-NFail2=497501, NFail2Lmt=118525000, SucRate%=4.8601, SucLmt%=51.7265, FailLmt%=2.0987, IterLmt%=5.3215
-CrLogL=-6.372745E+04, #F1=805, #F2=708, #F3=708, #FS=805, HSPair=101, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.353335E+04, #F1=805, #F2=749, #F3=749, #FS=805, HSPair=60, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=57/39/15, TotalRunningTime(Min)=1.90E+01
-------------------------------------------------------------
-Run=1, Tmr=7, Itr=118253516, NSucc=1065712, NSuccLmt=1481563, NFail1=6342886, NFail1Lmt=23705000
-NFail2=6342886, NFail2Lmt=118525000, SucRate%=4.9307, SucLmt%=71.9316, FailLmt%=26.7576, IterLmt%=7.2942
-CrLogL=-6.372886E+04, #F1=808, #F2=728, #F3=728, #FS=808, HSPair=81, FSPair=233, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.353335E+04, #F1=805, #F2=749, #F3=749, #FS=805, HSPair=60, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=57/40/15, TotalRunningTime(Min)=2.00E+01
-------------------------------------------------------------
-Run=1, Tmr=8, Itr=124089310, NSucc=13264, NSuccLmt=1481563, NFail1=231058, NFail1Lmt=23705000
-NFail2=231058, NFail2Lmt=118525000, SucRate%=4.0665, SucLmt%=0.8953, FailLmt%=0.9747, IterLmt%=0.1101
-CrLogL=-6.372375E+04, #F1=805, #F2=711, #F3=711, #FS=805, HSPair=98, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.352495E+04, #F1=805, #F2=735, #F3=735, #FS=805, HSPair=72, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=58/41/15, TotalRunningTime(Min)=2.10E+01
-------------------------------------------------------------
-Run=1, Tmr=8, Itr=130000842, NSucc=263009, NSuccLmt=1481563, NFail1=5462366, NFail1Lmt=23705000
-NFail2=5462366, NFail2Lmt=118525000, SucRate%=4.2164, SucLmt%=17.7521, FailLmt%=23.0431, IterLmt%=2.1051
-CrLogL=-6.358048E+04, #F1=805, #F2=739, #F3=739, #FS=805, HSPair=70, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.350036E+04, #F1=805, #F2=749, #F3=749, #FS=805, HSPair=64, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=58/42/15, TotalRunningTime(Min)=2.20E+01
-------------------------------------------------------------
-Run=1, Tmr=8, Itr=135898134, NSucc=522918, NSuccLmt=1481563, NFail1=11359658, NFail1Lmt=23705000
-NFail2=11359658, NFail2Lmt=118525000, SucRate%=4.3092, SucLmt%=35.2950, FailLmt%=47.9209, IterLmt%=4.0953
-CrLogL=-6.370892E+04, #F1=809, #F2=727, #F3=727, #FS=809, HSPair=86, FSPair=232, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.350036E+04, #F1=805, #F2=749, #F3=749, #FS=805, HSPair=64, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=58/43/15, TotalRunningTime(Min)=2.30E+01
-------------------------------------------------------------
-Run=1, Tmr=9, Itr=141803944, NSucc=203200, NSuccLmt=1481563, NFail1=940457, NFail1Lmt=23705000
-NFail2=940457, NFail2Lmt=118525000, SucRate%=3.7539, SucLmt%=13.7152, FailLmt%=3.9673, IterLmt%=1.8268
-CrLogL=-6.354127E+04, #F1=807, #F2=744, #F3=744, #FS=807, HSPair=69, FSPair=234, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.347330E+04, #F1=805, #F2=740, #F3=740, #FS=805, HSPair=73, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=59/44/15, TotalRunningTime(Min)=2.40E+01
-------------------------------------------------------------
-Run=1, Tmr=9, Itr=147694242, NSucc=433546, NSuccLmt=1481563, NFail1=473378, NFail1Lmt=23705000
-NFail2=473378, NFail2Lmt=118525000, SucRate%=3.8356, SucLmt%=29.2627, FailLmt%=1.9970, IterLmt%=3.8146
-CrLogL=-6.356492E+04, #F1=807, #F2=735, #F3=735, #FS=807, HSPair=75, FSPair=234, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.346926E+04, #F1=805, #F2=739, #F3=739, #FS=805, HSPair=72, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=59/45/15, TotalRunningTime(Min)=2.50E+01
-------------------------------------------------------------
-Run=1, Tmr=9, Itr=153549939, NSucc=666834, NSuccLmt=1481563, NFail1=2520587, NFail1Lmt=23705000
-NFail2=2520587, NFail2Lmt=118525000, SucRate%=3.8862, SucLmt%=45.0088, FailLmt%=10.6331, IterLmt%=5.7908
-CrLogL=-6.362994E+04, #F1=805, #F2=729, #F3=729, #FS=805, HSPair=81, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.346550E+04, #F1=806, #F2=744, #F3=744, #FS=806, HSPair=69, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=00/47/15, TotalRunningTime(Min)=2.60E+01
-------------------------------------------------------------
-Run=1, Tmr=9, Itr=159370852, NSucc=903586, NSuccLmt=1481563, NFail1=8341500, NFail1Lmt=23705000
-NFail2=8341500, NFail2Lmt=118525000, SucRate%=3.9321, SucLmt%=60.9887, FailLmt%=35.1888, IterLmt%=7.7553
-CrLogL=-6.356036E+04, #F1=807, #F2=730, #F3=730, #FS=807, HSPair=81, FSPair=234, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.346550E+04, #F1=806, #F2=744, #F3=744, #FS=806, HSPair=69, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=00/48/15, TotalRunningTime(Min)=2.70E+01
-------------------------------------------------------------
-Run=1, Tmr=10, Itr=165207396, NSucc=76237, NSuccLmt=1481563, NFail1=2244138, NFail1Lmt=23705000
-NFail2=2244138, NFail2Lmt=118525000, SucRate%=3.2782, SucLmt%=5.1457, FailLmt%=9.4669, IterLmt%=0.7848
-CrLogL=-6.360567E+04, #F1=805, #F2=732, #F3=732, #FS=805, HSPair=75, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.342371E+04, #F1=807, #F2=759, #F3=759, #FS=807, HSPair=53, FSPair=234, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=01/49/15, TotalRunningTime(Min)=2.80E+01
-------------------------------------------------------------
-Run=1, Tmr=10, Itr=171094074, NSucc=275319, NSuccLmt=1481563, NFail1=8130816, NFail1Lmt=23705000
-NFail2=8130816, NFail2Lmt=118525000, SucRate%=3.3526, SucLmt%=18.5830, FailLmt%=34.3000, IterLmt%=2.7715
-CrLogL=-6.350419E+04, #F1=805, #F2=743, #F3=743, #FS=805, HSPair=67, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.342371E+04, #F1=807, #F2=759, #F3=759, #FS=807, HSPair=53, FSPair=234, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=01/50/15, TotalRunningTime(Min)=2.90E+01
-------------------------------------------------------------
-Run=1, Tmr=11, Itr=176947839, NSucc=62103, NSuccLmt=1481563, NFail1=1504251, NFail1Lmt=23705000
-NFail2=1504251, NFail2Lmt=118525000, SucRate%=2.9128, SucLmt%=4.1917, FailLmt%=6.3457, IterLmt%=0.7195
-CrLogL=-6.354017E+04, #F1=805, #F2=740, #F3=740, #FS=805, HSPair=66, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.341919E+04, #F1=805, #F2=753, #F3=753, #FS=805, HSPair=59, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=02/51/15, TotalRunningTime(Min)=3.00E+01
-------------------------------------------------------------
-Run=1, Tmr=11, Itr=182808290, NSucc=237768, NSuccLmt=1481563, NFail1=5682768, NFail1Lmt=23705000
-NFail2=5682768, NFail2Lmt=118525000, SucRate%=2.9749, SucLmt%=16.0485, FailLmt%=23.9729, IterLmt%=2.6973
-CrLogL=-6.347941E+04, #F1=806, #F2=747, #F3=747, #FS=806, HSPair=65, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.341212E+04, #F1=805, #F2=751, #F3=751, #FS=805, HSPair=60, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=02/52/15, TotalRunningTime(Min)=3.10E+01
-------------------------------------------------------------
-Run=1, Tmr=11, Itr=188622917, NSucc=416074, NSuccLmt=1481563, NFail1=5387676, NFail1Lmt=23705000
-NFail2=5387676, NFail2Lmt=118525000, SucRate%=3.0135, SucLmt%=28.0834, FailLmt%=22.7280, IterLmt%=4.6597
-CrLogL=-6.349350E+04, #F1=804, #F2=743, #F3=743, #FS=804, HSPair=65, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.339188E+04, #F1=805, #F2=756, #F3=756, #FS=805, HSPair=52, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=03/53/15, TotalRunningTime(Min)=3.20E+01
-------------------------------------------------------------
-Run=1, Tmr=11, Itr=194443427, NSucc=599163, NSuccLmt=1481563, NFail1=11208186, NFail1Lmt=23705000
-NFail2=11208186, NFail2Lmt=118525000, SucRate%=3.0526, SucLmt%=40.4413, FailLmt%=47.2819, IterLmt%=6.6240
-CrLogL=-6.350895E+04, #F1=806, #F2=739, #F3=739, #FS=806, HSPair=72, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.339188E+04, #F1=805, #F2=756, #F3=756, #FS=805, HSPair=52, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=03/54/15, TotalRunningTime(Min)=3.30E+01
-------------------------------------------------------------
-Run=1, Tmr=12, Itr=200312458, NSucc=135457, NSuccLmt=1481563, NFail1=313363, NFail1Lmt=23705000
-NFail2=313363, NFail2Lmt=118525000, SucRate%=2.5926, SucLmt%=9.1428, FailLmt%=1.3219, IterLmt%=1.7632
-CrLogL=-6.351593E+04, #F1=805, #F2=750, #F3=750, #FS=805, HSPair=59, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.338828E+04, #F1=805, #F2=737, #F3=737, #FS=805, HSPair=74, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=04/55/15, TotalRunningTime(Min)=3.40E+01
-------------------------------------------------------------
-Run=1, Tmr=12, Itr=206125000, NSucc=290383, NSuccLmt=1481563, NFail1=4723326, NFail1Lmt=23705000
-NFail2=4723326, NFail2Lmt=118525000, SucRate%=2.6309, SucLmt%=19.5998, FailLmt%=19.9254, IterLmt%=3.7249
-CrLogL=-6.346465E+04, #F1=808, #F2=751, #F3=751, #FS=808, HSPair=61, FSPair=233, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.337573E+04, #F1=804, #F2=762, #F3=762, #FS=804, HSPair=47, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=04/56/15, TotalRunningTime(Min)=3.50E+01
-------------------------------------------------------------
-Run=1, Tmr=12, Itr=211941748, NSucc=448682, NSuccLmt=1481563, NFail1=1831086, NFail1Lmt=23705000
-NFail2=1831086, NFail2Lmt=118525000, SucRate%=2.6622, SucLmt%=30.2844, FailLmt%=7.7245, IterLmt%=5.6879
-CrLogL=-6.345126E+04, #F1=806, #F2=739, #F3=739, #FS=806, HSPair=77, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.336242E+04, #F1=804, #F2=756, #F3=756, #FS=804, HSPair=55, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=05/57/15, TotalRunningTime(Min)=3.60E+01
-------------------------------------------------------------
-Run=1, Tmr=12, Itr=217727224, NSucc=608675, NSuccLmt=1481563, NFail1=7616562, NFail1Lmt=23705000
-NFail2=7616562, NFail2Lmt=118525000, SucRate%=2.6886, SucLmt%=41.0833, FailLmt%=32.1306, IterLmt%=7.6404
-CrLogL=-6.348707E+04, #F1=806, #F2=744, #F3=744, #FS=806, HSPair=66, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.336242E+04, #F1=804, #F2=756, #F3=756, #FS=804, HSPair=55, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=05/58/15, TotalRunningTime(Min)=3.70E+01
-------------------------------------------------------------
-Run=1, Tmr=13, Itr=223532440, NSucc=35290, NSuccLmt=1481563, NFail1=1569278, NFail1Lmt=23705000
-NFail2=13421778, NFail2Lmt=118525000, SucRate%=2.2488, SucLmt%=2.3819, FailLmt%=6.6200, IterLmt%=0.5296
-CrLogL=-6.344159E+04, #F1=804, #F2=745, #F3=745, #FS=804, HSPair=64, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.336242E+04, #F1=804, #F2=756, #F3=756, #FS=804, HSPair=55, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=05/59/15, TotalRunningTime(Min)=3.80E+01
-------------------------------------------------------------
-Run=1, Tmr=13, Itr=229379851, NSucc=169058, NSuccLmt=1481563, NFail1=1863231, NFail1Lmt=23705000
-NFail2=1863231, NFail2Lmt=118525000, SucRate%=2.2794, SucLmt%=11.4108, FailLmt%=7.8601, IterLmt%=2.5030
-CrLogL=-6.340054E+04, #F1=804, #F2=750, #F3=750, #FS=804, HSPair=62, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.336127E+04, #F1=804, #F2=751, #F3=751, #FS=804, HSPair=65, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=06/00/16, TotalRunningTime(Min)=3.90E+01
-------------------------------------------------------------
-Run=1, Tmr=13, Itr=235187208, NSucc=305644, NSuccLmt=1481563, NFail1=7670588, NFail1Lmt=23705000
-NFail2=7670588, NFail2Lmt=118525000, SucRate%=2.3113, SucLmt%=20.6298, FailLmt%=32.3585, IterLmt%=4.4629
-CrLogL=-6.342649E+04, #F1=804, #F2=744, #F3=744, #FS=804, HSPair=61, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.336127E+04, #F1=804, #F2=751, #F3=751, #FS=804, HSPair=65, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=06/01/16, TotalRunningTime(Min)=4.00E+01
-------------------------------------------------------------
-Run=1, Tmr=13, Itr=240974052, NSucc=443809, NSuccLmt=1481563, NFail1=2155482, NFail1Lmt=23705000
-NFail2=2155482, NFail2Lmt=118525000, SucRate%=2.3345, SucLmt%=29.9555, FailLmt%=9.0929, IterLmt%=6.4158
-CrLogL=-6.348712E+04, #F1=806, #F2=750, #F3=750, #FS=806, HSPair=58, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.336124E+04, #F1=804, #F2=752, #F3=752, #FS=804, HSPair=59, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=07/02/16, TotalRunningTime(Min)=4.10E+01
-------------------------------------------------------------
-Run=1, Tmr=13, Itr=246739397, NSucc=583924, NSuccLmt=1481563, NFail1=3119867, NFail1Lmt=23705000
-NFail2=3119867, NFail2Lmt=118525000, SucRate%=2.3568, SucLmt%=39.4127, FailLmt%=13.1612, IterLmt%=8.3615
-CrLogL=-6.342500E+04, #F1=805, #F2=752, #F3=752, #FS=805, HSPair=60, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.336091E+04, #F1=805, #F2=755, #F3=755, #FS=805, HSPair=54, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=07/03/16, TotalRunningTime(Min)=4.20E+01
-------------------------------------------------------------
-Run=1, Tmr=13, Itr=252489653, NSucc=725860, NSuccLmt=1481563, NFail1=8870123, NFail1Lmt=23705000
-NFail2=8870123, NFail2Lmt=118525000, SucRate%=2.3778, SucLmt%=48.9929, FailLmt%=37.4188, IterLmt%=10.3021
-CrLogL=-6.347073E+04, #F1=808, #F2=741, #F3=741, #FS=808, HSPair=71, FSPair=233, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.336091E+04, #F1=805, #F2=755, #F3=755, #FS=805, HSPair=54, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=08/04/16, TotalRunningTime(Min)=4.30E+01
-------------------------------------------------------------
-Run=1, Tmr=14, Itr=258270018, NSucc=54612, NSuccLmt=1481563, NFail1=1046957, NFail1Lmt=23705000
-NFail2=1046957, NFail2Lmt=118525000, SucRate%=1.9518, SucLmt%=3.6861, FailLmt%=4.4166, IterLmt%=0.9443
-CrLogL=-6.343024E+04, #F1=805, #F2=746, #F3=746, #FS=805, HSPair=68, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.332809E+04, #F1=804, #F2=746, #F3=746, #FS=804, HSPair=65, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=08/05/16, TotalRunningTime(Min)=4.40E+01
-------------------------------------------------------------
-Run=1, Tmr=14, Itr=264084301, NSucc=172522, NSuccLmt=1481563, NFail1=6861240, NFail1Lmt=23705000
-NFail2=6861240, NFail2Lmt=118525000, SucRate%=2.0032, SucLmt%=11.6446, FailLmt%=28.9443, IterLmt%=2.9065
-CrLogL=-6.338025E+04, #F1=804, #F2=759, #F3=759, #FS=804, HSPair=56, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.332809E+04, #F1=804, #F2=746, #F3=746, #FS=804, HSPair=65, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=09/06/16, TotalRunningTime(Min)=4.50E+01
-------------------------------------------------------------
-Run=1, Tmr=14, Itr=269891378, NSucc=290818, NSuccLmt=1481563, NFail1=3520109, NFail1Lmt=23705000
-NFail2=3520109, NFail2Lmt=118525000, SucRate%=2.0169, SucLmt%=19.6291, FailLmt%=14.8496, IterLmt%=4.8663
-CrLogL=-6.345100E+04, #F1=805, #F2=749, #F3=749, #FS=805, HSPair=62, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.332669E+04, #F1=804, #F2=762, #F3=762, #FS=804, HSPair=50, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=09/07/16, TotalRunningTime(Min)=4.60E+01
-------------------------------------------------------------
-Run=1, Tmr=14, Itr=275666887, NSucc=410967, NSuccLmt=1481563, NFail1=9295618, NFail1Lmt=23705000
-NFail2=9295618, NFail2Lmt=118525000, SucRate%=2.0350, SucLmt%=27.7387, FailLmt%=39.2137, IterLmt%=6.8154
-CrLogL=-6.345241E+04, #F1=805, #F2=741, #F3=741, #FS=805, HSPair=70, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.332669E+04, #F1=804, #F2=762, #F3=762, #FS=804, HSPair=50, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=10/08/16, TotalRunningTime(Min)=4.70E+01
-------------------------------------------------------------
-Run=1, Tmr=15, Itr=281467114, NSucc=55676, NSuccLmt=1481563, NFail1=2045971, NFail1Lmt=23705000
-NFail2=2045971, NFail2Lmt=118525000, SucRate%=1.7166, SucLmt%=3.7579, FailLmt%=8.6310, IterLmt%=1.0946
-CrLogL=-6.339787E+04, #F1=805, #F2=749, #F3=749, #FS=805, HSPair=61, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.331681E+04, #F1=805, #F2=749, #F3=749, #FS=805, HSPair=64, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=10/09/16, TotalRunningTime(Min)=4.80E+01
-------------------------------------------------------------
-Run=1, Tmr=15, Itr=287249066, NSucc=156647, NSuccLmt=1481563, NFail1=5116255, NFail1Lmt=23705000
-NFail2=5116255, NFail2Lmt=118525000, SucRate%=1.7356, SucLmt%=10.5731, FailLmt%=21.5830, IterLmt%=3.0459
-CrLogL=-6.337971E+04, #F1=804, #F2=743, #F3=743, #FS=804, HSPair=69, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.329907E+04, #F1=805, #F2=751, #F3=751, #FS=805, HSPair=66, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=11/10/16, TotalRunningTime(Min)=4.90E+01
-------------------------------------------------------------
-Run=1, Tmr=15, Itr=293037408, NSucc=260375, NSuccLmt=1481563, NFail1=10904597, NFail1Lmt=23705000
-NFail2=10904597, NFail2Lmt=118525000, SucRate%=1.7577, SucLmt%=17.5743, FailLmt%=46.0013, IterLmt%=4.9993
-CrLogL=-6.338501E+04, #F1=806, #F2=751, #F3=751, #FS=806, HSPair=64, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.329907E+04, #F1=805, #F2=751, #F3=751, #FS=805, HSPair=66, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=11/11/16, TotalRunningTime(Min)=5.00E+01
-------------------------------------------------------------
-Run=1, Tmr=16, Itr=298861678, NSucc=72353, NSuccLmt=1481563, NFail1=4642262, NFail1Lmt=23705000
-NFail2=4642262, NFail2Lmt=118525000, SucRate%=1.4837, SucLmt%=4.8836, FailLmt%=19.5835, IterLmt%=1.6457
-CrLogL=-6.333751E+04, #F1=804, #F2=756, #F3=756, #FS=804, HSPair=55, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.328759E+04, #F1=805, #F2=754, #F3=754, #FS=805, HSPair=61, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=12/12/16, TotalRunningTime(Min)=5.10E+01
-------------------------------------------------------------
-Run=1, Tmr=16, Itr=304685954, NSucc=161515, NSuccLmt=1481563, NFail1=10466538, NFail1Lmt=23705000
-NFail2=10466538, NFail2Lmt=118525000, SucRate%=1.5094, SucLmt%=10.9017, FailLmt%=44.1533, IterLmt%=3.6113
-CrLogL=-6.336701E+04, #F1=806, #F2=751, #F3=751, #FS=806, HSPair=61, FSPair=235, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.328759E+04, #F1=805, #F2=754, #F3=754, #FS=805, HSPair=61, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=12/13/16, TotalRunningTime(Min)=5.20E+01
-------------------------------------------------------------
-Run=1, Tmr=16, Itr=310484683, NSucc=250491, NSuccLmt=1481563, NFail1=1465434, NFail1Lmt=23705000
-NFail2=1465434, NFail2Lmt=118525000, SucRate%=1.5182, SucLmt%=16.9072, FailLmt%=6.1820, IterLmt%=5.5682
-CrLogL=-6.336747E+04, #F1=805, #F2=761, #F3=761, #FS=805, HSPair=48, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.327224E+04, #F1=804, #F2=744, #F3=744, #FS=804, HSPair=71, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=12/14/16, TotalRunningTime(Min)=5.30E+01
-------------------------------------------------------------
-Run=1, Tmr=16, Itr=316270577, NSucc=341194, NSuccLmt=1481563, NFail1=7251328, NFail1Lmt=23705000
-NFail2=7251328, NFail2Lmt=118525000, SucRate%=1.5310, SucLmt%=23.0293, FailLmt%=30.5899, IterLmt%=7.5209
-CrLogL=-6.335604E+04, #F1=805, #F2=758, #F3=758, #FS=805, HSPair=52, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.327224E+04, #F1=804, #F2=744, #F3=744, #FS=804, HSPair=71, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=13/15/16, TotalRunningTime(Min)=5.40E+01
-------------------------------------------------------------
-Run=1, Tmr=17, Itr=322072769, NSucc=15202, NSuccLmt=1481563, NFail1=1201020, NFail1Lmt=23705000
-NFail2=13053520, NFail2Lmt=118525000, SucRate%=1.2658, SucLmt%=1.0261, FailLmt%=5.0665, IterLmt%=0.4053
-CrLogL=-6.330079E+04, #F1=804, #F2=746, #F3=746, #FS=804, HSPair=67, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.327224E+04, #F1=804, #F2=744, #F3=744, #FS=804, HSPair=71, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=13/16/16, TotalRunningTime(Min)=5.50E+01
-------------------------------------------------------------
-Run=1, Tmr=17, Itr=327906417, NSucc=91149, NSuccLmt=1481563, NFail1=825450, NFail1Lmt=23705000
-NFail2=825450, NFail2Lmt=118525000, SucRate%=1.2957, SucLmt%=6.1522, FailLmt%=3.4822, IterLmt%=2.3741
-CrLogL=-6.331355E+04, #F1=805, #F2=743, #F3=743, #FS=805, HSPair=70, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.326400E+04, #F1=804, #F2=754, #F3=754, #FS=804, HSPair=60, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=14/17/16, TotalRunningTime(Min)=5.60E+01
-------------------------------------------------------------
-Run=1, Tmr=17, Itr=333720466, NSucc=166782, NSuccLmt=1481563, NFail1=2807756, NFail1Lmt=23705000
-NFail2=2807756, NFail2Lmt=118525000, SucRate%=1.2980, SucLmt%=11.2572, FailLmt%=11.8446, IterLmt%=4.3362
-CrLogL=-6.334292E+04, #F1=804, #F2=749, #F3=749, #FS=804, HSPair=62, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.325458E+04, #F1=804, #F2=744, #F3=744, #FS=804, HSPair=71, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=14/18/16, TotalRunningTime(Min)=5.70E+01
-------------------------------------------------------------
-Run=1, Tmr=17, Itr=339532713, NSucc=245052, NSuccLmt=1481563, NFail1=8620003, NFail1Lmt=23705000
-NFail2=8620003, NFail2Lmt=118525000, SucRate%=1.3132, SucLmt%=16.5401, FailLmt%=36.3636, IterLmt%=6.2977
-CrLogL=-6.334171E+04, #F1=805, #F2=758, #F3=758, #FS=805, HSPair=52, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.325458E+04, #F1=804, #F2=744, #F3=744, #FS=804, HSPair=71, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=15/19/16, TotalRunningTime(Min)=5.80E+01
-------------------------------------------------------------
-Run=1, Tmr=18, Itr=345333264, NSucc=28341, NSuccLmt=1481563, NFail1=1973515, NFail1Lmt=23705000
-NFail2=1973515, NFail2Lmt=118525000, SucRate%=1.1036, SucLmt%=1.9129, FailLmt%=8.3253, IterLmt%=0.8667
-CrLogL=-6.329438E+04, #F1=804, #F2=749, #F3=749, #FS=804, HSPair=64, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.324240E+04, #F1=804, #F2=745, #F3=745, #FS=804, HSPair=71, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=15/20/16, TotalRunningTime(Min)=5.90E+01
-------------------------------------------------------------
-Run=1, Tmr=18, Itr=351151079, NSucc=92576, NSuccLmt=1481563, NFail1=2932540, NFail1Lmt=23705000
-NFail2=2932540, NFail2Lmt=118525000, SucRate%=1.1040, SucLmt%=6.2485, FailLmt%=12.3710, IterLmt%=2.8301
-CrLogL=-6.328088E+04, #F1=804, #F2=757, #F3=757, #FS=804, HSPair=56, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.323294E+04, #F1=805, #F2=744, #F3=744, #FS=805, HSPair=79, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=16/21/16, TotalRunningTime(Min)=6.00E+01
-------------------------------------------------------------
-Run=1, Tmr=18, Itr=356943473, NSucc=157044, NSuccLmt=1481563, NFail1=5088149, NFail1Lmt=23705000
-NFail2=5088149, NFail2Lmt=118525000, SucRate%=1.1076, SucLmt%=10.5999, FailLmt%=21.4645, IterLmt%=4.7849
-CrLogL=-6.330768E+04, #F1=804, #F2=743, #F3=743, #FS=804, HSPair=70, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.322754E+04, #F1=804, #F2=743, #F3=743, #FS=804, HSPair=76, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=16/22/16, TotalRunningTime(Min)=6.10E+01
-------------------------------------------------------------
-Run=1, Tmr=18, Itr=362736521, NSucc=222677, NSuccLmt=1481563, NFail1=3844298, NFail1Lmt=23705000
-NFail2=3844298, NFail2Lmt=118525000, SucRate%=1.1150, SucLmt%=15.0299, FailLmt%=16.2172, IterLmt%=6.7399
-CrLogL=-6.332574E+04, #F1=804, #F2=748, #F3=748, #FS=804, HSPair=65, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.322152E+04, #F1=804, #F2=745, #F3=745, #FS=804, HSPair=76, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=17/23/16, TotalRunningTime(Min)=6.20E+01
-------------------------------------------------------------
-Run=1, Tmr=18, Itr=368537269, NSucc=288973, NSuccLmt=1481563, NFail1=9645046, NFail1Lmt=23705000
-NFail2=9645046, NFail2Lmt=118525000, SucRate%=1.1213, SucLmt%=19.5046, FailLmt%=40.6878, IterLmt%=8.6976
-CrLogL=-6.329877E+04, #F1=804, #F2=754, #F3=754, #FS=804, HSPair=57, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.322152E+04, #F1=804, #F2=745, #F3=745, #FS=804, HSPair=76, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=17/24/16, TotalRunningTime(Min)=6.30E+01
-------------------------------------------------------------
-Run=1, Tmr=18, Itr=374303472, NSucc=356133, NSuccLmt=1481563, NFail1=4429240, NFail1Lmt=23705000
-NFail2=4429240, NFail2Lmt=118525000, SucRate%=1.1292, SucLmt%=24.0377, FailLmt%=18.6848, IterLmt%=10.6436
-CrLogL=-6.330129E+04, #F1=805, #F2=741, #F3=741, #FS=805, HSPair=75, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.321360E+04, #F1=804, #F2=741, #F3=741, #FS=804, HSPair=75, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=17/25/16, TotalRunningTime(Min)=6.40E+01
-------------------------------------------------------------
-Run=1, Tmr=18, Itr=380062842, NSucc=424174, NSuccLmt=1481563, NFail1=10188610, NFail1Lmt=23705000
-NFail2=10188610, NFail2Lmt=118525000, SucRate%=1.1373, SucLmt%=28.6302, FailLmt%=42.9808, IterLmt%=12.5873
-CrLogL=-6.327154E+04, #F1=804, #F2=752, #F3=752, #FS=804, HSPair=60, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.321360E+04, #F1=804, #F2=741, #F3=741, #FS=804, HSPair=75, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=18/26/16, TotalRunningTime(Min)=6.50E+01
-------------------------------------------------------------
-Run=1, Tmr=20, Itr=385875882, NSucc=17, NSuccLmt=1481563, NFail1=2173, NFail1Lmt=23705000
-NFail2=2173, NFail2Lmt=118525000, SucRate%=0.7122, SucLmt%=0.0011, FailLmt%=0.0092, IterLmt%=0.0008
-CrLogL=-6.322158E+04, #F1=805, #F2=739, #F3=739, #FS=805, HSPair=85, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.320694E+04, #F1=805, #F2=744, #F3=744, #FS=805, HSPair=79, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=18/27/16, TotalRunningTime(Min)=6.60E+01
-------------------------------------------------------------
-Run=1, Tmr=20, Itr=391616358, NSucc=46317, NSuccLmt=1481563, NFail1=20676, NFail1Lmt=23705000
-NFail2=20676, NFail2Lmt=118525000, SucRate%=0.8065, SucLmt%=3.1262, FailLmt%=0.0872, IterLmt%=1.9381
-CrLogL=-6.318065E+04, #F1=804, #F2=723, #F3=723, #FS=804, HSPair=103, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.315568E+04, #F1=804, #F2=730, #F3=730, #FS=804, HSPair=92, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=19/28/16, TotalRunningTime(Min)=6.70E+01
-------------------------------------------------------------
-Run=1, Tmr=20, Itr=397380210, NSucc=93148, NSuccLmt=1481563, NFail1=3839589, NFail1Lmt=23705000
-NFail2=3839589, NFail2Lmt=118525000, SucRate%=0.8095, SucLmt%=6.2871, FailLmt%=16.1974, IterLmt%=3.8833
-CrLogL=-6.322899E+04, #F1=805, #F2=745, #F3=745, #FS=805, HSPair=70, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.314753E+04, #F1=804, #F2=727, #F3=727, #FS=804, HSPair=101, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=19/29/16, TotalRunningTime(Min)=6.80E+01
-------------------------------------------------------------
-Run=1, Tmr=20, Itr=403174470, NSucc=141184, NSuccLmt=1481563, NFail1=9633849, NFail1Lmt=23705000
-NFail2=9633849, NFail2Lmt=118525000, SucRate%=0.8160, SucLmt%=9.5294, FailLmt%=40.6406, IterLmt%=5.8388
-CrLogL=-6.324267E+04, #F1=804, #F2=745, #F3=745, #FS=804, HSPair=72, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.314753E+04, #F1=804, #F2=727, #F3=727, #FS=804, HSPair=101, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=20/30/16, TotalRunningTime(Min)=6.90E+01
-------------------------------------------------------------
-Run=1, Tmr=23, Itr=408968947, NSucc=6121, NSuccLmt=1481563, NFail1=300582, NFail1Lmt=23705000
-NFail2=300582, NFail2Lmt=118525000, SucRate%=0.4841, SucLmt%=0.4131, FailLmt%=1.2680, IterLmt%=0.4267
-CrLogL=-6.309221E+04, #F1=804, #F2=709, #F3=709, #FS=804, HSPair=117, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.307828E+04, #F1=804, #F2=704, #F3=704, #FS=804, HSPair=125, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=20/31/16, TotalRunningTime(Min)=7.00E+01
-------------------------------------------------------------
-Run=1, Tmr=23, Itr=414736497, NSucc=33361, NSuccLmt=1481563, NFail1=3566078, NFail1Lmt=23705000
-NFail2=3566078, NFail2Lmt=118525000, SucRate%=0.4744, SucLmt%=2.2517, FailLmt%=15.0436, IterLmt%=2.3732
-CrLogL=-6.312490E+04, #F1=804, #F2=723, #F3=723, #FS=804, HSPair=104, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.306228E+04, #F1=805, #F2=700, #F3=700, #FS=805, HSPair=144, FSPair=236, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=20/32/16, TotalRunningTime(Min)=7.10E+01
-------------------------------------------------------------
-Run=1, Tmr=23, Itr=420438668, NSucc=60044, NSuccLmt=1481563, NFail1=1617994, NFail1Lmt=23705000
-NFail2=1617994, NFail2Lmt=118525000, SucRate%=0.4715, SucLmt%=4.0527, FailLmt%=6.8255, IterLmt%=4.2976
-CrLogL=-6.309647E+04, #F1=804, #F2=716, #F3=716, #FS=804, HSPair=108, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.302823E+04, #F1=804, #F2=697, #F3=697, #FS=804, HSPair=144, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=21/33/16, TotalRunningTime(Min)=7.20E+01
-------------------------------------------------------------
-Run=1, Tmr=23, Itr=426164837, NSucc=87946, NSuccLmt=1481563, NFail1=7344163, NFail1Lmt=23705000
-NFail2=7344163, NFail2Lmt=118525000, SucRate%=0.4764, SucLmt%=5.9360, FailLmt%=30.9815, IterLmt%=6.2300
-CrLogL=-6.313572E+04, #F1=804, #F2=724, #F3=724, #FS=804, HSPair=106, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.302823E+04, #F1=804, #F2=697, #F3=697, #FS=804, HSPair=144, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=22/34/16, TotalRunningTime(Min)=7.30E+01
-------------------------------------------------------------
-Run=1, Tmr=24, Itr=431935408, NSucc=5125, NSuccLmt=1481563, NFail1=245996, NFail1Lmt=23705000
-NFail2=245996, NFail2Lmt=118525000, SucRate%=0.4060, SucLmt%=0.3459, FailLmt%=1.0377, IterLmt%=0.4260
-CrLogL=-6.305016E+04, #F1=804, #F2=696, #F3=696, #FS=804, HSPair=141, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.302478E+04, #F1=804, #F2=698, #F3=698, #FS=804, HSPair=139, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=22/35/16, TotalRunningTime(Min)=7.40E+01
-------------------------------------------------------------
-Run=1, Tmr=27, Itr=437616375, NSucc=11072, NSuccLmt=1481563, NFail1=1499904, NFail1Lmt=23705000
-NFail2=1499904, NFail2Lmt=118525000, SucRate%=0.2204, SucLmt%=0.7473, FailLmt%=6.3274, IterLmt%=1.6957
-CrLogL=-6.293696E+04, #F1=804, #F2=670, #F3=670, #FS=804, HSPair=190, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.286752E+04, #F1=804, #F2=635, #F3=635, #FS=804, HSPair=245, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=23/36/16, TotalRunningTime(Min)=7.50E+01
-------------------------------------------------------------
-Run=1, Tmr=27, Itr=443221856, NSucc=23801, NSuccLmt=1481563, NFail1=7105385, NFail1Lmt=23705000
-NFail2=7105385, NFail2Lmt=118525000, SucRate%=0.2239, SucLmt%=1.6065, FailLmt%=29.9742, IterLmt%=3.5875
-CrLogL=-6.290868E+04, #F1=804, #F2=662, #F3=662, #FS=804, HSPair=207, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.286752E+04, #F1=804, #F2=635, #F3=635, #FS=804, HSPair=245, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=23/37/16, TotalRunningTime(Min)=7.60E+01
-------------------------------------------------------------
-Run=1, Tmr=28, Itr=448859840, NSucc=1686, NSuccLmt=1481563, NFail1=890869, NFail1Lmt=23705000
-NFail2=12743369, NFail2Lmt=118525000, SucRate%=0.1893, SucLmt%=0.1138, FailLmt%=3.7581, IterLmt%=0.3007
-CrLogL=-6.288424E+04, #F1=804, #F2=645, #F3=645, #FS=804, HSPair=239, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.286752E+04, #F1=804, #F2=635, #F3=635, #FS=804, HSPair=245, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=23/38/16, TotalRunningTime(Min)=7.70E+01
-------------------------------------------------------------
-Run=1, Tmr=28, Itr=454557175, NSucc=12348, NSuccLmt=1481563, NFail1=432117, NFail1Lmt=23705000
-NFail2=432117, NFail2Lmt=118525000, SucRate%=0.1874, SucLmt%=0.8334, FailLmt%=1.8229, IterLmt%=2.2234
-CrLogL=-6.286463E+04, #F1=804, #F2=646, #F3=646, #FS=804, HSPair=238, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.284784E+04, #F1=804, #F2=638, #F3=638, #FS=804, HSPair=246, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=24/39/16, TotalRunningTime(Min)=7.80E+01
-------------------------------------------------------------
-Run=1, Tmr=28, Itr=460096089, NSucc=22178, NSuccLmt=1481563, NFail1=2674561, NFail1Lmt=23705000
-NFail2=2674561, NFail2Lmt=118525000, SucRate%=0.1829, SucLmt%=1.4969, FailLmt%=11.2827, IterLmt%=4.0927
-CrLogL=-6.286269E+04, #F1=804, #F2=639, #F3=639, #FS=804, HSPair=242, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.281199E+04, #F1=804, #F2=620, #F3=620, #FS=804, HSPair=274, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=24/40/16, TotalRunningTime(Min)=7.90E+01
-------------------------------------------------------------
-Run=1, Tmr=28, Itr=465638516, NSucc=32306, NSuccLmt=1481563, NFail1=8216988, NFail1Lmt=23705000
-NFail2=8216988, NFail2Lmt=118525000, SucRate%=0.1828, SucLmt%=2.1805, FailLmt%=34.6635, IterLmt%=5.9631
-CrLogL=-6.286821E+04, #F1=804, #F2=647, #F3=647, #FS=804, HSPair=231, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.281199E+04, #F1=804, #F2=620, #F3=620, #FS=804, HSPair=274, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=25/41/16, TotalRunningTime(Min)=8.00E+01
-------------------------------------------------------------
-Run=1, Tmr=29, Itr=471257764, NSucc=3155, NSuccLmt=1481563, NFail1=1983736, NFail1Lmt=23705000
-NFail2=13836236, NFail2Lmt=118525000, SucRate%=0.1590, SucLmt%=0.2130, FailLmt%=8.3684, IterLmt%=0.6695
-CrLogL=-6.284331E+04, #F1=804, #F2=631, #F3=631, #FS=804, HSPair=258, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.281199E+04, #F1=804, #F2=620, #F3=620, #FS=804, HSPair=274, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=25/42/16, TotalRunningTime(Min)=8.10E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=476995857, NSucc=407, NSuccLmt=1481563, NFail1=2649, NFail1Lmt=23705000
-NFail2=2649, NFail2Lmt=118525000, SucRate%=0.0333, SucLmt%=0.0275, FailLmt%=0.0112, IterLmt%=0.4123
-CrLogL=-6.268587E+04, #F1=804, #F2=543, #F3=543, #FS=804, HSPair=394, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.268587E+04, #F1=804, #F2=543, #F3=543, #FS=804, HSPair=394, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=26/43/16, TotalRunningTime(Min)=8.20E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=482875513, NSucc=1772, NSuccLmt=1481563, NFail1=2667, NFail1Lmt=23705000
-NFail2=2667, NFail2Lmt=118525000, SucRate%=0.0250, SucLmt%=0.1196, FailLmt%=0.0113, IterLmt%=2.3965
-CrLogL=-6.266349E+04, #F1=804, #F2=531, #F3=531, #FS=804, HSPair=426, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.266342E+04, #F1=804, #F2=529, #F3=529, #FS=804, HSPair=428, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=26/44/16, TotalRunningTime(Min)=8.30E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=488673144, NSucc=2884, NSuccLmt=1481563, NFail1=2263135, NFail1Lmt=23705000
-NFail2=2263135, NFail2Lmt=118525000, SucRate%=0.0224, SucLmt%=0.1947, FailLmt%=9.5471, IterLmt%=4.3531
-CrLogL=-6.266480E+04, #F1=804, #F2=537, #F3=537, #FS=804, HSPair=412, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.266010E+04, #F1=804, #F2=529, #F3=529, #FS=804, HSPair=432, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=26/45/16, TotalRunningTime(Min)=8.40E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=494426617, NSucc=3993, NSuccLmt=1481563, NFail1=213863, NFail1Lmt=23705000
-NFail2=213863, NFail2Lmt=118525000, SucRate%=0.0214, SucLmt%=0.2695, FailLmt%=0.9022, IterLmt%=6.2948
-CrLogL=-6.265797E+04, #F1=804, #F2=528, #F3=528, #FS=804, HSPair=435, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.265633E+04, #F1=804, #F2=526, #F3=526, #FS=804, HSPair=436, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=27/46/16, TotalRunningTime(Min)=8.50E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=500176517, NSucc=5166, NSuccLmt=1481563, NFail1=49324, NFail1Lmt=23705000
-NFail2=49324, NFail2Lmt=118525000, SucRate%=0.0212, SucLmt%=0.3487, FailLmt%=0.2081, IterLmt%=8.2353
-CrLogL=-6.265686E+04, #F1=804, #F2=530, #F3=530, #FS=804, HSPair=432, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.265611E+04, #F1=804, #F2=528, #F3=528, #FS=804, HSPair=435, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=28/47/16, TotalRunningTime(Min)=8.60E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=505879276, NSucc=6299, NSuccLmt=1481563, NFail1=59005, NFail1Lmt=23705000
-NFail2=59005, NFail2Lmt=118525000, SucRate%=0.0209, SucLmt%=0.4252, FailLmt%=0.2489, IterLmt%=10.1599
-CrLogL=-6.265427E+04, #F1=804, #F2=526, #F3=526, #FS=804, HSPair=438, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.265399E+04, #F1=804, #F2=526, #F3=526, #FS=804, HSPair=437, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=28/48/16, TotalRunningTime(Min)=8.70E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=511609874, NSucc=7355, NSuccLmt=1481563, NFail1=5545482, NFail1Lmt=23705000
-NFail2=5545482, NFail2Lmt=118525000, SucRate%=0.0205, SucLmt%=0.4964, FailLmt%=23.3937, IterLmt%=12.0939
-CrLogL=-6.265571E+04, #F1=804, #F2=527, #F3=527, #FS=804, HSPair=436, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.265380E+04, #F1=804, #F2=523, #F3=523, #FS=804, HSPair=441, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=28/49/16, TotalRunningTime(Min)=8.80E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=517330387, NSucc=8426, NSuccLmt=1481563, NFail1=62352, NFail1Lmt=23705000
-NFail2=122855, NFail2Lmt=118525000, SucRate%=0.0203, SucLmt%=0.5687, FailLmt%=0.2630, IterLmt%=14.0244
-CrLogL=-6.265166E+04, #F1=804, #F2=525, #F3=525, #FS=804, HSPair=437, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.265093E+04, #F1=804, #F2=523, #F3=523, #FS=804, HSPair=439, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=29/50/16, TotalRunningTime(Min)=8.90E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=523037263, NSucc=9368, NSuccLmt=1481563, NFail1=1997538, NFail1Lmt=23705000
-NFail2=1997538, NFail2Lmt=118525000, SucRate%=0.0198, SucLmt%=0.6323, FailLmt%=8.4267, IterLmt%=15.9504
-CrLogL=-6.265609E+04, #F1=804, #F2=529, #F3=529, #FS=804, HSPair=432, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.265029E+04, #F1=804, #F2=521, #F3=521, #FS=804, HSPair=445, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=29/51/16, TotalRunningTime(Min)=9.00E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=528738140, NSucc=10426, NSuccLmt=1481563, NFail1=810859, NFail1Lmt=23705000
-NFail2=810859, NFail2Lmt=118525000, SucRate%=0.0197, SucLmt%=0.7037, FailLmt%=3.4206, IterLmt%=17.8743
-CrLogL=-6.265297E+04, #F1=804, #F2=523, #F3=523, #FS=804, HSPair=446, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264953E+04, #F1=804, #F2=522, #F3=522, #FS=804, HSPair=446, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=29/52/16, TotalRunningTime(Min)=9.10E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=534432651, NSucc=11529, NSuccLmt=1481563, NFail1=1782498, NFail1Lmt=23705000
-NFail2=1782498, NFail2Lmt=118525000, SucRate%=0.0197, SucLmt%=0.7782, FailLmt%=7.5195, IterLmt%=19.7961
-CrLogL=-6.265295E+04, #F1=804, #F2=530, #F3=530, #FS=804, HSPair=429, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264918E+04, #F1=804, #F2=521, #F3=521, #FS=804, HSPair=450, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=30/53/16, TotalRunningTime(Min)=9.20E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=540148608, NSucc=12556, NSuccLmt=1481563, NFail1=3146919, NFail1Lmt=23705000
-NFail2=3146919, NFail2Lmt=118525000, SucRate%=0.0195, SucLmt%=0.8475, FailLmt%=13.2753, IterLmt%=21.7252
-CrLogL=-6.265227E+04, #F1=804, #F2=529, #F3=529, #FS=804, HSPair=434, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264774E+04, #F1=804, #F2=520, #F3=520, #FS=804, HSPair=450, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=30/54/16, TotalRunningTime(Min)=9.30E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=545809213, NSucc=13575, NSuccLmt=1481563, NFail1=596221, NFail1Lmt=23705000
-NFail2=596221, NFail2Lmt=118525000, SucRate%=0.0194, SucLmt%=0.9163, FailLmt%=2.5152, IterLmt%=23.6355
-CrLogL=-6.265054E+04, #F1=804, #F2=529, #F3=529, #FS=804, HSPair=438, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264705E+04, #F1=804, #F2=523, #F3=523, #FS=804, HSPair=450, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=31/55/16, TotalRunningTime(Min)=9.40E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=551486367, NSucc=14607, NSuccLmt=1481563, NFail1=2027336, NFail1Lmt=23705000
-NFail2=2027336, NFail2Lmt=118525000, SucRate%=0.0193, SucLmt%=0.9859, FailLmt%=8.5524, IterLmt%=25.5514
-CrLogL=-6.264793E+04, #F1=804, #F2=524, #F3=524, #FS=804, HSPair=449, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264185E+04, #F1=804, #F2=517, #F3=517, #FS=804, HSPair=459, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=31/56/16, TotalRunningTime(Min)=9.50E+01
-------------------------------------------------------------
-Run=1, Tmr=42, Itr=557167066, NSucc=15634, NSuccLmt=1481563, NFail1=7708035, NFail1Lmt=23705000
-NFail2=7708035, NFail2Lmt=118525000, SucRate%=0.0192, SucLmt%=1.0552, FailLmt%=32.5165, IterLmt%=27.4686
-CrLogL=-6.264418E+04, #F1=804, #F2=520, #F3=520, #FS=804, HSPair=455, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264185E+04, #F1=804, #F2=517, #F3=517, #FS=804, HSPair=459, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=32/57/16, TotalRunningTime(Min)=9.60E+01
-------------------------------------------------------------
-Run=1, Tmr=43, Itr=562864089, NSucc=203, NSuccLmt=1481563, NFail1=1552558, NFail1Lmt=23705000
-NFail2=13405058, NFail2Lmt=118525000, SucRate%=0.0131, SucLmt%=0.0137, FailLmt%=6.5495, IterLmt%=0.5240
-CrLogL=-6.264609E+04, #F1=804, #F2=523, #F3=523, #FS=804, HSPair=451, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264185E+04, #F1=804, #F2=517, #F3=517, #FS=804, HSPair=459, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=32/58/16, TotalRunningTime(Min)=9.70E+01
-------------------------------------------------------------
-Run=1, Tmr=43, Itr=568633373, NSucc=1092, NSuccLmt=1481563, NFail1=853877, NFail1Lmt=23705000
-NFail2=853877, NFail2Lmt=118525000, SucRate%=0.0149, SucLmt%=0.0737, FailLmt%=3.6021, IterLmt%=2.4710
-CrLogL=-6.264220E+04, #F1=804, #F2=518, #F3=518, #FS=804, HSPair=460, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264012E+04, #F1=804, #F2=514, #F3=514, #FS=804, HSPair=468, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=32/59/16, TotalRunningTime(Min)=9.80E+01
-------------------------------------------------------------
-Run=1, Tmr=43, Itr=574391784, NSucc=1941, NSuccLmt=1481563, NFail1=6612288, NFail1Lmt=23705000
-NFail2=6612288, NFail2Lmt=118525000, SucRate%=0.0148, SucLmt%=0.1310, FailLmt%=27.8941, IterLmt%=4.4143
-CrLogL=-6.264316E+04, #F1=804, #F2=518, #F3=518, #FS=804, HSPair=458, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264012E+04, #F1=804, #F2=514, #F3=514, #FS=804, HSPair=468, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=33/00/17, TotalRunningTime(Min)=9.90E+01
-------------------------------------------------------------
-Run=1, Tmr=44, Itr=580139548, NSucc=68, NSuccLmt=1481563, NFail1=507552, NFail1Lmt=23705000
-NFail2=12360052, NFail2Lmt=118525000, SucRate%=0.0134, SucLmt%=0.0046, FailLmt%=2.1411, IterLmt%=0.1713
-CrLogL=-6.264440E+04, #F1=804, #F2=521, #F3=521, #FS=804, HSPair=454, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264012E+04, #F1=804, #F2=514, #F3=514, #FS=804, HSPair=468, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=33/01/17, TotalRunningTime(Min)=1.00E+02
-------------------------------------------------------------
-Run=1, Tmr=44, Itr=585919629, NSucc=843, NSuccLmt=1481563, NFail1=6287633, NFail1Lmt=23705000
-NFail2=18140133, NFail2Lmt=118525000, SucRate%=0.0134, SucLmt%=0.0569, FailLmt%=26.5245, IterLmt%=2.1220
-CrLogL=-6.264515E+04, #F1=804, #F2=522, #F3=522, #FS=804, HSPair=453, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.264012E+04, #F1=804, #F2=514, #F3=514, #FS=804, HSPair=468, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=34/02/17, TotalRunningTime(Min)=1.01E+02
-------------------------------------------------------------
-Run=1, Tmr=44, Itr=591699079, NSucc=1723, NSuccLmt=1481563, NFail1=1213323, NFail1Lmt=23705000
-NFail2=1213323, NFail2Lmt=118525000, SucRate%=0.0143, SucLmt%=0.1163, FailLmt%=5.1184, IterLmt%=4.0724
-CrLogL=-6.264210E+04, #F1=804, #F2=518, #F3=518, #FS=804, HSPair=462, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263963E+04, #F1=804, #F2=510, #F3=510, #FS=804, HSPair=472, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=34/03/17, TotalRunningTime(Min)=1.02E+02
-------------------------------------------------------------
-Run=1, Tmr=46, Itr=597464665, NSucc=97, NSuccLmt=1481563, NFail1=639787, NFail1Lmt=23705000
-NFail2=639787, NFail2Lmt=118525000, SucRate%=0.0085, SucLmt%=0.0065, FailLmt%=2.6990, IterLmt%=0.3871
-CrLogL=-6.263840E+04, #F1=804, #F2=512, #F3=512, #FS=804, HSPair=470, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263775E+04, #F1=804, #F2=509, #F3=509, #FS=804, HSPair=474, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=34/04/17, TotalRunningTime(Min)=1.03E+02
-------------------------------------------------------------
-Run=1, Tmr=47, Itr=603330099, NSucc=60, NSuccLmt=1481563, NFail1=660341, NFail1Lmt=23705000
-NFail2=660341, NFail2Lmt=118525000, SucRate%=0.0083, SucLmt%=0.0040, FailLmt%=2.7857, IterLmt%=0.2436
-CrLogL=-6.263914E+04, #F1=804, #F2=514, #F3=514, #FS=804, HSPair=466, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263673E+04, #F1=804, #F2=508, #F3=508, #FS=804, HSPair=472, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=35/05/17, TotalRunningTime(Min)=1.04E+02
-------------------------------------------------------------
-Run=1, Tmr=47, Itr=609202973, NSucc=558, NSuccLmt=1481563, NFail1=387159, NFail1Lmt=23705000
-NFail2=394124, NFail2Lmt=118525000, SucRate%=0.0085, SucLmt%=0.0377, FailLmt%=1.6332, IterLmt%=2.2256
-CrLogL=-6.263794E+04, #F1=804, #F2=511, #F3=511, #FS=804, HSPair=472, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263652E+04, #F1=804, #F2=506, #F3=506, #FS=804, HSPair=479, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=35/06/17, TotalRunningTime(Min)=1.05E+02
-------------------------------------------------------------
-Run=1, Tmr=47, Itr=615035319, NSucc=1026, NSuccLmt=1481563, NFail1=1156734, NFail1Lmt=23705000
-NFail2=1156734, NFail2Lmt=118525000, SucRate%=0.0083, SucLmt%=0.0693, FailLmt%=4.8797, IterLmt%=4.1939
-CrLogL=-6.263856E+04, #F1=804, #F2=512, #F3=512, #FS=804, HSPair=470, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263617E+04, #F1=804, #F2=506, #F3=506, #FS=804, HSPair=477, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=35/07/17, TotalRunningTime(Min)=1.06E+02
-------------------------------------------------------------
-Run=1, Tmr=48, Itr=620913932, NSucc=354, NSuccLmt=1481563, NFail1=3602902, NFail1Lmt=23705000
-NFail2=3602902, NFail2Lmt=118525000, SucRate%=0.0089, SucLmt%=0.0239, FailLmt%=15.1989, IterLmt%=1.3402
-CrLogL=-6.263778E+04, #F1=804, #F2=509, #F3=509, #FS=804, HSPair=475, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263497E+04, #F1=804, #F2=503, #F3=503, #FS=804, HSPair=483, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=36/08/17, TotalRunningTime(Min)=1.07E+02
-------------------------------------------------------------
-Run=1, Tmr=48, Itr=626769258, NSucc=826, NSuccLmt=1481563, NFail1=9458228, NFail1Lmt=23705000
-NFail2=9458228, NFail2Lmt=118525000, SucRate%=0.0084, SucLmt%=0.0558, FailLmt%=39.8997, IterLmt%=3.3163
-CrLogL=-6.263716E+04, #F1=804, #F2=509, #F3=509, #FS=804, HSPair=473, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263497E+04, #F1=804, #F2=503, #F3=503, #FS=804, HSPair=483, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=36/09/17, TotalRunningTime(Min)=1.08E+02
-------------------------------------------------------------
-Run=1, Tmr=51, Itr=632662853, NSucc=241, NSuccLmt=1481563, NFail1=3465507, NFail1Lmt=23705000
-NFail2=15351823, NFail2Lmt=118525000, SucRate%=0.0070, SucLmt%=0.0163, FailLmt%=14.6193, IterLmt%=1.1695
-CrLogL=-6.263552E+04, #F1=804, #F2=503, #F3=503, #FS=804, HSPair=486, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263497E+04, #F1=804, #F2=503, #F3=503, #FS=804, HSPair=483, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=37/10/17, TotalRunningTime(Min)=1.09E+02
-------------------------------------------------------------
-Run=1, Tmr=51, Itr=638559902, NSucc=597, NSuccLmt=1481563, NFail1=9362556, NFail1Lmt=23705000
-NFail2=21248872, NFail2Lmt=118525000, SucRate%=0.0064, SucLmt%=0.0403, FailLmt%=39.4961, IterLmt%=3.1597
-CrLogL=-6.263610E+04, #F1=804, #F2=507, #F3=507, #FS=804, HSPair=474, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263497E+04, #F1=804, #F2=503, #F3=503, #FS=804, HSPair=483, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=37/11/17, TotalRunningTime(Min)=1.10E+02
-------------------------------------------------------------
-Run=1, Tmr=51, Itr=644454675, NSucc=953, NSuccLmt=1481563, NFail1=15257329, NFail1Lmt=23705000
-NFail2=27143645, NFail2Lmt=118525000, SucRate%=0.0062, SucLmt%=0.0643, FailLmt%=64.3633, IterLmt%=5.1491
-CrLogL=-6.263564E+04, #F1=804, #F2=506, #F3=506, #FS=804, HSPair=477, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263497E+04, #F1=804, #F2=503, #F3=503, #FS=804, HSPair=483, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=37/12/17, TotalRunningTime(Min)=1.11E+02
-------------------------------------------------------------
-Run=1, Tmr=51, Itr=650324693, NSucc=1247, NSuccLmt=1481563, NFail1=5505955, NFail1Lmt=23705000
-NFail2=5505955, NFail2Lmt=118525000, SucRate%=0.0059, SucLmt%=0.0842, FailLmt%=23.2270, IterLmt%=7.1301
-CrLogL=-6.263561E+04, #F1=804, #F2=506, #F3=506, #FS=804, HSPair=479, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263474E+04, #F1=804, #F2=502, #F3=502, #FS=804, HSPair=484, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=38/13/17, TotalRunningTime(Min)=1.12E+02
-------------------------------------------------------------
-Run=1, Tmr=51, Itr=656200886, NSucc=1583, NSuccLmt=1481563, NFail1=11382148, NFail1Lmt=23705000
-NFail2=11382148, NFail2Lmt=118525000, SucRate%=0.0059, SucLmt%=0.1068, FailLmt%=48.0158, IterLmt%=9.1132
-CrLogL=-6.263570E+04, #F1=804, #F2=506, #F3=506, #FS=804, HSPair=482, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263474E+04, #F1=804, #F2=502, #F3=502, #FS=804, HSPair=484, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=38/14/17, TotalRunningTime(Min)=1.13E+02
-------------------------------------------------------------
-Run=1, Tmr=53, Itr=662085191, NSucc=256, NSuccLmt=1481563, NFail1=5397045, NFail1Lmt=23705000
-NFail2=17266453, NFail2Lmt=118525000, SucRate%=0.0047, SucLmt%=0.0173, FailLmt%=22.7675, IterLmt%=1.8214
-CrLogL=-6.263556E+04, #F1=804, #F2=505, #F3=505, #FS=804, HSPair=479, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263474E+04, #F1=804, #F2=502, #F3=502, #FS=804, HSPair=484, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=39/15/17, TotalRunningTime(Min)=1.14E+02
-------------------------------------------------------------
-Run=1, Tmr=53, Itr=667988937, NSucc=503, NSuccLmt=1481563, NFail1=302564, NFail1Lmt=23705000
-NFail2=302564, NFail2Lmt=118525000, SucRate%=0.0045, SucLmt%=0.0340, FailLmt%=1.2764, IterLmt%=3.8138
-CrLogL=-6.263542E+04, #F1=804, #F2=504, #F3=504, #FS=804, HSPair=484, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263432E+04, #F1=804, #F2=501, #F3=501, #FS=804, HSPair=491, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=39/16/17, TotalRunningTime(Min)=1.15E+02
-------------------------------------------------------------
-Run=1, Tmr=53, Itr=673907356, NSucc=760, NSuccLmt=1481563, NFail1=6220983, NFail1Lmt=23705000
-NFail2=6220983, NFail2Lmt=118525000, SucRate%=0.0044, SucLmt%=0.0513, FailLmt%=26.2433, IterLmt%=5.8112
-CrLogL=-6.263475E+04, #F1=804, #F2=503, #F3=503, #FS=804, HSPair=484, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263432E+04, #F1=804, #F2=501, #F3=501, #FS=804, HSPair=491, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=40/17/17, TotalRunningTime(Min)=1.16E+02
-------------------------------------------------------------
-Run=1, Tmr=54, Itr=679798122, NSucc=15, NSuccLmt=1481563, NFail1=259249, NFail1Lmt=23705000
-NFail2=12111749, NFail2Lmt=118525000, SucRate%=0.0058, SucLmt%=0.0010, FailLmt%=1.0936, IterLmt%=0.0875
-CrLogL=-6.263464E+04, #F1=804, #F2=502, #F3=502, #FS=804, HSPair=487, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263432E+04, #F1=804, #F2=501, #F3=501, #FS=804, HSPair=491, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=40/18/17, TotalRunningTime(Min)=1.17E+02
-------------------------------------------------------------
-Run=1, Tmr=54, Itr=685740278, NSucc=286, NSuccLmt=1481563, NFail1=2664366, NFail1Lmt=23705000
-NFail2=2758164, NFail2Lmt=118525000, SucRate%=0.0046, SucLmt%=0.0193, FailLmt%=11.2397, IterLmt%=2.0929
-CrLogL=-6.263529E+04, #F1=804, #F2=505, #F3=505, #FS=804, HSPair=482, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263418E+04, #F1=804, #F2=501, #F3=501, #FS=804, HSPair=488, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=41/19/17, TotalRunningTime(Min)=1.18E+02
-------------------------------------------------------------
-Run=1, Tmr=54, Itr=691673408, NSucc=526, NSuccLmt=1481563, NFail1=163294, NFail1Lmt=23705000
-NFail2=163294, NFail2Lmt=118525000, SucRate%=0.0043, SucLmt%=0.0355, FailLmt%=0.6889, IterLmt%=4.0952
-CrLogL=-6.263310E+04, #F1=804, #F2=499, #F3=499, #FS=804, HSPair=494, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263294E+04, #F1=804, #F2=498, #F3=498, #FS=804, HSPair=496, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=41/20/17, TotalRunningTime(Min)=1.19E+02
-------------------------------------------------------------
-Run=1, Tmr=54, Itr=697533009, NSucc=765, NSuccLmt=1481563, NFail1=6022895, NFail1Lmt=23705000
-NFail2=6022895, NFail2Lmt=118525000, SucRate%=0.0043, SucLmt%=0.0516, FailLmt%=25.4077, IterLmt%=6.0727
-CrLogL=-6.263345E+04, #F1=804, #F2=501, #F3=501, #FS=804, HSPair=492, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263294E+04, #F1=804, #F2=498, #F3=498, #FS=804, HSPair=496, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=42/21/17, TotalRunningTime(Min)=1.20E+02
-------------------------------------------------------------
-Run=1, Tmr=56, Itr=703441394, NSucc=109, NSuccLmt=1481563, NFail1=2951759, NFail1Lmt=23705000
-NFail2=2951759, NFail2Lmt=118525000, SucRate%=0.0037, SucLmt%=0.0074, FailLmt%=12.4521, IterLmt%=0.9969
-CrLogL=-6.263309E+04, #F1=804, #F2=500, #F3=500, #FS=804, HSPair=493, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263263E+04, #F1=804, #F2=497, #F3=497, #FS=804, HSPair=499, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=42/22/17, TotalRunningTime(Min)=1.21E+02
-------------------------------------------------------------
-Run=1, Tmr=56, Itr=709344781, NSucc=319, NSuccLmt=1481563, NFail1=4465374, NFail1Lmt=23705000
-NFail2=4465374, NFail2Lmt=118525000, SucRate%=0.0036, SucLmt%=0.0215, FailLmt%=18.8373, IterLmt%=2.9892
-CrLogL=-6.263345E+04, #F1=804, #F2=501, #F3=501, #FS=804, HSPair=492, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263260E+04, #F1=804, #F2=497, #F3=497, #FS=804, HSPair=499, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=42/23/17, TotalRunningTime(Min)=1.22E+02
-------------------------------------------------------------
-Run=1, Tmr=56, Itr=715267563, NSucc=535, NSuccLmt=1481563, NFail1=10388156, NFail1Lmt=23705000
-NFail2=10388156, NFail2Lmt=118525000, SucRate%=0.0036, SucLmt%=0.0361, FailLmt%=43.8226, IterLmt%=4.9880
-CrLogL=-6.263370E+04, #F1=804, #F2=502, #F3=502, #FS=804, HSPair=490, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263260E+04, #F1=804, #F2=497, #F3=497, #FS=804, HSPair=499, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=43/24/17, TotalRunningTime(Min)=1.23E+02
-------------------------------------------------------------
-Run=1, Tmr=57, Itr=721208735, NSucc=122, NSuccLmt=1481563, NFail1=717441, NFail1Lmt=23705000
-NFail2=717441, NFail2Lmt=118525000, SucRate%=0.0027, SucLmt%=0.0082, FailLmt%=3.0265, IterLmt%=1.5108
-CrLogL=-6.263300E+04, #F1=804, #F2=499, #F3=499, #FS=804, HSPair=497, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263249E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=44/25/17, TotalRunningTime(Min)=1.24E+02
-------------------------------------------------------------
-Run=1, Tmr=57, Itr=727131584, NSucc=258, NSuccLmt=1481563, NFail1=6640290, NFail1Lmt=23705000
-NFail2=6640290, NFail2Lmt=118525000, SucRate%=0.0025, SucLmt%=0.0174, FailLmt%=28.0122, IterLmt%=3.5097
-CrLogL=-6.263273E+04, #F1=804, #F2=498, #F3=498, #FS=804, HSPair=498, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263249E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=44/26/17, TotalRunningTime(Min)=1.25E+02
-------------------------------------------------------------
-Run=1, Tmr=59, Itr=733029957, NSucc=18, NSuccLmt=1481563, NFail1=669255, NFail1Lmt=23705000
-NFail2=12538663, NFail2Lmt=118525000, SucRate%=0.0027, SucLmt%=0.0012, FailLmt%=2.8233, IterLmt%=0.2259
-CrLogL=-6.263289E+04, #F1=804, #F2=499, #F3=499, #FS=804, HSPair=496, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263249E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=45/27/17, TotalRunningTime(Min)=1.26E+02
-------------------------------------------------------------
-Run=1, Tmr=59, Itr=738943989, NSucc=151, NSuccLmt=1481563, NFail1=6583287, NFail1Lmt=23705000
-NFail2=18452695, NFail2Lmt=118525000, SucRate%=0.0023, SucLmt%=0.0102, FailLmt%=27.7717, IterLmt%=2.2217
-CrLogL=-6.263312E+04, #F1=804, #F2=500, #F3=500, #FS=804, HSPair=493, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263249E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=45/28/17, TotalRunningTime(Min)=1.27E+02
-------------------------------------------------------------
-Run=1, Tmr=59, Itr=744844256, NSucc=302, NSuccLmt=1481563, NFail1=12483554, NFail1Lmt=23705000
-NFail2=24352962, NFail2Lmt=118525000, SucRate%=0.0024, SucLmt%=0.0204, FailLmt%=52.6621, IterLmt%=4.2130
-CrLogL=-6.263260E+04, #F1=804, #F2=497, #F3=497, #FS=804, HSPair=499, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263249E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=46/29/17, TotalRunningTime(Min)=1.28E+02
-------------------------------------------------------------
-Run=1, Tmr=59, Itr=750735619, NSucc=432, NSuccLmt=1481563, NFail1=18374917, NFail1Lmt=23705000
-NFail2=30244325, NFail2Lmt=118525000, SucRate%=0.0024, SucLmt%=0.0292, FailLmt%=77.5149, IterLmt%=6.2012
-CrLogL=-6.263289E+04, #F1=804, #F2=499, #F3=499, #FS=804, HSPair=496, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263249E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=46/30/17, TotalRunningTime(Min)=1.29E+02
-------------------------------------------------------------
-Run=1, Tmr=60, Itr=756636730, NSucc=7, NSuccLmt=1481563, NFail1=571028, NFail1Lmt=23705000
-NFail2=36145436, NFail2Lmt=118525000, SucRate%=0.0012, SucLmt%=0.0005, FailLmt%=2.4089, IterLmt%=0.1927
-CrLogL=-6.263269E+04, #F1=804, #F2=497, #F3=497, #FS=804, HSPair=498, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263249E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=47/31/17, TotalRunningTime(Min)=1.30E+02
-------------------------------------------------------------
-Run=1, Tmr=60, Itr=762565073, NSucc=118, NSuccLmt=1481563, NFail1=1660706, NFail1Lmt=23705000
-NFail2=1660706, NFail2Lmt=118525000, SucRate%=0.0018, SucLmt%=0.0080, FailLmt%=7.0057, IterLmt%=2.1934
-CrLogL=-6.263291E+04, #F1=804, #F2=498, #F3=498, #FS=804, HSPair=498, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263246E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=48/32/17, TotalRunningTime(Min)=1.31E+02
-------------------------------------------------------------
-Run=1, Tmr=60, Itr=768471036, NSucc=235, NSuccLmt=1481563, NFail1=7566669, NFail1Lmt=23705000
-NFail2=7566669, NFail2Lmt=118525000, SucRate%=0.0019, SucLmt%=0.0159, FailLmt%=31.9201, IterLmt%=4.1866
-CrLogL=-6.263305E+04, #F1=804, #F2=498, #F3=498, #FS=804, HSPair=496, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263246E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=48/33/17, TotalRunningTime(Min)=1.32E+02
-------------------------------------------------------------
-Run=1, Tmr=61, Itr=774416277, NSucc=40, NSuccLmt=1481563, NFail1=1659410, NFail1Lmt=23705000
-NFail2=13511910, NFail2Lmt=118525000, SucRate%=0.0024, SucLmt%=0.0027, FailLmt%=7.0003, IterLmt%=0.5600
-CrLogL=-6.263279E+04, #F1=804, #F2=498, #F3=498, #FS=804, HSPair=497, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263246E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=49/34/17, TotalRunningTime(Min)=1.33E+02
-------------------------------------------------------------
-Run=1, Tmr=61, Itr=780381977, NSucc=121, NSuccLmt=1481563, NFail1=7625110, NFail1Lmt=23705000
-NFail2=19477610, NFail2Lmt=118525000, SucRate%=0.0016, SucLmt%=0.0082, FailLmt%=32.1667, IterLmt%=2.5733
-CrLogL=-6.263261E+04, #F1=804, #F2=497, #F3=497, #FS=804, HSPair=499, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263246E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=49/35/17, TotalRunningTime(Min)=1.34E+02
-------------------------------------------------------------
-Run=1, Tmr=61, Itr=786301439, NSucc=208, NSuccLmt=1481563, NFail1=4168681, NFail1Lmt=23705000
-NFail2=4168681, NFail2Lmt=118525000, SucRate%=0.0015, SucLmt%=0.0140, FailLmt%=17.5857, IterLmt%=4.5710
-CrLogL=-6.263273E+04, #F1=804, #F2=498, #F3=498, #FS=804, HSPair=498, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263243E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=50/36/17, TotalRunningTime(Min)=1.35E+02
-------------------------------------------------------------
-Run=1, Tmr=61, Itr=792220592, NSucc=302, NSuccLmt=1481563, NFail1=10087834, NFail1Lmt=23705000
-NFail2=10087834, NFail2Lmt=118525000, SucRate%=0.0016, SucLmt%=0.0204, FailLmt%=42.5557, IterLmt%=6.5686
-CrLogL=-6.263276E+04, #F1=804, #F2=498, #F3=498, #FS=804, HSPair=498, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263243E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=50/37/17, TotalRunningTime(Min)=1.36E+02
-------------------------------------------------------------
-Run=1, Tmr=66, Itr=798157713, NSucc=26, NSuccLmt=1481563, NFail1=4104823, NFail1Lmt=23705000
-NFail2=16024955, NFail2Lmt=118525000, SucRate%=0.0006, SucLmt%=0.0018, FailLmt%=17.3163, IterLmt%=1.3853
-CrLogL=-6.263253E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263243E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=50/38/17, TotalRunningTime(Min)=1.37E+02
-------------------------------------------------------------
-Run=1, Tmr=66, Itr=804071808, NSucc=71, NSuccLmt=1481563, NFail1=10018918, NFail1Lmt=23705000
-NFail2=21939050, NFail2Lmt=118525000, SucRate%=0.0007, SucLmt%=0.0048, FailLmt%=42.2650, IterLmt%=3.3812
-CrLogL=-6.263260E+04, #F1=804, #F2=497, #F3=497, #FS=804, HSPair=499, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263243E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=51/39/17, TotalRunningTime(Min)=1.38E+02
-------------------------------------------------------------
-Run=1, Tmr=66, Itr=810017476, NSucc=117, NSuccLmt=1481563, NFail1=15964586, NFail1Lmt=23705000
-NFail2=27884718, NFail2Lmt=118525000, SucRate%=0.0007, SucLmt%=0.0079, FailLmt%=67.3469, IterLmt%=5.3878
-CrLogL=-6.263249E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263243E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=51/40/17, TotalRunningTime(Min)=1.39E+02
-------------------------------------------------------------
-Run=1, Tmr=66, Itr=815941406, NSucc=175, NSuccLmt=1481563, NFail1=21888516, NFail1Lmt=23705000
-NFail2=33808648, NFail2Lmt=118525000, SucRate%=0.0008, SucLmt%=0.0118, FailLmt%=92.3371, IterLmt%=7.3870
-CrLogL=-6.263252E+04, #F1=804, #F2=496, #F3=496, #FS=804, HSPair=500, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-BtLogL=-6.263243E+04, #F1=804, #F2=495, #F3=495, #FS=804, HSPair=501, FSPair=237, #AssgnC1=0, #AssgnC2=0, #AssgnP1=0, #AssgnP2=0
-Initiated:D=01/08/2025 T=48/20/15  Started:D=01/08/2025 T=48/20/15  Current:D=01/08/2025 T=52/41/17, TotalRunningTime(Min)=1.40E+02
--------------------
-
-Preparing & outputing results...
-Computing FS family likelihood...
-/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\  
-Computing FS family probabilities...
-|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\| 
-Output archived configurations and summary statistics...
-/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\| 
-Computing sib dyad probabilities...
-/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/- 
-Computing parent-offspring dyad probabilities...
-Inferring genotypes and allele frequencies...
-  Locus: 1 - 22
-Computing likelihood of initial config
-/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/  Done for all 495 families                       
-  
-
-Estimating genotyping error rates...
-               
-Estimating Ne by sibship frequencies...
-
-Output to file : augmented_pp0_poly
