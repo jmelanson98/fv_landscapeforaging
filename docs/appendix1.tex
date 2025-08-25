@@ -189,7 +189,7 @@ We simulated multilocus genotypes for each sampled individual under several mati
 
 We performed simulations based on allele frequencies for both species (\emph{B. mixtus} and \emph{B. impatiens}) because variation in marker number and/or polymorphic information content could lead to differing results. We used inferred allele frequencies from an earlier run of COLONY2.0, which accounts for heightened frequency of alleles present in large families; although raw allele frequencies would have likely been sufficient, given that average family size was small (<2 individuals) and families with > 4 individuals were rare for both datasets.
 
-In the case of monogamous matings, male genotypes were assigned directly to all offspring in the siblingship; in families which were assigned multiple paternity, we assumed two fathers and drew alleles from $\Pr(father_1, father_2) = (0.7, 0.3)$ following the proportions observed for \emph{B. impatiens} in \textcite{birdMatingFrequencyEstimation2024}.
+In the case of monogamous matings, male genotypes were assigned directly to all offspring in the siblingship; in families which were assigned multiple paternity, we assumed two fathers and assigned inheritance of paternal multilocus genotypes from $\Pr(father_1, father_2) = (0.7, 0.3)$ following the proportions observed for \emph{B. impatiens} in \textcite{birdMatingFrequencyEstimation2024}.
 
 After assigning a multilocus genotype to each individual, we introduced errors and data missingness based on observed error and missingness rates in our real datasets. To introduce errors, we mutated each allele with a probability equal to the rate of errors for that locus and species; we assumed that most errors would be due to contamination, rather than allele dropout, and drew new (erroneous) alleles from the same allele frequencies described above. In the case of data missingness, we observed that individuals which were missing data for \emph{one} copy of a locus were more likely to be missing data for \emph{both} copies than if missingness were distributed uniformly at random. This is likely because there were two primary missingness-generating processes in real data: amplification failure (both alleles missing for an individual) and binning failure (one or both alleles missing for an individual). (In cases were only one copy of a locus failed to amplify, heterozygous individuals would be falsely classified as homozygous---an error, rather than missing data). To account for the structure of missingness, we first calculated the proportion of missing data for each marker ($P_{missing}$) and then removed data for (i) both alleles of each individual with probability $1/3 * P_{missing}$ and for (ii) a single allele per individual with probability $1/3 * P_{missing}$.
 
@@ -197,11 +197,40 @@ After assigning a multilocus genotype to each individual, we introduced errors a
 
 It has been previously noted (or speculated) in the literature than COLONY is prone to inferring siblingships between non-siblings, referred to hereafter as \emph{false positive sibships}. Our own preliminary data analyses suggested that this was the case (e.g., a high number of inferred siblingships between individuals separated by >20 km, when individuals from all study sites were permitted to form siblingships). While the biologically of bumblebees does not unilaterally exclude the possibility of such distant relationships, the likelihood of observing such separation distances is extremely small (see discussion below, section "Observing colonymates at multiple sites").
 
-A commonly used strategy to deal with false positives is to repeat multiple "runs" (usually 2-5) of the COLONY software on the same dataset, and maintain family groups which are inferred in all runs at or above some confidence threshhold (usually $P \greq 0.95$, but sometimes $P \greq 0.8$). See, for example, \textcite{carvellMolecularSpatialAnalyses2012, raoBumbleBeeHymenoptera2012, dreierFinescaleSpatialGenetic2014a, geibBumbleBeeNest2015a, carvellBumblebeeFamilyLineage2017a, molaWildfireRevealsTransient2020a}. However, we are not aware of any studies which give support for a particular threshhold probability or number of runs necessary to reach a particular confidence level in assignments, or to achieve a satisfactory balance between false positive siblingships and missed (false negative) siblingships. Indeed, the desireable threshhold is likely to vary as a function of the number and informativeness of markers for a given population.
+A commonly used strategy to deal with false positives is to repeat multiple "runs" (usually 2-5) of the COLONY software on the same dataset, and maintain family groups which are inferred in all runs at or above some confidence threshhold (usually $P \ge 0.95$, but sometimes $P \ge 0.8$). See, for example, \textcite{carvellMolecularSpatialAnalyses2012, raoBumbleBeeHymenoptera2012, dreierFinescaleSpatialGenetic2014a, geibBumbleBeeNest2015a, carvellBumblebeeFamilyLineage2017a, molaWildfireRevealsTransient2020a}. However, we are not aware of any studies which give support for a particular threshhold probability or number of runs necessary to reach a particular confidence level in assignments, or to achieve a satisfactory balance between false positive siblingships and missed (false negative) siblingships. Indeed, the desireable threshhold is likely to vary as a function of the number and informativeness of markers for a given population.
 
-To overcome these limitations, we tested probability exclusion criteria from $P = 0.95$ to $P = 1$, for 1-5 runs of COLONY version 2.0.6.5. Further, we compared the use of family cluster probabilities (COLONY output file .BestCluster) to full sibling dyad probabilities (COLONY output .FullSibDyad).
+To overcome these limitations, we tested probability exclusion criteria from $P = 0.95$ to $P = 1$, for 1 or 5 runs of COLONY version 2.0.6.5. Further, we compared the use of family cluster probabilities (COLONY output file .BestCluster---hereafter referred to as the family method) to full sibling dyad probabilities (COLONY output .FullSibDyad---hereafter referred to as the dyad method).
 
-We found that....
+We began by simulating 5 datasets (e.g., different siblingship arrangements with unique parental genotypes) consisting of n = 1200 individuals each, which was roughly the midpoint of population sizes for our real data. For each dataset we performed 5 runs of COLONY (see Table \ref{tab:simulationspecs} for a summary of COLONY software settings).
+
+We first note that repeated runs of the software appear to serve almost no purpose---in most cases, false positive and false negative rates are either identical or nearly overlapping (Fig \ref{fig:fpr_repetition, fig:fnr_repetition}).
+
+We additionally found that the family method was less reliable than dyad method for excluding erroneous siblingships; false negative rates were similar for both strategies, but 17-36\% of all inferred pairwise relationships were false positives when using the family method, even under the most stringent probability threshold (Fig \ref{fig:fpr_repetition, fig: fnr:repetition}). The dyad method, in contrast, resulted in $\le 11\%$ false positives for all conditions tested, and achieved a false positive rate of around 5\% for $P \ge 0.99$ (Fig \ref{fig:fpr_repetition}. 
+
+We note that for very high values of $P$ (e.g., $P = 1$) the dyad method leads to a higher proportion of false negatives ($\ge 5\%$). For this reason, we chose a probability threshold of $P = 0.99$ for our analysis, as we can be reasonably confident that this threshold will result in both false positive and false negative rates at or around 5\%.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/fpr_repetition.jpg}
+    \caption{caption}
+    \label{fig:fpr_repetition}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/fnr_repetition.jpg}
+    \caption{caption}
+    \label{fig:fnr_repetition}
+\end{figure}
+
+One benefit of using family clusters rather than sibling dyads to determine sibling relationships arises in the case of "non-circular families." These families represent cases in which some (but not all) individuals in a group are inferred to be full siblings (e.g., A related to B, B related to C, A not related to C). Such cases are rare, but are handled internally by COLONY such that all inferred family clusters are circular. Because we choose here to refer to dyad pairs rather than family clusters, we are left the task of deciding how to resolve non-circular families---indeed, resolution of non-circular families could be one process which leads to a higher false positive rate.
+
+Because of this uncertainty, we explored several heuristics for resolving non-circular families. We started by exploring the structure of non-circular families in our simulated datasets, to determine whether non-circularity is more frequently the result of false positives (e.g., a third individual being erroneously added to a sibling pair) or false negatives (e.g., failure to detect a sibling relationship between any pair of siblings in a triad).
+
+To do this, we plotted non-circular families from all five simulations, using a threshold of $P = 0.99$ for inclusion of pairwise relationships.
+
+%% PLOT NON CIRCULAR FAMILIES AND EXPLORE HEURISTICS FOR DEALING WITH THEM
+
 
 % give results for prob threshold vs more runs -- determine an appropriate probability threshold!
 % probably need to conduct some t tests or lm or something...plus plots!
@@ -212,6 +241,33 @@ We found that....
 
 \subsection{Evaluating the effects of multiple paternity on siblingship inference}
 % Multiple paternity results
+
+\begin{table}
+\centering
+\caption{Description of software settings (COLONY 2.0.6.5 \parencite{jonesCOLONYProgramParentage2010}) for simulations.}
+\label{tab:simulationspecs}
+\footnotesize
+\begin{tabular}{ p{2cm}  p{3.5cm} p{2cm} p{2.5cm} p{2cm} p{1.5cm}}
+\hline
+\textbf{Simulation}& \textbf{Comparison}&\textbf{Sample Size}& \textbf{Sibship Size Prior}& \textbf{Cross-site Exclusion}& \textbf{Runs}\\
+\hline
+\textbf{Subsection 1} & Number of COLONY runs& 1200 & yes& yes& 1-5 \\
+\hline
+\textbf{Subsection 1} & Probability threshold& 1200 & yes & yes & 1-5  \\
+\hline
+\textbf{Subsection 1} & Families vs dyads & 1200 & yes& yes& 1-5\\
+\hline
+\textbf{Subsection 2} & Siblingship size prior & 400-2000 & yes/no & yes/no& 1 \\
+\hline
+\textbf{Subsection 2} & Cross-site exclusion & 400-2000 & yes/no & yes/no& 1\\
+\hline
+\textbf{Subsection 3} & Mating system& 1000 & no & no& 1 \\
+   \hline  
+\textbf{Subsection 3} & Mating system (augmented data)& 1000 & yes & no& 1 \\
+   \hline  
+\end{tabular}
+\end{table}
+
 
 
 
