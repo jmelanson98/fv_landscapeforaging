@@ -230,15 +230,29 @@ Because of this uncertainty, we explored several heuristics for resolving non-ci
 To do this, we plotted non-circular families from all five simulations, using a threshold of $P = 0.99$ for inclusion of pairwise relationships.
 
 %% PLOT NON CIRCULAR FAMILIES AND EXPLORE HEURISTICS FOR DEALING WITH THEM
+b
 
+\subsection{Assessing the use of cross-site sibling exclusion for reducing false positive rates}
 
-% give results for prob threshold vs more runs -- determine an appropriate probability threshold!
-% probably need to conduct some t tests or lm or something...plus plots!
+We next systematically evaluated the use of sibling exclusion criteria and siblingship size priors to determine whether these software specifications have any impact on siblingship inference accuracy. Previous studies on \emph{Bombus} have varied in their approaches to the scale at which possible siblingships are evaluated, with some studies performing separate runs of the software for populations sampled at different sites/regions (CITE: JHA? ) while others group populations at larger scales, permitting the discovery of long distance foraging or dispersal events between sites (CITE: LEPAIS, MOLA, ETC. RAO?). While identifying the maximum foraging or dispersal range for different species or landscape contexts is an important goal, we consider two challenges to this method, related to (i) the rarity of capturing individuals engaged in such long distance events, and (ii) the statistical challenges introduced by a very high number of pairwise comparisons between individuals at different sites. For a more thorough discussion of the first point, we direct the reader to \textcite{lepaisEstimationBumblebeeQueen2010a}. Ultimately, we posit that the rate at which such events should be captured is much lower than both the false positive and false negative rates of the COLONY software, due to the quadratically increasing search area over which foragers will be dispersed as distance from their nest increases (see discussion in \textcite{osborneBumblebeeFlightDistances2008}). Furthermore, given the large sample sizes of our populations, and the fact that the majority of pairwise comparisons (without exclusion) will occur between individuals at different sites, we hypothesized that allowing for siblingship assignments between all individuals would result in a high percentage of false positive relationships that would severely bias estimates of colony locations and foraging behaviour.
 
-\subsection{Assessing the use of siblingship size priors and cross-site sibling exclusion for reducing false positive rates}
-% SECOND sample size effects -- do exclusion tables help?
+To test this hypothesis, and to determine whether total sample size had an effect on the utility of excluding cross-site siblingships, we simulated five datasets of n = 2000 individuals, and subsetted each data set to contain 20, 40, 60, 80, or 100\% of the initial samples. These data were simulated to reflect trapping grids which were arranged in a 3 x 2 grid with traps in adjacent grids at least 6km apart. The minimum distance between adjacent trapping grids in our real data was 5km (also separated by a large river, expected to limit dispersal), and all other sites were at least 7km apart. The mean foraging distance of colonies in our simulation was set to 1km (99\% of all visitations within 3.32km). This would allow for colonies located midway between trapping grids to sampled at two sites, while reflecting the fact that the majority of bumblebee foraging is thought to occur within (at \emph{most}) a few kilometers of the nest. We therefore believe that the simulated data would represent a relatively optimistic view of the number of cross-site siblingships which could be present in the real data.
+
+We created siblingship exclusion tables for COLONY by excluding (for each individual) all potential siblingships with individuals captured at different trapping grids (sites). We ran COLONY on each dataset with and without incorporation of the siblingship exclusion table. Further software specifications for these runs can be found in Table \ref{tab:softwarespecs}. We used the dyad method and an exclusion threshold of $P = 0.99$ as described in the previous subsection.
+
+We found that for both species (\emph{B. mixtus} and \emph{B. impatiens}) and for all tested sample sizes (n = 400-2000 individuals), cross-site sibling exclusion resulted in a lower false positive rate (Fig \ref{fig:excl_size} A-B). The variation in false positive rates between independent simulations decreased with increasing sample size. When using cross-site exclusion, mean false positive rates were fairly consistent across sample sizes, but without cross-site exclusion, the mean false positive rate tended to decrease with increasing sample size.
+
+False negative rates were similar for both methods, indicating that cross-site exclusion did not cause us to lose a high proportion of real cross-site siblingships (Fig \ref{fig:excl_size} C-D). Indeed, manual inspection of datasets revealed that cross-site sampling was extremely rare or non-existant, given our parameterization and sample size.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/excl_size.jpg}
+    \caption{caption}
+    \label{fig:excl_size}
+\end{figure}
+
+\subsection{Assessing the use of siblingship size priors for reducing false positive rates}
 % --> rerun some of these but without sibship size prior? for below?
-
 \subsection{Evaluating the effects of multiple paternity on siblingship inference}
 % Multiple paternity results
 
