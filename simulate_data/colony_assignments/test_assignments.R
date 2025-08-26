@@ -1106,7 +1106,7 @@ mixtus_FPR = ggplot(errors_dyad[errors_dyad$species=="mixtus",], aes(x = numbees
   geom_point() +
   xlab("") +
   ylab(expression(FPR == frac(FP, TP + FP))) +
-  labs(colour = "Across-site sibships") +
+  labs(colour = "Sibship Prior") +
   scale_color_manual(
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
@@ -1117,7 +1117,7 @@ mixtus_FNR = ggplot(errors_dyad[errors_dyad$species=="mixtus",], aes(x = numbees
   geom_point() +
   xlab("Number of Observed Bees") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
-  labs(colour = "Across-site sibships") +
+  labs(colour = "Sibship Prior") +
   scale_color_manual(
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
@@ -1128,7 +1128,7 @@ impatiens_FPR = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes(x = n
   geom_point() +
   xlab("") +
   ylab("") +
-  labs(colour = "Across-site sibships") +
+  labs(colour = "Sibship Prior") +
   scale_color_manual(
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
@@ -1139,7 +1139,7 @@ impatiens_FNR = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes(x = n
   geom_point() +
   xlab("Number of Observed Bees") +
   ylab("") +
-  labs(colour = "Across-site sibships") +
+  labs(colour = "Sibship Prior") +
   scale_color_manual(
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
@@ -1149,15 +1149,15 @@ impatiens_FNR = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes(x = n
 
 # Make some grid plots for appendix
 #get legend
-g = ggplotGrob(mixtus_FPR_dyads)
+g = ggplotGrob(mixtus_FPR)
 legend_index = which(g$layout$name == "guide-box-right")
 legend = g$grobs[[legend_index]]
 
 # remove legend from plots
-mixtus_FPR_dyads = mixtus_FPR_dyads + theme(legend.position = "none")
-mixtus_FNR_dyads = mixtus_FNR_dyads + theme(legend.position = "none")
-impatiens_FPR_dyads = impatiens_FPR_dyads + theme(legend.position = "none")
-impatiens_FNR_dyads = impatiens_FNR_dyads + theme(legend.position = "none")
+mixtus_FPR = mixtus_FPR + theme(legend.position = "none")
+mixtus_FNR = mixtus_FNR + theme(legend.position = "none")
+impatiens_FPR = impatiens_FPR + theme(legend.position = "none")
+impatiens_FNR = impatiens_FNR + theme(legend.position = "none")
 
 # make some text grobs
 imp = textGrob(
@@ -1194,21 +1194,7 @@ grid = ggdraw() +
   draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
                   x = c(0, 0.4, 0, 0.4), 
                   y = c(1, 1, 0.53, 0.53))
-ggsave("docs/appendix_figures/excl_size.jpg", grid, height = 1000, width = 3000, units = "px")
-
-# Number of false positives doesn't *decrease,* but total number of relationships *increases* to lower FPR
-ggplot(errors_dyad) +
-  geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
-  geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
-  geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
-  xlab("Simulation and COLONY Conditions") +
-  ylab("Number of inferred or true relationships") +
-  labs(title = "Sibship inclusion: P = 0.99") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
-
-
-
+ggsave("docs/appendix_figures/sibprior.jpg", grid, height = 1000, width = 3000, units = "px")
 
 
 ################################################################################
@@ -1220,33 +1206,51 @@ paternity_probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)
 impGenotypesList = list()
 mixGenotypesList = list()
 
-# Load in simulated siblingships
-sibship_data = readRDS(paste0("simulate_data/colony_assignments/sim_data/sim1.RDS"))
+# Simulate siblingships
+result = draw_simple_multi_landscape(sample_size = 1200,
+                                     num_landscape = 6,
+                                     landscape_size = 1500,
+                                     trapgrid_size = 300,
+                                     number_traps = 25,
+                                     number_colonies = 12000,
+                                     colony_sizes = rep(100,12000),
+                                     rho = 100,
+                                     distance_decay = "exponential")
+sibship_data = list(result[[1]], result[[1]][rowSums(result[[1]])>0,], result[[2]], result[[2]][rowSums(result[[1]])>0,], result[[3]])
+saveRDS(sibship_data, paste0("simulate_data/colony_assignments/test_effective_paternity/sim1.RDS"))
 
-for (j in 1:length(paternity_probs)){
-  impGenotypesList[[j]] = simulateGenotypes(alleleFreqs = impatiens_alellefreq,
+# Simulate genotypes
+for (i in 1:length(paternity_probs)){
+  # simulate impatiens genotypes
+  impGenotypesList[[i]] = simulateGenotypes(alleleFreqs = impatiens_alellefreq,
                                             colonyDataDetected = sibship_data[[4]],
                                             observationMatrix = sibship_data[[2]],
                                             trapData = sibship_data[[5]],
                                             probMultiplePaternity = paternity_probs[i])
-  write.table(impGenotypesList[[i]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
-              paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp", paternity_probs[j], ".txt"), 
+
+  # write to files
+  write.table(impGenotypesList[[i]][,!colnames(impGenotypesList[[i]]) %in% c("truecolony", "landscape_id", "trap_id")], 
+              file = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp", paternity_probs[i], ".txt"), 
               sep= ",", col.names = FALSE, row.names = FALSE)
   write.csv(impGenotypesList[[i]], 
-            "simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp", paternity_probs[j], ".csv")
+            file = paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp", paternity_probs[i], ".csv"))
   
-  mixGenotypesList[[j]] = simulateGenotypes(alleleFreqs = mixtus_alellefreq,
-                                            colonyDataDetected = colony_data_detected,
-                                            observationMatrix = yobs_detected,
+  # simulate mixtus genotypes
+  mixGenotypesList[[i]] = simulateGenotypes(alleleFreqs = mixtus_alellefreq,
+                                            colonyDataDetected = sibship_data[[4]],
+                                            observationMatrix = sibship_data[[2]],
+                                            trapData = sibship_data[[5]],
                                             probMultiplePaternity = paternity_probs[i])
-  write.table(mixGenotypesList[[i]][,!colnames(impGenotypesList[[1]]) %in% c("truecolony")], 
-              paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp", paternity_probs[j], ".txt"), 
+
+  #write to files
+  write.table(mixGenotypesList[[i]][,!colnames(mixGenotypesList[[i]]) %in% c("truecolony", "landscape_id", "trap_id")], 
+              file = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp", paternity_probs[i], ".txt"), 
               sep= ",", col.names = FALSE, row.names = FALSE)
-  write.csv(mixGenotypesList[[j]], 
-            "simulate_data/colony_assignments/test_effective_paternity/true_data/mixtus_pp", paternity_probs[j], ".csv")
+  write.csv(mixGenotypesList[[i]], 
+            file = paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/mixtus_pp", paternity_probs[i], ".csv"))
 }
 
-all_data = list(yobs, yobs_detected, colony_data, colony_data_detected, trap_data, impGenotypesList, mixGenotypesList)
+all_data = list(result[[1]], result[[1]][rowSums(result[[1]])>0,], result[[2]], result[[2]][rowSums(result[[1]])>0,], result[[3]], impGenotypesList, mixGenotypesList)
 saveRDS(all_data, "simulate_data/colony_assignments/test_effective_paternity/firstsim.RDS")
 # all_data = readRDS("simulate_data/colony_assignments/test_effective_paternity/firstsim.RDS")
 # yobs = all_data[[1]]
@@ -1270,19 +1274,19 @@ mixtus_error_rates[1,] = mix_columns
 write.table(mixtus_error_rates, "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_error_rates.txt", 
             sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
 
+# Make and write exclusion tables
+# Only need one since all the siblingships are the same (just with different genotypes)
+exclusion_table = createExclusionTable(impGenotypesList[[1]])
+write.table(
+  exclusion_table,
+  file = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/exclusion_table.txt"),
+  sep = ",",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = FALSE,
+  na = ""
+)
 
-# Construct exclusion tables
-
-
-######### CONSTRUCT TABLES HERE!!!!!
-
-#########
-#
-#
-#
-#
-#
-#
 
 # Construct .DAT files for COLONY
 mixtus_errors_filepath = "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_error_rates.txt"
@@ -1290,77 +1294,191 @@ impatiens_errors_filepath = "simulate_data/colony_assignments/test_effective_pat
 
 for (i in paternity_probs){
   # get sample size, working directory
-  size = 1000
-  workingdir = "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_effective_paternity/colony_output"
+  size = 1200
+  workingdir = paste0(getwd(),"/simulate_data/colony_assignments/test_effective_paternity/colony_output")
   
   # get genotype filepaths
   mixtus_genotypes_filepath = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_pp", i, ".txt")
   impatiens_genotypes_filepath = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_pp", i, ".txt")
   
-  # get exclusion paths
-  mixtus_exclusion_filepath = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_exclusion_pp", i, ".txt")
-  impatiens_exclusion_filepath = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_exclusion_pp", i, ".txt")
+  # get exclusion path
+  exclusion_filepath = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony/exclusion_table.txt")
   
   #build .DAT for mixtus
   # monogamous settings
   rcolony::build.colony.superauto(wd=workingdir, 
-                                  name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_effective_paternity/colony_output/mixtus_pp", i, ".DAT"), 
+                                  name=paste0(getwd(), "/simulate_data/colony_assignments/test_effective_paternity/colony_output/mixtus_pp", i, ".DAT"), 
                                   datasetname = paste0("mixtus_pp", i),
                                   delim=",",
                                   sample_size = size,
                                   sibship_prior = 1,
-                                  female_polygamy = 0,
+                                  female_monogamy = 1,
                                   num_loci = 10,
                                   error_rates_path = mixtus_errors_filepath,
                                   genotypes_path = mixtus_genotypes_filepath,
-                                  exclusion_path = mixtus_exclusion_filepath
+                                  exclusion_path = exclusion_filepath
   )
   
   # polygamous settings
   rcolony::build.colony.superauto(wd=workingdir, 
-                                  name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_effective_paternity/colony_output/mixtus_pp", i, "_poly.DAT"), 
+                                  name=paste0(getwd(),"/simulate_data/colony_assignments/test_effective_paternity/colony_output/mixtus_pp", i, "_poly.DAT"), 
                                   datasetname = paste0("mixtus_pp", i, "_poly"),
                                   delim=",",
                                   sample_size = size,
                                   sibship_prior = 1,
-                                  female_polygamy = 1,
+                                  female_monogamy = 0,
                                   num_loci = 10,
                                   error_rates_path = mixtus_errors_filepath,
                                   genotypes_path = mixtus_genotypes_filepath,
-                                  exclusion_path = mixtus_exclusion_filepath
+                                  exclusion_path = exclusion_filepath
   )
   
   # build .DAT for impatiens
   # monogamous settings
   rcolony::build.colony.superauto(wd=workingdir, 
-                                  name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_effective_paternity/colony_output/impatiens_pp", i, ".DAT"), 
+                                  name=paste0(getwd(),"/simulate_data/colony_assignments/test_effective_paternity/colony_output/impatiens_pp", i, ".DAT"), 
                                   datasetname = paste0("impatiens_pp", i),
                                   delim=",",
                                   sample_size = size,
                                   sibship_prior = 1,
-                                  female_polygamy = 0,
-                                  num_loci = 10,
+                                  female_monogamy = 1,
+                                  num_loci = 12,
                                   error_rates_path = impatiens_errors_filepath,
                                   genotypes_path = impatiens_genotypes_filepath,
-                                  exclusion_path = impatiens_exclusion_filepath
+                                  exclusion_path = exclusion_filepath
   )
   
   # polygamous settings
   rcolony::build.colony.superauto(wd=workingdir, 
-                                  name=paste0("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/test_effective_paternity/colony_output/impatiens_pp", i, "_poly.DAT"), 
+                                  name=paste0(getwd(),"/simulate_data/colony_assignments/test_effective_paternity/colony_output/impatiens_pp", i, "_poly.DAT"), 
                                   datasetname = paste0("impatiens_pp", i, "_poly"),
                                   delim=",",
                                   sample_size = size,
                                   sibship_prior = 1,
-                                  female_polygamy = 1,
-                                  num_loci = 10,
+                                  female_monogamy = 0,
+                                  num_loci = 12,
                                   error_rates_path = impatiens_errors_filepath,
                                   genotypes_path = impatiens_genotypes_filepath,
-                                  exclusion_path = impatiens_exclusion_filepath
+                                  exclusion_path = exclusion_filepath
   )
 }
 
 # Load in results from COLONY
+errors_dyad = data.frame(count = 1:100,
+                         numbees = NA,
+                         species = NA,
+                         numFP = NA,
+                         numFN = NA,
+                         numTP = NA,
+                         total_real = NA,
+                         FPR = NA,
+                         FNR = NA,
+                         sibprior = NA)
+count = 1
+for (i in paternity_probs){
+  for (j in c("_poly", "")){
+    for (species in c("mixtus", "impatiens")){
+      name = paste0(species, "_pp", i, j, "_exclusion")
+      true_data = read.csv(paste0("simulate_data/colony_assignments/sim_data/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
+      
+      # load in no prior data
+      noprior = read.table(paste0("simulate_data/colony_assignments/test_sibprior/", name, "_nosibprior.FullSibDyad"), sep = ",")
+      colnames(noprior) = c("from", "to", "Probability")
+      noprior = noprior[-1,]
+      
+      # load in with prior data
+      prior = read.table(paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".FullSibDyad"), sep = ",")
+      colnames(prior) = c("from", "to", "Probability")
+      prior = prior[-1,]
+      
+      # set probability threshold
+      prob_thresh = 0.995
+      
+      # filter colony outputs
+      noprior = noprior %>% filter(as.numeric(Probability) >= prob_thresh)
+      prior = prior %>% filter(as.numeric(Probability) >= prob_thresh)
+      
+      # make edge lists
+      true_edges = true_data %>%
+        group_by(truecolony) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      
+      inferred_noprior = noprior[,1:2]
+      inferred_prior = prior[,1:2]
+      
+      # combine and classify edges by type (FN, FP, TP)
+      
+      ###################################
+      # NO PRIOR
+      # get true positives
+      tp_edges = inner_join(true_edges, inferred_noprior, by = c("from", "to"))
+      tp_edges$type = "TP"
+      
+      # initialize other types as FN and FP
+      true_edges$type = "FN"
+      inferred_noprior$type = "FP"
+      
+      # remove true positives from FN and FP dataframes
+      fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+      fp_edges = anti_join(inferred_noprior, tp_edges, by = c("from", "to"))
+      
+      # combine all edges
+      all_edges = rbind(tp_edges, fn_edges, fp_edges)
+      
+      # record FPR and FNR
+      errors_dyad$numbees[count] = 2000*subsets[j]
+      errors_dyad$species[count] = species
+      errors_dyad$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+      errors_dyad$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+      errors_dyad$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+      errors_dyad$numFP[count] = nrow(fp_edges)
+      errors_dyad$numFN[count] = nrow(fn_edges)
+      errors_dyad$numTP[count] = nrow(tp_edges)
+      errors_dyad$sibprior[count] = "no_prior"
+      
+      ###################################
+      # PRIOR
+      # get true positives
+      tp_edges = inner_join(true_edges, inferred_prior, by = c("from", "to"))
+      tp_edges$type = "TP"
+      
+      # initialize other types as FN and FP
+      true_edges$type = "FN"
+      inferred_prior$type = "FP"
+      
+      # remove true positives from FN and FP dataframes
+      fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+      fp_edges = anti_join(inferred_prior, tp_edges, by = c("from", "to"))
+      
+      # combine all edges
+      all_edges = rbind(tp_edges, fn_edges, fp_edges)
+      
+      # record FPR and FNR
+      errors_dyad$numbees[count + 1] = 2000*subsets[j]
+      errors_dyad$species[count + 1] = species
+      errors_dyad$FPR[count + 1] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+      errors_dyad$FNR[count + 1] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+      errors_dyad$total_real[count + 1] = nrow(tp_edges) + nrow(fn_edges)
+      errors_dyad$numFP[count + 1] = nrow(fp_edges)
+      errors_dyad$numFN[count + 1] = nrow(fn_edges)
+      errors_dyad$numTP[count + 1] = nrow(tp_edges)
+      errors_dyad$sibprior[count + 1] = "prior"
+      
+      count = count +2
+    }
+  }
+}  
+
+
+
+
+
+
+
 files = c("impatiens_pp0", "impatiens_pp0.2", "impatiens_pp0.4", "impatiens_pp0.6", "impatiens_pp0.8", "impatiens_pp1",
           "impatiens_pp0_poly", "impatiens_pp0.2_poly", "impatiens_pp0.4_poly", "impatiens_pp0.6_poly", "impatiens_pp0.8_poly", 
           "impatiens_pp1_poly", "mixtus_pp0", "mixtus_pp0.2", "mixtus_pp0.4", "mixtus_pp0.6", "mixtus_pp0.8", "mixtus_pp1",
@@ -1482,8 +1600,8 @@ ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
 # Check: could we improve this tendency by simulating a fake data set with twice as many loci?
 
 # Load in allele frequency data
-impatiens_alellefreq = read.csv("colony_assignments/Colony2_Linux/impatiens2023_final1.AlleleFreq")
-mixtus_alellefreq = read.csv("colony_assignments/Colony2_Linux/mixtus2023_final1.AlleleFreq")
+impatiens_alellefreq = read.csv("colony_assignments/Colony2_Linux/impatiens2023.AlleleFreq")
+mixtus_alellefreq = read.csv("colony_assignments/Colony2_Linux/mixtus2023.AlleleFreq")
 
 # combine frequency data!
 impatiens_alellefreq$MarkerID = paste0("impatiens_", impatiens_alellefreq$MarkerID)
@@ -1495,43 +1613,26 @@ paternity_probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)
 GenotypesList = list()
 
 # Simulate genotypes for each species and mating condition
+sibship_data = readRDS(paste0("simulate_data/colony_assignments/test_effective_paternity/sim1.RDS"))
+
+# Simulate genotypes
 for (i in 1:length(paternity_probs)){
+  # simulate impatiens genotypes
   GenotypesList[[i]] = simulateGenotypes(alleleFreqs = combined_allelefreq,
-                                         colonyDataDetected = colony_data_detected,
-                                         observationMatrix = yobs_detected,
-                                         probMultiplePaternity = paternity_probs[i])
+                                            colonyDataDetected = sibship_data[[4]],
+                                            observationMatrix = sibship_data[[2]],
+                                            trapData = sibship_data[[5]],
+                                            probMultiplePaternity = paternity_probs[i])
+  
+  # write to files
+  write.table(GenotypesList[[i]][,!colnames(GenotypesList[[i]]) %in% c("truecolony", "landscape_id", "trap_id")], 
+              file = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp", paternity_probs[i], ".txt"), 
+              sep= ",", col.names = FALSE, row.names = FALSE)
+  write.csv(GenotypesList[[i]], 
+            file = paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp", paternity_probs[i], ".csv"))
+  
 }
-
 saveRDS(GenotypesList, "simulate_data/colony_assignments/test_effective_paternity/augmentedsim.RDS")
-
-
-# write files to .txt for COLONY
-write.table(GenotypesList[[1]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
-            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(GenotypesList[[2]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
-            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.2.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(GenotypesList[[3]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
-            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.4.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(GenotypesList[[4]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
-            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.6.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(GenotypesList[[5]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
-            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp0.8.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(GenotypesList[[6]][,!colnames(GenotypesList[[1]]) %in% c("truecolony")], 
-            "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp1.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-
-# Write files to .csv to save true colony IDs
-write.csv(GenotypesList[[1]], 
-          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.csv")
-write.csv(GenotypesList[[2]], 
-          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.2.csv")
-write.csv(GenotypesList[[3]], 
-          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.4.csv")
-write.csv(GenotypesList[[4]], 
-          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.6.csv")
-write.csv(GenotypesList[[5]], 
-          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp0.8.csv")
-write.csv(GenotypesList[[6]], 
-          "simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp1.csv")
 
 
 # Construct error rates files -- all zeros for now
@@ -1540,37 +1641,64 @@ all_error_rates = as.data.frame(matrix(0, nrow = 4, ncol = length(columns)))
 all_error_rates[1,] = columns
 write.table(all_error_rates, "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_error_rates.txt", 
             sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
+errors_filepath = "simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_error_rates.txt"
+
+# Make and write exclusion tables
+# Only need one since all the siblingships are the same (just with different genotypes)
+exclusion_table = createExclusionTable(GenotypesList[[1]])
+write.table(
+  exclusion_table,
+  file = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/exclusion_table.txt"),
+  sep = ",",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = FALSE,
+  na = ""
+)
+exclusion_filepath = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/exclusion_table.txt")
+
 
 # Construct .DAT files for COLONY
-# manually change these files to run colony with or without female monogamy -- it's faster than running through all the steps again
-# no multiple paternity
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.DAT", delim=",")
+for (i in paternity_probs){
+  # get sample size, working directory
+  size = 1200
+  workingdir = paste0(getwd(),"/simulate_data/colony_assignments/test_effective_paternity/colony_output_augmented")
+  
+  # get genotype filepaths
+  genotypes_filepath = paste0("simulate_data/colony_assignments/test_effective_paternity/for_colony_augmented/augmented_pp", i, ".txt")
+  
+  #build .DAT for mixtus
+  # monogamous settings
+  rcolony::build.colony.superauto(wd=workingdir, 
+                                  name=paste0(getwd(), "/simulate_data/colony_assignments/test_effective_paternity/colony_output_augmented/augmented_pp", i, ".DAT"), 
+                                  datasetname = paste0("augmented_pp", i),
+                                  delim=",",
+                                  sample_size = size,
+                                  sibship_prior = 1,
+                                  female_monogamy = 1,
+                                  num_loci = 22,
+                                  error_rates_path = errors_filepath,
+                                  genotypes_path = genotypes_filepath,
+                                  exclusion_path = exclusion_filepath
+  )
+  
+  # polygamous settings
+  rcolony::build.colony.superauto(wd=workingdir, 
+                                  name=paste0(getwd(),"/simulate_data/colony_assignments/test_effective_paternity/colony_output_augmented/augmented_pp", i, "_poly.DAT"), 
+                                  datasetname = paste0("augmented_pp", i, "_poly"),
+                                  delim=",",
+                                  sample_size = size,
+                                  sibship_prior = 1,
+                                  female_monogamy = 0,
+                                  num_loci = 22,
+                                  error_rates_path = errors_filepath,
+                                  genotypes_path = genotypes_filepath,
+                                  exclusion_path = exclusion_filepath
+  )
+}
 
-# multiple paternity 0.2
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.2.DAT", delim=",")
 
-# multiple paternity 0.4
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.4.DAT", delim=",")
-
-# multiple paternity 0.6
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.6.DAT", delim=",")
-
-# multiple paternity 0.8
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp0.8.DAT", delim=",")
-
-# multiple paternity 1
-rcolony::build.colony.automatic(wd="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux", 
-                                name="/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux/augmented_pp1.DAT", delim=",")
-
-# Load in results from COLONY
-files = c("augmented_pp0", "augmented_pp0.2", "augmented_pp0.4", "augmented_pp0.6", "augmented_pp0.8", "augmented_pp1",
-          "augmented_pp0_poly", "augmented_pp0.2_poly", "augmented_pp0.4_poly", "augmented_pp0.6_poly", "augmented_pp0.8_poly", "augmented_pp1_poly")
-
+# Make some plots
 errors = data.frame(test_condition = files,
                     numFP = NA,
                     numFN = NA,
