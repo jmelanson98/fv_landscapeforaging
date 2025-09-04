@@ -1364,7 +1364,7 @@ for (i in paternity_probs){
 }
 
 # Load in results from COLONY
-errors_dyad = data.frame(count = 1:100,
+errors_family = data.frame(count = 1:24,
                          numbees = NA,
                          species = NA,
                          numFP = NA,
@@ -1373,30 +1373,25 @@ errors_dyad = data.frame(count = 1:100,
                          total_real = NA,
                          FPR = NA,
                          FNR = NA,
-                         sibprior = NA)
+                         multiplepaternityrate = NA,
+                         modelspec = NA)
 count = 1
 for (i in paternity_probs){
   for (j in c("_poly", "")){
     for (species in c("mixtus", "impatiens")){
-      name = paste0(species, "_pp", i, j, "_exclusion")
-      true_data = read.csv(paste0("simulate_data/colony_assignments/sim_data/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
+      name = paste0(species, "_pp", i)
+      true_data = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/", name, ".csv"))
       
-      # load in no prior data
-      noprior = read.table(paste0("simulate_data/colony_assignments/test_sibprior/", name, "_nosibprior.FullSibDyad"), sep = ",")
-      colnames(noprior) = c("from", "to", "Probability")
-      noprior = noprior[-1,]
-      
-      # load in with prior data
-      prior = read.table(paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".FullSibDyad"), sep = ",")
-      colnames(prior) = c("from", "to", "Probability")
-      prior = prior[-1,]
-      
+      # load in sibship data
+      filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output/", name, j, ".BestCluster")
+      colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
+      colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
+
       # set probability threshold
-      prob_thresh = 0.995
+      prob_thresh = 1
       
       # filter colony outputs
-      noprior = noprior %>% filter(as.numeric(Probability) >= prob_thresh)
-      prior = prior %>% filter(as.numeric(Probability) >= prob_thresh)
+      colony_output = colony_output %>% filter(Probability >= prob_thresh)
       
       # make edge lists
       true_edges = true_data %>%
@@ -1407,189 +1402,145 @@ for (i in paternity_probs){
                to = map_chr(pairs, 2)) %>%
         dplyr::select(from, to)
       
-      inferred_noprior = noprior[,1:2]
-      inferred_prior = prior[,1:2]
+      inferred_edges = colony_output %>%
+        group_by(ClusterIndex) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
       
       # combine and classify edges by type (FN, FP, TP)
-      
-      ###################################
-      # NO PRIOR
       # get true positives
-      tp_edges = inner_join(true_edges, inferred_noprior, by = c("from", "to"))
+      tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
       tp_edges$type = "TP"
       
       # initialize other types as FN and FP
       true_edges$type = "FN"
-      inferred_noprior$type = "FP"
+      inferred_edges$type = "FP"
       
       # remove true positives from FN and FP dataframes
       fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
-      fp_edges = anti_join(inferred_noprior, tp_edges, by = c("from", "to"))
+      fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
       
       # combine all edges
       all_edges = rbind(tp_edges, fn_edges, fp_edges)
       
       # record FPR and FNR
-      errors_dyad$numbees[count] = 2000*subsets[j]
-      errors_dyad$species[count] = species
-      errors_dyad$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
-      errors_dyad$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
-      errors_dyad$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
-      errors_dyad$numFP[count] = nrow(fp_edges)
-      errors_dyad$numFN[count] = nrow(fn_edges)
-      errors_dyad$numTP[count] = nrow(tp_edges)
-      errors_dyad$sibprior[count] = "no_prior"
+      errors_family$numbees[count] = 1200
+      errors_family$species[count] = species
+      errors_family$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+      errors_family$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+      errors_family$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+      errors_family$numFP[count] = nrow(fp_edges)
+      errors_family$numFN[count] = nrow(fn_edges)
+      errors_family$numTP[count] = nrow(tp_edges)
+      errors_family$multiplepaternityrate[count] = i
+      errors_family$modelspec[count] = j
       
-      ###################################
-      # PRIOR
-      # get true positives
-      tp_edges = inner_join(true_edges, inferred_prior, by = c("from", "to"))
-      tp_edges$type = "TP"
-      
-      # initialize other types as FN and FP
-      true_edges$type = "FN"
-      inferred_prior$type = "FP"
-      
-      # remove true positives from FN and FP dataframes
-      fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
-      fp_edges = anti_join(inferred_prior, tp_edges, by = c("from", "to"))
-      
-      # combine all edges
-      all_edges = rbind(tp_edges, fn_edges, fp_edges)
-      
-      # record FPR and FNR
-      errors_dyad$numbees[count + 1] = 2000*subsets[j]
-      errors_dyad$species[count + 1] = species
-      errors_dyad$FPR[count + 1] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
-      errors_dyad$FNR[count + 1] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
-      errors_dyad$total_real[count + 1] = nrow(tp_edges) + nrow(fn_edges)
-      errors_dyad$numFP[count + 1] = nrow(fp_edges)
-      errors_dyad$numFN[count + 1] = nrow(fn_edges)
-      errors_dyad$numTP[count + 1] = nrow(tp_edges)
-      errors_dyad$sibprior[count + 1] = "prior"
-      
-      count = count +2
+      count = count + 1
     }
   }
 }  
 
+errors_family$modelspec[errors_family$modelspec != "_poly"] = "_mono"
+errors_family$test_condition = paste0(errors_family$multiplepaternityrate, errors_family$modelspec)
 
-
-
-
-
-
-files = c("impatiens_pp0", "impatiens_pp0.2", "impatiens_pp0.4", "impatiens_pp0.6", "impatiens_pp0.8", "impatiens_pp1",
-          "impatiens_pp0_poly", "impatiens_pp0.2_poly", "impatiens_pp0.4_poly", "impatiens_pp0.6_poly", "impatiens_pp0.8_poly", 
-          "impatiens_pp1_poly", "mixtus_pp0", "mixtus_pp0.2", "mixtus_pp0.4", "mixtus_pp0.6", "mixtus_pp0.8", "mixtus_pp1",
-          "mixtus_pp0_poly", "mixtus_pp0.2_poly", "mixtus_pp0.4_poly", "mixtus_pp0.6_poly", "mixtus_pp0.8_poly", 
-          "mixtus_pp1_poly")
-
-errors = data.frame(test_condition = files,
-                    numFP = NA,
-                    numFN = NA,
-                    numTP = NA,
-                    total_real = NA,
-                    FPR = NA,
-                    FNR = NA)
-family_plots = list()
-for (i in 1:length(files)){
-  filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output_withprior/", files[i], ".BestCluster")
-  colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
-  colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
-  
-  genotypesim = paste(unlist(strsplit(files[i], "_"))[1:2], collapse = "_")
-  true_data = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/", genotypesim, ".csv"))
-  
-  # set probability threshold
-  prob_thresh = 0.95
-  
-  # filter colony outputs
-  colony_output = colony_output %>% filter(Probability >= prob_thresh)
-  
-  # make edge lists
-  true_edges = true_data %>%
-    group_by(truecolony) %>%
-    filter(n() > 1) %>%
-    summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
-    mutate(from = map_chr(pairs, 1),
-           to = map_chr(pairs, 2)) %>%
-    dplyr::select(from, to)
-  
-  inferred_edges = colony_output %>%
-    group_by(ClusterIndex) %>%
-    filter(n() > 1) %>%
-    summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
-    mutate(from = map_chr(pairs, 1),
-           to = map_chr(pairs, 2)) %>%
-    dplyr::select(from, to)
-  
-  # combine and classify edges by type (FN, FP, TP)
-  # get true positives
-  tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
-  tp_edges$type = "TP"
-  
-  # initialize other types as FN and FP
-  true_edges$type = "FN"
-  inferred_edges$type = "FP"
-  
-  # remove true positives from FN and FP dataframes
-  fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
-  fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
-  
-  # combine all edges
-  all_edges = rbind(tp_edges, fn_edges, fp_edges)
-  
-  # make an igraph object
-  graph = graph_from_data_frame(all_edges, directed = FALSE)
-  E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
-  families = plot(graph, 
-                  edge.color = E(graph)$color,
-                  vertex.label = NA,
-                  vertex.size = 2,
-                  main = files[i]
-  )
-  family_plots[[i]] = families
-  
-  # record FPR and FNR
-  errors$FPR[errors$test_condition == files[i]] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
-  errors$FNR[errors$test_condition == files[i]] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
-  errors$total_real[errors$test_condition == files[i]] = nrow(tp_edges) + nrow(fn_edges)
-  errors$numFP[errors$test_condition == files[i]] = nrow(fp_edges)
-  errors$numFN[errors$test_condition == files[i]] = nrow(fn_edges)
-  errors$numTP[errors$test_condition == files[i]] = nrow(tp_edges)
-  
-  
-}
-
-
-# make a results table without poly
-errors_subset = errors %>%
-  filter(!str_detect(test_condition, "poly"))
-
-ggplot(errors) +
-  geom_point(aes(x = test_condition, y = numFP, color = "Number FP")) +
-  geom_point(aes(x = test_condition, y = numFN, color = "Number FN")) +
-  geom_point(aes(x = test_condition, y = total_real, color = "Total true")) +
-  xlab("Simulation and COLONY Conditions") +
-  ylab("Number of inferred or true relationships") +
-  labs(title = "Sibship inclusion: P = 0.95") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
-
-ggplot(errors_subset, aes(x = test_condition, y = FPR)) +
+# make some plots
+mixtus_paternity_FPR = ggplot(errors_family[errors_family$species=="mixtus",], aes(x = multiplepaternityrate, y = FPR, colour = modelspec)) +
   geom_point() +
-  xlab("Simulation and COLONY Conditions") +
-  ylab(expression(FPR == frac(FP, TP + FN))) +
+  xlab("") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "COLONY setting") +
+  scale_color_manual(
+    labels = c("Queen monogamy", "Queen polygamy"),
+    values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
+  ylim(c(0,0.8))
 
-ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
+mixtus_paternity_FNR = ggplot(errors_family[errors_family$species=="mixtus",], aes(x = multiplepaternityrate, y = FNR, colour = modelspec)) +
   geom_point() +
-  xlab("Simulation and COLONY Conditions") +
+  xlab("Percentage of colonies with two fathers") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
+  labs(colour = "COLONY setting") +
+  scale_color_manual(
+    labels = c("Queen monogamy", "Queen polygamy"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()  +
+  ylim(c(0,0.5))
+
+impatiens_paternity_FPR = ggplot(errors_family[errors_family$species=="impatiens",], aes(x = multiplepaternityrate, y = FPR, colour = modelspec)) +
+  geom_point() +
+  xlab("") +
+  ylab("") +
+  labs(colour = "COLONY setting") +
+  scale_color_manual(
+    labels = c("Queen monogamy", "Queen polygamy"),
+    values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
+  ylim(c(0,0.8))
+
+impatiens_paternity_FNR = ggplot(errors_family[errors_family$species=="impatiens",], aes(x = multiplepaternityrate, y = FNR, colour = modelspec)) +
+  geom_point() +
+  xlab("Percentage of colonies with two fathers") +
+  ylab("") +
+  labs(colour = "COLONY setting") +
+  scale_color_manual(
+    labels = c("Queen monogamy", "Queen polygamy"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()  +
+  ylim(c(0,0.5))
+
+
+# Make some grid plots for appendix
+#get legend
+g = ggplotGrob(mixtus_paternity_FPR)
+legend_index = which(g$layout$name == "guide-box-right")
+legend = g$grobs[[legend_index]]
+
+# remove legend from plots
+mixtus_paternity_FPR = mixtus_paternity_FPR + theme(legend.position = "none")
+mixtus_paternity_FNR = mixtus_paternity_FNR + theme(legend.position = "none")
+impatiens_paternity_FPR = impatiens_paternity_FPR + theme(legend.position = "none")
+impatiens_paternity_FNR = impatiens_paternity_FNR + theme(legend.position = "none")
+
+# make some text grobs
+imp = textGrob(
+  expression(italic("Bombus impatiens")),
+  gp = gpar(fontsize = 12, col = "black")
+)
+mix = textGrob(
+  expression(italic("Bombus mixtus")),
+  gp = gpar(fontsize = 12, col = "black")
+)
+fpr = textGrob(
+  "False Positives",
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+fnr = textGrob(
+  "False Negatives",
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+
+
+# arrange and plot
+grid = plot_grid(
+  mix,        nullGrob(),      imp,        nullGrob(),
+  mixtus_paternity_FPR, nullGrob(), impatiens_paternity_FPR, fpr,
+  mixtus_paternity_FNR, nullGrob(), impatiens_paternity_FNR, fnr,
+  ncol = 4,
+  rel_widths  = c(8, 1, 8, 1),
+  rel_heights = c(1, 8, 8),
+  align = "hv", axis = "tblr"
+)
+grid = grid.arrange(grid, legend, ncol = 2, widths = c(8,2))
+grid = ggdraw() +
+  draw_plot(grid, 0.05, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.4, 0, 0.4), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/multiplepaternity.jpg", grid, height = 1000, width = 3000, units = "px")
+
 
 
 ################################################################################
@@ -1697,110 +1648,124 @@ for (i in paternity_probs){
   )
 }
 
-
-# Make some plots
-errors = data.frame(test_condition = files,
-                    numFP = NA,
-                    numFN = NA,
-                    numTP = NA,
-                    total_real = NA,
-                    FPR = NA,
-                    FNR = NA)
-family_plots = list()
-for (i in 1:length(files)){
-  filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output_augmented/", files[i], ".BestCluster")
-  colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
-  colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
-  
-  genotypesim = paste(unlist(strsplit(files[i], "_"))[1:2], collapse = "_")
-  true_data = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/", genotypesim, ".csv"))
-  
-  # set probability threshold
-  prob_thresh = 0.95
-  
-  # filter colony outputs
-  colony_output = colony_output %>% filter(Probability >= prob_thresh)
-  
-  # make edge lists
-  true_edges = true_data %>%
-    group_by(truecolony) %>%
-    filter(n() > 1) %>%
-    summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
-    mutate(from = map_chr(pairs, 1),
-           to = map_chr(pairs, 2)) %>%
-    dplyr::select(from, to)
-  
-  inferred_edges = colony_output %>%
-    group_by(ClusterIndex) %>%
-    filter(n() > 1) %>%
-    summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
-    mutate(from = map_chr(pairs, 1),
-           to = map_chr(pairs, 2)) %>%
-    dplyr::select(from, to)
-  
-  # combine and classify edges by type (FN, FP, TP)
-  # get true positives
-  tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
-  tp_edges$type = "TP"
-  
-  # initialize other types as FN and FP
-  true_edges$type = "FN"
-  inferred_edges$type = "FP"
-  
-  # remove true positives from FN and FP dataframes
-  fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
-  fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
-  
-  # combine all edges
-  all_edges = rbind(tp_edges, fn_edges, fp_edges)
-  
-  # make an igraph object
-  graph = graph_from_data_frame(all_edges, directed = FALSE)
-  E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
-  families = plot(graph, 
-                  edge.color = E(graph)$color,
-                  vertex.label = NA,
-                  vertex.size = 2,
-                  main = files[i]
-  )
-  family_plots[[i]] = families
-  
-  # record FPR and FNR
-  errors$FPR[errors$test_condition == files[i]] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fn_edges))
-  errors$FNR[errors$test_condition == files[i]] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
-  errors$total_real[errors$test_condition == files[i]] = nrow(tp_edges) + nrow(fn_edges)
-  errors$numFP[errors$test_condition == files[i]] = nrow(fp_edges)
-  errors$numFN[errors$test_condition == files[i]] = nrow(fn_edges)
-  errors$numTP[errors$test_condition == files[i]] = nrow(tp_edges)
-  
-  
+# Load in results from COLONY
+errors_family = data.frame(count = 1:12,
+                           numbees = NA,
+                           numFP = NA,
+                           numFN = NA,
+                           numTP = NA,
+                           total_real = NA,
+                           FPR = NA,
+                           FNR = NA,
+                           multiplepaternityrate = NA,
+                           modelspec = NA)
+count = 1
+for (i in paternity_probs){
+  for (j in c("_poly", "")){
+    true_data = read.csv(paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/augmented_pp", i, ".csv"))
+    
+    # load in sibship data
+    filename = paste0("simulate_data/colony_assignments/test_effective_paternity/colony_output_augmented/augmented_pp", i, j, ".BestCluster")
+    colony_output = as.data.frame(do.call(rbind, strsplit(trimws(readLines(filename)), "\\s+")[-1]))
+    colnames(colony_output) = unlist(strsplit(readLines(filename), "\\s+")[1])
+    
+    # set probability threshold
+    prob_thresh = 1
+    
+    # filter colony outputs
+    colony_output = colony_output %>% filter(Probability >= prob_thresh)
+    
+    # make edge lists
+    true_edges = true_data %>%
+      group_by(truecolony) %>%
+      filter(n() > 1) %>%
+      summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+      mutate(from = map_chr(pairs, 1),
+             to = map_chr(pairs, 2)) %>%
+      dplyr::select(from, to)
+    
+    inferred_edges = colony_output %>%
+      group_by(ClusterIndex) %>%
+      filter(n() > 1) %>%
+      summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+      mutate(from = map_chr(pairs, 1),
+             to = map_chr(pairs, 2)) %>%
+      dplyr::select(from, to)
+    
+    # combine and classify edges by type (FN, FP, TP)
+    # get true positives
+    tp_edges = inner_join(true_edges, inferred_edges, by = c("from", "to"))
+    tp_edges$type = "TP"
+    
+    # initialize other types as FN and FP
+    true_edges$type = "FN"
+    inferred_edges$type = "FP"
+    
+    # remove true positives from FN and FP dataframes
+    fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+    fp_edges = anti_join(inferred_edges, tp_edges, by = c("from", "to"))
+    
+    # combine all edges
+    all_edges = rbind(tp_edges, fn_edges, fp_edges)
+    
+    # record FPR and FNR
+    errors_family$numbees[count] = 1200
+    errors_family$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+    errors_family$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+    errors_family$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+    errors_family$numFP[count] = nrow(fp_edges)
+    errors_family$numFN[count] = nrow(fn_edges)
+    errors_family$numTP[count] = nrow(tp_edges)
+    errors_family$multiplepaternityrate[count] = i
+    errors_family$modelspec[count] = j
+    
+    count = count + 1
+  }
 }
 
-
-# make a results table without poly
-errors_subset = errors %>%
-  filter(!str_detect(test_condition, "poly"))
-
-ggplot(errors) +
-  geom_point(aes(x = test_condition, y = numFP, color = "Number FP")) +
-  geom_point(aes(x = test_condition, y = numFN, color = "Number FN")) +
-  geom_point(aes(x = test_condition, y = total_real, color = "Total true")) +
-  xlab("Simulation and COLONY Conditions") +
-  ylab("Number of inferred or true relationships") +
-  labs(title = "Sibship inclusion: P = 0.95") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
-
-ggplot(errors_subset, aes(x = test_condition, y = FPR)) +
+# make some plots
+paternity_FPR = ggplot(errors_family, aes(x = multiplepaternityrate, y = FPR, colour = modelspec)) +
   geom_point() +
-  xlab("Simulation and COLONY Conditions") +
-  ylab(expression(FPR == frac(FP, TP + FN))) +
+  xlab("") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "COLONY setting") +
+  scale_color_manual(
+    labels = c("Queen monogamy", "Queen polygamy"),
+    values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
+  ylim(c(0,0.8))
 
-ggplot(errors_subset, aes(x = test_condition, y = FNR)) +
+paternity_FNR = ggplot(errors_family, aes(x = multiplepaternityrate, y = FNR, colour = modelspec)) +
   geom_point() +
-  xlab("Simulation and COLONY Conditions") +
+  xlab("Percentage of colonies with two fathers") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
+  labs(colour = "COLONY setting") +
+  scale_color_manual(
+    labels = c("Queen monogamy", "Queen polygamy"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal()  +
+  ylim(c(0,0.5))
+
+
+# Make some grid plots for appendix
+#get legend
+g = ggplotGrob(paternity_FPR)
+legend_index = which(g$layout$name == "guide-box-right")
+legend = g$grobs[[legend_index]]
+
+# remove legend from plots
+paternity_FPR = paternity_FPR + theme(legend.position = "none")
+paternity_FNR = paternity_FNR + theme(legend.position = "none")
+
+
+# arrange and plot
+grid = plot_grid(paternity_FPR, paternity_FNR,
+  ncol = 1
+)
+grid = grid.arrange(grid, legend, ncol = 2, widths = c(8,2))
+grid = ggdraw() +
+  draw_plot(grid, 0.05, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)"), size = 14, 
+                  x = c(0, 0), 
+                  y = c(1, 0.53))
+ggsave("docs/appendix_figures/augmentedpaternity.jpg", grid, height = 1000, width = 3000, units = "px")
