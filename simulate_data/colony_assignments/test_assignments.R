@@ -676,16 +676,139 @@ ggsave("docs/appendix_figures/fnr_repetition.jpg", FNR_grid, height = 1000, widt
 ###
 #
 
-# perhaps useful
-# make an igraph object
-graph = graph_from_data_frame(all_edges, directed = FALSE)
-E(graph)$color = recode(E(graph)$type, TP = "black", FP = "red", FN = "purple")
-families = plot(graph, 
-                edge.color = E(graph)$color,
-                vertex.label = NA,
-                vertex.size = 2,
-                main = name
+links = data.frame(count = 1:10,
+                    species = NA,
+                    numfams = NA,
+                    numlinks = NA,
+                    numFN = NA,
+                    numTN = NA
 )
+links$FNprobs <- vector("list", nrow(links))
+links$TNprobs <- vector("list", nrow(links))
+count = 1
+for (species in c("mixtus", "impatiens")){
+  for (i in 1:5){
+      print(paste0(species, "_set", i, "_sub0.6.csv"))
+      
+      # set probability threshold
+      prob_thresh = 0.995
+      
+      # load in true data
+      true_data = read.csv(paste0("simulate_data/colony_assignments/sim_data/true_data/", species, "_set", i, "_sub1.csv"))
+      
+      # make true edge lists
+      true_edges = true_data %>%
+        group_by(truecolony) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      true_edges$missing_pair = apply(
+        true_edges[, c("from", "to")], 
+        1, 
+        function(x) paste(sort(x), collapse = "-")
+      )
+      
+      # then get dyad files
+      dyadfile = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", species, "_set", i, "_sub1_exclusion.FullSibDyad")
+      dyads = read.table(dyadfile, sep = ",")
+      colnames(dyads) = c("from", "to", "Probability")
+      dyads = dyads[-1,]
+      dyads$Probability = as.numeric(dyads$Probability)
+      
+      # filter based on probability threshhold
+      dyadsfiltered = dyads %>% filter(Probability >= prob_thresh)
+      
+      # add pair names
+      dyads$missing_pair = apply(
+        dyads[, c("from", "to")], 
+        1, 
+        function(x) paste(sort(x), collapse = "-")
+      )
+      
+      # get edge lists for dyads method
+      dyad_inferred_edges = dyadsfiltered[,1:2]
+      
+      # make igraph object
+      graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+      components <- decompose(graph)
+      
+      # remove cliques
+      noncirculars = components[!sapply(components, is_clique)]
+      noncircular_graph <- do.call(disjoint_union, noncirculars)
+      noncircular_comps = decompose(noncircular_graph)
+      
+      # plot
+      if(!is.null(noncircular_graph)){
+        #E(noncircular_graph)$color = recode(E(noncircular_graph)$type, TP = "black", FP = "red", FN = "purple")
+        families = plot(noncircular_graph)
+      } else (print("No noncircularity."))
+      
+      
+      missing_links = lapply(components, function(comp) {
+        if (!is_clique(comp)){
+          # get all possible pairs of nodes (unordered)
+          nodes = V(comp)$name
+          node_pairs = t(combn(nodes, 2))
+          
+          # filter out pairs that already have an edge
+          missing <- apply(node_pairs, 1, function(pair) {
+            !are_adjacent(comp, pair[1], pair[2])
+          })
+          
+          # make collapsed pair names for eaching missing link
+          missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+            paste(sort(pair), collapse = "-")
+          })
+          
+          df = data.frame(
+            missing_pair = missing_names,
+            stringsAsFactors = FALSE
+          )
+          return(df)
+        }
+      })
+      
+      # Combine all rows into one dataframe
+      missing_df = do.call(rbind, missing_links)
+      
+      # Find false negatives
+      false_negatives = missing_df$missing_pair[missing_df$missing_pair %in% true_edges$missing_pair]
+      true_negatives = missing_df$missing_pair[!missing_df$missing_pair %in% true_edges$missing_pair]
+    
+      
+      # save some data
+      links$numfams[count] = length(noncircular_comps)
+      links$numlinks[count] = max(nrow(missing_df),0)
+      links$numFN[count] = length(false_negatives)
+      links$numTN[count] = length(true_negatives)
+      links$FNprobs[count] <- list(dyads$Probability[dyads$missing_pair %in% false_negatives])
+      links$TNprobs[count] <- list(dyads$Probability[dyads$missing_pair %in% true_negatives])
+      
+      
+      links$species[count] = species
+      
+      count = count + 1
+    
+  }
+}
+
+links$FNprobs <- lapply(links$FNprobs, function(x) x[x != 0])
+links$TNprobs <- lapply(links$TNprobs, function(x) x[x != 0])
+
+
+# make histogram
+png(filename = "docs/appendix_figures/noncircularity.png", width = 800, height = 600)
+hist(unlist(links$FNprobs), col = rgb(0, 0, 1, 0.5), xlim = c(0.6,1), ylim = c(0,9),
+     main = "", xlab = "Probability", breaks = 30)
+
+hist(unlist(links$TNprobs), col = rgb(1, 0, 0, 0.5), add = TRUE, breaks = 30)
+abline(v = 0.95, col = "black", lty = 2, lwd = 2)  # lty=2 makes it dashed
+
+legend("topright", legend = c("FN", "TN"),
+       fill = c(rgb(0, 0, 1, 0.5), rgb(1, 0, 0, 0.5)))
+dev.off()
 
 
 ################################################################################
