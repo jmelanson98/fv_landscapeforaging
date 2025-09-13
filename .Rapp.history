@@ -1,14 +1,53 @@
-10+10
-getwd()
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/")
-library(rstan)
-rstan_options(auto_write = TRUE)            # Cache compiled Stan programsoptions(mc.cores = parallel::detectCores()) # Parallelize chainsparallel:::setDefaultClusterOptions(setup_strategy = "sequential")
+setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")par(family="serif", las=1, bty="l",    cex.axis=1, cex.lab=1, cex.main=1,    xaxs="i", yaxs="i", mar = c(5, 5, 3, 1))library(rstan)rstan_options(auto_write = TRUE)            # Cache compiled Stan programsoptions(mc.cores = parallel::detectCores()) # Parallelize chainsparallel:::setDefaultClusterOptions(setup_strategy = "sequential")#
+util <- new.env()source('simulate_data/from_mike/mcmc_analysis_tools_rstan.R', local=util)source('simulate_data/from_mike/mcmc_visualization_tools.R', local=util)
 data = list()data$T = 10data$C = 1000data$K = 25data$L = 6
 simu <- stan(file="simulate_data/src/sq_simu.stan",             data = data,             algorithm="Fixed_param",              seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
-simu <- rstan::stan(file="simulate_data/src/sq_simu.stan",             data = data,             algorithm="Fixed_param",              seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
-install.packages('rethinking')
-library(rethinking)
-file.exists("~/.Rprofile")
-vim ~/.Rprofile
-vim ""~/.Rprofile"
-search()
+yobs_list <- extract(simu)$yobs_T
+yobs_per_time <- lapply(1:data$T, function(t) {#
+  yobs_matrix_t <- yobs_list[[t]]#
+  matrix(yobs_matrix_t, nrow = data$C, ncol = data$K * data$L)#
+})
+length(yobs_per_time)
+dim(yobs_per_time[[1]])
+yobs_sum = Reduce(`+`, yobs_per_time)
+tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])prop_tbl <- prop.table(tbl)  # gives proportionsbarplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+head(yobs_sum)
+head(yobs_sum[rowSums(yobs_sum)>0,])
+max(yobs_sum)
+max(yobs_per_time[[1]])
+max(yobs_per_time[[2]])
+max(yobs_per_time[[3]])
+max(yobs_per_time[[4]])
+max(yobs_per_time[[5]])
+simu <- stan(file="simulate_data/src/sq_simu.stan",             data = data,             algorithm="Fixed_param",              seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
+yobs <- extract(simu)$yobs_Tyobs_list <- lapply(1:data$T, function(t) {  yobs_matrix_t <- yobs[[t]]  matrix(yobs_matrix_t, nrow = data$C, ncol = data$K * data$L)})#
+yobs_sum = Reduce(`+`, yobs_list)
+max(yobs_sum)
+data = list()data$T = 10data$C = 100data$K = 25data$L = 6
+simu <- stan(file="simulate_data/src/sq_simu.stan",             algorithm="Fixed_param",              data = data,             seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
+yobs_array <- rstan::extract(simu)$yobs[1,,,]yobs_sum = apply(yobs_array, c(1,2), sum)
+tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])prop_tbl <- prop.table(tbl)  # gives proportionsbarplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+tbl = as.data.frame(tbl)
+sum(tbl$Freq)
+simu <- stan(file="simulate_data/src/sq_simu.stan",             algorithm="Fixed_param",              data = data,             seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
+yobs_array <- rstan::extract(simu)$yobs[1,,,]yobs_sum = apply(yobs_array, c(1,2), sum)
+tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])prop_tbl <- prop.table(tbl)  # gives proportionsbarplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+tbl
+data = list()data$T = 10data$C = 1000data$K = 25data$L = 6
+simu <- stan(file="simulate_data/src/sq_simu.stan",             algorithm="Fixed_param",              data = data,             seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
+yobs_array <- rstan::extract(simu)$yobs[1,,,]yobs_sum = apply(yobs_array, c(1,2), sum)
+tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])prop_tbl <- prop.table(tbl)  # gives proportionsbarplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+tbl
+sum(tbl)
+data = list()data$T = 10data$C = 1000data$K = 25data$L = 6data$alpha = log(0.05)data$theta = 0.25
+simu <- stan(file="simulate_data/src/sq_simu.stan",             algorithm="Fixed_param",              data = data,             seed=8438338, warmup=0, iter=1, chains=1, refresh=1)
+yobs_array <- rstan::extract(simu)$yobs[1,,,]yobs_sum = apply(yobs_array, c(1,2), sum)tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])prop_tbl <- prop.table(tbl)  # gives proportionsbarplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+tbl
+sum(tbl)
+data$alpha = log(0.02)
+simu <- stan(file="simulate_data/src/sq_simu.stan",             algorithm="Fixed_param",              data = data,             seed=8438338, warmup=0, iter=1, chains=1, refresh=1)yobs_array <- rstan::extract(simu)$yobs[1,,,]yobs_sum = apply(yobs_array, c(1,2), sum)tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])prop_tbl <- prop.table(tbl)  # gives proportionsbarplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+data$theta = 0.1
+simu <- stan(file="simulate_data/src/sq_simu.stan",             algorithm="Fixed_param",              data = data,             seed=8438338, warmup=0, iter=1, chains=1, refresh=1)yobs_array <- rstan::extract(simu)$yobs[1,,,]yobs_sum = apply(yobs_array, c(1,2), sum)tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])prop_tbl <- prop.table(tbl)  # gives proportionsbarplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+sum(tbl)
+data$alpha = log(0.01)data$theta = 1simu <- stan(file="simulate_data/src/sq_simu.stan",             algorithm="Fixed_param",              data = data,             seed=8438338, warmup=0, iter=1, chains=1, refresh=1)yobs_array <- rstan::extract(simu)$yobs[1,,,]yobs_sum = apply(yobs_array, c(1,2), sum)tbl <- table(rowSums(yobs_sum)[rowSums(yobs_sum) > 0])prop_tbl <- prop.table(tbl)  # gives proportionsbarplot(prop_tbl, ylab = "Proportion", xlab = "Count category")
+sum(tbl)

@@ -29,7 +29,7 @@ library(gridExtra)
 library(grid)
 
 ################################################################################
-## Test different rates of multiple paternity in mixtus and impatiens
+## PRACTICE SIMULATING DATA --- IS IT REALISTIC?
 ################################################################################
 
 # First simulate some observations of bees at multiple landscapes
@@ -151,8 +151,8 @@ mixtus_allelefreq = read.csv("colony_assignments/Colony2_Linux/mixtus2023.Allele
 mixtus_to_remove = c("BTMS0104", "BTERN01", "BTMS0059")
 impatiens_to_remove = c("BL13", "BTMS0073", "BT28")
 
-impatiens_alellefreq = impatiens_alellefreq %>% filter(!MarkerID %in% impatiens_to_remove)
-mixtus_alellefreq = mixtus_alellefreq %>% filter(!MarkerID %in% mixtus_to_remove)
+impatiens_allelefreq = impatiens_allelefreq %>% filter(!MarkerID %in% impatiens_to_remove)
+mixtus_allelefreq = mixtus_allelefreq %>% filter(!MarkerID %in% mixtus_to_remove)
 
 
 # Create real error rate files
@@ -216,8 +216,6 @@ for (i in 1:length(impatiens_alleles)){
 }
 
 
-
-
 # For each data set, simulate genotypes assuming single paternity (mixtus and impatiens)
 impGenotypesList = list()
 mixGenotypesList = list()
@@ -225,7 +223,7 @@ mixGenotypesList = list()
 for (i in 1:numsims){
   sibship_data = readRDS(paste0("simulate_data/colony_assignments/sim_data/sim", i, ".RDS"))
   # simulate imp genotypes
-  tempImp = simulateGenotypes(alleleFreqs = impatiens_alellefreq,
+  tempImp = simulateGenotypes(alleleFreqs = impatiens_allelefreq,
                               colonyDataDetected = sibship_data[[4]],
                               observationMatrix = sibship_data[[2]],
                               trapData = sibship_data[[5]],
@@ -234,10 +232,10 @@ for (i in 1:numsims){
   impGenotypesList[[i]] = induceErrors(genotypeDF = tempImp,
                                        errorRates = impatiens_errors,
                                        missingRates = impatiens_missing,
-                                       alleleFreqs = impatiens_alellefreq)
+                                       alleleFreqs = impatiens_allelefreq)
   
   # simulate mix genotypes
-  tempMix = simulateGenotypes(alleleFreqs = mixtus_alellefreq,
+  tempMix = simulateGenotypes(alleleFreqs = mixtus_allelefreq,
                               colonyDataDetected = sibship_data[[4]],
                               observationMatrix = sibship_data[[2]],
                               trapData = sibship_data[[5]],
@@ -246,7 +244,7 @@ for (i in 1:numsims){
   mixGenotypesList[[i]] = induceErrors(genotypeDF = tempMix,
                                        errorRates = mixtus_errors,
                                        missingRates = mixtus_missing,
-                                       alleleFreqs = mixtus_alellefreq)
+                                       alleleFreqs = mixtus_allelefreq)
 }
 
 sibship_genotypes = list(mixGenotypesList, impGenotypesList)
@@ -367,8 +365,8 @@ for (i in 1:nsims){
 
 # Load in results from COLONY
 number_runs = c(1, 5)
-prob_threshholds = c(1, 0.99, 0.975, 0.95)
-errors = data.frame(count = 1:160,
+prob_threshholds = c(1, 0.995, 0.99, 0.975, 0.95)
+errors = data.frame(count = 1:200,
                     numbees = 1200,
                     species = NA,
                     numFP = NA,
@@ -387,7 +385,7 @@ for (i in 1:nsims){
       for (runs in number_runs){
         
         # load in true data
-        true_data = read.csv(paste0("simulate_data/colony_assignments/test_sample_size/true_data/", species, "_set", i, "_sub0.6.csv"))
+        true_data = read.csv(paste0("simulate_data/colony_assignments/sim_data/true_data/", species, "_set", i, "_sub0.6.csv"))
         
         # make true edge lists
         true_edges = true_data %>%
@@ -402,7 +400,7 @@ for (i in 1:nsims){
         family_inferred_edges = list()
         dyad_inferred_edges = list()
         for (index in 1:runs){
-          name = paste0(species, "_set", i, "_sub0.6", "_run", index)
+          name = paste0(species, "_set", i, "_sub0.6_run", index)
           
           # first get family files
           familyfile = paste0("simulate_data/colony_assignments/test_repetition/", name, ".BestCluster")
@@ -510,7 +508,7 @@ for (i in 1:nsims){
         errors$repetition[count] = runs
         errors$data_type[count] = "family"
         
-        # first for dyads
+        # then for dyads
         errors$species[count + 1] = species
         errors$numFP[count + 1] = nrow(fp_edges_dyads)
         errors$numFN[count + 1] = nrow(fn_edges_dyads)
@@ -538,7 +536,7 @@ mixtusfamilyFPR = ggplot(errors[errors$species == "mixtus" & errors$data_type ==
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.38))
+  ylim(c(0,0.1))
 impatiensfamilyFPR = ggplot(errors[errors$species == "impatiens" & errors$data_type == "family",], aes(x = prob_thresh, y = FPR, colour = as.factor(repetition))) +
   geom_point() +
   xlab("Probability threshold") +
@@ -548,7 +546,7 @@ impatiensfamilyFPR = ggplot(errors[errors$species == "impatiens" & errors$data_t
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.38))
+  ylim(c(0,0.1))
 mixtusdyadsFPR = ggplot(errors[errors$species == "mixtus" & errors$data_type == "dyads",], aes(x = prob_thresh, y = FPR, colour = as.factor(repetition))) +
   geom_point() +
   xlab("") +
@@ -558,7 +556,7 @@ mixtusdyadsFPR = ggplot(errors[errors$species == "mixtus" & errors$data_type == 
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.38))
+  ylim(c(0,0.1))
 impatiensdyadsFPR = ggplot(errors[errors$species == "impatiens" & errors$data_type == "dyads",], aes(x = prob_thresh, y = FPR, colour = as.factor(repetition))) +
   geom_point() +
   xlab("Probability threshold") +
@@ -568,7 +566,7 @@ impatiensdyadsFPR = ggplot(errors[errors$species == "impatiens" & errors$data_ty
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.38))
+  ylim(c(0,0.1))
 mixtusfamilyFNR = ggplot(errors[errors$species == "mixtus" & errors$data_type == "family",], aes(x = prob_thresh, y = FNR, colour = as.factor(repetition))) +
   geom_point() +
   xlab("") +
@@ -578,7 +576,7 @@ mixtusfamilyFNR = ggplot(errors[errors$species == "mixtus" & errors$data_type ==
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.38))
+  ylim(c(0,0.1))
 impatiensfamilyFNR = ggplot(errors[errors$species == "impatiens" & errors$data_type == "family",], aes(x = prob_thresh, y = FNR, colour = as.factor(repetition))) +
   geom_point() +
   xlab("Probability threshold") +
@@ -588,7 +586,7 @@ impatiensfamilyFNR = ggplot(errors[errors$species == "impatiens" & errors$data_t
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.38))
+  ylim(c(0,0.1))
 mixtusdyadsFNR = ggplot(errors[errors$species == "mixtus" & errors$data_type == "dyads",], aes(x = prob_thresh, y = FNR, colour = as.factor(repetition))) +
   geom_point() +
   xlab("") +
@@ -598,7 +596,7 @@ mixtusdyadsFNR = ggplot(errors[errors$species == "mixtus" & errors$data_type == 
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.38))
+  ylim(c(0,0.1))
 impatiensdyadsFNR = ggplot(errors[errors$species == "impatiens" & errors$data_type == "dyads",], aes(x = prob_thresh, y = FNR, colour = as.factor(repetition))) +
   geom_point() +
   xlab("Probability threshold") +
@@ -608,7 +606,7 @@ impatiensdyadsFNR = ggplot(errors[errors$species == "impatiens" & errors$data_ty
     #labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.38))
+  ylim(c(0,0.1))
 
 g = ggplotGrob(mixtusfamilyFPR)
 legend_index = which(g$layout$name == "guide-box-right")
@@ -797,18 +795,329 @@ for (species in c("mixtus", "impatiens")){
 links$FNprobs <- lapply(links$FNprobs, function(x) x[x != 0])
 links$TNprobs <- lapply(links$TNprobs, function(x) x[x != 0])
 
-
+link_mixtus = links[links$species == "mixtus",]
+link_impatiens = links[links$species == "impatiens",]
 # make histogram
 png(filename = "docs/appendix_figures/noncircularity.png", width = 800, height = 600)
-hist(unlist(links$FNprobs), col = rgb(0, 0, 1, 0.5), xlim = c(0.6,1), ylim = c(0,9),
+hist(unlist(link_impatiens$FNprobs), col = rgb(0, 0, 1, 0.5), xlim = c(0.6,1), ylim = c(0,10),
      main = "", xlab = "Probability", breaks = 30)
 
-hist(unlist(links$TNprobs), col = rgb(1, 0, 0, 0.5), add = TRUE, breaks = 30)
+hist(unlist(link_impatiens$TNprobs), col = rgb(1, 0, 0, 0.5), add = TRUE, breaks = 30)
 abline(v = 0.95, col = "black", lty = 2, lwd = 2)  # lty=2 makes it dashed
 
-legend("topright", legend = c("FN", "TN"),
+legend("topleft", legend = c("FN", "TN"),
        fill = c(rgb(0, 0, 1, 0.5), rgb(1, 0, 0, 0.5)))
 dev.off()
+
+
+################################################################################
+## Incorporate noncircularity resolution into dyad workflow and compare to families
+################################################################################
+prob_threshholds = c(1, 0.995, 0.99, 0.975, 0.95)
+errors = data.frame(count = 1:100,
+                    numbees = 1200,
+                    species = NA,
+                    numFP = NA,
+                    numFN = NA,
+                    numTP = NA,
+                    total_real = NA,
+                    FPR = NA,
+                    FNR = NA,
+                    prob_thresh = NA,
+                    data_type = NA)
+count = 1
+for (i in 1:nsims){
+  for (species in c("mixtus", "impatiens")){
+    for (prob_thresh in prob_threshholds){
+      
+      # load in true data
+      true_data = read.csv(paste0("simulate_data/colony_assignments/sim_data/true_data/", species, "_set", i, "_sub0.6.csv"))
+      
+      # make true edge lists
+      true_edges = true_data %>%
+        group_by(truecolony) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      
+      # get inferred edges from appropriate COLONY output files
+      name = paste0(species, "_set", i, "_sub0.6_run1")
+        
+      ###################################
+      # FIRST BY FAMILY METHOD
+      familyfile = paste0("simulate_data/colony_assignments/test_repetition/", name, ".BestCluster")
+      family = as.data.frame(do.call(rbind, strsplit(trimws(readLines(familyfile)), "\\s+")[-1]))
+      colnames(family) = unlist(strsplit(readLines(familyfile), "\\s+")[1])
+      
+      # filter based on probability threshhold
+      family = family %>% filter(as.numeric(Probability) >= prob_thresh)
+
+      # get edge lists for family method
+      family_inferred_edges = family %>%
+        group_by(ClusterIndex) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      
+      #####################################
+      # THEN BY DYAD METHOD
+      dyadfile = paste0("simulate_data/colony_assignments/test_repetition/", name, ".FullSibDyad")
+      dyads = read.table(dyadfile, sep = ",")
+      colnames(dyads) = c("from", "to", "Probability")
+      dyads = dyads[-1,]
+      dyads$Probability = as.numeric(dyads$Probability)
+      
+      # filter based on probability threshhold
+      dyadsfiltered = dyads %>% filter(Probability >= prob_thresh)
+      
+      # add pair names
+      dyads$missing_pair = apply(
+        dyads[, c("from", "to")], 
+        1, 
+        function(x) paste(sort(x), collapse = "-")
+      )
+      
+      # get edge lists for dyads method
+      dyad_inferred_edges = dyadsfiltered[,1:2]
+      
+      # make igraph object
+      graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+      components <- decompose(graph)
+      
+      # find missing links
+      missing_links = lapply(components, function(comp) {
+        if (!is_clique(comp)){
+          # get all possible pairs of nodes (unordered)
+          nodes = V(comp)$name
+          node_pairs = t(combn(nodes, 2))
+          
+          # make a list of node pairs which are no adjacent in the component
+          missing <- apply(node_pairs, 1, function(pair) {
+            !are_adjacent(comp, pair[1], pair[2])
+          })
+          
+          # make collapsed pair names for each missing link
+          missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+            paste(sort(pair), collapse = "-")
+          })
+          
+          df = data.frame(
+            missing_pair = missing_names,
+            stringsAsFactors = FALSE
+          )
+          return(df)
+        }
+      })
+      missing_df = do.call(rbind, missing_links)
+      
+      # Maintain sib pairs that are highly likely or which are missing with P > 0.95
+      dyadsfiltered = dyads %>% filter(Probability >= prob_thresh |
+                                         (missing_pair %in% missing_df$missing_pair & Probability >= 0.95))
+      # Get new edge list
+      dyad_inferred_edges = dyadsfiltered[,1:2]
+      
+      
+      # Resolve remaining noncircularity
+      # Make new graph
+      graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+      components <- decompose(graph)
+      
+      # For each component, keep only the largest clique
+      filtered_components <- lapply(components, function(comp) {
+        if (is_clique(comp)) {
+          return(comp)
+        } else {
+          cliques <- largest_cliques(comp)
+          # randomly choose one if there's a tie
+          chosen_clique <- sample(cliques, 1)[[1]]
+          # induce subgraph on that clique
+          return(induced_subgraph(comp, chosen_clique))
+        }
+      })
+      
+      # Recombine the components into a single graph
+      final_graph = do.call(disjoint_union, filtered_components)
+      
+      # get final dyad edges
+      dyad_inferred_edges <- as.data.frame(as_edgelist(final_graph))
+      colnames(dyad_inferred_edges) = c("from", "to")
+
+      
+      #######################################
+      # combine and classify edges (FAMILY)
+      # get true positives
+      tp_edges_family = inner_join(true_edges, family_inferred_edges, by = c("from", "to"))
+      tp_edges_family$type = "TP"
+      
+      # initialize other types as FN and FP
+      true_edges$type = "FN"
+      family_inferred_edges$type = "FP"
+      
+      # remove true positives from FN and FP dataframes
+      fn_edges_family = anti_join(true_edges, tp_edges_family, by = c("from", "to"))
+      fp_edges_family = anti_join(family_inferred_edges, tp_edges_family, by = c("from", "to"))
+      
+      # combine all edges
+      all_edges_family = rbind(tp_edges_family, fn_edges_family, fp_edges_family)
+      
+      
+      #######################################
+      # combine and classify edges (DYADS)
+      # get true positives
+      tp_edges_dyads = inner_join(true_edges, dyad_inferred_edges, by = c("from", "to"))
+      tp_edges_dyads$type = "TP"
+      
+      # initialize other types as FN and FP
+      true_edges$type = "FN"
+      dyad_inferred_edges$type = "FP"
+      
+      # remove true positives from FN and FP dataframes
+      fn_edges_dyads = anti_join(true_edges, tp_edges_dyads, by = c("from", "to"))
+      fp_edges_dyads = anti_join(dyad_inferred_edges, tp_edges_dyads, by = c("from", "to"))
+      
+      # combine all edges
+      all_edges_dyads = rbind(tp_edges_dyads, fn_edges_dyads, fp_edges_dyads)
+      
+      ##########################################
+      # Record results!
+      # first for families
+      errors$species[count] = species
+      errors$numFP[count] = nrow(fp_edges_family)
+      errors$numFN[count] = nrow(fn_edges_family)
+      errors$numTP[count] = nrow(tp_edges_family)
+      errors$total_real[count] = nrow(tp_edges_family) + nrow(fn_edges_family)
+      errors$FPR[count] = nrow(fp_edges_family) / (nrow(tp_edges_family) + nrow(fp_edges_family))
+      errors$FNR[count] = nrow(fn_edges_family) / (nrow(tp_edges_family) + nrow(fn_edges_family))
+      errors$prob_thresh[count] = prob_thresh
+      errors$data_type[count] = "family"
+      
+      # then for dyads
+      errors$species[count + 1] = species
+      errors$numFP[count + 1] = nrow(fp_edges_dyads)
+      errors$numFN[count + 1] = nrow(fn_edges_dyads)
+      errors$numTP[count + 1] = nrow(tp_edges_dyads)
+      errors$total_real[count + 1] = nrow(tp_edges_dyads) + nrow(fn_edges_dyads)
+      errors$FPR[count + 1] = nrow(fp_edges_dyads) / (nrow(tp_edges_dyads) + nrow(fp_edges_dyads))
+      errors$FNR[count + 1] = nrow(fn_edges_dyads) / (nrow(tp_edges_dyads) + nrow(fn_edges_dyads))
+      errors$prob_thresh[count + 1] = prob_thresh
+      errors$data_type[count + 1] = "dyads"
+      
+      
+      count = count + 2
+    }
+  }
+}  
+
+
+mixtusfamilyFPR = ggplot(errors[errors$species == "mixtus" & errors$data_type == "family",], aes(x = prob_thresh, y = FPR, alpha = 0.4)) +
+  geom_point() +
+  xlab("") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "COLONY \n runs") +
+  theme_minimal() +
+  ylim(c(0,0.1)) +
+  theme(legend.position = "none")
+impatiensfamilyFPR = ggplot(errors[errors$species == "impatiens" & errors$data_type == "family",], aes(x = prob_thresh, y = FPR, alpha = 0.4)) +
+  geom_point() +
+  xlab("Probability threshold") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "COLONY \n runs") +
+  theme_minimal() +
+  ylim(c(0,0.1)) +
+  theme(legend.position = "none")
+mixtusdyadsFPR = ggplot(errors[errors$species == "mixtus" & errors$data_type == "dyads",], aes(x = prob_thresh, y = FPR, alpha = 0.4)) +
+  geom_point() +
+  xlab("") +
+  ylab("") +
+  labs(colour = "COLONY \n runs") +
+  theme_minimal() +
+  ylim(c(0,0.1)) +
+  theme(legend.position = "none")
+impatiensdyadsFPR = ggplot(errors[errors$species == "impatiens" & errors$data_type == "dyads",], aes(x = prob_thresh, y = FPR, alpha = 0.4)) +
+  geom_point() +
+  xlab("Probability threshold") +
+  ylab("") +
+  labs(colour = "COLONY \n runs") +
+  theme_minimal() +
+  ylim(c(0,0.1)) +
+  theme(legend.position = "none")
+mixtusfamilyFNR = ggplot(errors[errors$species == "mixtus" & errors$data_type == "family",], aes(x = prob_thresh, y = FNR, alpha = 0.4)) +
+  geom_point() +
+  xlab("") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
+  labs(colour = "COLONY \n runs") +
+  theme_minimal() +
+  ylim(c(0,0.1)) +
+  theme(legend.position = "none")
+impatiensfamilyFNR = ggplot(errors[errors$species == "impatiens" & errors$data_type == "family",], aes(x = prob_thresh, y = FNR, alpha = 0.4)) +
+  geom_point() +
+  xlab("Probability threshold") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
+  labs(colour = "COLONY \n runs") +
+  theme_minimal() +
+  ylim(c(0,0.1)) +
+  theme(legend.position = "none")
+mixtusdyadsFNR = ggplot(errors[errors$species == "mixtus" & errors$data_type == "dyads",], aes(x = prob_thresh, y = FNR, alpha = 0.4)) +
+  geom_point() +
+  xlab("") +
+  ylab("") +
+  labs(colour = "COLONY \n runs") +
+  theme_minimal() +
+  ylim(c(0,0.1)) +
+  theme(legend.position = "none")
+impatiensdyadsFNR = ggplot(errors[errors$species == "impatiens" & errors$data_type == "dyads",], aes(x = prob_thresh, y = FNR, alpha = 0.4)) +
+  geom_point() +
+  xlab("Probability threshold") +
+  ylab("") +
+  labs(colour = "COLONY \n runs") +
+  theme_minimal() +
+  ylim(c(0,0.1)) +
+  theme(legend.position = "none")
+
+# make some text grobs
+imp = textGrob(
+  expression(italic("Bombus impatiens")),
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+mix = textGrob(
+  expression(italic("Bombus mixtus")),
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+family = textGrob(
+  "Best Family Clusters",
+  gp = gpar(fontsize = 12, col = "black")
+)
+dyad = textGrob(
+  "Full Sibling Dyads",
+  gp = gpar(fontsize = 12, col = "black")
+)
+
+
+# arrange and plot
+FPR_grid = grid.arrange(family, nullGrob(), dyad, nullGrob(),
+                        mixtusfamilyFPR, nullGrob(), mixtusdyadsFPR, mix,
+                        impatiensfamilyFPR, nullGrob(), impatiensdyadsFPR, imp, ncol =4, widths = c(8,1,8,1), heights = c(1,8,8))
+FPR_grid = ggdraw() +
+  draw_plot(FPR_grid, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.5, 0, 0.5), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/fpr_dyadsvfamilies.jpg", FPR_grid, height = 1000, width = 3000, units = "px")
+
+
+FNR_grid = grid.arrange(family, nullGrob(), dyad, nullGrob(),
+                        mixtusfamilyFNR, nullGrob(), mixtusdyadsFNR, mix,
+                        impatiensfamilyFNR, nullGrob(), impatiensdyadsFNR, imp, ncol =4, widths = c(8,1,8,1), heights = c(1,8,8))
+FNR_grid = ggdraw() +
+  draw_plot(FNR_grid, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.5, 0, 0.5), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/fpr_dyadsvfamilies.jpg", FNR_grid, height = 1000, width = 3000, units = "px")
 
 
 ################################################################################
@@ -818,7 +1127,7 @@ dev.off()
 mixtus_errors_filepath = "simulate_data/colony_assignments/sim_data/for_colony/mixtus_error_rates.txt"
 impatiens_errors_filepath = "simulate_data/colony_assignments/sim_data/for_colony/impatiens_error_rates.txt"
 
-for (i in 1:nsim){
+for (i in 1:nsims){
   for (j in 1:length(subsets)){
     for (k in c("exclusion", "no_exclusion")){
     # get sample size, working directory
@@ -881,24 +1190,22 @@ errors_dyad = data.frame(count = 1:100,
                     FPR = NA,
                     FNR = NA)
 count = 1
-for (i in 1:nsim){
+for (i in 1:nsims){
   for (j in 1:length(subsets)){
     for (k in c("exclusion", "no_exclusion")){
       for (species in c("mixtus", "impatiens")){
         name = paste0(species, "_set", i, "_sub", subsets[j], "_", k)
         filename = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".FullSibDyad")
-        colony_output = read.table(filename, sep = ",")
-        colnames(colony_output) = c("from", "to", "Probability")
-        colony_output = colony_output[-1,]
+        dyads = read.table(filename, sep = ",")
+        colnames(dyads) = c("from", "to", "Probability")
+        dyads = dyads[-1,]
+        dyads$Probability = as.numeric(dyads$Probability)
         true_data = read.csv(paste0("simulate_data/colony_assignments/sim_data/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
         
         
         # set probability threshold
         prob_thresh = 0.995
-        
-        # filter colony outputs
-        colony_output = colony_output %>% filter(as.numeric(Probability) >= prob_thresh)
-        
+
         # make edge lists
         true_edges = true_data %>%
           group_by(truecolony) %>%
@@ -908,7 +1215,82 @@ for (i in 1:nsim){
                  to = map_chr(pairs, 2)) %>%
           dplyr::select(from, to)
         
-        inferred_edges = colony_output[,1:2]
+
+        # filter based on probability threshhold
+        dyadsfiltered = dyads %>% filter(Probability >= prob_thresh)
+        
+        # add pair names
+        dyads$missing_pair = apply(
+          dyads[, c("from", "to")], 
+          1, 
+          function(x) paste(sort(x), collapse = "-")
+        )
+        
+        # get edge lists for dyads method
+        dyad_inferred_edges = dyadsfiltered[,1:2]
+        
+        # make igraph object
+        graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+        components <- decompose(graph)
+        
+        # find missing links
+        missing_links = lapply(components, function(comp) {
+          if (!is_clique(comp)){
+            # get all possible pairs of nodes (unordered)
+            nodes = V(comp)$name
+            node_pairs = t(combn(nodes, 2))
+            
+            # make a list of node pairs which are no adjacent in the component
+            missing <- apply(node_pairs, 1, function(pair) {
+              !are_adjacent(comp, pair[1], pair[2])
+            })
+            
+            # make collapsed pair names for each missing link
+            missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+              paste(sort(pair), collapse = "-")
+            })
+            
+            df = data.frame(
+              missing_pair = missing_names,
+              stringsAsFactors = FALSE
+            )
+            return(df)
+          }
+        })
+        missing_df = do.call(rbind, missing_links)
+        
+        # Maintain sib pairs that are highly likely or which are missing with P > 0.95
+        dyadsfiltered = dyads %>% filter(Probability >= prob_thresh |
+                                           (missing_pair %in% missing_df$missing_pair & Probability >= 0.95))
+        # Get new edge list
+        dyad_inferred_edges = dyadsfiltered[,1:2]
+        
+        
+        # Resolve remaining noncircularity
+        # Make new graph
+        graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+        components <- decompose(graph)
+        
+        # For each component, keep only the largest clique
+        filtered_components <- lapply(components, function(comp) {
+          if (is_clique(comp)) {
+            return(comp)
+          } else {
+            cliques <- largest_cliques(comp)
+            # randomly choose one if there's a tie
+            chosen_clique <- sample(cliques, 1)[[1]]
+            # induce subgraph on that clique
+            return(induced_subgraph(comp, chosen_clique))
+          }
+        })
+        
+        # Recombine the components into a single graph
+        final_graph = do.call(disjoint_union, filtered_components)
+        
+        # get final dyad edges
+        inferred_edges <- as.data.frame(as_edgelist(final_graph))
+        colnames(inferred_edges) = c("from", "to")
+        
         
         # combine and classify edges by type (FN, FP, TP)
         # get true positives
@@ -1049,9 +1431,9 @@ ggplot(errors_dyad) +
   geom_point(aes(x = numbees, y = numFP, color = "Number FP", shape = exclusion)) +
   geom_point(aes(x = numbees, y = numFN, color = "Number FN", shape = exclusion)) +
   geom_point(aes(x = numbees, y = total_real, color = "Total true", shape = exclusion)) +
-  xlab("Simulation and COLONY Conditions") +
+  xlab("Number of Bees") +
   ylab("Number of inferred or true relationships") +
-  labs(title = "Sibship inclusion: P = 0.99") +
+  labs(title = "Sibship inclusion: P = 0.995") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
@@ -1064,7 +1446,7 @@ mixtus_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_
 impatiens_errors_filepath = "simulate_data/colony_assignments/test_sample_size/for_colony/impatiens_error_rates.txt"
 workingdir = "/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging/simulate_data/colony_assignments/Colony2_Linux"
 
-for (i in 1:nsim){
+for (i in 1:nsims){
   for (j in 1:length(subsets)){
     for (k in c("exclusion")){
       # get sample size, working directory
@@ -1124,7 +1506,7 @@ errors_dyad = data.frame(count = 1:100,
                          FNR = NA,
                          sibprior = NA)
 count = 1
-for (i in 1:nsim){
+for (i in 1:nsims){
   for (j in 1:length(subsets)){
     for (species in c("mixtus", "impatiens")){
       name = paste0(species, "_set", i, "_sub", subsets[j], "_exclusion")
@@ -1134,18 +1516,20 @@ for (i in 1:nsim){
       noprior = read.table(paste0("simulate_data/colony_assignments/test_sibprior/", name, "_nosibprior.FullSibDyad"), sep = ",")
       colnames(noprior) = c("from", "to", "Probability")
       noprior = noprior[-1,]
+      noprior$Probability = as.numeric(noprior$Probability)
       
       # load in with prior data
       prior = read.table(paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".FullSibDyad"), sep = ",")
       colnames(prior) = c("from", "to", "Probability")
       prior = prior[-1,]
+      prior$Probability = as.numeric(prior$Probability)
       
       # set probability threshold
       prob_thresh = 0.995
       
       # filter colony outputs
-      noprior = noprior %>% filter(as.numeric(Probability) >= prob_thresh)
-      prior = prior %>% filter(as.numeric(Probability) >= prob_thresh)
+      nopriorfiltered = noprior %>% filter(as.numeric(Probability) >= prob_thresh)
+      priorfiltered = prior %>% filter(as.numeric(Probability) >= prob_thresh)
       
       # make edge lists
       true_edges = true_data %>%
@@ -1156,8 +1540,152 @@ for (i in 1:nsim){
                to = map_chr(pairs, 2)) %>%
         dplyr::select(from, to)
       
-      inferred_noprior = noprior[,1:2]
-      inferred_prior = prior[,1:2]
+      # Resolve noncircularities for no prior
+      # add pair names
+      noprior$missing_pair = apply(
+        noprior[, c("from", "to")], 
+        1, 
+        function(x) paste(sort(x), collapse = "-")
+      )
+      
+      # get edge lists for dyads method
+      dyad_inferred_edges = nopriorfiltered[,1:2]
+      
+      # make igraph object
+      graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+      components <- decompose(graph)
+      
+      # find missing links
+      missing_links = lapply(components, function(comp) {
+        if (!is_clique(comp)){
+          # get all possible pairs of nodes (unordered)
+          nodes = V(comp)$name
+          node_pairs = t(combn(nodes, 2))
+          
+          # make a list of node pairs which are no adjacent in the component
+          missing <- apply(node_pairs, 1, function(pair) {
+            !are_adjacent(comp, pair[1], pair[2])
+          })
+          
+          # make collapsed pair names for each missing link
+          missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+            paste(sort(pair), collapse = "-")
+          })
+          
+          df = data.frame(
+            missing_pair = missing_names,
+            stringsAsFactors = FALSE
+          )
+          return(df)
+        }
+      })
+      missing_df = do.call(rbind, missing_links)
+      
+      # Maintain sib pairs that are highly likely or which are missing with P > 0.95
+      dyadsfiltered = noprior %>% filter(Probability >= prob_thresh |
+                                         (missing_pair %in% missing_df$missing_pair & Probability >= 0.95))
+      # Get new edge list
+      dyad_inferred_edges = dyadsfiltered[,1:2]
+      
+      
+      # Resolve remaining noncircularity
+      # Make new graph
+      graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+      components <- decompose(graph)
+      
+      # For each component, keep only the largest clique
+      filtered_components <- lapply(components, function(comp) {
+        if (is_clique(comp)) {
+          return(comp)
+        } else {
+          cliques <- largest_cliques(comp)
+          # randomly choose one if there's a tie
+          chosen_clique <- sample(cliques, 1)[[1]]
+          # induce subgraph on that clique
+          return(induced_subgraph(comp, chosen_clique))
+        }
+      })
+      
+      # Recombine the components into a single graph
+      final_graph = do.call(disjoint_union, filtered_components)
+      
+      # get final dyad edges
+      inferred_noprior <- as.data.frame(as_edgelist(final_graph))
+      colnames(inferred_noprior) = c("from", "to")
+      
+      
+      # Resolve noncircularities for with prior
+      # add pair names
+      prior$missing_pair = apply(
+        prior[, c("from", "to")], 
+        1, 
+        function(x) paste(sort(x), collapse = "-")
+      )
+      
+      # get edge lists for dyads method
+      dyad_inferred_edges = priorfiltered[,1:2]
+      
+      # make igraph object
+      graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+      components <- decompose(graph)
+      
+      # find missing links
+      missing_links = lapply(components, function(comp) {
+        if (!is_clique(comp)){
+          # get all possible pairs of nodes (unordered)
+          nodes = V(comp)$name
+          node_pairs = t(combn(nodes, 2))
+          
+          # make a list of node pairs which are no adjacent in the component
+          missing <- apply(node_pairs, 1, function(pair) {
+            !are_adjacent(comp, pair[1], pair[2])
+          })
+          
+          # make collapsed pair names for each missing link
+          missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+            paste(sort(pair), collapse = "-")
+          })
+          
+          df = data.frame(
+            missing_pair = missing_names,
+            stringsAsFactors = FALSE
+          )
+          return(df)
+        }
+      })
+      missing_df = do.call(rbind, missing_links)
+      
+      # Maintain sib pairs that are highly likely or which are missing with P > 0.95
+      dyadsfiltered = prior %>% filter(Probability >= prob_thresh |
+                                         (missing_pair %in% missing_df$missing_pair & Probability >= 0.95))
+      # Get new edge list
+      dyad_inferred_edges = dyadsfiltered[,1:2]
+      
+      
+      # Resolve remaining noncircularity
+      # Make new graph
+      graph = graph_from_data_frame(dyad_inferred_edges, directed = FALSE)
+      components <- decompose(graph)
+      
+      # For each component, keep only the largest clique
+      filtered_components <- lapply(components, function(comp) {
+        if (is_clique(comp)) {
+          return(comp)
+        } else {
+          cliques <- largest_cliques(comp)
+          # randomly choose one if there's a tie
+          chosen_clique <- sample(cliques, 1)[[1]]
+          # induce subgraph on that clique
+          return(induced_subgraph(comp, chosen_clique))
+        }
+      })
+      
+      # Recombine the components into a single graph
+      final_graph = do.call(disjoint_union, filtered_components)
+      
+      # get final dyad edges
+      inferred_prior <- as.data.frame(as_edgelist(final_graph))
+      colnames(inferred_prior) = c("from", "to")
       
       # combine and classify edges by type (FN, FP, TP)
       
@@ -1225,46 +1753,46 @@ for (i in 1:nsim){
 
 ###### Make some plots!
 
-mixtus_FPR = ggplot(errors_dyad[errors_dyad$species=="mixtus",], aes(x = numbees, y = FPR, colour = sibprior)) +
+mixtus_FPR = ggplot(errors_dyad[errors_dyad$species=="mixtus",], aes(x = numbees, y = FPR, colour = sibprior, alpha = 0.4)) +
   geom_point() +
   xlab("") +
   ylab(expression(FPR == frac(FP, TP + FP))) +
   labs(colour = "Sibship Prior") +
   scale_color_manual(
-    #labels = c("Excluded", "Not excluded"),
+    labels = c("No prior", "Prior"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.5))
+  ylim(c(0,0.15))
 
-mixtus_FNR = ggplot(errors_dyad[errors_dyad$species=="mixtus",], aes(x = numbees, y = FNR, colour = sibprior)) +
+mixtus_FNR = ggplot(errors_dyad[errors_dyad$species=="mixtus",], aes(x = numbees, y = FNR, colour = sibprior, alpha = 0.4)) +
   geom_point() +
   xlab("Number of Observed Bees") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
   labs(colour = "Sibship Prior") +
   scale_color_manual(
-    #labels = c("Excluded", "Not excluded"),
+    labels = c("No prior", "Prior"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
   ylim(c(0,0.1))
 
-impatiens_FPR = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes(x = numbees, y = FPR, colour = sibprior)) +
+impatiens_FPR = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes(x = numbees, y = FPR, colour = sibprior, alpha = 0.4)) +
   geom_point() +
   xlab("") +
   ylab("") +
   labs(colour = "Sibship Prior") +
   scale_color_manual(
-    #labels = c("Excluded", "Not excluded"),
+    labels = c("No prior", "Prior"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal() +
-  ylim(c(0,0.5))
+  ylim(c(0,0.15))
 
-impatiens_FNR = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes(x = numbees, y = FNR, colour = sibprior)) +
+impatiens_FNR = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes(x = numbees, y = FNR, colour = sibprior, alpha = 0.4)) +
   geom_point() +
   xlab("Number of Observed Bees") +
   ylab("") +
   labs(colour = "Sibship Prior") +
   scale_color_manual(
-    #labels = c("Excluded", "Not excluded"),
+    labels = c("No prior", "Prior"),
     values = c("darkslateblue", "salmon")) +
   theme_minimal()  +
   ylim(c(0,0.1))
@@ -1272,7 +1800,9 @@ impatiens_FNR = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes(x = n
 
 # Make some grid plots for appendix
 #get legend
-g = ggplotGrob(mixtus_FPR)
+mixtus_FPR_noalpha = mixtus_FPR + guides(alpha = "none")
+
+g = ggplotGrob(mixtus_FPR_noalpha)
 legend_index = which(g$layout$name == "guide-box-right")
 legend = g$grobs[[legend_index]]
 
@@ -1304,8 +1834,8 @@ fnr = textGrob(
 # arrange and plot
 grid = plot_grid(
   mix,        nullGrob(),      imp,        nullGrob(),
-  mixtus_FPR_dyads, nullGrob(), impatiens_FPR_dyads, fpr,
-  mixtus_FNR_dyads, nullGrob(), impatiens_FNR_dyads, fnr,
+  mixtus_FPR, nullGrob(), impatiens_FPR, fpr,
+  mixtus_FNR, nullGrob(), impatiens_FNR, fnr,
   ncol = 4,
   rel_widths  = c(8, 1, 8, 1),
   rel_heights = c(1, 8, 8),
@@ -1317,8 +1847,231 @@ grid = ggdraw() +
   draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
                   x = c(0, 0.4, 0, 0.4), 
                   y = c(1, 1, 0.53, 0.53))
-ggsave("docs/appendix_figures/sibprior.jpg", grid, height = 1000, width = 3000, units = "px")
+ggsave("docs/appendix_figures/sibprior_dyads.jpg", grid, height = 1000, width = 3000, units = "px")
 
+### Check error rates with families...
+errors_family = data.frame(count = 1:100,
+                         numbees = NA,
+                         species = NA,
+                         numFP = NA,
+                         numFN = NA,
+                         numTP = NA,
+                         total_real = NA,
+                         FPR = NA,
+                         FNR = NA,
+                         sibprior = NA)
+count = 1
+for (i in 1:nsims){
+  for (j in 1:length(subsets)){
+    for (species in c("mixtus", "impatiens")){
+      name = paste0(species, "_set", i, "_sub", subsets[j], "_exclusion")
+      true_data = read.csv(paste0("simulate_data/colony_assignments/sim_data/true_data/", species, "_set", i, "_sub", subsets[j], ".csv"))
+      
+      # load in no prior data
+      nopriorfile = paste0("simulate_data/colony_assignments/test_sibprior/", name, "_nosibprior.BestCluster")
+      noprior = as.data.frame(do.call(rbind, strsplit(trimws(readLines(nopriorfile)), "\\s+")[-1]))
+      colnames(noprior) = unlist(strsplit(readLines(nopriorfile), "\\s+")[1])
+      
+      # load in with prior data
+      priorfile = paste0("simulate_data/colony_assignments/test_sample_size/colony_output/", name, ".BestCluster")
+      prior = as.data.frame(do.call(rbind, strsplit(trimws(readLines(priorfile)), "\\s+")[-1]))
+      colnames(prior) = unlist(strsplit(readLines(priorfile), "\\s+")[1])
+      
+      
+      # set probability threshold
+      prob_thresh = 0.995
+      
+      # filter colony outputs
+      noprior = noprior %>% filter(as.numeric(Probability) >= prob_thresh)
+      prior = prior %>% filter(as.numeric(Probability) >= prob_thresh)
+      
+      # make edge lists
+      true_edges = true_data %>%
+        group_by(truecolony) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(individual, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      
+      # get edge lists for family method
+      inferred_noprior = noprior %>%
+        group_by(ClusterIndex) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      
+      inferred_prior = prior %>%
+        group_by(ClusterIndex) %>%
+        filter(n() > 1) %>%
+        summarise(pairs = combn(OffspringID, 2, simplify = FALSE), .groups = "drop") %>%
+        mutate(from = map_chr(pairs, 1),
+               to = map_chr(pairs, 2)) %>%
+        dplyr::select(from, to)
+      
+      # combine and classify edges by type (FN, FP, TP)
+      
+      ###################################
+      # NO PRIOR
+      # get true positives
+      tp_edges = inner_join(true_edges, inferred_noprior, by = c("from", "to"))
+      tp_edges$type = "TP"
+      
+      # initialize other types as FN and FP
+      true_edges$type = "FN"
+      inferred_noprior$type = "FP"
+      
+      # remove true positives from FN and FP dataframes
+      fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+      fp_edges = anti_join(inferred_noprior, tp_edges, by = c("from", "to"))
+      
+      # combine all edges
+      all_edges = rbind(tp_edges, fn_edges, fp_edges)
+      
+      # record FPR and FNR
+      errors_family$numbees[count] = 2000*subsets[j]
+      errors_family$species[count] = species
+      errors_family$FPR[count] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+      errors_family$FNR[count] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+      errors_family$total_real[count] = nrow(tp_edges) + nrow(fn_edges)
+      errors_family$numFP[count] = nrow(fp_edges)
+      errors_family$numFN[count] = nrow(fn_edges)
+      errors_family$numTP[count] = nrow(tp_edges)
+      errors_family$sibprior[count] = "no_prior"
+      
+      ###################################
+      # PRIOR
+      # get true positives
+      tp_edges = inner_join(true_edges, inferred_prior, by = c("from", "to"))
+      tp_edges$type = "TP"
+      
+      # initialize other types as FN and FP
+      true_edges$type = "FN"
+      inferred_prior$type = "FP"
+      
+      # remove true positives from FN and FP dataframes
+      fn_edges = anti_join(true_edges, tp_edges, by = c("from", "to"))
+      fp_edges = anti_join(inferred_prior, tp_edges, by = c("from", "to"))
+      
+      # combine all edges
+      all_edges = rbind(tp_edges, fn_edges, fp_edges)
+      
+      # record FPR and FNR
+      errors_family$numbees[count + 1] = 2000*subsets[j]
+      errors_family$species[count + 1] = species
+      errors_family$FPR[count + 1] = nrow(fp_edges) / (nrow(tp_edges) + nrow(fp_edges))
+      errors_family$FNR[count + 1] = nrow(fn_edges) / (nrow(tp_edges) + nrow(fn_edges))
+      errors_family$total_real[count + 1] = nrow(tp_edges) + nrow(fn_edges)
+      errors_family$numFP[count + 1] = nrow(fp_edges)
+      errors_family$numFN[count + 1] = nrow(fn_edges)
+      errors_family$numTP[count + 1] = nrow(tp_edges)
+      errors_family$sibprior[count + 1] = "prior"
+      
+      count = count +2
+    }
+  }
+}  
+
+
+###### Make some plots!
+
+mixtus_FPR = ggplot(errors_family[errors_family$species=="mixtus",], aes(x = numbees, y = FPR, colour = sibprior, alpha = 0.4)) +
+  geom_point() +
+  xlab("") +
+  ylab(expression(FPR == frac(FP, TP + FP))) +
+  labs(colour = "Sibship Prior") +
+  scale_color_manual(
+    labels = c("No prior", "Prior"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal() +
+  ylim(c(0,0.6))
+
+mixtus_FNR = ggplot(errors_family[errors_family$species=="mixtus",], aes(x = numbees, y = FNR, colour = sibprior, alpha = 0.4)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab(expression(FNR == frac(FN, TP + FN))) +
+  labs(colour = "Sibship Prior") +
+  scale_color_manual(
+    labels = c("No prior", "Prior"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal() +
+  ylim(c(0,0.12))
+
+impatiens_FPR = ggplot(errors_family[errors_family$species=="impatiens",], aes(x = numbees, y = FPR, colour = sibprior, alpha = 0.4)) +
+  geom_point() +
+  xlab("") +
+  ylab("") +
+  labs(colour = "Sibship Prior") +
+  scale_color_manual(
+    labels = c("No prior", "Prior"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal() +
+  ylim(c(0,0.6))
+
+impatiens_FNR = ggplot(errors_family[errors_family$species=="impatiens",], aes(x = numbees, y = FNR, colour = sibprior, alpha = 0.4)) +
+  geom_point() +
+  xlab("Number of Observed Bees") +
+  ylab("") +
+  labs(colour = "Sibship Prior") +
+  scale_color_manual(
+    labels = c("No prior", "Prior"),
+    values = c("darkslateblue", "salmon")) +
+  theme_minimal() + 
+  ylim(c(0,0.12))
+
+
+# Make some grid plots for appendix
+#get legend
+mixtus_FPR_noalpha = mixtus_FPR + guides(alpha = "none")
+
+g = ggplotGrob(mixtus_FPR_noalpha)
+legend_index = which(g$layout$name == "guide-box-right")
+legend = g$grobs[[legend_index]]
+
+# remove legend from plots
+mixtus_FPR = mixtus_FPR + theme(legend.position = "none")
+mixtus_FNR = mixtus_FNR + theme(legend.position = "none")
+impatiens_FPR = impatiens_FPR + theme(legend.position = "none")
+impatiens_FNR = impatiens_FNR + theme(legend.position = "none")
+
+# make some text grobs
+imp = textGrob(
+  expression(italic("Bombus impatiens")),
+  gp = gpar(fontsize = 12, col = "black")
+)
+mix = textGrob(
+  expression(italic("Bombus mixtus")),
+  gp = gpar(fontsize = 12, col = "black")
+)
+fpr = textGrob(
+  "False Positives",
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+fnr = textGrob(
+  "False Negatives",
+  gp = gpar(fontsize = 12, col = "black"), rot = 270
+)
+
+
+# arrange and plot
+grid = plot_grid(
+  mix,        nullGrob(),      imp,        nullGrob(),
+  mixtus_FPR, nullGrob(), impatiens_FPR, fpr,
+  mixtus_FNR, nullGrob(), impatiens_FNR, fnr,
+  ncol = 4,
+  rel_widths  = c(8, 1, 8, 1),
+  rel_heights = c(1, 8, 8),
+  align = "hv", axis = "tblr"
+)
+grid = grid.arrange(grid, legend, ncol = 2, widths = c(8,2))
+grid = ggdraw() +
+  draw_plot(grid, 0.05, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.4, 0, 0.4), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/sibprior_families.jpg", grid, height = 1000, width = 3000, units = "px")
 
 ################################################################################
 ## Test multiple paternity
@@ -1345,7 +2098,7 @@ saveRDS(sibship_data, paste0("simulate_data/colony_assignments/test_effective_pa
 # Simulate genotypes
 for (i in 1:length(paternity_probs)){
   # simulate impatiens genotypes
-  impGenotypesList[[i]] = simulateGenotypes(alleleFreqs = impatiens_alellefreq,
+  impGenotypesList[[i]] = simulateGenotypes(alleleFreqs = impatiens_allelefreq,
                                             colonyDataDetected = sibship_data[[4]],
                                             observationMatrix = sibship_data[[2]],
                                             trapData = sibship_data[[5]],
@@ -1359,7 +2112,7 @@ for (i in 1:length(paternity_probs)){
             file = paste0("simulate_data/colony_assignments/test_effective_paternity/true_data/impatiens_pp", paternity_probs[i], ".csv"))
   
   # simulate mixtus genotypes
-  mixGenotypesList[[i]] = simulateGenotypes(alleleFreqs = mixtus_alellefreq,
+  mixGenotypesList[[i]] = simulateGenotypes(alleleFreqs = mixtus_allelefreq,
                                             colonyDataDetected = sibship_data[[4]],
                                             observationMatrix = sibship_data[[2]],
                                             trapData = sibship_data[[5]],
@@ -1385,13 +2138,13 @@ saveRDS(all_data, "simulate_data/colony_assignments/test_effective_paternity/fir
 # mixGenotypesList = all_data[[7]]
 
 # Construct error rates files -- all zeros for now
-imp_columns = unique(impatiens_alellefreq$MarkerID)
+imp_columns = unique(impatiens_allelefreq$MarkerID)
 impatiens_error_rates = as.data.frame(matrix(0, nrow = 4, ncol = length(imp_columns)))
 impatiens_error_rates[1,] = imp_columns
 write.table(impatiens_error_rates, "simulate_data/colony_assignments/test_effective_paternity/for_colony/impatiens_error_rates.txt", 
             sep= ",", col.names = FALSE, row.names = FALSE, quote = FALSE)
 
-mix_columns = unique(mixtus_alellefreq$MarkerID)
+mix_columns = unique(mixtus_allelefreq$MarkerID)
 mixtus_error_rates = as.data.frame(matrix(0, nrow = 4, ncol = length(mix_columns)))
 mixtus_error_rates[1,] = mix_columns
 write.table(mixtus_error_rates, "simulate_data/colony_assignments/test_effective_paternity/for_colony/mixtus_error_rates.txt", 
@@ -1674,13 +2427,13 @@ ggsave("docs/appendix_figures/multiplepaternity.jpg", grid, height = 1000, width
 # Check: could we improve this tendency by simulating a fake data set with twice as many loci?
 
 # Load in allele frequency data
-impatiens_alellefreq = read.csv("colony_assignments/Colony2_Linux/impatiens2023.AlleleFreq")
-mixtus_alellefreq = read.csv("colony_assignments/Colony2_Linux/mixtus2023.AlleleFreq")
+impatiens_allelefreq = read.csv("colony_assignments/Colony2_Linux/impatiens2023.AlleleFreq")
+mixtus_allelefreq = read.csv("colony_assignments/Colony2_Linux/mixtus2023.AlleleFreq")
 
 # combine frequency data!
-impatiens_alellefreq$MarkerID = paste0("impatiens_", impatiens_alellefreq$MarkerID)
-mixtus_alellefreq$MarkerID = paste0("mixtus_", mixtus_alellefreq$MarkerID)
-combined_allelefreq = rbind(impatiens_alellefreq, mixtus_alellefreq)
+impatiens_allelefreq$MarkerID = paste0("impatiens_", impatiens_allelefreq$MarkerID)
+mixtus_allelefreq$MarkerID = paste0("mixtus_", mixtus_allelefreq$MarkerID)
+combined_allelefreq = rbind(impatiens_allelefreq, mixtus_allelefreq)
 
 # Create a set of simulations to perform
 paternity_probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)
