@@ -1,6 +1,5 @@
-// Exponential distance decay with landscape as log-linear multiplier on length scale
-// J. Melanson
-// July 28, 2025
+//Pope & Jha, 2017, Cons. Genetics
+// Modified to use rho rather than beta parametrization of length scale
 
 data {
 int<lower=1> C; // number of colonies 
@@ -10,20 +9,18 @@ int y[C, K]; // counts of bees in traps
 real lowerbound; // uniform prior on colony location 
 real upperbound; // uniform prior on colony location
 vector[K] floral; // floral quality at traps
-vector[C] landscape; // landscape metric around each colony
-// real nestrange; // soft prior on *detected* colony locations
-real<lower=0> rho_center; //prior median for length parameter, !! on log scale!!
-real<lower=0> rho_sd; //prior sd of length parameter, !!on log scale!!
 real<lower=0> priorVa; // prior variance on std deviations
 real<lower=0> priorCo; // prior variance on other coefficients
+real<lower=0> rho_center; //prior median for length parameter, !! on log scale!!
+real<lower=0> rho_sd; //prior sd of length parameter, !!on log scale!!
 }
 
 parameters { // see text for definitions
-real<lower=0> rho;
+real<lower=0> rho; 
 real<lower=0> sigma;
 real<lower=0> tau; 
-real alpha;
 real theta;
+real mu; 
 vector[K] eps; 
 vector[C] zeta;
 array [C] vector<lower=lowerbound, upper=upperbound>[2] delta;
@@ -44,40 +41,63 @@ model {
 // temporary declarations
 matrix[C,K] dis; //distance from colony C to trap K
 matrix[C,K] lambda; //rate of captures for colony C at trap K
-vector[K] multi_probs; //multinomial probability of capture from colony C at trap K
+vector[K] multi_probs; //multinomial probability of capture from colony C at trap K at timepoint T
 
 // priors
 sigma ~ normal(0, priorVa);
 tau ~ normal(0, priorVa); 
 rho ~ lognormal(rho_center, rho_sd);
+mu ~ normal(0, priorCo); 
 theta ~ normal(0, priorCo);
-alpha ~ normal(0, priorCo);
 
 // random effects for traps
 eps ~ normal(0, 1); 
 zeta ~ normal(0, 1);
 
-
-
-    for(i in 1:C){
-      
-      //prior on colony locations
-      // delta[i] ~ normal(750, nestrange);
-      
-      for(k in 1:K){
-        
-        // calculate intensity
+// calculate intensity
+  for (l in 1:L) { // iterate over landscapes
+    for (k in 1:K) { // iterate over traps
+      for (i in 1:C) { // iterate over colonies
         dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-        lambda[i, k] = dis[i,k]/(-rho*exp(alpha*landscape[i])) + theta*floral[k] + zeta_scale[i] + eps_scale[k];
+      
+        for (t in 1:T){ // iterate over timepoints
+          lambda[i, k] = (-dis[i,k]/rho) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+          fq[trapnum, t] = normal_rng(0,1);
+          yobs[i, trapnum, t] = poisson_log_rng(alpha - 0.5*d / square(rho) + theta*fq[trapnum, t]);
+          // yobs[i, trapnum, t] = poisson_log_rng(alpha - 0.5*d / (square(rho)*exp(theta*fq[trapnum, t])));
+        }
       }
-    // compute  multinomial probabilities for colony i
-    multi_probs = softmax(lambda[i,]');
+    }
+  }
+}
     
-    // add to target likelihood (trap counts for colony i)
-    y[i,] ~ multinomial(multi_probs);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// calculate intensity
+    for(i in 1:C){
+      for(k in 1:K){
+        dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
+        lambda[i, k] = (-dis[i,k]/rho) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+      }
+      // compute  multinomial probabilities for colony i
+      multi_probs = softmax(lambda[i,]');
+    
+      // add to target likelihood (trap counts for colony i)
+      y[i,] ~ multinomial(multi_probs);
     }
 }
-
 
 // generated quantities {
 //   vector[C] colony_dist;        // Declare estimated colony foraging distance
@@ -88,14 +108,14 @@ zeta ~ normal(0, 1);
 //     matrix[C,K] dis; //distance from colony C to trap K
 //     matrix[C,K] lambda; //rate of captures for colony C at trap K
 //     vector[C] V;     // Declare local variable for each colony's total visitation
-//     real nugget = 1e-12;  // set smaaaaall number to prevent division by 0
+//     real alpha = 1e-12;  // set smaaaaall number to prevent division by 0
 //     
 //     // Recompute lambda and dis
-//     for(i in 1:C){
-//       for(k in 1:K){
+//     for(k in 1:K){
+//       for(i in 1:C){
 //         dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-//         lambda[i, k] = dis[i,k]/(-rho*exp(alpha*landscape[k])) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
-//       }
+//         lambda[i, k] = dis[i,k]/(-rho*exp(theta*floral[k])) + mu + zeta_scale[i] + eps_scale[k];
+//       } 
 //     }
 //     
 //     // Compute V for normalization
@@ -106,7 +126,7 @@ zeta ~ normal(0, 1);
 //     
 //     // compute colony_dist to be saved outside the anonymous scope
 //     for (k in 1:K){
-//       colony_dist = colony_dist + (dis[,k] .* exp(lambda[,k]) ./ (V + nugget));
+//       colony_dist = colony_dist + (dis[,k] .* exp(lambda[,k]) ./ (V + alpha));
 //     }
 //   }
 // }

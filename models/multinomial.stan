@@ -1,18 +1,14 @@
-//Pope & Jha, 2017, Cons. Genetics
-// Modified to use rho rather than beta parametrization of length scale
+//Modified from Pope & Jha, 2017, Cons. Genetics
 
 data {
 int<lower=1> C; // number of colonies 
 int<lower=1> K; // number of traps
-matrix[K, 2] trap; // trap coordinates 
+matrix[K, 2] trap_pos; // trap coordinates 
 int y[C, K]; // counts of bees in traps
 real lowerbound; // uniform prior on colony location 
-real upperbound; // uniform prior on colony location
+real upper_y; // uniform prior on colony location
+real upper_x; // uniform prior on colony location
 vector[K] floral; // floral quality at traps
-real<lower=0> priorVa; // prior variance on std deviations
-real<lower=0> priorCo; // prior variance on other coefficients
-real<lower=0> rho_center; //prior median for length parameter, !! on log scale!!
-real<lower=0> rho_sd; //prior sd of length parameter, !!on log scale!!
 }
 
 parameters { // see text for definitions
@@ -20,10 +16,11 @@ real<lower=0> rho;
 real<lower=0> sigma;
 real<lower=0> tau; 
 real theta;
-real mu; 
 vector[K] eps; 
 vector[C] zeta;
-array [C] vector<lower=lowerbound, upper=upperbound>[2] delta;
+array[C] real<lower=lowerbound, upper=upper_x> delta_x;
+array[C] real<lower=lowerbound, upper=upper_y> delta_y;
+
 
 }
 
@@ -44,11 +41,10 @@ matrix[C,K] lambda; //rate of captures for colony C at trap K
 vector[K] multi_probs; //multinomial probability of capture from colony C at trap K
 
 // priors
-sigma ~ normal(0, priorVa);
-tau ~ normal(0, priorVa); 
-rho ~ lognormal(rho_center, rho_sd);
-mu ~ normal(0, priorCo); 
-theta ~ normal(0, priorCo);
+sigma ~ normal(0, 1);
+tau ~ normal(0, 1); 
+rho ~ lognormal(3.5, 0.5);
+theta ~ normal(0, 1);
 
 // random effects for traps
 eps ~ normal(0, 1); 
@@ -57,8 +53,8 @@ zeta ~ normal(0, 1);
 // calculate intensity
     for(i in 1:C){
       for(k in 1:K){
-        dis[i, k] = sqrt(square(delta[i, 1] - trap[k,1]) + square(delta[i, 2] - trap[k,2]));
-        lambda[i, k] = (-dis[i,k]/rho) + theta*floral[k] + mu + zeta_scale[i] + eps_scale[k];
+        dis[i, k] = sqrt(square(delta_x[i] - trap_pos[k,1]) + square(delta_y[i] - trap_pos[k,2]));
+        lambda[i, k] = (-dis[i,k]/rho) + theta*floral[k] + zeta_scale[i] + eps_scale[k];
       }
       // compute  multinomial probabilities for colony i
       multi_probs = softmax(lambda[i,]');

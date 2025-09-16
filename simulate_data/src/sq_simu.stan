@@ -32,7 +32,6 @@ transformed data {
   real<lower=0> upperbound_y = (L/3)*landscapesize;   // upper limit for colony locations (y direction)
   
   real<lower=0> rho = 100;
-  real theta = 0.25;
 }
 
 generated quantities {
