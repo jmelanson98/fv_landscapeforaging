@@ -401,8 +401,13 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
   print(dim(trap_data))
   
   # optional plotting step to visualize traps and colonies
-  plot(colony_data$colony_x, colony_data$colony_y, col = "red", pch = 16, cex = 0.5)
-  points(trap_data$trap_x, trap_data$trap_y, col = "blue", pch = 16, cex = 1)
+  fig = ggplot() +
+    geom_point(data = colony_data, aes(x = colony_x, y = colony_y), colour = "lightblue", size = 0.2) +
+    geom_point(data = trap_data, aes(x = trap_x, y = trap_y), colour = "black", size = 1) +
+    ylab("Northing") +
+    xlab("Easting") +
+    theme_minimal()
+  fig
   
   
   ##### Compute distance-based visitation #####
@@ -474,7 +479,7 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
     print(paste("Now sampled", sum(yik), "of", sample_size, "bees"))
   }
   
-  output = list(yik, colony_data, trap_data)
+  output = list(yik, colony_data, trap_data, fig)
   return(output)
 }
 
@@ -597,7 +602,7 @@ draw_multi_landscape_timepoint = function(sample_size, # number of bees to sampl
       colony_data$ni[colony_data$colonyid == colony] = colony_data$ni[colony_data$colonyid == colony] - 1
     }
     yik[[t]] = yik_t
-    print(paste("Now sampled", sum(sapply(yik, sum)), "of", sample_size, "bees", sep = ""))
+    print(paste("Now sampled", sum(sapply(yik, sum)), "of", sample_size, "bees"))
   }
 
   output = list(yik, colony_data, trap_data, fq)

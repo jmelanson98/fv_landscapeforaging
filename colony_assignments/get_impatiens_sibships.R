@@ -10,7 +10,8 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 workingdir = getwd()
 
 # first, load in packages
-source('colony_assignments/src/init.R')
+source('simulate_data/src/GeneralizedSimFunctions.R')
+source('simulate_data/src/GenotypeSimFunctions.R')
 source('colony_assignments/src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
@@ -343,6 +344,125 @@ rcolony::build.colony.superauto(wd=workingdir,
 #####################################
 ## Load in results from colony
 #####################################
+
+# set probability threshold
+prob_thresh = 0.995
+
+# get dyad files
+impatiens2023_file = paste0("colony_assignments/Colony2_Linux/mixtus2022.FullSibDyad")
+impatiens2023 = read.table(impatiens2023_file, sep = ",")
+colnames(impatiens2023) = c("from", "to", "Probability")
+impatiens2023 = impatiens2023[-1,]
+impatiens2023$Probability = as.numeric(impatiens2023$Probability)
+
+# filter based on probability threshhold
+impatiens2023filtered = impatiens2023 %>% filter(Probability >= prob_thresh)
+
+# add pair names
+impatiens2023$missing_pair = apply(
+  impatiens2023[, c("from", "to")], 
+  1, 
+  function(x) paste(sort(x), collapse = "-")
+)
+
+# get edge lists for dyads method
+impatiens2023_inferred_edges = impatiens2023filtered[,1:2]
+
+# make igraph object
+graph = graph_from_data_frame(impatiens2023_inferred_edges, directed = FALSE)
+components <- decompose(graph)
+
+# remove cliques
+noncirculars = components[!sapply(components, is_clique)]
+noncircular_graph <- do.call(disjoint_union, noncirculars)
+noncircular_comps = decompose(noncircular_graph)
+
+# plot
+if(!is.null(noncircular_graph)){
+  #E(noncircular_graph)$color = recode(E(noncircular_graph)$type, TP = "black", FP = "red", FN = "purple")
+  families = plot(noncircular_graph)
+} else (print("No noncircularity."))
+
+
+missing_links = lapply(components, function(comp) {
+  if (!is_clique(comp)){
+    # get all possible pairs of nodes (unordered)
+    nodes = V(comp)$name
+    node_pairs = t(combn(nodes, 2))
+    
+    # filter out pairs that already have an edge
+    missing <- apply(node_pairs, 1, function(pair) {
+      !are_adjacent(comp, pair[1], pair[2])
+    })
+    
+    # make collapsed pair names for eaching missing link
+    missing_names = apply(node_pairs[missing, , drop = FALSE], 1, function(pair) {
+      paste(sort(pair), collapse = "-")
+    })
+    
+    df = data.frame(
+      missing_pair = missing_names,
+      stringsAsFactors = FALSE
+    )
+    return(df)
+  }
+})
+missing_df = do.call(rbind, missing_links)
+
+# Maintain sib pairs that are highly likely or which are missing with P > 0.95
+impatiens2023filtered = impatiens2023 %>% filter(Probability >= prob_thresh |
+                                   (missing_pair %in% missing_df$missing_pair & Probability >= 0.95))
+# Get new edge list
+impatiens2023_inferred_edges = impatiens2023filtered[,1:2]
+
+
+# Resolve remaining noncircularity
+# Make new graph
+graph = graph_from_data_frame(impatiens2023_inferred_edges, directed = FALSE)
+components <- decompose(graph)
+
+# For each component, keep only the largest clique
+filtered_components <- lapply(components, function(comp) {
+  if (is_clique(comp)) {
+    return(comp)
+  } else {
+    cliques <- largest_cliques(comp)
+    # randomly choose one if there's a tie
+    chosen_clique <- sample(cliques, 1)[[1]]
+    # induce subgraph on that clique
+    return(induced_subgraph(comp, chosen_clique))
+  }
+})
+
+# Recombine the components into a single graph
+final_graph = do.call(disjoint_union, filtered_components)
+
+# get final dyad edges
+impatiens2023_inferred_edges <- as.data.frame(as_edgelist(final_graph))
+colnames(impatiens2023_inferred_edges) = c("from", "to")
+
+
+impsibs23 = specimenData2023 %>% 
+  filter(barcode_id %in% impatiens2023_inferred_edges$from | barcode_id %in% impatiens2023_inferred_edges$to) %>%
+  group_by(site) %>%
+  summarize(n = n())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 list_of_results = list()
 for (i in 1:5){

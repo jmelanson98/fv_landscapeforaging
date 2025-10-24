@@ -46,7 +46,66 @@ yobs = result[[1]]
 yobs_detected = yobs[rowSums(yobs)>0,]
 colony_data = result[[2]]
 colony_data_detected = colony_data[rowSums(yobs) > 0,]
+colony_data_detected$observed_size = rowSums(yobs_detected)
 trap_data = result[[3]]
+sim_landscape_full = result[[4]]
+
+
+# repeat with a lower background density of colonies
+result2 = draw_simple_multi_landscape(sample_size = 1000,
+                                     num_landscape = 6,
+                                     landscape_size = 1500,
+                                     trapgrid_size = 300,
+                                     number_traps = 25,
+                                     number_colonies = 2000,
+                                     colony_sizes = rep(100,2000),
+                                     rho = 100,
+                                     distance_decay = "exponential")
+yobs2 = result2[[1]]
+yobs_detected2 = yobs2[rowSums(yobs2)>0,]
+colony_data2 = result2[[2]]
+colony_data_detected2 = colony_data2[rowSums(yobs2) > 0,]
+colony_data_detected2$observed_size = rowSums(yobs_detected2)
+trap_data2 = result2[[3]]
+sim_landscape_sparse = result2[[4]]
+
+# Plot sibship size distributions
+#plot sibship size distribution
+full_summary = colony_data_detected %>%
+  group_by(observed_size) %>%
+  summarize(prop = n()/nrow(colony_data_detected))
+sparse_summary = colony_data_detected2 %>%
+  group_by(observed_size) %>%
+  summarize(prop = n()/nrow(colony_data_detected2))
+extra_rows = data.frame(observed_size = sparse_summary$observed_size[!sparse_summary$observed_size %in% full_summary$observed_size],
+                        prop = rep(0, nrow(sparse_summary)-nrow(full_summary)))
+full_summary = rbind(full_summary, extra_rows)
+
+sibships_full = ggplot(data = full_summary, aes(x = observed_size, y = prop)) +
+  geom_col(color = "black", fill = "lightblue") +
+  xlab("Number of siblings") +
+  ylab("Proportion of colonies") +
+  theme_minimal() +
+  ylim(c(0,0.8))
+
+sibships_sparse = ggplot(data = sparse_summary, aes(x = observed_size, y = prop)) +
+  geom_col(color = "black", fill = "lightblue") +
+  xlab("Number of siblings") +
+  ylab("") +
+  theme_minimal() +
+  ylim(c(0,0.8))
+sim_landscape_sparse = sim_landscape_sparse + ylab("")
+
+# Make grid plot for appendix
+simulations = grid.arrange(sim_landscape_full, nullGrob(), sim_landscape_sparse,
+                           sibships_full, nullGrob(), sibships_sparse,
+                           ncol =3, widths = c(8,1,8))
+simulations = ggdraw() +
+  draw_plot(simulations, 0.07, 0, 0.9, 1) +
+  draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
+                  x = c(0, 0.5, 0, 0.5), 
+                  y = c(1, 1, 0.53, 0.53))
+ggsave("docs/appendix_figures/simulations.jpg", simulations, height = 1500, width = 2500, units = "px")
 
 
 # Plot a line from each colony to each trap where it was observed
@@ -794,20 +853,37 @@ for (species in c("mixtus", "impatiens")){
 
 links$FNprobs <- lapply(links$FNprobs, function(x) x[x != 0])
 links$TNprobs <- lapply(links$TNprobs, function(x) x[x != 0])
+links = as_tibble(links)
 
-link_mixtus = links[links$species == "mixtus",]
-link_impatiens = links[links$species == "impatiens",]
-# make histogram
-png(filename = "docs/appendix_figures/noncircularity.png", width = 800, height = 600)
-hist(unlist(link_impatiens$FNprobs), col = rgb(0, 0, 1, 0.5), xlim = c(0.6,1), ylim = c(0,10),
-     main = "", xlab = "Probability", breaks = 30)
+links_long <- links %>%
+  dplyr::select(species, FNprobs, TNprobs) %>%
+  tidyr::pivot_longer(cols = c(FNprobs, TNprobs),
+               names_to = "type",
+               values_to = "probs") %>%
+  tidyr::unnest(probs, keep_empty = TRUE)
 
-hist(unlist(link_impatiens$TNprobs), col = rgb(1, 0, 0, 0.5), add = TRUE, breaks = 30)
-abline(v = 0.95, col = "black", lty = 2, lwd = 2)  # lty=2 makes it dashed
+# make histograms
+noncircularity = ggplot(links_long, aes(x = probs, fill = type, colour = "black")) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 30) +
+  facet_grid(
+    species ~ type,
+    labeller = labeller(
+      species = c(
+        mixtus = "B. mixtus",
+        impatiens = "B. impatiens"
+      ),
+      type = c(
+        FNprobs = "False negatives",
+        TNprobs = "True negatives"
+      )
+    )
+  ) +
+  labs(x = "Probability of siblingship", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "none")
 
-legend("topleft", legend = c("FN", "TN"),
-       fill = c(rgb(0, 0, 1, 0.5), rgb(1, 0, 0, 0.5)))
-dev.off()
+ggsave("docs/appendix_figures/noncircularity.jpg", noncircularity, 
+       height = 1500, width = 1500, units = "px")
 
 
 ################################################################################
@@ -1117,7 +1193,7 @@ FNR_grid = ggdraw() +
   draw_plot_label(c("(A)", "(B)", "(C)", "(D)"), size = 14, 
                   x = c(0, 0.5, 0, 0.5), 
                   y = c(1, 1, 0.53, 0.53))
-ggsave("docs/appendix_figures/fpr_dyadsvfamilies.jpg", FNR_grid, height = 1000, width = 3000, units = "px")
+ggsave("docs/appendix_figures/fnr_dyadsvfamilies.jpg", FNR_grid, height = 1000, width = 3000, units = "px")
 
 
 ################################################################################
