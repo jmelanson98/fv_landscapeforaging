@@ -327,6 +327,8 @@ rcolony::build.colony.superauto(wd=workingdir,
                                 delim=",",
                                 sample_size = 864,
                                 num_loci = 10,
+                                sibship_prior = 0,
+                                female_monogamy = 1,
                                 error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/mixtus_error_rates.txt"),
                                 genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/mixtus2022_forcolony.txt"),
                                 exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2022.txt")
@@ -338,10 +340,13 @@ rcolony::build.colony.superauto(wd=workingdir,
                                 delim=",",
                                 sample_size = 1147,
                                 num_loci = 10,
+                                sibship_prior = 0,
+                                female_monogamy = 1,
                                 error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/mixtus_error_rates.txt"),
                                 genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/mixtus2023_forcolony.txt"),
                                 exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023.txt")
 )
+
 
 
 #####################################

@@ -325,6 +325,8 @@ rcolony::build.colony.superauto(wd=workingdir,
                                 delim=",",
                                 sample_size = 1362,
                                 num_loci = 12,
+                                sibship_prior = 0,
+                                female_monogamy = 1,
                                 error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/impatiens_error_rates.txt"),
                                 genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/impatiens2022_forcolony.txt"),
                                 exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2022.txt")
@@ -336,6 +338,8 @@ rcolony::build.colony.superauto(wd=workingdir,
                                 delim=",",
                                 sample_size = 2102,
                                 num_loci = 12,
+                                sibship_prior = 0,
+                                female_monogamy = 1,
                                 error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/impatiens_error_rates.txt"),
                                 genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/impatiens2023_forcolony.txt"),
                                 exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023.txt")
@@ -349,7 +353,7 @@ rcolony::build.colony.superauto(wd=workingdir,
 prob_thresh = 0.995
 
 # get dyad files
-impatiens2023_file = paste0("colony_assignments/Colony2_Linux/mixtus2022.FullSibDyad")
+impatiens2023_file = paste0("colony_assignments/Colony2_Linux/impatiens2023.FullSibDyad")
 impatiens2023 = read.table(impatiens2023_file, sep = ",")
 colnames(impatiens2023) = c("from", "to", "Probability")
 impatiens2023 = impatiens2023[-1,]

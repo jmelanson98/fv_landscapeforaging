@@ -402,6 +402,7 @@ for (i in 1:nsims){
                                     sample_size = 1200,
                                     num_loci = 10,
                                     sibship_prior = 1,
+                                    female_monogamy = 1,
                                     error_rates_path = mixtus_errors_filepath,
                                     genotypes_path = mixtus_genotypes_filepath,
                                     exclusion_path = mixtus_exclusion_filepath
@@ -415,6 +416,7 @@ for (i in 1:nsims){
                                     sample_size = 1200,
                                     num_loci = 12,
                                     sibship_prior = 1,
+                                    female_monogamy = 1,
                                     error_rates_path = impatiens_errors_filepath,
                                     genotypes_path = impatiens_genotypes_filepath,
                                     exclusion_path = impatiens_exclusion_filepath
@@ -1548,6 +1550,8 @@ for (i in 1:nsims){
                                       delim=",",
                                       sample_size = size,
                                       num_loci = 10,
+                                      sibship_prior = 0,
+                                      female_monogamy = 1,
                                       error_rates_path = mixtus_errors_filepath,
                                       genotypes_path = mixtus_genotypes_filepath,
                                       exclusion_path = mixtus_exclusion_filepath
@@ -1560,6 +1564,8 @@ for (i in 1:nsims){
                                       delim=",",
                                       sample_size = size,
                                       num_loci = 12,
+                                      sibship_prior = 0,
+                                      female_monogamy = 1,
                                       error_rates_path = impatiens_errors_filepath,
                                       genotypes_path = impatiens_genotypes_filepath,
                                       exclusion_path = impatiens_exclusion_filepath
@@ -2412,7 +2418,7 @@ mixtus_paternity_FPR = ggplot(errors_family[errors_family$species=="mixtus",], a
 
 mixtus_paternity_FNR = ggplot(errors_family[errors_family$species=="mixtus",], aes(x = multiplepaternityrate, y = FNR, colour = modelspec)) +
   geom_point() +
-  xlab("Percentage of colonies with two fathers") +
+  xlab("Proportion of colonies with two fathers") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
   labs(colour = "COLONY setting") +
   scale_color_manual(
@@ -2434,7 +2440,7 @@ impatiens_paternity_FPR = ggplot(errors_family[errors_family$species=="impatiens
 
 impatiens_paternity_FNR = ggplot(errors_family[errors_family$species=="impatiens",], aes(x = multiplepaternityrate, y = FNR, colour = modelspec)) +
   geom_point() +
-  xlab("Percentage of colonies with two fathers") +
+  xlab("Proportion of colonies with two fathers") +
   ylab("") +
   labs(colour = "COLONY setting") +
   scale_color_manual(
@@ -2689,7 +2695,7 @@ paternity_FPR = ggplot(errors_family, aes(x = multiplepaternityrate, y = FPR, co
 
 paternity_FNR = ggplot(errors_family, aes(x = multiplepaternityrate, y = FNR, colour = modelspec)) +
   geom_point() +
-  xlab("Percentage of colonies with two fathers") +
+  xlab("Proportion of colonies with two fathers") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
   labs(colour = "COLONY setting") +
   scale_color_manual(
