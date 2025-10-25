@@ -1412,7 +1412,7 @@ mixtus_FPR_dyads = ggplot(errors_dyad[errors_dyad$species=="mixtus",], aes(x = n
   geom_point() +
   xlab("") +
   ylab(expression(FPR == frac(FP, TP + FP))) +
-  labs(colour = "Across-site sibships") +
+  labs(colour = "Between-site sibships") +
   scale_color_manual(
     labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
@@ -1423,7 +1423,7 @@ mixtus_FNR_dyads = ggplot(errors_dyad[errors_dyad$species=="mixtus",], aes(x = n
   geom_point() +
   xlab("Number of Observed Bees") +
   ylab(expression(FNR == frac(FN, TP + FN))) +
-  labs(colour = "Across-site sibships") +
+  labs(colour = "Between-site sibships") +
   scale_color_manual(
     labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
@@ -1434,7 +1434,7 @@ impatiens_FPR_dyads = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes
   geom_point() +
   xlab("") +
   ylab("") +
-  labs(colour = "Across-site sibships") +
+  labs(colour = "Between-site sibships") +
   scale_color_manual(
     labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
@@ -1445,7 +1445,7 @@ impatiens_FNR_dyads = ggplot(errors_dyad[errors_dyad$species=="impatiens",], aes
   geom_point() +
   xlab("Number of Observed Bees") +
   ylab("") +
-  labs(colour = "Across-site sibships") +
+  labs(colour = "Between-site sibships") +
   scale_color_manual(
     labels = c("Excluded", "Not excluded"),
     values = c("darkslateblue", "salmon")) +
