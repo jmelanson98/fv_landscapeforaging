@@ -10,8 +10,8 @@ setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 workingdir = getwd()
 
 # first, load in packages
-source('colony_assignments/src/init.R')
-source('colony_assignments/src/colony_assignment_functions.R')
+source('src/init.R')
+source('src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
 library(stringr)
