@@ -57,7 +57,6 @@ all_classes$value_prop = all_classes$value/all_classes$buffer_area
 ##################################################
 # Check for collinearity between landcover types
 ##################################################
-# landcover PCA associated with higher colony density?
 
 # make wide dataframe
 all_classes_wide = pivot_wider(all_classes, 
