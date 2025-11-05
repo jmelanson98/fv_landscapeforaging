@@ -133,7 +133,7 @@ true_lambda = sum(colonies_by_landscape$count)/(6*1792)
 # visualize credible interval
 plot(truncfit) + 
   ggtitle("Credibility interval for lambda, estimated by Stan from truncated data",
-          "(Correct value is 1.3)") +
+          "(Correct value is 0.18)") +
   labs(y = "Estimated parameters") +
   theme_minimal()
 
@@ -160,3 +160,72 @@ truncfit = stan(file = stanfile,
                 data = data, seed = 5838299,
                 chains = 4, cores = 4,
                 verbose = TRUE)
+
+plot(truncfit) + 
+  ggtitle("Credibility interval for alpha and beta, estimated by Stan from truncated data",
+          "(Correct value is 0.18)") +
+  labs(y = "Estimated parameters") +
+  theme_minimal()
+
+
+
+###################################################
+### With real data!
+###################################################
+# change site code to numeric for stan
+site_keys = data.frame(site = c("W", "SD", "ED", "NR", "HR", "PM"),
+                       siteids = c(1, 2, 3, 4, 5, 6))
+
+# start with mixtus 2022
+# load in sibships and spec data
+bombus_path = "/Users/jenna1/Documents/UBC/bombus_project/"
+mix2022 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
+specimenData2022 = as.data.frame(read.csv(paste0(bombus_path, "raw_data/2022specimendata.csv"), sep = ",", header = T))
+
+# filter to proper samples
+# for mixtus 2022
+mix2022 = filter(mix2022, 
+                 notes != "male",
+                 year == 2022)
+mix2022 = left_join(mix2022, specimenData2022, by = "barcode_id")
+mix2022 = left_join(mix2022, site_keys, by = "site")
+
+
+
+# reformat for model
+cbl_mix22 = mix2022 %>%
+  group_by(sibshipID, siteids) %>%
+  summarize(count = n())
+tc_mix22 = cbl_mix22 %>%
+  group_by(siteids) %>%
+  summarize(total_colonies = n())
+
+
+#select stan model to fit
+stanfile = paste("models/trunc_negbin.stan")
+# updated so more complex than what I ran above
+
+# prep data for stan
+data = list()
+data$num_sites = 6
+data$num_colonies = nrow(cbl_mix22)
+data$lower_limit = 1
+data$sib_counts = cbl_mix22$count
+data$site_ids = cbl_mix22$siteids
+data$alpha_mu = mean(cbl_mix22$count)
+data$alpha_sigma = 1
+
+
+# fit stan model!
+truncfit = stan(file = stanfile,
+                data = data, seed = 5838299,
+                chains = 4, cores = 4,
+                verbose = TRUE)
+
+
+# visualize credible interval
+plot(truncfit) + 
+  ggtitle("Credibility interval for lambda, estimated by Stan from truncated data") +
+  labs(y = "Estimated parameters") +
+  xlim(c(0,1)) +
+  theme_minimal()

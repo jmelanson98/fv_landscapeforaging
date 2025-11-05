@@ -10,9 +10,9 @@ rm(list = ls())
 setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 # first, load in packages
-source('simulate_data/src/GeneralizedSimFunctions.R')
-source('simulate_data/src/GenotypeSimFunctions.R')
-source('colony_assignments/src/colony_assignment_functions.R')
+source('src/GeneralizedSimFunctions.R')
+source('src/GenotypeSimFunctions.R')
+source('src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
 library(purrr)

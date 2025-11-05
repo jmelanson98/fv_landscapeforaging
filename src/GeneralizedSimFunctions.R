@@ -416,14 +416,17 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
   dist_ik = allocMatrix(nrow = nrow(colony_data),
                         ncol = nrow(trap_data),
                         value = NA)
+  colony_data$min_dist = NA
   for (col in colony_data$colonyid){
     for (trap in trap_data$trapid){
       dx = trap_data$trap_x[trap_data$trapid == trap] - colony_data$colony_x[colony_data$colonyid == col]
       dy = trap_data$trap_y[trap_data$trapid == trap] - colony_data$colony_y[colony_data$colonyid == col]
       dist_ik[col,trap] = sqrt(dx^2 + dy^2)
     }
+    colony_data$min_dist[colony_data$colonyid == col] = min(dist_ik[col,])
   }
   print("Done computing distance.")
+  
   
   # compute visitation rate of colony at each trap
   if (distance_decay == "exponentiated_quadratic"){
