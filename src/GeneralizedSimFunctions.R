@@ -380,8 +380,13 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
   
   
   ##### Simulate colony locations #####
-  colony_data$colony_x = runif(number_colonies, 0, landscape_size*3)
-  colony_data$colony_y = runif(number_colonies, 0, landscape_size*(num_landscape / 3))
+  if(num_landscape > 1){
+    colony_data$colony_x = runif(number_colonies, 0, landscape_size*3)
+    colony_data$colony_y = runif(number_colonies, 0, landscape_size*(num_landscape / 3))
+  } else{
+    colony_data$colony_x = runif(number_colonies, 0, landscape_size)
+    colony_data$colony_y = runif(number_colonies, 0, landscape_size)
+  }
   print("Colony simulation complete.")
   print(dim(colony_data))
   
@@ -392,10 +397,13 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
   trap_x = (landscape_size - trapgrid_size)/2 + step*(0:(grid_size-1))
   trap_y = (landscape_size - trapgrid_size)/2 + step*(0:(grid_size-1))
   coords = expand.grid(trap_x = trap_x, trap_y = trap_y, landscapeid = 1:num_landscape)
-  coords$row = ceiling(coords$landscapeid / 3)
-  coords$column = (coords$landscapeid %% 3) + 1
-  coords$trap_x = coords$trap_x + (coords$column - 1)*landscape_size
-  coords$trap_y = coords$trap_y + (coords$row - 1)*landscape_size
+  
+  if(num_landscape > 1){
+    coords$row = ceiling(coords$landscapeid / 3)
+    coords$column = (coords$landscapeid %% 3) + 1
+    coords$trap_x = coords$trap_x + (coords$column - 1)*landscape_size
+    coords$trap_y = coords$trap_y + (coords$row - 1)*landscape_size
+  }
   trap_data = as.data.frame(cbind(trapid, coords))
   print("Trap simulation complete.")
   print(dim(trap_data))
@@ -407,7 +415,7 @@ draw_simple_multi_landscape = function(sample_size, # number of bees to sample
     ylab("Northing") +
     xlab("Easting") +
     theme_minimal()
-  fig
+  
   
   
   ##### Compute distance-based visitation #####

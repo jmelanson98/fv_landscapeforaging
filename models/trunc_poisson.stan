@@ -24,3 +24,13 @@ model {
   }
 }
 
+
+
+generated quantities {
+  // probability of observing a zero
+  real pzero = exp(poisson_lpmf(0 | lambda));
+  
+  // total_colonies = num_colonies / P(observed). 
+  // P(observed) = 1 - p_zero
+  real total_colonies = num_colonies / (1 - pzero);
+}

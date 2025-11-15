@@ -8,6 +8,7 @@ data {
   int lower_limit; // the lower limit of detections, e.g., 1 individual per colony
   int <lower = lower_limit> sib_counts[num_colonies]; // the number of siblings observed for each colony
   int <lower = 1, upper = num_sites> site_ids[num_colonies]; // the site id for each colony
+  int <lower = 0> col_per_site[num_sites]; // the number of colonies per site
   real alpha_mu;
   real alpha_sigma;
 }
@@ -19,10 +20,26 @@ parameters {
 
 model {
   alpha ~ normal(alpha_mu, alpha_sigma);
-  beta ~ normal(0,1);
+  beta ~ inv_gamma(0.4, 0.3); // following https://github.com/paul-buerkner/brms/issues/1614#
   
   for(i in 1:num_colonies){
     sib_counts[i] ~ neg_binomial(alpha[site_ids[i]], beta[site_ids[i]]) T[lower_limit, ];
   }
 }
 
+
+
+generated quantities {
+    // initiate vector
+    vector[num_sites] total_colonies;
+    
+      for(k in 1:num_sites){
+        // probability of observing a zero
+        real pzero = exp(neg_binomial_lpmf(0 | alpha[k], beta[k]));
+      
+        // total_colonies = num_colonies / P(observed). 
+        // P(observed) = 1 - p_zero
+        total_colonies[k] = col_per_site[k] / (1 - pzero);
+      }
+    
+}
