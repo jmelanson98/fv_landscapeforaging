@@ -106,12 +106,6 @@ yobs_n_2023 = filled_counts %>%
 # Get the start indices for observations of each siblingship
 yobs_start_2023 = cumsum(c(1, yobs_n_2023$num_obs))[1:length(yobs_n_2023$num_obs)]
 
-# Get upper and lower coordinate limits for each landscape
-site_centroids = filled_counts %>%
-  group_by(site) %>%
-  summarise(center_x = mean(trap_x),
-            center_y = mean(trap_y))
-
 # Make data list for stan
 # DISTANCES IN KM, NOT METERS
 stan_data <- list(
@@ -126,12 +120,10 @@ stan_data <- list(
   y_flat = filled_counts$count, # filled counts is ordered by site, then by sib ID, then by trap
   y_start = yobs_start_2023,
   y_n = yobs_n_2023$num_obs,
-  lower_x = (min(traps_m_2023$trap_x) - 2000)/1000,
-  upper_x = (max(traps_m_2023$trap_x) + 2000)/1000,
-  lower_y = (min(traps_m_2023$trap_y) - 2000)/1000,
-  upper_y = (max(traps_m_2023$trap_y) + 2000)/1000,
-  site_centroids = cbind(site_centroids$center_x/1000,site_centroids$center_y/1000)
-  
+  lower_x = (min(traps_m_2023$trap_x) - 5000)/1000,
+  upper_x = (max(traps_m_2023$trap_x) + 5000)/1000,
+  lower_y = (min(traps_m_2023$trap_y) - 5000)/1000,
+  upper_y = (max(traps_m_2023$trap_y) + 5000)/1000
 )
 
 
@@ -139,13 +131,13 @@ stan_data <- list(
 stanfile = "models/simple_multinomial.stan"
 
 #fit and save model
-stanFit_ht = stan(file = stanfile,
+stanFit = stan(file = stanfile,
                data = stan_data, seed = 5838299,
                chains = 4, cores = 4,
                control = list(max_treedepth = 15),
-               init = "0",
+               iter = 4000,
                verbose = TRUE)
-saveRDS(stanFit, "analysis/foragingmodel_badtreedepth.RDS")
+saveRDS(stanFit_ht, "analysis/foragingmodel_lowESS.RDS")
 
 
 #Plot the posteriors of some colonies

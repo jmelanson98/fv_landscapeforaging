@@ -16,18 +16,24 @@ data {
   real upper_x; // hard bound on colony locations
   real lower_y; // hard bound on colony locations
   real lower_x; // hard bound on colony locations
-  matrix[L,2] site_centroids; // centroid of each site (x,y), for spatial prior on colony location
 }
 
+transformed data {
+  real Rmax = 2.0;     // max distance of colonies from traps where they observed
+  real steepness = 50;    // steepness of penalty function
+  real penalty = 2000;     // penalty scale
+}
 
 parameters {
   real<lower=0> rho; 
-real<lower=0> sigma;
-real<lower=0> tau;
-vector[total_traps] eps; 
-vector[C] zeta;
-array[C] real<lower=lower_x, upper=upper_x> delta_x;
-array[C] real<lower=lower_y, upper=upper_y> delta_y;
+  real<lower=0> sigma;
+  real<lower=0> tau;
+  vector[total_traps] eps; 
+  vector[C] zeta;
+  
+  // using hard bounds here so that init doesn't fail with - inf
+  array[C] real<lower=lower_x, upper=upper_x> delta_x;
+  array[C] real<lower=lower_y, upper=upper_y> delta_y;
 }
 
 
@@ -43,7 +49,7 @@ model {
   // see inside for loop for delta_x, delta_y priors
   sigma ~ normal(0, 1);
   tau ~ normal(0, 1); 
-  rho ~ lognormal(log(0.5), log(0.2));
+  rho ~ lognormal(log(0.5), 0.5);
   eps ~ normal(0, 1); 
   zeta ~ normal(0, 1);
   
@@ -58,8 +64,8 @@ model {
     // PRIOR ON DELTA_X AND DELTA_Y
     // 5.841 is 99% crit value for student's t with df = 3...
     // we expect 99% of colonies to be within 2.5 km of site centroid
-    delta_x[i] ~ student_t(3, site_centroids[lid, 1], 2.5/5.841);
-    delta_y[i] ~ student_t(3, site_centroids[lid, 2], 2.5/5.841);
+    // delta_x[i] ~ student_t(3, site_centroids[lid, 1], 2.5/5.841);
+    // delta_y[i] ~ student_t(3, site_centroids[lid, 2], 2.5/5.841);
 
     for (t in 1:num_tr) {
       // fill y_seg with observations for that colony
@@ -69,9 +75,16 @@ model {
       int k = start_tr + t - 1;                 // global trap index
       real dis = sqrt( square(delta_x[i] - trap_pos[k,1]) +
                        square(delta_y[i] - trap_pos[k,2]) );
+                       
+      // penalize distances that are outside Rmax
+      // a bit like a soft indicator function, to maintain differentiability for HMC
+      target += -penalty * log1p_exp((dis-Rmax)*steepness);
+      
+      // calculate visitation intensity
       lambda_row[t] = -0.5*(dis / rho)^2 + zeta_scale[i] + eps_scale[k];
     }
 
+    // compute multinomial probabilities and add to target likelihood
     vector[num_tr] multi_probs = softmax(lambda_row);
     y_seg ~ multinomial(multi_probs);
   }
