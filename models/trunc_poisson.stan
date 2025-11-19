@@ -8,6 +8,7 @@ data {
   int lower_limit; // the lower limit of detections, e.g., 1 individual per colony
   int <lower = lower_limit> sib_counts[num_colonies]; // the number of siblings observed for each colony
   int <lower = 1, upper = num_sites> site_ids[num_colonies]; // the site id for each colony
+  int <lower = 0> col_per_site[num_sites]; // the number of colonies per site
   real lambda_mu;
   real lambda_sigma;
 }
@@ -27,10 +28,16 @@ model {
 
 
 generated quantities {
-  // probability of observing a zero
-  real pzero = exp(poisson_lpmf(0 | lambda));
-  
-  // total_colonies = num_colonies / P(observed). 
-  // P(observed) = 1 - p_zero
-  real total_colonies = num_colonies / (1 - pzero);
+    // initiate vector
+    vector[num_sites] total_colonies;
+    
+      for(k in 1:num_sites){
+        // probability of observing a zero
+        real pzero = exp(poisson_lpmf(0 | lambda[k]));
+      
+        // total_colonies = num_colonies / P(observed). 
+        // P(observed) = 1 - p_zero
+        total_colonies[k] = col_per_site[k] / (1 - pzero);
+      }
+    
 }

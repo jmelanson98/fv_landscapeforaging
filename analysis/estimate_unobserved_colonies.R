@@ -3,6 +3,8 @@
 ### J Melanson
 ### based on tutorial: https://freerangestats.info/blog/2018/03/20/truncated-poisson
 
+setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+
 # Load packages
 source('src/GeneralizedSimFunctions.R')
 source('src/GenotypeSimFunctions.R')
@@ -330,7 +332,7 @@ imp2023 = read.csv("data/siblingships/impatiens_sibships_2023.csv")
 specimenData2022 = as.data.frame(read.csv(paste0(bombus_path, "raw_data/2022specimendata.csv"), sep = ",", header = T))
 specimenData2023 = as.data.frame(read.csv(paste0(bombus_path, "raw_data/2023specimendata.csv"), sep = ",", header = T))
 
-fit_truncated_real = function(siblingships,
+fit_truncated_nb_real = function(siblingships,
                               specimendata,
                               focal_year){
   # change site code to numeric for stan
@@ -343,7 +345,7 @@ fit_truncated_real = function(siblingships,
   siblingships = filter(siblingships, 
                    notes != "male",
                    year == focal_year)
-  siblingships = left_join(siblingships, specimendata, by = "barcode_id")
+  siblingships = left_join(siblingships, specimendata)
   siblingships = left_join(siblingships, site_keys, by = "site")
   
   # reformat for model
@@ -379,11 +381,70 @@ fit_truncated_real = function(siblingships,
 }
 
 
-# fit to all datasets
-mix22fit = fit_truncated_real(mix2022, specimenData2022, focal_year = 2022)
-mix23fit = fit_truncated_real(mix2023, specimenData2023, focal_year = 2023)
-imp22fit = fit_truncated_real(imp2022, specimenData2022, focal_year = 2022)
-imp23fit = fit_truncated_real(imp2023, specimenData2023, focal_year = 2023)
+fit_truncated_pois_real = function(siblingships,
+                              specimendata,
+                              focal_year){
+  # change site code to numeric for stan
+  site_keys = data.frame(site = c("W", "SD", "ED", "NR", "HR", "PM"),
+                         siteids = c(1, 2, 3, 4, 5, 6))
+  
+  
+  # filter to proper samples
+  # for mixtus 2022
+  siblingships = filter(siblingships, 
+                        notes != "male",
+                        year == focal_year)
+  siblingships = left_join(siblingships, specimendata)
+  siblingships = left_join(siblingships, site_keys, by = "site")
+  
+  # reformat for model
+  colonies_by_landscape = siblingships %>%
+    group_by(sibshipID, siteids) %>%
+    summarize(count = n())
+  total_colonies = colonies_by_landscape %>%
+    group_by(siteids) %>%
+    summarize(total_colonies = n())
+  
+  
+  #select stan model to fit
+  stanfile = paste("models/trunc_poisson.stan")
+  
+  # prep data for stan
+  data = list()
+  data$num_sites = 6
+  data$num_colonies = nrow(colonies_by_landscape)
+  data$lower_limit = 1
+  data$sib_counts = colonies_by_landscape$count
+  data$site_ids = colonies_by_landscape$siteids
+  data$lambda_mu = mean(colonies_by_landscape$count)
+  data$lambda_sigma = 1
+  data$col_per_site = total_colonies$total_colonies
+  
+  
+  # fit stan model!
+  fit = stan(file = stanfile,
+             data = data, seed = 5838299,
+             chains = 4, cores = 4,
+             verbose = TRUE)
+  return(fit)
+}
+
+
+
+
+
+
+
+
+# fit negative binomial to all datasets
+mix22fit = fit_truncated_nb_real(mix2022, specimenData2022, focal_year = 2022)
+saveRDS(mix22fit, "analysis/mixtrunc22fit.RDS")
+mix23fit = fit_truncated_nb_real(mix2023, specimenData2023, focal_year = 2023)
+saveRDS(mix23fit, "analysis/mixtrunc23fit.RDS")
+imp22fit = fit_truncated_nb_real(imp2022, specimenData2022, focal_year = 2022)
+saveRDS(imp22fit, "analysis/imptrunc22fit_nb.RDS")
+imp23fit = fit_truncated_nb_real(imp2023, specimenData2023, focal_year = 2023)
+saveRDS(imp23fit, "analysis/imptrunc23fit_nb.RDS")
 
 # plot
 mix22_extracted = as.data.frame(mix22fit)
@@ -409,14 +470,12 @@ mix22_tc = mix22_extracted %>%
 
 mix22_colonies = ggplot(mix22_tc, aes(x = total_colonies, fill = site)) +
   geom_density(alpha = 0.5) +
-  scale_fill_viridis(option = "turbo", discrete = TRUE, labels = site_keys$site) +
-  #geom_vline(xintercept = nrow(cbl_mix22), color = dark_gold, linetype = "dashed") +
-  #geom_vline(xintercept = mean(total_colonies), color = faded_dark, linetype = "dashed") +
+  scale_fill_discrete(labels = site_keys$site) +
   xlab("Total number of colonies") +
   ylab("Posterior samples") +
   xlim(c(0, 5000)) +
   theme_bw() +
-  theme(legend.position = c(0.4, 0.8),
+  theme(legend.position = c(0.8, 0.8),
         panel.grid = element_blank(), 
         strip.background = element_blank(),
         axis.text = element_text(size = 10, color = "grey20"), 
@@ -425,3 +484,241 @@ mix22_colonies = ggplot(mix22_tc, aes(x = total_colonies, fill = site)) +
         panel.border= element_blank(),  
         axis.ticks = element_line(color = "grey30", linewidth = 0.3),
         axis.line = element_line(color = "grey30", linewidth = 0.3))
+ggsave("figures/manuscript_figures/mixtus2022truncnb.jpg",
+       mix22_colonies, units = "px", width = 2000, height = 1000)
+
+
+# mixtus 2023
+mix23_tc = mix23_extracted %>%
+  pivot_longer(cols = c(`total_colonies[1]`,
+                        `total_colonies[2]`,
+                        `total_colonies[3]`,
+                        `total_colonies[4]`,
+                        `total_colonies[5]`,
+                        `total_colonies[6]`),
+               names_to = "site",
+               values_to = "total_colonies")
+
+mix23_colonies = ggplot(mix23_tc, aes(x = total_colonies, fill = site)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_discrete(labels = site_keys$site) +
+  xlab("Total number of colonies") +
+  ylab("Posterior samples") +
+  xlim(c(0, 5000)) +
+  theme_bw() +
+  theme(legend.position = c(0.8, 0.8),
+        panel.grid = element_blank(), 
+        strip.background = element_blank(),
+        axis.text = element_text(size = 10, color = "grey20"), 
+        axis.title = element_text(size = 11, color = "grey20"),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        panel.border= element_blank(),  
+        axis.ticks = element_line(color = "grey30", linewidth = 0.3),
+        axis.line = element_line(color = "grey30", linewidth = 0.3))
+ggsave("figures/manuscript_figures/mixtus2023truncnb.jpg",
+       mix23_colonies, units = "px", width = 2000, height = 1000)
+
+
+# impatiens 2022
+imp22_tc = imp22_extracted %>%
+  pivot_longer(cols = c(`total_colonies[1]`,
+                        `total_colonies[2]`,
+                        `total_colonies[3]`,
+                        `total_colonies[4]`,
+                        `total_colonies[5]`,
+                        `total_colonies[6]`),
+               names_to = "site",
+               values_to = "total_colonies")
+
+imp22_colonies = ggplot(imp22_tc, aes(x = total_colonies, fill = site)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_discrete(labels = site_keys$site) +
+  xlab("Total number of colonies") +
+  ylab("Posterior samples") +
+  xlim(c(0, 5000)) +
+  theme_bw() +
+  theme(legend.position = c(0.8, 0.8),
+        panel.grid = element_blank(), 
+        strip.background = element_blank(),
+        axis.text = element_text(size = 10, color = "grey20"), 
+        axis.title = element_text(size = 11, color = "grey20"),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        panel.border= element_blank(),  
+        axis.ticks = element_line(color = "grey30", linewidth = 0.3),
+        axis.line = element_line(color = "grey30", linewidth = 0.3))
+ggsave("figures/manuscript_figures/impatiens2022truncnb.jpg",
+       imp22_colonies, units = "px", width = 2000, height = 1000)
+
+
+# impatiens 2023
+imp23_tc = imp23_extracted %>%
+  pivot_longer(cols = c(`total_colonies[1]`,
+                        `total_colonies[2]`,
+                        `total_colonies[3]`,
+                        `total_colonies[4]`,
+                        `total_colonies[5]`,
+                        `total_colonies[6]`),
+               names_to = "site",
+               values_to = "total_colonies")
+
+imp23_colonies = ggplot(imp23_tc, aes(x = total_colonies, fill = site)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_discrete(labels = site_keys$site) +
+  xlab("Total number of colonies") +
+  ylab("Posterior samples") +
+  xlim(c(0, 5000)) +
+  theme_bw() +
+  theme(legend.position = c(0.8, 0.8),
+        panel.grid = element_blank(), 
+        strip.background = element_blank(),
+        axis.text = element_text(size = 10, color = "grey20"), 
+        axis.title = element_text(size = 11, color = "grey20"),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        panel.border= element_blank(),  
+        axis.ticks = element_line(color = "grey30", linewidth = 0.3),
+        axis.line = element_line(color = "grey30", linewidth = 0.3))
+ggsave("figures/manuscript_figures/impatiens2023truncnb.jpg",
+       imp23_colonies, units = "px", width = 2000, height = 1000)
+
+
+# fit truncated poisson
+mix22fit_pois = fit_truncated_pois_real(mix2022, specimenData2022, focal_year = 2022)
+saveRDS(mix22fit_pois, "analysis/mixtrunc22fit_pois.RDS")
+mix23fit_pois = fit_truncated_pois_real(mix2023, specimenData2023, focal_year = 2023)
+saveRDS(mix23fit_pois, "analysis/mixtrunc23fit_pois.RDS")
+imp22fit_pois = fit_truncated_pois_real(imp2022, specimenData2022, focal_year = 2022)
+saveRDS(imp22fit_pois, "analysis/imptrunc22fit_pois.RDS")
+imp23fit_pois = fit_truncated_pois_real(imp2023, specimenData2023, focal_year = 2023)
+saveRDS(imp23fit_pois, "analysis/imptrunc23fit_pois.RDS")
+
+
+# extract data
+mix22_extracted_pois = as.data.frame(mix22fit_pois)
+mix23_extracted_pois = as.data.frame(mix23fit_pois)
+imp22_extracted_pois = as.data.frame(imp22fit_pois)
+imp23_extracted_pois = as.data.frame(imp23fit_pois)
+
+
+# mixtus 2022
+mix22_tc_pois = mix22_extracted_pois %>%
+  pivot_longer(cols = c(`total_colonies[1]`,
+                        `total_colonies[2]`,
+                        `total_colonies[3]`,
+                        `total_colonies[4]`,
+                        `total_colonies[5]`,
+                        `total_colonies[6]`),
+               names_to = "site",
+               values_to = "total_colonies")
+
+mix22_colonies_pois = ggplot(mix22_tc_pois, aes(x = total_colonies, fill = site)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_discrete(labels = site_keys$site) +
+  xlab("Total number of colonies") +
+  ylab("Posterior samples") +
+  xlim(c(0, 5000)) +
+  theme_bw() +
+  theme(legend.position = c(0.8, 0.8),
+        panel.grid = element_blank(), 
+        strip.background = element_blank(),
+        axis.text = element_text(size = 10, color = "grey20"), 
+        axis.title = element_text(size = 11, color = "grey20"),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        panel.border= element_blank(),  
+        axis.ticks = element_line(color = "grey30", linewidth = 0.3),
+        axis.line = element_line(color = "grey30", linewidth = 0.3))
+ggsave("figures/manuscript_figures/mixtus2022truncpois.jpg",
+       mix22_colonies_pois, units = "px", width = 2000, height = 1000)
+
+
+# mixtus 2023
+mix23_tc_pois = mix23_extracted_pois %>%
+  pivot_longer(cols = c(`total_colonies[1]`,
+                        `total_colonies[2]`,
+                        `total_colonies[3]`,
+                        `total_colonies[4]`,
+                        `total_colonies[5]`,
+                        `total_colonies[6]`),
+               names_to = "site",
+               values_to = "total_colonies")
+
+mix23_colonies_pois = ggplot(mix23_tc_pois, aes(x = total_colonies, fill = site)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_discrete(labels = site_keys$site) +
+  xlab("Total number of colonies") +
+  ylab("Posterior samples") +
+  xlim(c(0, 5000)) +
+  theme_bw() +
+  theme(legend.position = c(0.8, 0.8),
+        panel.grid = element_blank(), 
+        strip.background = element_blank(),
+        axis.text = element_text(size = 10, color = "grey20"), 
+        axis.title = element_text(size = 11, color = "grey20"),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        panel.border= element_blank(),  
+        axis.ticks = element_line(color = "grey30", linewidth = 0.3),
+        axis.line = element_line(color = "grey30", linewidth = 0.3))
+ggsave("figures/manuscript_figures/mixtus2023truncpois.jpg",
+       mix23_colonies_pois, units = "px", width = 2000, height = 1000)
+
+
+# impatiens 2022
+imp22_tc_pois = imp22_extracted_pois %>%
+  pivot_longer(cols = c(`total_colonies[1]`,
+                        `total_colonies[2]`,
+                        `total_colonies[3]`,
+                        `total_colonies[4]`,
+                        `total_colonies[5]`,
+                        `total_colonies[6]`),
+               names_to = "site",
+               values_to = "total_colonies")
+
+imp22_colonies_pois = ggplot(imp22_tc_pois, aes(x = total_colonies, fill = site)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_discrete(labels = site_keys$site) +
+  xlab("Total number of colonies") +
+  ylab("Posterior samples") +
+  xlim(c(0, 5000)) +
+  theme_bw() +
+  theme(legend.position = c(0.8, 0.8),
+        panel.grid = element_blank(), 
+        strip.background = element_blank(),
+        axis.text = element_text(size = 10, color = "grey20"), 
+        axis.title = element_text(size = 11, color = "grey20"),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        panel.border= element_blank(),  
+        axis.ticks = element_line(color = "grey30", linewidth = 0.3),
+        axis.line = element_line(color = "grey30", linewidth = 0.3))
+ggsave("figures/manuscript_figures/impatiens2022truncpois.jpg",
+       imp22_colonies_pois, units = "px", width = 2000, height = 1000)
+
+
+# impatiens 2023
+imp23_tc_pois = imp23_extracted_pois %>%
+  pivot_longer(cols = c(`total_colonies[1]`,
+                        `total_colonies[2]`,
+                        `total_colonies[3]`,
+                        `total_colonies[4]`,
+                        `total_colonies[5]`,
+                        `total_colonies[6]`),
+               names_to = "site",
+               values_to = "total_colonies")
+
+imp23_colonies_pois = ggplot(imp23_tc_pois, aes(x = total_colonies, fill = site)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_discrete(labels = site_keys$site) +
+  xlab("Total number of colonies") +
+  ylab("Posterior samples") +
+  xlim(c(0, 5000)) +
+  theme_bw() +
+  theme(legend.position = c(0.8, 0.8),
+        panel.grid = element_blank(), 
+        strip.background = element_blank(),
+        axis.text = element_text(size = 10, color = "grey20"), 
+        axis.title = element_text(size = 11, color = "grey20"),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        panel.border= element_blank(),  
+        axis.ticks = element_line(color = "grey30", linewidth = 0.3),
+        axis.line = element_line(color = "grey30", linewidth = 0.3))
+ggsave("figures/manuscript_figures/impatiens2023truncpois.jpg",
+       imp23_colonies_pois, units = "px", width = 2000, height = 1000)
+
