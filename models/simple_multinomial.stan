@@ -6,6 +6,7 @@ data {
   int<lower=1> total_traps;      // # traps
   int<lower=0> total_obs;        // total number of observations (observation for a colony at a trap, not just trap observations)
   matrix[total_traps, 2] trap_pos; // trap coordinates
+  int sample_effort[total_traps]; // per trap sampling effort
   int traps_start[L];            // 1-based index for trap_pos
   int traps_n[L];                // # traps per landscape
   int colony_land[C];            // site id for each colony
@@ -26,6 +27,7 @@ transformed data {
 
 parameters {
   real<lower=0> rho; 
+  real beta;
   real<lower=0> sigma;
   real<lower=0> tau;
   vector[total_traps] eps; 
@@ -47,9 +49,10 @@ transformed parameters {
 model {
   // set priors
   // see inside for loop for delta_x, delta_y priors
+  rho ~ lognormal(log(0.5), 0.5);
+  beta ~ normal(0,1);
   sigma ~ normal(0, 1);
   tau ~ normal(0, 1); 
-  rho ~ lognormal(log(0.5), 0.5);
   eps ~ normal(0, 1); 
   zeta ~ normal(0, 1);
   
@@ -81,7 +84,7 @@ model {
       target += -penalty * log1p_exp((dis-Rmax)*steepness);
       
       // calculate visitation intensity
-      lambda_row[t] = -0.5*(dis / rho)^2 + zeta_scale[i] + eps_scale[k];
+      lambda_row[t] = -0.5*(dis / rho)^2 + beta*sample_effort[k] + zeta_scale[i] + eps_scale[k];
     }
 
     // compute multinomial probabilities and add to target likelihood

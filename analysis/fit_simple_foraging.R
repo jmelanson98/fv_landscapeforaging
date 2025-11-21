@@ -35,11 +35,8 @@ specs2022 = read.csv(paste0(bombus_path, "/raw_data/2022specimendata.csv"))
 specs2023 = read.csv(paste0(bombus_path, "/raw_data/2023specimendata.csv"))
 effort2022 = read.csv(paste0(bombus_path, "/raw_data/2022sampledata.csv"))
 effort2023 = read.csv(paste0(bombus_path, "/raw_data/2023sampledata.csv"))
-veg2022 = read.csv(paste0(bombus_path, "/raw_data/2022vegetationdata.csv"))
-veg2023 = read.csv(paste0(bombus_path, "/raw_data/2023vegetationdata.csv"))
 samplepoints = read.csv(paste0(bombus_path, "/raw_data/allsamplepoints.csv"), header = FALSE)
 
-#impatiens_sibs2023 = read.csv(paste0(bombus_path, "/impatiens_sibships_2023.csv"))
 
 # Make trap locations into correct format for calculating distance
 colnames(samplepoints)[1:2] = c("sample_pt", "coord")
@@ -85,13 +82,14 @@ filled_counts = counts %>%
   distinct(site, sibshipID) %>%
   inner_join(traps_m_2023, by = "site", relationship = "many-to-many") %>%
   left_join(counts, by = c("site", "sample_pt", "sibshipID")) %>%
-  mutate(count = replace_na(count, 0))
+  mutate(count = replace_na(count, 0)) %>%
+  arrange(sibshipID)
 filled_counts$trap_x = as.numeric(filled_counts$trap_x)
 filled_counts$trap_y = as.numeric(filled_counts$trap_y)
 
 # Get landscape id for each colony
 site_keys = data.frame(site = unique(impatiens_sibs2023$site),
-               site_id = 1:6)
+               site_id = 1:length(unique(impatiens_sibs2023$site)))
 colony_land = impatiens_sibs2023 %>%
   filter(notes != "male") %>%
   distinct(site, sibshipID) %>%
@@ -114,12 +112,13 @@ stan_data <- list(
   total_traps = nrow(traps_m_2023),
   total_obs = nrow(filled_counts),
   trap_pos = cbind(traps_m_2023$trap_x/1000, traps_m_2023$trap_y/1000), # matrix total_traps x 2, ordered by site, sample_pt
-  traps_start = traps_start_2023, # int[L]
-  traps_n = traps_n_2023$num_traps, # int[L]
-  colony_land = colony_land$site_id, # int[C], ordered by sibshipID
+  sample_effort = traps_m_2023$total_effort,
+  traps_start = array(traps_start_2023, dim = 1), # int[L]
+  traps_n = array(traps_n_2023$num_traps, dim=1), # int[L]
+  colony_land = array(colony_land$site_id, dim = 1), # int[C], ordered by sibshipID
   y_flat = filled_counts$count, # filled counts is ordered by site, then by sib ID, then by trap
-  y_start = yobs_start_2023,
-  y_n = yobs_n_2023$num_obs,
+  y_start = array(yobs_start_2023, dim = 1),
+  y_n = array(yobs_n_2023$num_obs, dim = 1),
   lower_x = (min(traps_m_2023$trap_x) - 5000)/1000,
   upper_x = (max(traps_m_2023$trap_x) + 5000)/1000,
   lower_y = (min(traps_m_2023$trap_y) - 5000)/1000,
@@ -131,25 +130,27 @@ stan_data <- list(
 stanfile = "models/simple_multinomial.stan"
 
 #fit and save model
-stanFit = stan(file = stanfile,
+stanFitED = stan(file = stanfile,
                data = stan_data, seed = 5838299,
                chains = 4, cores = 4,
                control = list(max_treedepth = 15),
-               iter = 4000,
+               iter = 10000,
                verbose = TRUE)
-saveRDS(stanFit_ht, "analysis/foragingmodel_lowESS.RDS")
+saveRDS(stanFit, "analysis/foragingmodel_nosampleeffort.RDS")
 
 
 #Plot the posteriors of some colonies
 plot_list = list()
-numplots = 12
+numplots = 3
 legends = list()
 
 for (i in 1:numplots){
-  delta_draws = cbind(x = rstan::extract(stanFit, pars = "delta_x")$delta[, i],
-                      y = rstan::extract(stanFit, pars = "delta_y")$delta[, i])
+  delta_draws = cbind(x = rstan::extract(stanFitED, pars = "delta_x")$delta[, i],
+                      y = rstan::extract(stanFitED, pars = "delta_y")$delta[, i])
   traps_temp = full_join(traps_m_2023, filled_counts[filled_counts$sibshipID ==i,])
   traps_temp$count[is.na(traps_temp$count)] = 0
+  traps_temp$trap_x = traps_temp$trap_x/1000
+  traps_temp$trap_y = traps_temp$trap_y/1000
   
   p = ggplot(delta_draws, aes(x = x, y = y)) +
     geom_density_2d_filled(alpha = 0.8) +
@@ -163,6 +164,8 @@ for (i in 1:numplots){
          size = "Number of Captures",
          level = "Colony Posterior") +
     guides(colour = "none") +
+    #xlim(c(1220, 1225)) +
+    #ylim(c(455,460)) +
     coord_equal() +
     theme_bw()
   
