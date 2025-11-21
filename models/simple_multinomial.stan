@@ -27,7 +27,7 @@ transformed data {
 
 parameters {
   real<lower=0> rho; 
-  real beta;
+  real<lower=0> beta;
   real<lower=0> sigma;
   real<lower=0> tau;
   vector[total_traps] eps; 

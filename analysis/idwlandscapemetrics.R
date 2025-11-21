@@ -11,7 +11,7 @@ library(data.table)
 library(dbscan)
 
 # Set up workspace
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+setwd("/Users/jenna1/fv_landscapeforaging")
 bombus_path = "/Users/jenna1/Documents/UBC/bombus_project/"
 
 ###########################
