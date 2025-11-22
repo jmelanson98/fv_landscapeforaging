@@ -126,6 +126,11 @@ prep_stan_simpleforaging = function(sibships,
                                     effort,
                                     samplepoints){
   
+  # Create site ids
+  sibships$site = as.factor(sibships$site)
+  site_keys = data.frame(site = levels(sibships$site),
+                         site_id = 1:length(unique(sibships$site)))
+  
   # Make trap locations into correct format for calculating distance
   colnames(samplepoints)[1:2] = c("sample_pt", "coord")
   samplepoints$lat = rapply(strsplit(gsub("\\(|\\).*", "", samplepoints$coord), split = " "), function(x) tail(x, 1))
@@ -144,7 +149,10 @@ prep_stan_simpleforaging = function(sibships,
   effort_sum = effort %>%
     group_by(sample_point) %>%
     summarize(total_effort = 5*n())
-  traps_m = left_join(traps_m, effort_sum[,colnames(effort_sum) %in% c("sample_point", "total_effort")], by = c("sample_pt" = "sample_point"))
+  traps_m = traps_m %>%
+    left_join(effort_sum[,colnames(effort_sum) %in% c("sample_point", "total_effort")], by = c("sample_pt" = "sample_point")) %>%
+    left_join(site_keys, by = "site") %>%
+    arrange(site_id)
   
   # traps_m is a dataframe/matrix of all trap coordinates
   traps_m = traps_m[!is.na(traps_m$total_effort),]
@@ -153,8 +161,9 @@ prep_stan_simpleforaging = function(sibships,
   
   # number of traps per landscape
   traps_n = traps_m %>% 
-    group_by(site) %>%
-    summarize(num_traps = n())
+    group_by(site_id) %>%
+    summarize(num_traps = n()) %>%
+    arrange(site_id)
   traps_start = cumsum(c(1, traps_n$num_traps))[1:length(traps_n$num_traps)]
   
   # Get counts of bees in traps
@@ -175,8 +184,6 @@ prep_stan_simpleforaging = function(sibships,
   filled_counts$trap_y = as.numeric(filled_counts$trap_y)
   
   # Get landscape id for each colony
-  site_keys = data.frame(site = unique(sibships$site),
-                         site_id = 1:length(unique(sibships$site)))
   colony_land = sibships %>%
     filter(notes != "male") %>%
     distinct(site, sibshipID) %>%

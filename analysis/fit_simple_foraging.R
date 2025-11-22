@@ -24,7 +24,7 @@ library(sf)
 #setwd("/Users/jenna1/fv_landscapeforaging")
 #bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
 
-setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging/simulate_data")
+setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 bombus_path = "/home/melanson/projects/def-ckremen/melanson"
 source("src/analysis_functions.R")
 
@@ -73,7 +73,7 @@ data = data_list[[task_id]]
 
 #fit and save model
 stanFit = stan(file = stanfile,
-               data = stan_data, seed = 5838299,
+               data = data, seed = 5838299,
                chains = 4, cores = 4,
                control = list(max_treedepth = 15),
                iter = 4000,
