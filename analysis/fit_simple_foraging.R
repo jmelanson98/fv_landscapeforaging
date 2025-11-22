@@ -76,7 +76,7 @@ stanFit = stan(file = stanfile,
                data = stan_data, seed = 5838299,
                chains = 4, cores = 4,
                control = list(max_treedepth = 15),
-               iter = 10000,
+               iter = 4000,
                verbose = TRUE)
 saveRDS(stanFit, paste0("analysis/foragingmodel_", task_id, ".rds"))
 
