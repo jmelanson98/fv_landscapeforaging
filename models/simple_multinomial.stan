@@ -29,9 +29,9 @@ parameters {
   real<lower=0> rho; 
   real<lower=0> beta;
   real<lower=0> sigma;
-  real<lower=0> tau;
+  // real<lower=0> tau;
   vector[total_traps] eps; 
-  vector[C] zeta;
+  // vector[C] zeta;
   
   // using hard bounds here so that init doesn't fail with - inf
   array[C] real<lower=lower_x, upper=upper_x> delta_x;
@@ -40,9 +40,9 @@ parameters {
 
 
 transformed parameters {
-  real<lower=0> tau_sqrt = sqrt(tau);
+  // real<lower=0> tau_sqrt = sqrt(tau);
   real<lower=0> sigma_sqrt = sqrt(sigma); 
-  vector[C] zeta_scale = zeta * tau_sqrt;
+  // vector[C] zeta_scale = zeta * tau_sqrt;
   vector[total_traps] eps_scale = eps*sigma_sqrt;
 }
 
@@ -52,9 +52,9 @@ model {
   rho ~ lognormal(log(0.5), 0.5);
   beta ~ normal(0,1);
   sigma ~ normal(0, 1);
-  tau ~ normal(0, 1); 
+  // tau ~ normal(0, 1); 
   eps ~ normal(0, 1); 
-  zeta ~ normal(0, 1);
+  // zeta ~ normal(0, 1);
   
   // calculate likelihood
   for (i in 1:C) {
@@ -84,7 +84,7 @@ model {
       target += -penalty * log1p_exp((dis-Rmax)*steepness);
       
       // calculate visitation intensity
-      lambda_row[t] = -0.5*(dis / rho)^2 + beta*sample_effort[k] + zeta_scale[i] + eps_scale[k];
+      lambda_row[t] = -0.5*(dis / rho)^2 + beta*sample_effort[k] + eps_scale[k];
     }
 
     // compute multinomial probabilities and add to target likelihood
