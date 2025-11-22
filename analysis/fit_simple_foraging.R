@@ -87,8 +87,8 @@ numplots = 3
 legends = list()
 
 for (i in 1:numplots){
-  delta_draws = cbind(x = rstan::extract(stanFitED, pars = "delta_x")$delta[, i],
-                      y = rstan::extract(stanFitED, pars = "delta_y")$delta[, i])
+  delta_draws = cbind(x = rstan::extract(stanFit, pars = "delta_x")$delta[, i],
+                      y = rstan::extract(stanFit, pars = "delta_y")$delta[, i])
   traps_temp = full_join(traps_m_2023, filled_counts[filled_counts$sibshipID ==i,])
   traps_temp$count[is.na(traps_temp$count)] = 0
   traps_temp$trap_x = traps_temp$trap_x/1000
