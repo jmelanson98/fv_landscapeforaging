@@ -202,7 +202,7 @@ prep_stan_simpleforaging = function(sibships,
   # DISTANCES IN KM, NOT METERS
   stan_data <- list(
     C = length(colony_land$site_id),
-    L = length(traps_n$site),
+    L = length(traps_n$site_id),
     total_traps = nrow(traps_m),
     total_obs = nrow(filled_counts),
     trap_pos = cbind(traps_m$trap_x/1000, traps_m$trap_y/1000), # matrix total_traps x 2, ordered by site, sample_pt
