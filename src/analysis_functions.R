@@ -219,5 +219,7 @@ prep_stan_simpleforaging = function(sibships,
     upper_y = (max(traps_m$trap_y) + 5000)/1000
   )
   
-  return(stan_data)
+  out = list(stan_data, filled_counts, traps_m)
+  
+  return(out)
 }

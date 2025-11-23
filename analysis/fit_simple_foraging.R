@@ -68,7 +68,7 @@ stanfile = "models/simple_multinomial.stan"
 
 # Get task ID from slurm manager
 task_id = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
-data_list = list(mix22_stan, mix23_stan, imp22_stan, imp23_stan)
+data_list = list(mix22_stan[[1]], mix23_stan[[1]], imp22_stan[[1]], imp23_stan[[1]])
 data = data_list[[task_id]]
 
 #fit and save model
@@ -78,10 +78,16 @@ stanFit = stan(file = stanfile,
                control = list(max_treedepth = 15),
                iter = 4000,
                verbose = TRUE)
-saveRDS(stanFit, paste0("analysis/foragingmodel_", task_id, ".rds"))
+saveRDS(stanFit, paste0("analysis/foraging_modelfits/foragingmodel_", task_id, ".rds"))
 
 
 #Plot the posteriors of some colonies
+filledcounts_list = list(mix22_stan[[2]], mix23_stan[[2]], imp22_stan[[2]], imp23_stan[[2]])
+traps_m_list = list(mix22_stan[[3]], mix23_stan[[3]], imp22_stan[[3]], imp23_stan[[3]])
+
+filledcounts = filledcounts_list[[task_id]]
+traps_m = traps_m_list[[task_id]]
+
 plot_list = list()
 numplots = 3
 legends = list()
@@ -89,7 +95,7 @@ legends = list()
 for (i in 1:numplots){
   delta_draws = cbind(x = rstan::extract(stanFit, pars = "delta_x")$delta[, i],
                       y = rstan::extract(stanFit, pars = "delta_y")$delta[, i])
-  traps_temp = full_join(traps_m_2023, filled_counts[filled_counts$sibshipID ==i,])
+  traps_temp = full_join(traps_m, filled_counts[filled_counts$sibshipID ==i,])
   traps_temp$count[is.na(traps_temp$count)] = 0
   traps_temp$trap_x = traps_temp$trap_x/1000
   traps_temp$trap_y = traps_temp$trap_y/1000
@@ -126,6 +132,6 @@ for (i in 1:numplots){
 
 fig = grid.arrange(grobs = plot_list, ncol = 3)
 fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
-ggsave(paste0("analysis/foragingmodel_", task_id, ".jpg"), fig, height = 3000, width = 4000, units = "px")
+ggsave(paste0("analysis/colony_posteriors/foragingmodel_", task_id, ".jpg"), fig, height = 3000, width = 4000, units = "px")
 
 print("Done!")
