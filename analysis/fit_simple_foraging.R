@@ -79,13 +79,14 @@ stanFit = stan(file = stanfile,
                iter = 4000,
                verbose = TRUE)
 saveRDS(stanFit, paste0("analysis/foraging_modelfits/foragingmodel_", task_id, ".rds"))
+#stanFit = readRDS("analysis/foraging_modelfits/foragingmodel_1.rds")
 
 
 #Plot the posteriors of some colonies
 filledcounts_list = list(mix22_stan[[2]], mix23_stan[[2]], imp22_stan[[2]], imp23_stan[[2]])
 traps_m_list = list(mix22_stan[[3]], mix23_stan[[3]], imp22_stan[[3]], imp23_stan[[3]])
 
-filledcounts = filledcounts_list[[task_id]]
+filled_counts = filledcounts_list[[task_id]]
 traps_m = traps_m_list[[task_id]]
 
 plot_list = list()
@@ -104,7 +105,7 @@ for (i in 1:numplots){
     geom_density_2d_filled(alpha = 0.8) +
     
     #plot trap locations / sizes / quality
-    geom_point(data = traps_temp, aes(x = trap_x, y = trap_y, size = count, colour = "red")) +
+    geom_point(data = traps_temp[traps_temp$site == "W",], aes(x = trap_x, y = trap_y, size = count, colour = "red")) +
     scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
     
     #miscellaneous

@@ -81,7 +81,7 @@ model {
                        
       // penalize distances that are outside Rmax
       // a bit like a soft indicator function, to maintain differentiability for HMC
-      target += -penalty * log1p_exp((dis-Rmax)*steepness);
+      target += y_seg[t]*(-penalty * log1p_exp((dis-Rmax)*steepness));
       
       // calculate visitation intensity
       lambda_row[t] = -0.5*(dis / rho)^2 + beta*sample_effort[k] + eps_scale[k];
