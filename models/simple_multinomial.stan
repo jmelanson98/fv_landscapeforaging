@@ -21,8 +21,8 @@ data {
 
 transformed data {
   real Rmax = 2.0;     // max distance of colonies from traps where they observed
-  real steepness = 50;    // steepness of penalty function
-  real penalty = 2000;     // penalty scale
+  real steepness = 10;    // steepness of penalty function
+  real penalty = 10;     // penalty scale
 }
 
 parameters {
