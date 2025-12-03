@@ -84,10 +84,10 @@ fv_points$idwSN_imp23_low = NA
 fv_points$idwSN_imp23_mean = NA
 fv_points$idwSN_imp23_high = NA
 
-condition_vector = c("idwSN_mix22_low", "idwSN_mix22_mean", "idwSN_mix22_max",
-                   "idwSN_mix23_low", "idwSN_mix23_mean", "idwSN_mix22_max",
-                   "idwSN_imp22_low", "idwSN_imp22_mean", "idwSN_imp22_max",
-                   "idwSN_imp23_low", "idwSN_imp23_mean", "idwSN_imp23_max")
+condition_vector = c("idwSN_mix22_min", "idwSN_mix22_mean", "idwSN_mix22_max",
+                   "idwSN_mix23_min", "idwSN_mix23_mean", "idwSN_mix23_max",
+                   "idwSN_imp22_min", "idwSN_imp22_mean", "idwSN_imp22_max",
+                   "idwSN_imp23_min", "idwSN_imp23_mean", "idwSN_imp23_max")
 allrho = c(rhom22, rhom23, rhoi22, rhoi23)
 
 # get task id

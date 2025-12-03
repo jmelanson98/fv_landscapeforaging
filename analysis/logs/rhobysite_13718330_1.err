@@ -69,3 +69,9 @@ the `.groups` argument.
 the `.groups` argument.
 `summarise()` has grouped output by 'site', 'sample_pt'. You can override using
 the `.groups` argument.
+Warning messages:
+1: There were 45 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. 
+2: Examine the pairs() plot to diagnose sampling problems
+ 

@@ -1,12 +1,12 @@
 #!/bin/bash
-##SBATCH --job-name=rhobysite
-#SBATCH --output=logs/rhobysite_%A_%a.out
-#SBATCH --error=logs/rhobysite_%A_%a.err
-#SBATCH --array=1-4
+##SBATCH --job-name=idw
+#SBATCH --output=logs/idw_%A_%a.out
+#SBATCH --error=logs/idw_%A_%a.err
+#SBATCH --array=1-12
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=8G
-#SBATCH --time=12:00:00
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=20G
+#SBATCH --time=01:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
@@ -14,4 +14,4 @@ module load StdEnv/2023 gcc r/4.3.1 gdal proj
 export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.3
 
 
-Rscript fit_rhobysite_foraging.R
+Rscript idwcluster.R
