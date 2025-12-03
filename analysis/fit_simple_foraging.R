@@ -82,57 +82,91 @@ saveRDS(stanFit, paste0("analysis/foraging_modelfits/foragingmodel_", task_id, "
 #stanFit = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
 
 
-#Plot the posteriors of some colonies
-filledcounts_list = list(mix22_stan[[2]], mix23_stan[[2]], imp22_stan[[2]], imp23_stan[[2]])
-traps_m_list = list(mix22_stan[[3]], mix23_stan[[3]], imp22_stan[[3]], imp23_stan[[3]])
 
-filled_counts = filledcounts_list[[task_id]]
-traps_m = traps_m_list[[task_id]]
 
-plot_list = list()
-numplots = 3
-legends = list()
+#############################################
+# Extract values and makes some plots
+#############################################
 
-for (i in 1:numplots){
-  delta_draws = cbind(x = rstan::extract(stanFit, pars = "delta_x")$delta[, i],
-                      y = rstan::extract(stanFit, pars = "delta_y")$delta[, i])
-  traps_temp = full_join(traps_m, filled_counts[filled_counts$sibshipID ==i,])
-  traps_temp$count[is.na(traps_temp$count)] = 0
-  traps_temp$trap_x = traps_temp$trap_x/1000
-  traps_temp$trap_y = traps_temp$trap_y/1000
-  
-  p = ggplot(delta_draws, aes(x = x, y = y)) +
-    geom_density_2d_filled(alpha = 0.8) +
-    
-    #plot trap locations / sizes / quality
-    geom_point(data = traps_temp[traps_temp$site == "ED",], aes(x = trap_x, y = trap_y, size = count, colour = "red")) +
-    scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
-    
-    #miscellaneous
-    labs(title = paste("Colony", i), 
-         size = "Number of Captures",
-         level = "Colony Posterior") +
-    guides(colour = "none") +
-    #xlim(c(1220, 1225)) +
-    #ylim(c(455,460)) +
-    coord_equal() +
-    theme_bw()
-  
-  # save legend
-  g <- ggplotGrob(p)
-  legend_index <- which(g$layout$name == "guide-box-right")
-  legend <- g$grobs[[legend_index]]
-  
-  # remove legend from plot
-  p <- p + theme(legend.position = "none")
-  
-  #save plot
-  plot_list[[i]] = p
-  legends[[1]] = legend
-}
+# mixtus 2022
+stanFitm22 = readRDS("analysis/foraging_modelfits/foragingmodel_1.rds")
+summarym22 = rstan::summary(stanFitm22)$summary
 
-fig = grid.arrange(grobs = plot_list, ncol = 3)
-fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
-ggsave(paste0("analysis/colony_posteriors/foragingmodel_", task_id, ".jpg"), fig, height = 3000, width = 4000, units = "px")
+rhom22 = c(summarym22["rho", "2.5%"],
+           summarym22["rho", "mean"],
+           summarym22["rho", "97.5%"])
+rhom22 = rhom22*1000
 
-print("Done!")
+# mixtus 2023
+stanFitm23 = readRDS("analysis/foraging_modelfits/foragingmodel_2.rds")
+summarym23 = rstan::summary(stanFitm23)$summary
+
+rhom23 = c(summarym23["rho", "2.5%"],
+           summarym23["rho", "mean"],
+           summarym23["rho", "97.5%"])
+rhom23 = rhom23*1000
+
+
+# impatiens 2022
+stanFiti22 = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
+summaryi22 = rstan::summary(stanFiti22)$summary
+
+rhoi22 = c(summaryi22["rho", "2.5%"],
+           summaryi22["rho", "mean"],
+           summaryi22["rho", "97.5%"])
+rhoi22 = rhoi22*1000
+
+# impatiens 2023
+stanFiti23 = readRDS("analysis/foraging_modelfits/foragingmodel_4.rds")
+summaryi23 = rstan::summary(stanFiti23)$summary
+
+rhoi23 = c(summaryi23["rho", "2.5%"],
+           summaryi23["rho", "mean"],
+           summaryi23["rho", "97.5%"])
+rhoi23 = rhoi23*1000
+
+
+# Make plot of rhos for each species/year!
+postm22 = as.data.frame(stanFitm22)
+postm23 = as.data.frame(stanFitm23)
+posti22 = as.data.frame(stanFiti22)
+posti23 = as.data.frame(stanFiti23)
+
+combinedpost =  bind_rows(
+  data.frame(model = "B. mixtus 2022", rho = postm22$rho),
+  data.frame(model = "B. mixtus 2023", rho = postm23$rho),
+  data.frame(model = "B. impatiens 2022", rho = posti22$rho),
+  data.frame(model = "B. impatiens 2023", rho = posti23$rho)
+)
+
+ggplot(combinedpost, aes(x = rho, fill = model)) +
+  geom_histogram(bins = 30) +
+  facet_wrap(~ model) +
+  theme_minimal()
+
+ggplot(combinedpost, aes(x = rho, fill = model)) +
+  scale_fill_manual(values = c(medium_gold, lm_gold, faded_strong, faded_green)) +
+  stat_halfeye(point_interval = median_qi, .width = c(0.95)) +
+  facet_wrap(~model, ncol = 1) +
+  theme_minimal()
+
+year_difference = bind_rows(
+  data.frame(species = "mixtus", rho_diff = postm22$rho - postm23$rho),
+  data.frame(species = "impatiens", rho_diff = posti22$rho - posti23$rho)
+)
+
+ggplot(year_difference, aes(x = rho_diff, fill = species)) +
+  geom_histogram(alpha = 0.4) +
+  theme_minimal()
+
+mix_diff = year_difference[year_difference$species == "mixtus",]
+bayesp = sum(mix_diff$rho_diff > 0)/nrow(mix_diff)
+
+species_difference = bind_rows(
+  data.frame(year = "2022", rho_diff = posti22$rho - postm22$rho),
+  data.frame(year = "2023", rho_diff = posti23$rho - postm23$rho)
+)
+
+ggplot(species_difference, aes(x = rho_diff, fill = year)) +
+  geom_histogram(alpha = 0.4) +
+  theme_minimal()

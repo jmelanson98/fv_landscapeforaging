@@ -85,44 +85,6 @@ rhoi23 = c(summaryi23["rho", "2.5%"],
 rhoi23 = rhoi23*1000
 
 
-# Make plot of rhos for each species/year!
-postm22 = as.data.frame(stanFitm22)
-postm23 = as.data.frame(stanFitm23)
-posti22 = as.data.frame(stanFiti22)
-posti23 = as.data.frame(stanFiti23)
-
-combinedpost =  bind_rows(
-  data.frame(model = "B. mixtus 2022", rho = postm22$rho),
-  data.frame(model = "B. mixtus 2023", rho = postm23$rho),
-  data.frame(model = "B. impatiens 2022", rho = posti22$rho),
-  data.frame(model = "B. impatiens 2023", rho = posti23$rho)
-)
-
-ggplot(combinedpost, aes(x = rho, fill = model)) +
-  geom_histogram(alpha = 0.4) +
-  theme_minimal()
-
-year_difference = bind_rows(
-  data.frame(species = "mixtus", rho_diff = postm22$rho - postm23$rho),
-  data.frame(species = "impatiens", rho_diff = posti22$rho - posti23$rho)
-)
-
-ggplot(year_difference, aes(x = rho_diff, fill = species)) +
-  geom_histogram(alpha = 0.4) +
-  theme_minimal()
-
-mix_diff = year_difference[year_difference$species == "mixtus",]
-bayesp = sum(mix_diff$rho_diff > 0)/nrow(mix_diff)
-
-species_difference = bind_rows(
-  data.frame(year = "2022", rho_diff = posti22$rho - postm22$rho),
-  data.frame(year = "2023", rho_diff = posti23$rho - postm23$rho)
-)
-
-ggplot(species_difference, aes(x = rho_diff, fill = year)) +
-  geom_histogram(alpha = 0.4) +
-  theme_minimal()
-
 #############################################
 # Calculate IDW seminatural area per point
 #############################################
