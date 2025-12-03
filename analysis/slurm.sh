@@ -14,4 +14,4 @@ module load StdEnv/2023 gcc r/4.3.1 gdal proj
 export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.3
 
 
-Rscript idwcluster.R
+Rscript fit_rhobysite_foraging.R
