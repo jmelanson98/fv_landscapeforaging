@@ -94,7 +94,7 @@ allrho = c(rhom22, rhom23, rhoi22, rhoi23)
 task_id = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
 for (i in 1:nrow(fv_points)) {
-  fv_points[[condition_vector[task_id]]][i] = compute_idw_area(fv_points[i,], semi, buffer, allrho[task_id]
+  fv_points[[condition_vector[task_id]]][i] = compute_idw_area(fv_points[i,], semi, buffer, allrho[task_id])
   if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
 }
 
