@@ -431,11 +431,6 @@ fit_truncated_pois_real = function(siblingships,
 
 
 
-
-
-
-
-
 # fit negative binomial to all datasets
 mix22fit = fit_truncated_nb_real(mix2022, specimenData2022, focal_year = 2022)
 saveRDS(mix22fit, "analysis/mixtrunc22fit.RDS")
@@ -722,3 +717,6 @@ imp23_colonies_pois = ggplot(imp23_tc_pois, aes(x = total_colonies, fill = site)
 ggsave("figures/manuscript_figures/impatiens2023truncpois.jpg",
        imp23_colonies_pois, units = "px", width = 2000, height = 1000)
 
+
+
+# what about CAPWIRE?
