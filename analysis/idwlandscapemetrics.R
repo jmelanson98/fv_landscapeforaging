@@ -17,7 +17,7 @@ library(ggplot2)
 # Set up workspace
 setwd("/Users/jenna1/fv_landscapeforaging")
 bombus_path = "/Users/jenna1/Documents/UBC/bombus_project/"
-#bombus_path = "home/projects/def-ckremen/melanson"
+#bombus_path = "~/projects/def-ckremen/melanson/"
 source("src/analysis_functions.R")
 
 #####################################################
@@ -136,7 +136,7 @@ fv_points$idwSN_mix22_high = NA
 for (i in 1:nrow(fv_points)) {
   fv_points$idwSN_mix22_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom22[1])
   fv_points$idwSN_mix22_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom22[2])
-  fv_points$idwSN_mix22_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom22[3])
+  fv_points$idwSN_mix22_high[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom22[3])
   if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
 }
 
@@ -147,8 +147,8 @@ fv_points$idwSN_mix23_high = NA
 
 for (i in 1:nrow(fv_points)) {
   fv_points$idwSN_mix23_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom23[1])
-  #fv_points$idwSN_mix23_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom23[2])
-  #fv_points$idwSN_mix23_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom23[3])
+  fv_points$idwSN_mix23_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom23[2])
+  fv_points$idwSN_mix23_high[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom23[3])
   if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
 }
 
@@ -158,9 +158,9 @@ fv_points$idwSN_imp22_mean = NA
 fv_points$idwSN_imp22_high = NA
 
 for (i in 1:nrow(fv_points)) {
-    #fv_points$idwSN_imp22_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi22[1])
+    fv_points$idwSN_imp22_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi22[1])
     fv_points$idwSN_imp22_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi22[2])
-    #fv_points$idwSN_imp22_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi22[3])
+    fv_points$idwSN_imp22_high[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi22[3])
     if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
 }
 
@@ -172,10 +172,9 @@ fv_points$idwSN_imp23_high = NA
 for (i in 1:nrow(fv_points)) {
   fv_points$idwSN_imp23_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi23[1])
   fv_points$idwSN_imp23_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi23[2])
-  fv_points$idwSN_imp23_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi23[3])
+  fv_points$idwSN_imp23_high[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi23[3])
   if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
 }
-st_write(fv_points, "analysis/calculated_metrics.shp")
 
 
 #############################################
