@@ -717,6 +717,3 @@ imp23_colonies_pois = ggplot(imp23_tc_pois, aes(x = total_colonies, fill = site)
 ggsave("figures/manuscript_figures/impatiens2023truncpois.jpg",
        imp23_colonies_pois, units = "px", width = 2000, height = 1000)
 
-
-
-# what about CAPWIRE?

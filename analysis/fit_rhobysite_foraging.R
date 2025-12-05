@@ -80,60 +80,71 @@ stanFit = stan(file = stanfile,
                iter = 4000,
                verbose = TRUE)
 saveRDS(stanFit, paste0("analysis/foraging_modelfits/foragingmodel_", task_id, "_rhobysite.rds"))
-#stanFit = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
-# 
-# 
-# #Plot the posteriors of some colonies
-# filledcounts_list = list(mix22_stan[[2]], mix23_stan[[2]], imp22_stan[[2]], imp23_stan[[2]])
-# traps_m_list = list(mix22_stan[[3]], mix23_stan[[3]], imp22_stan[[3]], imp23_stan[[3]])
-# 
-# filled_counts = filledcounts_list[[task_id]]
-# traps_m = traps_m_list[[task_id]]
-# 
-# plot_list = list()
-# numplots = 3
-# legends = list()
-# 
-# for (i in 1:numplots){
-#   delta_draws = cbind(x = rstan::extract(stanFit, pars = "delta_x")$delta[, i],
-#                       y = rstan::extract(stanFit, pars = "delta_y")$delta[, i])
-#   traps_temp = full_join(traps_m, filled_counts[filled_counts$sibshipID ==i,])
-#   traps_temp$count[is.na(traps_temp$count)] = 0
-#   traps_temp$trap_x = traps_temp$trap_x/1000
-#   traps_temp$trap_y = traps_temp$trap_y/1000
-#   
-#   p = ggplot(delta_draws, aes(x = x, y = y)) +
-#     geom_density_2d_filled(alpha = 0.8) +
-#     
-#     #plot trap locations / sizes / quality
-#     geom_point(data = traps_temp[traps_temp$site == "ED",], aes(x = trap_x, y = trap_y, size = count, colour = "red")) +
-#     scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
-#     
-#     #miscellaneous
-#     labs(title = paste("Colony", i), 
-#          size = "Number of Captures",
-#          level = "Colony Posterior") +
-#     guides(colour = "none") +
-#     #xlim(c(1220, 1225)) +
-#     #ylim(c(455,460)) +
-#     coord_equal() +
-#     theme_bw()
-#   
-#   # save legend
-#   g <- ggplotGrob(p)
-#   legend_index <- which(g$layout$name == "guide-box-right")
-#   legend <- g$grobs[[legend_index]]
-#   
-#   # remove legend from plot
-#   p <- p + theme(legend.position = "none")
-#   
-#   #save plot
-#   plot_list[[i]] = p
-#   legends[[1]] = legend
-# }
-# 
-# fig = grid.arrange(grobs = plot_list, ncol = 3)
-# fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
-# ggsave(paste0("analysis/colony_posteriors/foragingmodel_", task_id, ".jpg"), fig, height = 3000, width = 4000, units = "px")
-# 
-print("Done!")
+
+
+
+#############################################
+# Extract values and make some plots
+#############################################
+
+# mixtus 2022
+stanFitm22 = readRDS("analysis/foraging_modelfits/foragingmodel_1_rhobysite.rds")
+summarym22 = rstan::summary(stanFitm22)$summary
+
+# mixtus 2023
+stanFitm23 = readRDS("analysis/foraging_modelfits/foragingmodel_2_rhobysite.rds")
+summarym23 = rstan::summary(stanFitm23)$summary
+
+# impatiens 2022
+stanFiti22 = readRDS("analysis/foraging_modelfits/foragingmodel_3_rhobysite.rds")
+summaryi22 = rstan::summary(stanFiti22)$summary
+
+# impatiens 2023
+stanFiti23 = readRDS("analysis/foraging_modelfits/foragingmodel_4_rhobysite.rds")
+summaryi23 = rstan::summary(stanFiti23)$summary
+
+# Plot all together
+models = list(
+  mixtus2022  = stanFitm22,
+  mixtus2023  = stanFitm23,
+  impatiens2022 = stanFiti22,
+  impatiens2023 = stanFiti23
+)
+params = c("rho[1]", "rho[2]", "rho[3]", "rho[4]", "rho[5]", "rho[6]")
+
+draws_df = lapply(names(models), function(nm) {
+  d = as_draws_df(models[[nm]])
+  d = posterior::subset_draws(d, variable = params)
+  as.data.frame(d) %>% 
+    mutate(model = nm)
+}) %>% 
+  bind_rows()
+
+df_long = draws_df %>%
+  pivot_longer(cols = all_of(params), names_to = "parameter", values_to = "value")
+
+site_keys = data.frame(site = c("W", "SD", "ED", "NR", "HR", "PM"),
+                       siteids = c(1, 2, 3, 4, 5, 6))
+
+params_plot2 = ggplot(df_long, aes(x = value, y = parameter, fill = parameter)) +
+  stat_halfeye(point_interval = median_qi, .width = c(0.95)) +
+  scale_fill_discrete(labels = site_keys$site) +
+  facet_wrap(~model, ncol = 1) +
+  xlab("foraging length scale") +
+  ylab("posterior samples") +
+  theme_bw() +
+  vline_at(0.5) +
+  theme(legend.position = c(0.8, 0.8),
+        panel.grid = element_blank(), 
+        strip.background = element_blank(),
+        axis.text = element_text(size = 10, color = "grey20"), 
+        axis.title = element_text(size = 11, color = "grey20"),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        panel.border= element_blank(),  
+        axis.ticks = element_line(color = "grey30", linewidth = 0.3),
+        axis.line = element_line(color = "grey30", linewidth = 0.3))
+
+
+ggsave("figures/manuscript_figures/foraging_rhobysite.jpg",
+       params_plot2, units = "px", height = 3000, width = 2000)
+

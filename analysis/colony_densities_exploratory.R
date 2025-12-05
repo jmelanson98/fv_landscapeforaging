@@ -4,7 +4,7 @@
 
 # Set up environment
 rm(list = ls())
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+setwd("/Users/jenna1/fv_landscapeforaging")
 bombus_path = "/Users/jenna1/Documents/UBC/bombus_project/"
 
 # first, load in packages
@@ -204,7 +204,7 @@ mix2022wd = left_join(mix2022, sampleEffort2022, by = c("sample_pt" = "sample_po
 mix2022wd$sibshipID <- factor(as.character(mix2022wd$sibshipID))
 
 
-# order sibships by their first date of occurence
+# order sibships by their first date of occurrence
 mix2022wd = mix2022wd %>%
   group_by(barcode_id) %>%
   mutate(first_date = min(julian_date)) %>%
@@ -218,7 +218,7 @@ mix2022wd = mix2022wd %>%
 
 
 # plot
-ggplot(mix2022wd, aes(x = julian_date, y = sibshipID, group = sibshipID)) +
+ggplot(mix2022wd, aes(x = julian_date, y = sibshipID)) +
   geom_line(color = "gray50", linewidth = 1.5) +
   geom_point(size = 1.5, color = "lightblue") +
   geom_point(aes(x = julian_date, y = barcode_id)) +
