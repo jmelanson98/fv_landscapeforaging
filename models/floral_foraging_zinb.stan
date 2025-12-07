@@ -4,9 +4,6 @@ data {
   int<lower=0> C;                // total number of colonies
   int<lower=0> K;                // total number of traps
   int<lower=0> O;                // total number of observations (observation for a colony at a trap, in a timepoint)
-  int<lower=0> CT;               // number of colonies * number of timepoints
-  int CTstarts[CT];              // start index for each colony-timepoint combo
-  int CTlengths[CT];             // number of obs per colony-timepoint combo
   matrix[O,2] trap_pos;              // trap coordinates
   int colony_id[O];              // colony id for each observation
   int trap_id[O];                 // trap id for each observation
@@ -32,7 +29,9 @@ parameters {
   real beta_doy;
   real alpha;
   real<lower=0> sigma;
+  real<lower=0> phi;
   vector[K] eps;
+  real<lower=0, upper=1> theta; // probability of drawing a zero (zero-inflation)
   
   // using hard bounds here so that init doesn't fail with - inf
   array[C] real<lower=lower_x, upper=upper_x> delta_x;
@@ -55,31 +54,32 @@ model {
   alpha ~ normal(0,1);
   sigma ~ normal(0, 1);
   eps ~ normal(0, 1);
+  phi ~ lognormal(log(10), 1);
+  // implicit uniform prior on theta
+  
+  // compute log(theta), log(1-theta) once per iteration
+  real log_theta = log(theta);
+  real log_not_theta = log(1-theta);
   
   // calculate likelihood
-  for (n in 1:CT){
-    int start = CTstarts[n]; // index start
-    int length = CTlengths[n]; // index length
+  for (n in 1:O){
+   
+    // compute eta
+    real dis = sqrt( square(delta_x[colony_id[n]] - trap_pos[n,1]) +
+                       square(delta_y[colony_id[n]] - trap_pos[n,2]) );
+    real eta = alpha - 0.5*(dis / rho)^2 + beta_fq*fq[n] + beta_doy*doy[n] + eps_scale[trap_id[n]];
     
-    // get data subsets
-    int y_it[length] = yobs[start : start+length-1]; // yobs for colony i, timepoint t set
-    vector[length] fq_it = fq[start:start+length-1]; // floral abundances for colony i, timepoint t set
-    vector[length] doy_it = doy[start:start+length-1]; // doys for colony i, timepoint t set
-    int k[length] = trap_id[start:start+length-1]; // trap indices
-    int i = colony_id[start]; // colony id
-    matrix[length,2] trap_t = trap_pos[start:start+length-1,];
-    
-    // compute lambda for each trap in that landscape
-    vector[length] dis = sqrt( square(delta_x[i] - trap_t[,1]) +
-                       square(delta_y[i] - trap_t[,2]) );
-    vector[length] lambda_it = alpha + -0.5*(dis / rho)^2 + beta_fq*fq_it + beta_doy*doy_it + eps_scale[k];
-    
-    // compute multinomial probabilities and add to target likelihood
-    vector[length] multi_probs = softmax(lambda_it);
-    y_it ~ multinomial(multi_probs);
-                       
-    // penalize distances that are outside Rmax
-    // a bit like a soft indicator function, to maintain differentiability for HMC
-    target += to_vector(y_it) .* (-penalty * log1p_exp((dis-Rmax)*steepness));
+    // compute zinb probabilities and add to target likelihood
+    if (yobs[n] == 0) {
+      target += log_sum_exp(
+        log_theta,
+        log_not_theta + neg_binomial_2_log_lpmf(0 | eta, phi)
+      );
+    } else {
+      target += log_not_theta + neg_binomial_2_log_lpmf(yobs[n] | eta, phi);
+      
+      // penalize distances outside Rmax
+      target += -penalty * log1p_exp((dis-Rmax)*steepness);
+    }
   }
 }
