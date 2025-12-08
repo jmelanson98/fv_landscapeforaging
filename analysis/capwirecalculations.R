@@ -7,6 +7,7 @@ setwd("~/projects/def-ckremen/melanson/fv_landscapeforaging")
 
 # what about CAPWIRE?
 library(capwire)
+library(dplyr)
 
 mix2022 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
 mix2023 = read.csv("data/siblingships/mixtus_sibships_2023.csv")
@@ -50,3 +51,5 @@ conf.int = bootstrapCapwire(fit=res.tirm,
                             bootstraps=1000, CI=c(0.025, 0.975))
 capwiregrid$lower[capwiregrid$taskid == task_id] = conf.int$conf.int[1]
 capwiregrid$upper[capwiregrid$taskid == task_id] = conf.int$conf.int[2]
+
+write.csv(capwiregrid, "analysis/capwiregrid.csv")
