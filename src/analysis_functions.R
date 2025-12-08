@@ -286,3 +286,116 @@ prep_stan_simpleforaging = function(sibships,
   
   return(out)
 }
+
+
+# function to prep data for stan --- both years together
+prep_stan_simpleforaging_bothyears = function(sibships1,
+                                              sibships2,
+                                              specimens1,
+                                              specimens2,
+                                              effort1,
+                                              effort2,
+                                              samplepoints){
+  
+  # Create site ids
+  sibships1$site = as.factor(sibships1$site)
+  sibships2$site = as.factor(sibships2$site)
+  site_keys = data.frame(site = levels(sibships1$site),
+                         site_id = 1:length(unique(sibships1$site)))
+  
+  # Make trap locations into correct format for calculating distance
+  colnames(samplepoints)[1:2] = c("sample_pt", "coord")
+  samplepoints$lat = rapply(strsplit(gsub("\\(|\\).*", "", samplepoints$coord), split = " "), function(x) tail(x, 1))
+  samplepoints$long = rapply(strsplit(gsub("\\(|\\).*", "", samplepoints$coord), split = " "), function(x) head(x, 3)[2])
+  samplepoints$site <- stringr::str_extract(samplepoints$sample_pt, "^[A-Za-z]{1,2}")
+  samplepoints = samplepoints[,colnames(samplepoints) %in% c("site", "sample_pt", "lat", "long")]
+  
+  # convert to meter based crs
+  traps_sf = st_as_sf(samplepoints, coords = c("long", "lat"), crs = 4326)
+  traps_sf_m = st_transform(traps_sf, 900913)
+  traps_m = as.data.frame(cbind(traps_sf_m$sample_pt, traps_sf_m$site, st_coordinates(traps_sf_m)))
+  colnames(traps_m) = c("sample_pt", "site", "trap_x", "trap_y")
+  traps_m$site = as.factor(traps_m$site)
+  
+  # calculate sample effort per trap and year
+  effort_sum1 = effort1 %>%
+    group_by(sample_point, year) %>%
+    summarize(total_effort = 5*n())
+  effort_sum2 = effort2 %>%
+    group_by(sample_point, year) %>%
+    summarize(total_effort = 5*n())
+  effort_sum = rbind(effort_sum1, effort_sum2)
+  traps_m = traps_m %>%
+    left_join(effort_sum, by = c("sample_pt" = "sample_point")) %>%
+    left_join(site_keys, by = "site") %>%
+    arrange(site_id)
+  
+  # traps_m is a dataframe/matrix of all trap coordinates
+  traps_m = traps_m[!is.na(traps_m$total_effort),]
+  traps_m$trap_x = as.numeric(traps_m$trap_x)/1000
+  traps_m$trap_y = as.numeric(traps_m$trap_y)/1000
+  
+  # number of traps per landscape
+  traps_n = traps_m %>% 
+    group_by(site_id) %>%
+    summarize(num_traps = n()) %>%
+    arrange(site_id)
+  traps_start = cumsum(c(1, traps_n$num_traps))[1:length(traps_n$num_traps)]
+  
+  # Get counts of bees in traps
+  counts = sibships %>%
+    filter(notes != "male") %>%
+    group_by(site, sample_pt, sibshipID) %>%
+    summarize(count=n()) %>%
+    ungroup()
+  
+  filled_counts = counts %>%
+    select(-sample_pt) %>%
+    distinct(site, sibshipID) %>%
+    inner_join(traps_m, by = "site", relationship = "many-to-many") %>%
+    left_join(counts, by = c("site", "sample_pt", "sibshipID")) %>%
+    mutate(count = replace_na(count, 0)) %>%
+    arrange(sibshipID)
+  filled_counts$trap_x = as.numeric(filled_counts$trap_x)
+  filled_counts$trap_y = as.numeric(filled_counts$trap_y)
+  
+  # Get landscape id for each colony
+  colony_land = sibships %>%
+    filter(notes != "male") %>%
+    distinct(site, sibshipID) %>%
+    left_join(site_keys, by = "site") %>%
+    arrange(sibshipID)
+  
+  # Get number of observations per siblingship
+  yobs_n = filled_counts %>% 
+    group_by(sibshipID) %>%
+    summarize(num_obs = n())
+  
+  # Get the start indices for observations of each siblingship
+  yobs_start = cumsum(c(1, yobs_n$num_obs))[1:length(yobs_n$num_obs)]
+  
+  # Make data list for stan
+  # DISTANCES IN KM, NOT METERS
+  stan_data <- list(
+    C = length(colony_land$site_id),
+    L = length(traps_n$site_id),
+    total_traps = nrow(traps_m),
+    total_obs = nrow(filled_counts),
+    trap_pos = cbind(traps_m$trap_x/1000, traps_m$trap_y/1000), # matrix total_traps x 2, ordered by site, sample_pt
+    sample_effort = traps_m$total_effort,
+    traps_start = traps_start, # int[L]
+    traps_n = traps_n$num_traps, # int[L]
+    colony_land = colony_land$site_id, # int[C], ordered by sibshipID
+    y_flat = filled_counts$count, # filled counts is ordered by site, then by sib ID, then by trap
+    y_start = yobs_start,
+    y_n = yobs_n$num_obs,
+    lower_x = (min(traps_m$trap_x) - 5000)/1000,
+    upper_x = (max(traps_m$trap_x) + 5000)/1000,
+    lower_y = (min(traps_m$trap_y) - 5000)/1000,
+    upper_y = (max(traps_m$trap_y) + 5000)/1000
+  )
+  
+  out = list(stan_data, filled_counts, traps_m)
+  
+  return(out)
+}

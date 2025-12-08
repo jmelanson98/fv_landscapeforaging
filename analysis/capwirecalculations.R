@@ -2,7 +2,7 @@
 ### Dec 5 2025
 ### J Melanson
 
-setwd("~/home/projects/def-ckremen/melanson/fv_landscapeforaging")
+setwd("~/projects/def-ckremen/melanson/fv_landscapeforaging")
 
 
 # what about CAPWIRE?
