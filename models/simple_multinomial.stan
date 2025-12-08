@@ -2,17 +2,16 @@
   
 data {
   int<lower=1> C;                // # colonies
-  int<lower=1> L;                // # landscapes
-  int<lower=1> total_traps;      // # traps
-  int<lower=0> total_obs;        // total number of observations (observation for a colony at a trap, not just trap observations)
-  matrix[total_traps, 2] trap_pos; // trap coordinates
-  int sample_effort[total_traps]; // per trap sampling effort
-  int traps_start[L];            // 1-based index for trap_pos
-  int traps_n[L];                // # traps per landscape
-  int colony_land[C];            // site id for each colony
-  int y_start[C];                // start index in y_flat for each colony
-  int y_n[C];                    // number of traps (length) for each colony's y
-  int y_flat[total_obs];                  // concatenated counts for all colonies
+  int<lower=1> K;                // # traps
+  int<lower=1> O;                // # observations
+  int starts[C];                 // start indices for each colony
+  int lengths[C];                // lengths for each colony
+  matrix[K, 2] trap_pos;         // trap coordinates
+  int sample_effort[O];          // sampling effort for each obs
+  int colony_id[O];              // colony id for each obs
+  int trap_id[O];                // trap id for each obs
+  int y_obs[O];                  // concatenated counts for all colonies
+  int yn[O];                     // are there any bees from that colony at that trap? 0/1
   real upper_y; // hard bound on colony locations
   real upper_x; // hard bound on colony locations
   real lower_y; // hard bound on colony locations
@@ -27,11 +26,9 @@ transformed data {
 
 parameters {
   real<lower=0> rho; 
-  real<lower=0> beta;
+  real<lower=0> beta_eff;
   real<lower=0> sigma;
-  // real<lower=0> tau;
-  vector[total_traps] eps; 
-  // vector[C] zeta;
+  vector[total_traps] eps;
   
   // using hard bounds here so that init doesn't fail with - inf
   array[C] real<lower=lower_x, upper=upper_x> delta_x;
@@ -40,56 +37,44 @@ parameters {
 
 
 transformed parameters {
-  // real<lower=0> tau_sqrt = sqrt(tau);
-  real<lower=0> sigma_sqrt = sqrt(sigma); 
-  // vector[C] zeta_scale = zeta * tau_sqrt;
+  real<lower=0> sigma_sqrt = sqrt(sigma);
   vector[total_traps] eps_scale = eps*sigma_sqrt;
 }
 
 model {
   // set priors
-  // see inside for loop for delta_x, delta_y priors
   rho ~ lognormal(log(0.5), 0.5);
-  beta ~ normal(0,1);
+  beta_eff ~ normal(0,1);
   sigma ~ normal(0, 1);
-  // tau ~ normal(0, 1); 
-  eps ~ normal(0, 1); 
-  // zeta ~ normal(0, 1);
+  eps ~ normal(0, 1);
   
   // calculate likelihood
   for (i in 1:C) {
-    int lid = colony_land[i]; // landscape the colony belongs to
-    int start_tr = traps_start[lid]; // start index for traps in that landscape
-    int num_tr = traps_n[lid];  // number of traps in that landscape
-    vector[num_tr] lambda_row; // place holder for visitation intensity of colony at each trap in the landscape
-    int y_seg[num_tr]; // place holder for yobs values for colony i
     
-    // PRIOR ON DELTA_X AND DELTA_Y
-    // 5.841 is 99% crit value for student's t with df = 3...
-    // we expect 99% of colonies to be within 2.5 km of site centroid
-    // delta_x[i] ~ student_t(3, site_centroids[lid, 1], 2.5/5.841);
-    // delta_y[i] ~ student_t(3, site_centroids[lid, 2], 2.5/5.841);
-
-    for (t in 1:num_tr) {
-      // fill y_seg with observations for that colony
-      y_seg[t] = y_flat[ y_start[i] + t - 1 ];
-      
-      // compute lambda for each trap in that landscape
-      int k = start_tr + t - 1;                 // global trap index
-      real dis = sqrt( square(delta_x[i] - trap_pos[k,1]) +
-                       square(delta_y[i] - trap_pos[k,2]) );
-                       
-      // penalize distances that are outside Rmax
-      // a bit like a soft indicator function, to maintain differentiability for HMC
-      target += y_seg[t]*(-penalty * log1p_exp((dis-Rmax)*steepness));
-      
-      // calculate visitation intensity
-      lambda_row[t] = -0.5*(dis / rho)^2 + beta*sample_effort[k] + eps_scale[k];
-    }
-
+    int start = starts[i]; // index start
+    int length = lengths[i]; // index length
+    
+    // get data subsets
+    int y_ik[length] = y_obs[start : start+length-1]; // yobs for colony i
+    int yn_ik[length] = yn[start : start+length-1]; // was any bee observed for ik?
+    int sample_effort_ik[length] = sample_effort[start:start+length-1];
+    int k[length] = trap_id[start:start+length-1]; // trap indices
+    int i = colony_id[start]; // colony id
+    matrix[length,2] trap_i = trap_pos[start:start+length-1,];
+    
+    // compute lambda for each trap in that landscape
+    vector[length] dis = sqrt( square(delta_x[i] - trap_i[,1]) +
+                       square(delta_y[i] - trap_i[,2]) );
+    vector[length] lambda_ik = alpha + -0.5*(dis / rho)^2 + beta_eff*sample_effort_ik + eps_scale[k];
+    
     // compute multinomial probabilities and add to target likelihood
-    vector[num_tr] multi_probs = softmax(lambda_row);
-    y_seg ~ multinomial(multi_probs);
-  }
+    vector[length] multi_probs = softmax(lambda_ik);
+    y_ik ~ multinomial(multi_probs);
+
+    // penalize distances that are outside Rmax
+    // a bit like a soft indicator function, to maintain differentiability for HMC
+    target += yn_ik .* (-penalty * log1p_exp((dis-Rmax)*steepness));
+      
+    }
 }
 

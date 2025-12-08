@@ -43,22 +43,16 @@ samplepoints = read.csv(paste0(bombus_path, "/raw_data/allsamplepoints.csv"), he
 
 
 # Prepare data for Stan (with function)
-mix22_stan = prep_stan_simpleforaging(mixtus_sibs2022,
-                                      specs2022,
-                                      effort2022,
-                                      samplepoints)
-mix23_stan = prep_stan_simpleforaging(mixtus_sibs2023,
-                                      specs2023,
-                                      effort2023,
-                                      samplepoints)
-imp22_stan = prep_stan_simpleforaging(impatiens_sibs2022,
-                                      specs2022,
-                                      effort2022,
-                                      samplepoints)
-imp23_stan = prep_stan_simpleforaging(impatiens_sibs2023,
-                                      specs2023,
-                                      effort2023,
-                                      samplepoints)
+mixtus_data = prep_stan_simpleforaging_bothyears(mixtus_sibs2022,
+                                                 mixtus_sibs2023,
+                                                 effort2022,
+                                                 effort2023,
+                                                 samplepoints)
+impatiens_data = prep_stan_simpleforaging_bothyears(impatiens_sibs2022,
+                                                 impatiens_sibs2023,
+                                                 effort2022,
+                                                 effort2023,
+                                                 samplepoints)
 
 
 
@@ -68,7 +62,7 @@ stanfile = "models/simple_multinomial.stan"
 
 # Get task ID from slurm manager
 task_id = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
-data_list = list(mix22_stan[[1]], mix23_stan[[1]], imp22_stan[[1]], imp23_stan[[1]])
+data_list = list(mixtus_data[[1]], impatiens_data[[1]])
 data = data_list[[task_id]]
 
 #fit and save model
@@ -78,7 +72,7 @@ stanFit = stan(file = stanfile,
                control = list(max_treedepth = 15),
                iter = 4000,
                verbose = TRUE)
-saveRDS(stanFit, paste0("analysis/foraging_modelfits/foragingmodel_", task_id, ".rds"))
+saveRDS(stanFit, paste0("analysis/foraging_modelfits/foragingmodel_bothyears_", task_id, ".rds"))
 #stanFit = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
 
 
@@ -89,84 +83,84 @@ saveRDS(stanFit, paste0("analysis/foraging_modelfits/foragingmodel_", task_id, "
 #############################################
 
 # mixtus 2022
-stanFitm22 = readRDS("analysis/foraging_modelfits/foragingmodel_1.rds")
-summarym22 = rstan::summary(stanFitm22)$summary
-
-rhom22 = c(summarym22["rho", "2.5%"],
-           summarym22["rho", "mean"],
-           summarym22["rho", "97.5%"])
-rhom22 = rhom22*1000
-
-# mixtus 2023
-stanFitm23 = readRDS("analysis/foraging_modelfits/foragingmodel_2.rds")
-summarym23 = rstan::summary(stanFitm23)$summary
-
-rhom23 = c(summarym23["rho", "2.5%"],
-           summarym23["rho", "mean"],
-           summarym23["rho", "97.5%"])
-rhom23 = rhom23*1000
-
-
-# impatiens 2022
-stanFiti22 = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
-summaryi22 = rstan::summary(stanFiti22)$summary
-
-rhoi22 = c(summaryi22["rho", "2.5%"],
-           summaryi22["rho", "mean"],
-           summaryi22["rho", "97.5%"])
-rhoi22 = rhoi22*1000
-
-# impatiens 2023
-stanFiti23 = readRDS("analysis/foraging_modelfits/foragingmodel_4.rds")
-summaryi23 = rstan::summary(stanFiti23)$summary
-
-rhoi23 = c(summaryi23["rho", "2.5%"],
-           summaryi23["rho", "mean"],
-           summaryi23["rho", "97.5%"])
-rhoi23 = rhoi23*1000
-
-
-# Make plot of rhos for each species/year!
-postm22 = as.data.frame(stanFitm22)
-postm23 = as.data.frame(stanFitm23)
-posti22 = as.data.frame(stanFiti22)
-posti23 = as.data.frame(stanFiti23)
-
-combinedpost =  bind_rows(
-  data.frame(model = "B. mixtus 2022", rho = postm22$rho),
-  data.frame(model = "B. mixtus 2023", rho = postm23$rho),
-  data.frame(model = "B. impatiens 2022", rho = posti22$rho),
-  data.frame(model = "B. impatiens 2023", rho = posti23$rho)
-)
-
-ggplot(combinedpost, aes(x = rho, fill = model)) +
-  geom_histogram(bins = 30) +
-  facet_wrap(~ model) +
-  theme_minimal()
-
-ggplot(combinedpost, aes(x = rho, fill = model)) +
-  scale_fill_manual(values = c(medium_gold, lm_gold, faded_strong, faded_green)) +
-  stat_halfeye(point_interval = median_qi, .width = c(0.95)) +
-  facet_wrap(~model, ncol = 1) +
-  theme_minimal()
-
-year_difference = bind_rows(
-  data.frame(species = "mixtus", rho_diff = postm22$rho - postm23$rho),
-  data.frame(species = "impatiens", rho_diff = posti22$rho - posti23$rho)
-)
-
-ggplot(year_difference, aes(x = rho_diff, fill = species)) +
-  geom_histogram(alpha = 0.4) +
-  theme_minimal()
-
-mix_diff = year_difference[year_difference$species == "mixtus",]
-bayesp = sum(mix_diff$rho_diff > 0)/nrow(mix_diff)
-
-species_difference = bind_rows(
-  data.frame(year = "2022", rho_diff = posti22$rho - postm22$rho),
-  data.frame(year = "2023", rho_diff = posti23$rho - postm23$rho)
-)
-
-ggplot(species_difference, aes(x = rho_diff, fill = year)) +
-  geom_histogram(alpha = 0.4) +
-  theme_minimal()
+# stanFitm22 = readRDS("analysis/foraging_modelfits/foragingmodel_1.rds")
+# summarym22 = rstan::summary(stanFitm22)$summary
+# 
+# rhom22 = c(summarym22["rho", "2.5%"],
+#            summarym22["rho", "mean"],
+#            summarym22["rho", "97.5%"])
+# rhom22 = rhom22*1000
+# 
+# # mixtus 2023
+# stanFitm23 = readRDS("analysis/foraging_modelfits/foragingmodel_2.rds")
+# summarym23 = rstan::summary(stanFitm23)$summary
+# 
+# rhom23 = c(summarym23["rho", "2.5%"],
+#            summarym23["rho", "mean"],
+#            summarym23["rho", "97.5%"])
+# rhom23 = rhom23*1000
+# 
+# 
+# # impatiens 2022
+# stanFiti22 = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
+# summaryi22 = rstan::summary(stanFiti22)$summary
+# 
+# rhoi22 = c(summaryi22["rho", "2.5%"],
+#            summaryi22["rho", "mean"],
+#            summaryi22["rho", "97.5%"])
+# rhoi22 = rhoi22*1000
+# 
+# # impatiens 2023
+# stanFiti23 = readRDS("analysis/foraging_modelfits/foragingmodel_4.rds")
+# summaryi23 = rstan::summary(stanFiti23)$summary
+# 
+# rhoi23 = c(summaryi23["rho", "2.5%"],
+#            summaryi23["rho", "mean"],
+#            summaryi23["rho", "97.5%"])
+# rhoi23 = rhoi23*1000
+# 
+# 
+# # Make plot of rhos for each species/year!
+# postm22 = as.data.frame(stanFitm22)
+# postm23 = as.data.frame(stanFitm23)
+# posti22 = as.data.frame(stanFiti22)
+# posti23 = as.data.frame(stanFiti23)
+# 
+# combinedpost =  bind_rows(
+#   data.frame(model = "B. mixtus 2022", rho = postm22$rho),
+#   data.frame(model = "B. mixtus 2023", rho = postm23$rho),
+#   data.frame(model = "B. impatiens 2022", rho = posti22$rho),
+#   data.frame(model = "B. impatiens 2023", rho = posti23$rho)
+# )
+# 
+# ggplot(combinedpost, aes(x = rho, fill = model)) +
+#   geom_histogram(bins = 30) +
+#   facet_wrap(~ model) +
+#   theme_minimal()
+# 
+# ggplot(combinedpost, aes(x = rho, fill = model)) +
+#   scale_fill_manual(values = c(medium_gold, lm_gold, faded_strong, faded_green)) +
+#   stat_halfeye(point_interval = median_qi, .width = c(0.95)) +
+#   facet_wrap(~model, ncol = 1) +
+#   theme_minimal()
+# 
+# year_difference = bind_rows(
+#   data.frame(species = "mixtus", rho_diff = postm22$rho - postm23$rho),
+#   data.frame(species = "impatiens", rho_diff = posti22$rho - posti23$rho)
+# )
+# 
+# ggplot(year_difference, aes(x = rho_diff, fill = species)) +
+#   geom_histogram(alpha = 0.4) +
+#   theme_minimal()
+# 
+# mix_diff = year_difference[year_difference$species == "mixtus",]
+# bayesp = sum(mix_diff$rho_diff > 0)/nrow(mix_diff)
+# 
+# species_difference = bind_rows(
+#   data.frame(year = "2022", rho_diff = posti22$rho - postm22$rho),
+#   data.frame(year = "2023", rho_diff = posti23$rho - postm23$rho)
+# )
+# 
+# ggplot(species_difference, aes(x = rho_diff, fill = year)) +
+#   geom_histogram(alpha = 0.4) +
+#   theme_minimal()
