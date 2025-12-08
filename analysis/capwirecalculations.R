@@ -28,6 +28,9 @@ siblist = list(mix2022, mix2023, imp2022, imp2023)
 # grid$ML = NA
 # grid$upper = NA
 # write.csv(grid, "analysis/capwiregrid.csv", row.names = FALSE)
+
+
+# read in grid to get parameter set
 capwiregrid = read.csv("analysis/capwiregrid.csv")
 
 # get task id
@@ -45,11 +48,13 @@ forcap = filter(siblist[[capwiregrid$id[capwiregrid$taskid == task_id]]],
   ungroup()
 
 res.tirm = fitTirm(data = as.data.frame(forcap), max.pop = 5000)
-capwiregrid$ML[capwiregrid$taskid == task_id] = res.tirm$ml.pop.size
-
 conf.int = bootstrapCapwire(fit=res.tirm,
                             bootstraps=1000, CI=c(0.025, 0.975))
+
+# reread file and write results
+capwiregrid = read.csv("analysis/capwiregrid.csv")
+capwiregrid$ML[capwiregrid$taskid == task_id] = res.tirm$ml.pop.size
 capwiregrid$lower[capwiregrid$taskid == task_id] = conf.int$conf.int[1]
 capwiregrid$upper[capwiregrid$taskid == task_id] = conf.int$conf.int[2]
+write.csv(capwiregrid, "analysis/capwiregrid.csv", row.names = FALSE)
 
-write.csv(capwiregrid, "analysis/capwiregrid.csv")
