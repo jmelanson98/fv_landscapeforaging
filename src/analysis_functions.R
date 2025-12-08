@@ -364,6 +364,7 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
     mutate(count = replace_na(count, 0)) %>%
     arrange(sibshipID)
   filled_counts$yn = ifelse(filled_counts$count > 0, 1, 0)
+  filled_counts$pointyear = paste0(filled_counts$year, filled_counts$sample_pt)
   
   # Get the start indices for observations of each siblingship
   lengths = filled_counts %>%
@@ -376,14 +377,15 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   # DISTANCES IN KM, NOT METERS
   stan_data <- list(
     C = length(unique(filled_counts$sibshipID)),
-    K = length(unique(filled_counts$sample_point)),
+    K = length(unique(filled_counts$pointyear)),
     O = nrow(filled_counts),
     starts = starts,
     lengths = lengths$length,
     trap_pos = cbind(filled_counts$trap_x, filled_counts$trap_y),
     colony_id = filled_counts$sibshipID,
     trap_id = filled_counts$trap_id,
-    yobs = filled_counts$count,
+    sample_effort = filled_counts$total_effort,
+    y_obs = filled_counts$count,
     yn = filled_counts$yn,
     lower_x = (min(filled_counts$trap_x) - 5),
     upper_x = (max(filled_counts$trap_x) + 5),

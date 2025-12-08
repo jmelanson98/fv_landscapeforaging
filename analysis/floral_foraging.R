@@ -25,8 +25,8 @@ library(stringr)
 
 # Prep workspace
 # local
-#setwd("/Users/jenna1/fv_landscapeforaging")
-#bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
+setwd("/Users/jenna1/fv_landscapeforaging")
+bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
 
 # remote
 setwd("~/projects/def-ckremen/melanson/fv_landscapeforaging")
@@ -162,3 +162,52 @@ stanFit = stan(file = stanfile,
                refresh = 1,
                verbose = TRUE)
 saveRDS(stanFit, "analysis/tempFit.rds")
+stanFit = readRDS("analysis/tempFit.rds")
+
+View(summary(stanFit)$summary)
+
+
+
+#Plot the posteriors of some colonies
+
+plot_list = list()
+numplots = 9
+legends = list()
+
+for (i in 1:numplots){
+  delta_draws = cbind(x = rstan::extract(stanFit, pars = "delta_x")$delta[, i],
+                      y = rstan::extract(stanFit, pars = "delta_y")$delta[, i])
+
+  p = ggplot(delta_draws, aes(x = x, y = y)) +
+    geom_density_2d_filled(alpha = 0.8) +
+
+    #plot trap locations / sizes / quality
+    geom_point(data = CKT[CKT$sibshipID ==i,], aes(x = trap_x, y = trap_y, size = counts, colour = "red")) +
+    scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
+
+    #miscellaneous
+    labs(title = paste("Colony", i),
+         size = "Number of Captures",
+         level = "Colony Posterior") +
+    guides(colour = "none") +
+    #xlim(c(1220, 1225)) +
+    #ylim(c(455,460)) +
+    coord_equal() +
+    theme_bw()
+
+  # save legend
+  g <- ggplotGrob(p)
+  legend_index <- which(g$layout$name == "guide-box-right")
+  legend <- g$grobs[[legend_index]]
+
+  # remove legend from plot
+  p <- p + theme(legend.position = "none")
+
+  #save plot
+  plot_list[[i]] = p
+  legends[[1]] = legend
+}
+
+fig = grid.arrange(grobs = plot_list, ncol = 3)
+fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
+ggsave(paste0("analysis/colony_posteriors/foragingmodel_", task_id, ".jpg"), fig, height = 3000, width = 4000, units = "px")

@@ -4,13 +4,11 @@ data {
   int<lower=0> C;                // total number of colonies
   int<lower=0> K;                // total number of traps
   int<lower=0> O;                // total number of observations (observation for a colony at a trap, in a timepoint)
+  vector[O] sample_effort;
   matrix[O,2] trap_pos;              // trap coordinates
   int colony_id[O];              // colony id for each observation
   int trap_id[O];                 // trap id for each observation
-  int landscape_id[O];            // landscape id for each observation
-  vector[O] fq;                      // floral quality for each observation
-  vector[O] doy;                   // julian date of observation
-  int yobs[O];                   // number of individuals observed
+  int y_obs[O];                   // number of individuals observed
   real upper_y; // hard bound on colony locations
   real upper_x; // hard bound on colony locations
   real lower_y; // hard bound on colony locations
@@ -25,8 +23,7 @@ transformed data {
 
 parameters {
   real<lower=0> rho; 
-  real beta_fq;
-  real beta_doy;
+  real beta_eff;
   real alpha;
   real<lower=0> sigma;
   real<lower=0> phi;
@@ -49,8 +46,7 @@ transformed parameters {
 model {
   // set priors
   rho ~ lognormal(log(0.5), 0.5);
-  beta_fq ~ normal(0,1);
-  beta_doy ~ normal(0,1);
+  beta_eff ~ normal(0,1);
   alpha ~ normal(0,1);
   sigma ~ normal(0, 1);
   eps ~ normal(0, 1);
@@ -67,16 +63,16 @@ model {
     // compute eta
     real dis = sqrt( square(delta_x[colony_id[n]] - trap_pos[n,1]) +
                        square(delta_y[colony_id[n]] - trap_pos[n,2]) );
-    real eta = alpha - 0.5*(dis / rho)^2 + beta_fq*fq[n] + beta_doy*doy[n] + eps_scale[trap_id[n]];
+    real eta = alpha - 0.5*(dis / rho)^2 + beta_eff*sample_effort[n] + eps_scale[trap_id[n]];
     
     // compute zinb probabilities and add to target likelihood
-    if (yobs[n] == 0) {
+    if (y_obs[n] == 0) {
       target += log_sum_exp(
         log_theta,
         log_not_theta + neg_binomial_2_log_lpmf(0 | eta, phi)
       );
     } else {
-      target += log_not_theta + neg_binomial_2_log_lpmf(yobs[n] | eta, phi);
+      target += log_not_theta + neg_binomial_2_log_lpmf(y_obs[n] | eta, phi);
       
       // penalize distances outside Rmax
       target += -penalty * log1p_exp((dis-Rmax)*steepness);

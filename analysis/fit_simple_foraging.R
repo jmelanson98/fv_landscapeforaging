@@ -55,25 +55,41 @@ impatiens_data = prep_stan_simpleforaging_bothyears(impatiens_sibs2022,
                                                  samplepoints)
 
 
-
-#select stan model to fit
-stanfile = "models/simple_multinomial.stan"
-
-
 # Get task ID from slurm manager
 task_id = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
-data_list = list(mixtus_data[[1]], impatiens_data[[1]])
+data_list = list(mixtus_data[[1]], impatiens_data[[1]], mixtus_data[[1]], impatiens_data[[1]])
 data = data_list[[task_id]]
 
-#fit and save model
-stanFit = stan(file = stanfile,
-               data = data, seed = 5838299,
-               chains = 4, cores = 4,
-               control = list(max_treedepth = 15),
-               iter = 4000,
-               verbose = TRUE)
-saveRDS(stanFit, paste0("analysis/foraging_modelfits/foragingmodel_bothyears_", task_id, ".rds"))
-#stanFit = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
+if (task_id %in% c(1,2)){
+  #select stan model to fit
+  stanfile = "models/simple_multinomial.stan"
+  
+  #fit and save model
+  stanFit = stan(file = stanfile,
+                 data = data, seed = 5838299,
+                 chains = 4, cores = 4,
+                 control = list(max_treedepth = 15),
+                 iter = 4000,
+                 verbose = TRUE)
+  saveRDS(stanFit, paste0("analysis/foraging_modelfits/simpleforaging_multinomial", task_id, ".rds"))
+} else{
+  # remove unnecessary data
+  data$starts = NULL
+  data$lengths = NULL
+  data$yn = NULL
+  
+  #select stan model to fit
+  stanfile = "models/simple_ZINB.stan"
+  
+  #fit and save model
+  stanFit = stan(file = stanfile,
+                 data = data, seed = 5838299,
+                 chains = 4, cores = 4,
+                 control = list(max_treedepth = 15),
+                 iter = 4000,
+                 verbose = TRUE)
+  saveRDS(stanFit, paste0("analysis/foraging_modelfits/simpleforaging_ZINB", task_id, ".rds"))
+}
 
 
 
