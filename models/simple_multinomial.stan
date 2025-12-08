@@ -6,7 +6,7 @@ data {
   int<lower=1> O;                // # observations
   int starts[C];                 // start indices for each colony
   int lengths[C];                // lengths for each colony
-  matrix[K, 2] trap_pos;         // trap coordinates
+  matrix[O, 2] trap_pos;         // trap coordinates
   vector[O] sample_effort;          // sampling effort for each obs
   int colony_id[O];              // colony id for each obs
   int trap_id[O];                // trap id for each obs
