@@ -29,8 +29,8 @@ library(stringr)
 #bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
 
 # remote
-setwd("~/home/projects/def-ckremen/melanson/fv_landscapeforaging")
-bombus_path = "~/home/projects/def-ckremen/melanson/"
+setwd("~/projects/def-ckremen/melanson/fv_landscapeforaging")
+bombus_path = "~/projects/def-ckremen/melanson/"
 
 # Load in data
 mixtus_sibs2022 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
