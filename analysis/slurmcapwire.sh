@@ -1,10 +1,10 @@
 #!/bin/bash
-##SBATCH --job-name=simpleforaging
-#SBATCH --output=logs/simpleforaging_%A_%a.out
-#SBATCH --error=logs/simpleforaging_%A_%a.err
-#SBATCH --array=1-4
+##SBATCH --job-name=capwire
+#SBATCH --output=logs/capwire_%A_%a.out
+#SBATCH --error=logs/capwire_%A_%a.err
+#SBATCH --array=1-24
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=1
 #SBATCH --mem=20G
 #SBATCH --time=12:00:00
 
@@ -14,4 +14,4 @@ module load StdEnv/2023 gcc r/4.3.1 gdal proj
 export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.3
 
 
-Rscript fit_simple_foraging.R
+Rscript capwirecalculations.R
