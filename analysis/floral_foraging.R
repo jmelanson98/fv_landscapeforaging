@@ -45,7 +45,13 @@ veg2022 = read.csv(paste0(bombus_path, "/raw_data/2022vegetationdata.csv"))
 veg2023 = read.csv(paste0(bombus_path, "/raw_data/2023vegetationdata.csv"))
 samplepoints = read.csv(paste0(bombus_path, "/raw_data/allsamplepoints.csv"), header = FALSE)
 
-prep_stan_floralforaging = function(){
+prep_stan_floralforaging = function(sibships1,
+                                    sibships2,
+                                    effort1,
+                                    effort2,
+                                    veg1,
+                                    veg2,
+                                    samplepoints){
   
   # Adjust sibships IDs
   sibships2$sibshipID = sibships2$sibshipID + max(sibships1$sibshipID)
@@ -174,87 +180,113 @@ prep_stan_floralforaging = function(){
   CKT$floral_abundance[is.na(CKT$floral_abundance)] = 0 #questionable -- not true zeroes
   CKT$trap_x = as.numeric(CKT$trap_x)/1000
   CKT$trap_y = as.numeric(CKT$trap_y)/1000
+  
+  
+  # Get stan data!
+  data = list(
+    C = length(unique(CKT$sibshipID)),
+    K = length(unique(CKT$trapyear)),
+    O = nrow(CKT),
+    trap_pos = cbind(CKT$trap_x, CKT$trap_y),
+    colony_id = CKT$sibshipID,
+    trap_id = CKT$trap_id,
+    fq = CKT$floral_abundance,
+    doy = CKT$julian_date,
+    yobs = CKT$counts,
+    lower_x = (min(CKT$trap_x) - 5),
+    upper_x = (max(CKT$trap_x) + 5),
+    lower_y = (min(CKT$trap_y) - 5),
+    upper_y = (max(CKT$trap_y) + 5)
+  )
+  
+  return(data)
 }
 
 
-  
+
+### Get stan data for mixtus and impatiens
+mixtus_data = prep_stan_floralforaging(mixtus_sibs2022,
+                                       mixtus_sibs2023,
+                                       effort2022,
+                                       effort2023,
+                                       veg2022,
+                                       veg2023,
+                                       samplepoints)
+
+impatiens_data = prep_stan_floralforaging(impatiens_sibs2022,
+                                       impatiens_sibs2023,
+                                       effort2022,
+                                       effort2023,
+                                       veg2022,
+                                       veg2023,
+                                       samplepoints)
 
 
-
-
-# Get stan data!
-data = list(
-  C = length(unique(CKT$sibshipID)),
-  K = length(unique(CKT$sample_point)),
-  O = nrow(CKT),
-  trap_pos = cbind(CKT$trap_x, CKT$trap_y),
-  colony_id = CKT$sibshipID,
-  trap_id = CKT$trap_id,
-  landscape_id = CKT$siteid,
-  fq = CKT$floral_abundance,
-  doy = CKT$julian_date,
-  yobs = CKT$counts,
-  lower_x = (min(CKT$trap_x) - 5),
-  upper_x = (max(CKT$trap_x) + 5),
-  lower_y = (min(CKT$trap_y) - 5),
-  upper_y = (max(CKT$trap_y) + 5)
-)
+# Get task id
+task_id = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
 stanfile = "models/floral_foraging_zinb.stan"
 
-stanFit = stan(file = stanfile,
-               data = data, seed = 5838299,
-               chains = 4, cores = 4,
-               iter = 2000,
-               refresh = 1,
-               verbose = TRUE)
-saveRDS(stanFit, "analysis/tempFit.rds")
-stanFit = readRDS("analysis/tempFit.rds")
-
-View(summary(stanFit)$summary)
-
-
-
-#Plot the posteriors of some colonies
-
-plot_list = list()
-numplots = 9
-legends = list()
-
-for (i in 1:numplots){
-  delta_draws = cbind(x = rstan::extract(stanFit, pars = "delta_x")$delta[, i],
-                      y = rstan::extract(stanFit, pars = "delta_y")$delta[, i])
-
-  p = ggplot(delta_draws, aes(x = x, y = y)) +
-    geom_density_2d_filled(alpha = 0.8) +
-
-    #plot trap locations / sizes / quality
-    geom_point(data = CKT[CKT$sibshipID ==i,], aes(x = trap_x, y = trap_y, size = counts, colour = "red")) +
-    scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
-
-    #miscellaneous
-    labs(title = paste("Colony", i),
-         size = "Number of Captures",
-         level = "Colony Posterior") +
-    guides(colour = "none") +
-    #xlim(c(1220, 1225)) +
-    #ylim(c(455,460)) +
-    coord_equal() +
-    theme_bw()
-
-  # save legend
-  g <- ggplotGrob(p)
-  legend_index <- which(g$layout$name == "guide-box-right")
-  legend <- g$grobs[[legend_index]]
-
-  # remove legend from plot
-  p <- p + theme(legend.position = "none")
-
-  #save plot
-  plot_list[[i]] = p
-  legends[[1]] = legend
+if (task_id == 1){
+  stanFit = stan(file = stanfile,
+                 data = mixtus_data, seed = 5838299,
+                 chains = 4, cores = 4,
+                 iter = 2000,
+                 refresh = 10,
+                 verbose = TRUE)
+  saveRDS(stanFit, "analysis/foraging_modelfits/mixtusfloralfit.rds")
+} else{
+  stanFit = stan(file = stanfile,
+                 data = impatiens_data, seed = 5838299,
+                 chains = 4, cores = 4,
+                 iter = 2000,
+                 refresh = 10,
+                 verbose = TRUE)
+  saveRDS(stanFit, "analysis/foraging_modelfits/impatiensfloralfit.rds")
 }
 
-fig = grid.arrange(grobs = plot_list, ncol = 3)
-fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
-ggsave(paste0("analysis/colony_posteriors/foragingmodel_", task_id, ".jpg"), fig, height = 3000, width = 4000, units = "px")
+
+
+# #Plot the posteriors of some colonies
+# 
+# plot_list = list()
+# numplots = 9
+# legends = list()
+# 
+# for (i in 1:numplots){
+#   delta_draws = cbind(x = rstan::extract(stanFit, pars = "delta_x")$delta[, i],
+#                       y = rstan::extract(stanFit, pars = "delta_y")$delta[, i])
+# 
+#   p = ggplot(delta_draws, aes(x = x, y = y)) +
+#     geom_density_2d_filled(alpha = 0.8) +
+# 
+#     #plot trap locations / sizes / quality
+#     geom_point(data = CKT[CKT$sibshipID ==i,], aes(x = trap_x, y = trap_y, size = counts, colour = "red")) +
+#     scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
+# 
+#     #miscellaneous
+#     labs(title = paste("Colony", i),
+#          size = "Number of Captures",
+#          level = "Colony Posterior") +
+#     guides(colour = "none") +
+#     #xlim(c(1220, 1225)) +
+#     #ylim(c(455,460)) +
+#     coord_equal() +
+#     theme_bw()
+# 
+#   # save legend
+#   g <- ggplotGrob(p)
+#   legend_index <- which(g$layout$name == "guide-box-right")
+#   legend <- g$grobs[[legend_index]]
+# 
+#   # remove legend from plot
+#   p <- p + theme(legend.position = "none")
+# 
+#   #save plot
+#   plot_list[[i]] = p
+#   legends[[1]] = legend
+# }
+# 
+# fig = grid.arrange(grobs = plot_list, ncol = 3)
+# fig = grid.arrange(fig, legends[[1]], ncol = 2, widths = c(4,1))
+# ggsave(paste0("analysis/colony_posteriors/foragingmodel_", task_id, ".jpg"), fig, height = 3000, width = 4000, units = "px")
