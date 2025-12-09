@@ -61,25 +61,26 @@ The following object is masked from ‘package:dplyr’:
     combine
 
 Linking to GEOS 3.12.0, GDAL 3.9.1, PROJ 9.2.0; sf_use_s2() is TRUE
-`summarise()` has grouped output by 'sample_point'. You can override using the
-`.groups` argument.
-`summarise()` has grouped output by 'sample_point'. You can override using the
-`.groups` argument.
-Joining with `by = join_by(site, year)`
-`summarise()` has grouped output by 'site', 'sample_pt', 'year'. You can
-override using the `.groups` argument.
-`summarise()` has grouped output by 'site', 'sample_pt', 'year'. You can
-override using the `.groups` argument.
-Joining with `by = join_by(site, sibshipID, year, sample_pt)`
-`summarise()` has grouped output by 'sample_point'. You can override using the
-`.groups` argument.
-`summarise()` has grouped output by 'sample_point'. You can override using the
-`.groups` argument.
-Joining with `by = join_by(site, year)`
-`summarise()` has grouped output by 'site', 'sample_pt', 'year'. You can
-override using the `.groups` argument.
-`summarise()` has grouped output by 'site', 'sample_pt', 'year'. You can
-override using the `.groups` argument.
-Joining with `by = join_by(site, sibshipID, year, sample_pt)`
-Error : Exception: mismatch in dimension declared and found in context; processing stage=data initialization; variable name=trap_pos; position=0; dims declared=(489,2); dims found=(106935,2) (in 'anon_model', line 9, column 2 to column 24)
-failed to create the sampler; sampling not done
+Error in `filter()`:
+ℹ In argument: `round %in% siblings1$round`.
+Caused by error:
+! object 'siblings1' not found
+Backtrace:
+     ▆
+  1. ├─global prep_stan_simpleforaging_bothyears(...)
+  2. │ └─... %>% summarize(total_effort = 5 * n())
+  3. ├─dplyr::summarize(., total_effort = 5 * n())
+  4. ├─dplyr::group_by(., sample_point, year)
+  5. ├─dplyr::filter(., round %in% siblings1$round)
+  6. ├─dplyr:::filter.data.frame(., round %in% siblings1$round)
+  7. │ └─dplyr:::filter_rows(.data, dots, by)
+  8. │   └─dplyr:::filter_eval(...)
+  9. │     ├─base::withCallingHandlers(...)
+ 10. │     └─mask$eval_all_filter(dots, env_filter)
+ 11. │       └─dplyr (local) eval()
+ 12. ├─round %in% siblings1$round
+ 13. ├─round %in% siblings1$round
+ 14. └─base::.handleSimpleError(...)
+ 15.   └─dplyr (local) h(simpleError(msg, call))
+ 16.     └─rlang::abort(message, class = error_class, parent = parent, call = error_call)
+Execution halted

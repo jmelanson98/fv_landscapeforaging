@@ -61,23 +61,23 @@ The following object is masked from ‘package:dplyr’:
     combine
 
 Linking to GEOS 3.12.0, GDAL 3.9.1, PROJ 9.2.0; sf_use_s2() is TRUE
-`summarise()` has grouped output by 'sample_point'. You can override using the
-`.groups` argument.
-`summarise()` has grouped output by 'sample_point'. You can override using the
-`.groups` argument.
-Joining with `by = join_by(site, year)`
-`summarise()` has grouped output by 'site', 'sample_pt', 'year'. You can
-override using the `.groups` argument.
-`summarise()` has grouped output by 'site', 'sample_pt', 'year'. You can
-override using the `.groups` argument.
-Joining with `by = join_by(site, sibshipID, year, sample_pt)`
-`summarise()` has grouped output by 'sample_point'. You can override using the
-`.groups` argument.
-`summarise()` has grouped output by 'sample_point'. You can override using the
-`.groups` argument.
-Joining with `by = join_by(site, year)`
-`summarise()` has grouped output by 'site', 'sample_pt', 'year'. You can
-override using the `.groups` argument.
-`summarise()` has grouped output by 'site', 'sample_pt', 'year'. You can
-override using the `.groups` argument.
-Joining with `by = join_by(site, sibshipID, year, sample_pt)`
+`summarise()` has grouped output by 'round', 'sample_pt'. You can override
+using the `.groups` argument.
+`summarise()` has grouped output by 'round', 'sample_pt'. You can override
+using the `.groups` argument.
+Joining with `by = join_by(site)`
+Joining with `by = join_by(sample_id)`
+Joining with `by = join_by(site, sample_point)`
+Joining with `by = join_by(trapyear)`
+Joining with `by = join_by(sibshipID, round, sample_point)`
+Joining with `by = join_by(sample_id)`
+`summarise()` has grouped output by 'round', 'sample_pt'. You can override
+using the `.groups` argument.
+`summarise()` has grouped output by 'round', 'sample_pt'. You can override
+using the `.groups` argument.
+Joining with `by = join_by(site)`
+Joining with `by = join_by(sample_id)`
+Joining with `by = join_by(site, sample_point)`
+Joining with `by = join_by(trapyear)`
+Joining with `by = join_by(sibshipID, round, sample_point)`
+Joining with `by = join_by(sample_id)`
