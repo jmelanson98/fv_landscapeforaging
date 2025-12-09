@@ -6,7 +6,6 @@ library(terra)
 library(sf)
 library(raster)
 library(data.table)
-#library(dbscan)
 library(tidyr)
 library(dplyr)
 library(bayesplot)
@@ -21,48 +20,32 @@ source("src/analysis_functions.R")
 # Load data
 fv_points = st_read(paste0(bombus_path, "landscape/fvbombus/fvbombus_points.shp"))
 st_crs(fv_points) = 900913
-semi_file = paste0(bombus_path, "/landscape/rasters/seminat.tif")
-semi = rast(semi_file)
 
 #############################################
-# Get RHO values for each species x year
+# Get RHO values for each species
 #############################################
-# mixtus 2022
-stanFitm22 = readRDS("analysis/foraging_modelfits/foragingmodel_1.rds")
-summarym22 = rstan::summary(stanFitm22)$summary
 
-rhom22 = c(summarym22["rho", "2.5%"],
-           summarym22["rho", "mean"],
-           summarym22["rho", "97.5%"])
-rhom22 = rhom22*1000
+# using multinomial models for now...
 
-# mixtus 2023
-stanFitm23 = readRDS("analysis/foraging_modelfits/foragingmodel_2.rds")
-summarym23 = rstan::summary(stanFitm23)$summary
+# mixtus
+mixtusFit = readRDS("analysis/foraging_modelfits/simpleforaging_multinomial1.rds")
+summarym = rstan::summary(mixtusFit)$summary
 
-rhom23 = c(summarym23["rho", "2.5%"],
-           summarym23["rho", "mean"],
-           summarym23["rho", "97.5%"])
-rhom23 = rhom23*1000
+rhom = c(summarym["rho", "2.5%"],
+         summarym["rho", "mean"],
+         summarym["rho", "97.5%"])
+rhom = rhom*1000
 
 
-# impatiens 2022
-stanFiti22 = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
-summaryi22 = rstan::summary(stanFiti22)$summary
+# impatiens
+impatiensFit = readRDS("analysis/foraging_modelfits/simpleforaging_multinomial2.rds")
+summaryi = rstan::summary(impatiensFit)$summary
 
-rhoi22 = c(summaryi22["rho", "2.5%"],
-           summaryi22["rho", "mean"],
-           summaryi22["rho", "97.5%"])
-rhoi22 = rhoi22*1000
+rhoi = c(summaryi["rho", "2.5%"],
+         summaryi["rho", "mean"],
+         summaryi["rho", "97.5%"])
+rhoi = rhoi*1000
 
-# impatiens 2023
-stanFiti23 = readRDS("analysis/foraging_modelfits/foragingmodel_4.rds")
-summaryi23 = rstan::summary(stanFiti23)$summary
-
-rhoi23 = c(summaryi23["rho", "2.5%"],
-           summaryi23["rho", "mean"],
-           summaryi23["rho", "97.5%"])
-rhoi23 = rhoi23*1000
 
 
 #############################################
@@ -70,34 +53,64 @@ rhoi23 = rhoi23*1000
 #############################################
 buffer = 1500
 
-# make columns
-fv_points$idwSN_mix22_low = NA
-fv_points$idwSN_mix22_mean = NA
-fv_points$idwSN_mix22_high = NA
-fv_points$idwSN_mix23_low = NA
-fv_points$idwSN_mix23_mean = NA
-fv_points$idwSN_mix23_high = NA
-fv_points$idwSN_imp22_low = NA
-fv_points$idwSN_imp22_mean = NA
-fv_points$idwSN_imp22_high = NA
-fv_points$idwSN_imp23_low = NA
-fv_points$idwSN_imp23_mean = NA
-fv_points$idwSN_imp23_high = NA
+# for mixtus
+fv_points$idwSN_mix = NA
+fv_points$idwHAY_mix = NA
+fv_points$idwIND_mix = NA
+fv_points$idwURB_mix = NA
+fv_points$idwANN_mix = NA
+fv_points$idwBLU_mix = NA
+fv_points$idwPER_mix = NA
+fv_points$idwFAL_mix = NA
+fv_points$idwSN_imp = NA
+fv_points$idwHAY_imp = NA
+fv_points$idwIND_imp = NA
+fv_points$idwURB_imp = NA
+fv_points$idwANN_imp = NA
+fv_points$idwBLU_imp = NA
+fv_points$idwPER_imp = NA
+fv_points$idwFAL_imp = NA
 
-condition_vector = c("idwSN_mix22_min", "idwSN_mix22_mean", "idwSN_mix22_max",
-                   "idwSN_mix23_min", "idwSN_mix23_mean", "idwSN_mix23_max",
-                   "idwSN_imp22_min", "idwSN_imp22_mean", "idwSN_imp22_max",
-                   "idwSN_imp23_min", "idwSN_imp23_mean", "idwSN_imp23_max")
-allrho = c(rhom22, rhom23, rhoi22, rhoi23)
+
+condition_vector = c("idwSN_mix", "idwHAY_mix", "idwIND_mix", "idwURB_mix", "idwANN_mix", "idwBLU_mix", "idwPER_mix", "idwFAL_mix",
+                     "idwSN_imp", "idwHAY_imp", "idwIND_imp", "idwURB_imp", "idwANN_imp", "idwBLU_imp", "idwPER_imp", "idwFAL_imp")
+filepaths = c("/landscape/rasters/seminat.tif",
+              "/landscape/rasters/hay.tif",
+              "/landscape/rasters/industrial.tif",
+              "/landscape/rasters/urban.tif",
+              "/landscape/rasters/annual.tif",
+              "/landscape/rasters/blueberry.tif",
+              "/landscape/rasters/perennial.tif",
+              "/landscape/rasters/fallow.tif",
+              "/landscape/rasters/seminat.tif",
+              "/landscape/rasters/hay.tif",
+              "/landscape/rasters/industrial.tif",
+              "/landscape/rasters/urban.tif",
+              "/landscape/rasters/annual.tif",
+              "/landscape/rasters/blueberry.tif",
+              "/landscape/rasters/perennial.tif",
+              "/landscape/rasters/fallow.tif"
+              )
+
 
 # get task id
 task_id = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
+landscape = rast(paste0(bombus_path, filepaths[[task_id]]))
+crs(landscape) = "epsg:900913"
+
 for (i in 1:nrow(fv_points)) {
-  fv_points[[condition_vector[task_id]]][i] = compute_idw_area(fv_points[i,], semi, buffer, allrho[task_id])
+  if (task_id %in% 1:8){
+    rho = rhom[2]
+  } else {
+    rho = rhoi[2]
+  }
+  print(rho)
+  
+  fv_points[[condition_vector[task_id]]][i] = compute_idw_area(fv_points[i,], landscape, buffer, rho)
   if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
 }
 
 saved = read.csv("analysis/calculated_metrics.csv")
 updated = left_join(saved, as.data.frame(fv_points)[ c("site_id", condition_vector[task_id])], by = c("sample_pt" = "site_id"))
-write.csv(updated, "analysis/calculated_metrics.csv")
+write.csv(updated, "analysis/calculated_metrics.csv", row.names = FALSE)

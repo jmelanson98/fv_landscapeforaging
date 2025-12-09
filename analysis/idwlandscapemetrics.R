@@ -21,10 +21,8 @@ bombus_path = "/Users/jenna1/Documents/UBC/bombus_project/"
 source("src/analysis_functions.R")
 
 #####################################################
-# Get seminatural raster
+# Load and prep landcover data
 #####################################################
-
-# Load in raster
 landscape_raster = raster(paste0(bombus_path, "landscape/rasters/FValley_lc_1res.tif"))
 fv_points = st_read(paste0(bombus_path, "landscape/fvbombus/fvbombus_points.shp"))
 landcover = read.csv(paste0(bombus_path, "landscape/landcover.csv"))
@@ -33,8 +31,19 @@ landcover = read.csv(paste0(bombus_path, "landscape/landcover.csv"))
 crs(landscape_raster) = 900913
 st_crs(fv_points) = 900913
 
-# Change land cover raster to 1/0 (seminatural/other)
+# Make sure it's a spatrast object
 landscape_raster = rast(landscape_raster)
+
+# Get frequency of each cover type in the landscape (optional)
+freqs = freq(landscape_raster, digits = 0, value=TRUE)
+
+
+#####################################################
+# Get seminatural raster
+#####################################################
+
+# Change land cover raster to 1/0 (seminatural/other)
+# Combine hedgerows (blackberry + trees), grassy margins, forest, wetland
 vals = c(2, 6, 8, 10, 16)
 semi = ifel(landscape_raster %in% vals, 1L, 0L,
              filename = paste0(bombus_path, "landscape/rasters/seminat.tif"),
@@ -43,46 +52,131 @@ semi = ifel(landscape_raster %in% vals, 1L, 0L,
 semi_file = paste0(bombus_path, "/landscape/rasters/seminat.tif")
 semi = rast(semi_file)
 
+#####################################################
+# Get annual crops raster
+#####################################################
+
+# Change land cover raster to 1/0 (seminatural/other)
+# combine annual crops + polyculture
+vals = c(1, 13)
+annual = ifel(landscape_raster %in% vals, 1L, 0L,
+            filename = paste0(bombus_path, "landscape/rasters/annual.tif"),
+            overwrite = TRUE,
+            wopt = list(datatype="INT1U"))
+annual_file = paste0(bombus_path, "/landscape/rasters/annual.tif")
+annual = rast(annual_file)
+
+
+#####################################################
+# Get hay and pasture raster
+#####################################################
+
+# Change land cover raster to 1/0 (seminatural/other)
+vals = c(7, 11)
+hay = ifel(landscape_raster %in% vals, 1L, 0L,
+            filename = paste0(bombus_path, "landscape/rasters/hay.tif"),
+            overwrite = TRUE,
+            wopt = list(datatype="INT1U"))
+hay_file = paste0(bombus_path, "/landscape/rasters/hay.tif")
+hay = rast(hay_file)
+
+
+#####################################################
+# Get urban area raster
+#####################################################
+
+# Change land cover raster to 1/0 (seminatural/other)
+vals = c(14)
+urban = ifel(landscape_raster %in% vals, 1L, 0L,
+            filename = paste0(bombus_path, "landscape/rasters/urban.tif"),
+            overwrite = TRUE,
+            wopt = list(datatype="INT1U"))
+urban_file = paste0(bombus_path, "/landscape/rasters/urban.tif")
+urban = rast(urban_file)
+
+#####################################################
+# Get industrial raster
+#####################################################
+
+# Change land cover raster to 1/0 (seminatural/other)
+vals = c(9)
+industrial = ifel(landscape_raster %in% vals, 1L, 0L,
+            filename = paste0(bombus_path, "landscape/rasters/industrial.tif"),
+            overwrite = TRUE,
+            wopt = list(datatype="INT1U"))
+industrial_file = paste0(bombus_path, "/landscape/rasters/industrial.tif")
+industrial = rast(industrial_file)
+
+
+#####################################################
+# Get blueberry raster
+#####################################################
+
+# Change land cover raster to 1/0 (seminatural/other)
+vals = c(3)
+blueberry = ifel(landscape_raster %in% vals, 1L, 0L,
+            filename = paste0(bombus_path, "landscape/rasters/blueberry.tif"),
+            overwrite = TRUE,
+            wopt = list(datatype="INT1U"))
+blueberry_file = paste0(bombus_path, "/landscape/rasters/blueberry.tif")
+blueberry = rast(blueberry_file)
+
+
+#####################################################
+# Get other perennial raster
+#####################################################
+
+# Change land cover raster to 1/0 (seminatural/other)
+# combine cranberry + perennial
+vals = c(4, 12)
+perennial = ifel(landscape_raster %in% vals, 1L, 0L,
+            filename = paste0(bombus_path, "landscape/rasters/perennial.tif"),
+            overwrite = TRUE,
+            wopt = list(datatype="INT1U"))
+perennial_file = paste0(bombus_path, "/landscape/rasters/perennial.tif")
+perennial = rast(semi_file)
+
+
+#####################################################
+# Get fallow raster
+#####################################################
+
+# Change land cover raster to 1/0 (seminatural/other)
+vals = c(5)
+fallow = ifel(landscape_raster %in% vals, 1L, 0L,
+            filename = paste0(bombus_path, "landscape/rasters/fallow.tif"),
+            overwrite = TRUE,
+            wopt = list(datatype="INT1U"))
+fallow_file = paste0(bombus_path, "/landscape/rasters/fallow.tif")
+fallow = rast(fallow_file)
+
+
 
 #############################################
-# Get RHO values for each species x year
+# Get RHO values for each species
 #############################################
-# mixtus 2022
-stanFitm22 = readRDS("analysis/foraging_modelfits/foragingmodel_1.rds")
-summarym22 = rstan::summary(stanFitm22)$summary
 
-rhom22 = c(summarym22["rho", "2.5%"],
-           summarym22["rho", "mean"],
-           summarym22["rho", "97.5%"])
-rhom22 = rhom22*1000
+# using multinomial models for now...
 
-# mixtus 2023
-stanFitm23 = readRDS("analysis/foraging_modelfits/foragingmodel_2.rds")
-summarym23 = rstan::summary(stanFitm23)$summary
+# mixtus
+mixtusFit = readRDS("analysis/foraging_modelfits/simpleforaging_multinomial1.rds")
+summarym = rstan::summary(mixtusFit)$summary
 
-rhom23 = c(summarym23["rho", "2.5%"],
-           summarym23["rho", "mean"],
-           summarym23["rho", "97.5%"])
-rhom23 = rhom23*1000
+rhom = c(summarym["rho", "2.5%"],
+         summarym["rho", "mean"],
+         summarym["rho", "97.5%"])
+rhom = rhom*1000
 
 
-# impatiens 2022
-stanFiti22 = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
-summaryi22 = rstan::summary(stanFiti22)$summary
+# impatiens
+impatiensFit = readRDS("analysis/foraging_modelfits/simpleforaging_multinomial2.rds")
+summaryi = rstan::summary(impatiensFit)$summary
 
-rhoi22 = c(summaryi22["rho", "2.5%"],
-           summaryi22["rho", "mean"],
-           summaryi22["rho", "97.5%"])
-rhoi22 = rhoi22*1000
+rhoi = c(summaryi["rho", "2.5%"],
+         summaryi["rho", "mean"],
+         summaryi["rho", "97.5%"])
+rhoi = rhoi*1000
 
-# impatiens 2023
-stanFiti23 = readRDS("analysis/foraging_modelfits/foragingmodel_4.rds")
-summaryi23 = rstan::summary(stanFiti23)$summary
-
-rhoi23 = c(summaryi23["rho", "2.5%"],
-           summaryi23["rho", "mean"],
-           summaryi23["rho", "97.5%"])
-rhoi23 = rhoi23*1000
 
 
 #############################################
@@ -90,10 +184,11 @@ rhoi23 = rhoi23*1000
 #############################################
 buffer = 1500
 
-# for mixtus 2022
-fv_points$idwSN_mix22_low = NA
-fv_points$idwSN_mix22_mean = NA
-fv_points$idwSN_mix22_high = NA
+# for mixtus
+fv_points$idwSN_mix = NA
+fv_points$idwHAY_mix = NA
+fv_points$idwIND_mix = NA
+fv_points$idw
 
 for (i in 1:nrow(fv_points)) {
   fv_points$idwSN_mix22_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom22[1])
