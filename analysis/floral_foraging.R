@@ -25,8 +25,8 @@ library(stringr)
 
 # Prep workspace
 # local
-setwd("/Users/jenna1/fv_landscapeforaging")
-bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
+#setwd("/Users/jenna1/fv_landscapeforaging")
+#bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
 
 # remote
 setwd("~/projects/def-ckremen/melanson/fv_landscapeforaging")
