@@ -22,8 +22,7 @@ transformed data {
 }
 
 parameters {
-  real<lower=0> rho; 
-  real beta_eff;
+  real<lower=0> rho;
   real alpha;
   real<lower=0> sigma;
   real<lower=0> phi;
@@ -46,7 +45,6 @@ transformed parameters {
 model {
   // set priors
   rho ~ lognormal(log(0.5), 0.5);
-  beta_eff ~ normal(0,1);
   alpha ~ normal(0,1);
   sigma ~ normal(0, 1);
   eps ~ normal(0, 1);
@@ -63,7 +61,7 @@ model {
     // compute eta
     real dis = sqrt( square(delta_x[colony_id[n]] - trap_pos[n,1]) +
                        square(delta_y[colony_id[n]] - trap_pos[n,2]) );
-    real eta = alpha - 0.5*(dis / rho)^2 + beta_eff*sample_effort[n] + eps_scale[trap_id[n]];
+    real eta = alpha - 0.5*(dis / rho)^2 + eps_scale[trap_id[n]] + log(sample_effort[n]);
     
     // compute zinb probabilities and add to target likelihood
     if (y_obs[n] == 0) {

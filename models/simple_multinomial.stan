@@ -25,8 +25,7 @@ transformed data {
 }
 
 parameters {
-  real<lower=0> rho; 
-  real beta_eff;
+  real<lower=0> rho;
   real alpha;
   real<lower=0> sigma;
   vector[K] eps;
@@ -45,7 +44,6 @@ transformed parameters {
 model {
   // set priors
   rho ~ lognormal(log(0.5), 0.5);
-  beta_eff ~ normal(0,1);
   alpha ~ normal(0,1);
   sigma ~ normal(0, 1);
   eps ~ normal(0, 1);
@@ -67,7 +65,7 @@ model {
     // compute lambda for each trap in that landscape
     vector[length] dis = sqrt( square(delta_x[i] - trap_i[,1]) +
                        square(delta_y[i] - trap_i[,2]) );
-    vector[length] lambda_ik = alpha - 0.5*(dis / rho)^2 + beta_eff*sample_effort_ik + eps_scale[k];
+    vector[length] lambda_ik = alpha - 0.5*(dis / rho)^2 + eps_scale[k] + log(sample_effort_ik);
     
     // compute multinomial probabilities and add to target likelihood
     vector[length] multi_probs = softmax(lambda_ik);
