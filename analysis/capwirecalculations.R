@@ -58,3 +58,4 @@ capwiregrid$lower[capwiregrid$taskid == task_id] = conf.int$conf.int[1]
 capwiregrid$upper[capwiregrid$taskid == task_id] = conf.int$conf.int[2]
 write.csv(capwiregrid, "analysis/capwiregrid.csv", row.names = FALSE)
 
+capwiregrid = read.csv("analysis/capwiregrid.csv")

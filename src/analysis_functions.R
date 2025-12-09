@@ -320,11 +320,11 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   
   # calculate sample effort per trap and year
   effort_sum1 = effort1 %>%
-    filter(round %in% sibships1$round) %>%
+    filter(round %in% sibships1$round | round %in% sibships2$round) %>%
     group_by(sample_point, year) %>%
     summarize(total_effort = 5*n())
   effort_sum2 = effort2 %>%
-    filter(round %in% sibships2$round) %>%
+    filter(round %in% sibships1$round | round %in% sibships2$round) %>%
     group_by(sample_point, year) %>%
     summarize(total_effort = 5*n())
   effort_sum = rbind(effort_sum1, effort_sum2)

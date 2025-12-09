@@ -58,18 +58,18 @@ prep_stan_floralforaging = function(sibships1,
   
   # Get colonies x trap x timepoint matrix
   cxl1 = sibships1 %>%
-    distinct(site, sibshipID)
-  sereduced1 = effort1[effort1$round %in% sibships1$round,colnames(effort1) %in% c("site", "sample_point", "round", "sample_id")]
-  CKT1 = left_join(cxl1, sereduced1, by = "site", relationship = "many-to-many")
-  CKT1$year = 2022
-  
+    distinct(site, sibshipID, year)
   cxl2 = sibships2 %>%
-    distinct(site, sibshipID)
-  sereduced2 = effort2[effort2$round %in% sibships2$round,colnames(effort2) %in% c("site", "sample_point", "round", "sample_id")]
-  CKT2 = left_join(cxl2, sereduced2, by = "site", relationship = "many-to-many")
-  CKT2$year = 2023
+    distinct(site, sibshipID, year)
+  cxl = rbind(cxl1, cxl2)
   
-  CKT = rbind(CKT1, CKT2)
+  sereduced1 = effort1[(effort1$round %in% sibships1$round | effort1$round %in% sibships2$round),
+                       colnames(effort1) %in% c("site", "sample_point", "round", "sample_id", "year")]
+  sereduced2 = effort2[(effort2$round %in% sibships1$round | effort2$round %in% sibships2$round), 
+                       colnames(effort2) %in% c("site", "sample_point", "round", "sample_id", "year")]
+  sereduced = rbind(sereduced1, sereduced2)
+  
+  CKT = left_join(cxl, sereduced, by = c("site", "year"), relationship = "many-to-many")
   CKT$round = as.numeric(CKT$round)
   
   # Get site keys
@@ -166,11 +166,11 @@ prep_stan_floralforaging = function(sibships1,
   
   # Join!
   CKT = CKT %>%
+    left_join(counts) %>%
     left_join(sitekey) %>%
+    left_join(trapkey) %>%
     left_join(floral_df_long) %>%
     left_join(traps_m) %>%
-    left_join(trapkey) %>%
-    left_join(counts) %>%
     left_join(effort) %>%
     arrange(round, sibshipID, sample_point)
   
