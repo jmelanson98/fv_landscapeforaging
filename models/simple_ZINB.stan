@@ -35,12 +35,6 @@ parameters {
 }
 
 
-transformed parameters {
-  real<lower=0> sigma_sqrt = sqrt(sigma);
-  vector[K] eps_scale = eps*sigma_sqrt;
-}
-
-
 
 model {
   // set priors
@@ -50,6 +44,10 @@ model {
   eps ~ normal(0, 1);
   phi ~ lognormal(log(10), 1);
   // implicit uniform prior on theta
+  
+  {
+  // get eps_scale
+  vector[K] eps_scale = eps*sqrt(sigma);
   
   // compute log(theta), log(1-theta) once per iteration
   real log_theta = log(theta);
@@ -75,5 +73,45 @@ model {
       // penalize distances outside Rmax
       target += -penalty * log1p_exp((dis-Rmax)*steepness);
     }
+  }
+  }
+}
+
+
+generated quantities{
+  // vector of counts per colony
+  vector[C] sibspercol = rep_vector(0, C);
+  
+  {
+  // store temp ypred
+  vector[O] ypred;
+  
+  // get eps_scale
+  vector[K] eps_scale = eps*sqrt(sigma);
+  
+  // compute log(theta), log(1-theta) once per iteration
+  real log_theta = log(theta);
+  real log_not_theta = log(1-theta);
+  
+  // calculate likelihood
+  for (n in 1:O){
+   
+    // compute eta
+    real dis = sqrt( square(delta_x[colony_id[n]] - trap_pos[n,1]) +
+                       square(delta_y[colony_id[n]] - trap_pos[n,2]) );
+    real eta = alpha - 0.5*(dis / rho)^2 + eps_scale[trap_id[n]] + log(sample_effort[n]);
+    
+    if (eta < 10 && eta > -10) {
+      if(bernoulli_rng(theta)){
+            ypred[n] = 0;
+          }else{
+            ypred[n] = neg_binomial_2_log_rng(eta, phi);
+          }
+    } else {
+      ypred[n] = -1; // placeholder for baaaaad iterations (hopefully only during warmup...)
+    }
+    
+    sibspercol[colony_id[n]] += ypred[n];
+        }
   }
 }

@@ -35,18 +35,16 @@ parameters {
   array[C] real<lower=lower_y, upper=upper_y> delta_y;
 }
 
-
-transformed parameters {
-  real<lower=0> sigma_sqrt = sqrt(sigma);
-  vector[K] eps_scale = eps*sigma_sqrt;
-}
-
 model {
   // set priors
   rho ~ lognormal(log(0.5), 0.5);
   alpha ~ normal(0,1);
   sigma ~ normal(0, 1);
   eps ~ normal(0, 1);
+  
+  {
+  // get eps_scale
+  vector[K] eps_scale = eps*sqrt(sigma);
   
   // calculate likelihood
   for (c in 1:C) {
@@ -76,5 +74,5 @@ model {
     target += yn_ik .* (-penalty * log1p_exp((dis-Rmax)*steepness));
       
     }
+  }
 }
-

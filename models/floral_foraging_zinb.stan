@@ -5,9 +5,9 @@ data {
   int<lower=0> K;                // total number of traps
   int<lower=0> O;                // total number of observations (observation for a colony at a trap, in a timepoint)
   matrix[O,2] trap_pos;              // trap coordinates
-  int colony_id[O];              // colony id for each observation
+  //int colony_id[O];              // colony id for each observation
+  array[O] int<lower=1, upper=C> colony_id;
   int trap_id[O];                 // trap id for each observation
-  int landscape_id[O];            // landscape id for each observation
   vector[O] fq;                      // floral quality for each observation
   vector[O] doy;                   // julian date of observation
   int yobs[O];                   // number of individuals observed
@@ -29,19 +29,13 @@ parameters {
   real beta_doy;
   real alpha;
   real<lower=0> sigma;
-  real<lower=0> phi;
+  real<lower=1e-6> phi;
   real<lower=0, upper=1> theta; // probability of drawing a zero (zero-inflation)
   vector[K] eps;
   
   // using hard bounds here so that init doesn't fail with - inf
   array[C] real<lower=lower_x, upper=upper_x> delta_x;
   array[C] real<lower=lower_y, upper=upper_y> delta_y;
-}
-
-
-transformed parameters {
-  real<lower=0> sigma_sqrt = sqrt(sigma);
-  vector[K] eps_scale = eps*sigma_sqrt;
 }
 
 
@@ -56,6 +50,10 @@ model {
   eps ~ normal(0, 1);
   phi ~ lognormal(log(10), 1);
   // implicit uniform prior on theta
+  
+  {
+  // get eps_scale
+  vector[K] eps_scale = eps*sqrt(sigma);
   
   // compute log(theta), log(1-theta) once per iteration
   real log_theta = log(theta);
@@ -81,5 +79,45 @@ model {
       // penalize distances outside Rmax
       target += -penalty * log1p_exp((dis-Rmax)*steepness);
     }
+  }
+  }
+}
+
+
+generated quantities{
+  // vector of counts per colony
+  vector[C] sibspercol = rep_vector(0, C);
+  
+  {
+  // store temp ypred
+  vector[O] ypred;
+  
+  // get eps_scale
+  vector[K] eps_scale = eps*sqrt(sigma);
+  
+  // compute log(theta), log(1-theta) once per iteration
+  real log_theta = log(theta);
+  real log_not_theta = log(1-theta);
+  
+  // calculate likelihood
+  for (n in 1:O){
+   
+    // compute eta
+    real dis = sqrt( square(delta_x[colony_id[n]] - trap_pos[n,1]) +
+                       square(delta_y[colony_id[n]] - trap_pos[n,2]) );
+    real eta = alpha - 0.5*(dis / rho)^2 + beta_fq*fq[n] + beta_doy*doy[n] + eps_scale[trap_id[n]];
+    
+    if (eta < 10 && eta > -10) {
+      if(bernoulli_rng(theta)){
+            ypred[n] = 0;
+          }else{
+            ypred[n] = neg_binomial_2_log_rng(eta, phi);
+          }
+    } else {
+      ypred[n] = -1; // placeholder for baaaaad iterations (hopefully only during warmup...)
+    }
+    
+    sibspercol[colony_id[n]] += ypred[n];
+        }
   }
 }
