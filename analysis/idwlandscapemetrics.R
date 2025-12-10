@@ -182,122 +182,23 @@ rhoi = rhoi*1000
 #############################################
 # Calculate IDW seminatural area per point
 #############################################
-buffer = 1500
-
-# for mixtus
-fv_points$idwSN_mix = NA
-fv_points$idwHAY_mix = NA
-fv_points$idwIND_mix = NA
-fv_points$idw
-
-for (i in 1:nrow(fv_points)) {
-  fv_points$idwSN_mix22_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom22[1])
-  fv_points$idwSN_mix22_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom22[2])
-  fv_points$idwSN_mix22_high[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom22[3])
-  if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
-}
-
-# for mixtus 2023
-fv_points$idwSN_mix23_low = NA
-fv_points$idwSN_mix23_mean = NA
-fv_points$idwSN_mix23_high = NA
-
-for (i in 1:nrow(fv_points)) {
-  fv_points$idwSN_mix23_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom23[1])
-  fv_points$idwSN_mix23_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom23[2])
-  fv_points$idwSN_mix23_high[i] = compute_idw_area(fv_points[i,], semi, buffer, rhom23[3])
-  if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
-}
-
-# for impatiens 2022
-fv_points$idwSN_imp22_low = NA
-fv_points$idwSN_imp22_mean = NA
-fv_points$idwSN_imp22_high = NA
-
-for (i in 1:nrow(fv_points)) {
-    fv_points$idwSN_imp22_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi22[1])
-    fv_points$idwSN_imp22_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi22[2])
-    fv_points$idwSN_imp22_high[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi22[3])
-    if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
-}
-
-# for impatiens 2023
-fv_points$idwSN_imp23_low = NA
-fv_points$idwSN_imp23_mean = NA
-fv_points$idwSN_imp23_high = NA
-
-for (i in 1:nrow(fv_points)) {
-  fv_points$idwSN_imp23_low[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi23[1])
-  fv_points$idwSN_imp23_mean[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi23[2])
-  fv_points$idwSN_imp23_high[i] = compute_idw_area(fv_points[i,], semi, buffer, rhoi23[3])
-  if (i %% 10 == 0) cat("Processed point", i, "of", nrow(fv_points), "\n")
-}
-
+# see idwcluster.R --- script for running on server
 
 #############################################
 # Calculate IJI per point
 #############################################
 foraging_80_factor = sqrt(-2*log(1-0.8))
 
-# for mixtus 2022
-iji_mix22_min = calculateIJI(landcover.raster = landscape_raster, 
-                             site.shapefile = fv_points, 
-                             landcover.classification = landcover, 
-                             buffer.sizes = rhom22[1]*foraging_80_factor)
-iji_mix22_mean = calculateIJI(landcover.raster = landscape_raster, 
+# for mixtus
+iji_mix_mean = calculateIJI(landcover.raster = landscape_raster, 
                               site.shapefile = fv_points, 
                               landcover.classification = landcover, 
-                              buffer.sizes = rhom22[2]*foraging_80_factor)
-iji_mix22_max = calculateIJI(landcover.raster = landscape_raster, 
-                             site.shapefile = fv_points, 
-                             landcover.classification = landcover, 
-                             buffer.sizes = rhom22[3]*foraging_80_factor)
-
-# for mixtus 2023
-iji_mix23_min = calculateIJI(landcover.raster = landscape_raster, 
-                             site.shapefile = fv_points, 
-                             landcover.classification = landcover, 
-                             buffer.sizes = rhom23[1]*foraging_80_factor)
-iji_mix23_mean = calculateIJI(landcover.raster = landscape_raster, 
-                              site.shapefile = fv_points, 
-                              landcover.classification = landcover, 
-                              buffer.sizes = rhom23[2]*foraging_80_factor)
-iji_mix23_max = calculateIJI(landcover.raster = landscape_raster, 
-                             site.shapefile = fv_points, 
-                             landcover.classification = landcover, 
-                             buffer.sizes = rhom23[3]*foraging_80_factor)
-
-
-
-# for impatiens 2022
-iji_imp22_min = calculateIJI(landcover.raster = landscape_raster, 
-                                      site.shapefile = fv_points, 
-                                      landcover.classification = landcover, 
-                                      buffer.sizes = rhoi22[1]*foraging_80_factor)
-iji_imp22_mean = calculateIJI(landcover.raster = landscape_raster, 
+                              buffer.sizes = rhom[2]*foraging_80_factor)
+# for impatiens
+iji_imp_mean = calculateIJI(landcover.raster = landscape_raster, 
                                           site.shapefile = fv_points, 
                                           landcover.classification = landcover, 
-                                          buffer.sizes = rhoi22[2]*foraging_80_factor)
-iji_imp22_max = calculateIJI(landcover.raster = landscape_raster, 
-                                          site.shapefile = fv_points, 
-                                          landcover.classification = landcover, 
-                                          buffer.sizes = rhoi22[3]*foraging_80_factor)
-
-# for impatiens 2023
-iji_imp23_min = calculateIJI(landcover.raster = landscape_raster, 
-                             site.shapefile = fv_points, 
-                             landcover.classification = landcover, 
-                             buffer.sizes = rhoi23[1]*foraging_80_factor)
-iji_imp23_mean = calculateIJI(landcover.raster = landscape_raster, 
-                              site.shapefile = fv_points, 
-                              landcover.classification = landcover, 
-                              buffer.sizes = rhoi23[2]*foraging_80_factor)
-iji_imp23_max = calculateIJI(landcover.raster = landscape_raster, 
-                             site.shapefile = fv_points, 
-                             landcover.classification = landcover, 
-                             buffer.sizes = rhoi23[3]*foraging_80_factor)
-
-
+                                          buffer.sizes = rhoi[2]*foraging_80_factor)
 # for queen models
 iji_250 = calculateIJI(landcover.raster = landscape_raster, 
                              site.shapefile = fv_points, 

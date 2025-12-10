@@ -20,7 +20,7 @@ calculateIJI <- function(landcover.raster,
   library(landscapemetrics)
   
   #set and change CRS
-  crs(landcover.raster) = 900913
+  crs(landcover.raster) = "epsg:900913"
   st_crs(site.shapefile) = 900913
   
   # initiate landscape.dat dataframe
@@ -97,7 +97,7 @@ calculateSN <- function(landcover.raster,
   library(landscapemetrics)
   
   #set and change CRS
-  crs(landcover.raster) = 900913
+  crs(landcover.raster) = "epsg:900913"
   st_crs(site.shapefile) = 900913
   
   # initiate landscape.dat dataframe
