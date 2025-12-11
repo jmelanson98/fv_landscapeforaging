@@ -2,7 +2,7 @@
 ### December 2 2025
 ### J Melanson
 
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+setwd("/Users/jenna1/fv_landscapeforaging")
 
 # Load packages
 source('src/GeneralizedSimFunctions.R')
@@ -52,40 +52,41 @@ sampleData2022 = as.data.frame(read.csv(paste0(bombus_path, "raw_data/2022sample
 sampleData2023 = as.data.frame(read.csv(paste0(bombus_path, "raw_data/2023sampledata.csv"), sep = ",", header = T))
 landscape_metrics = read.csv("analysis/calculated_metrics.csv")
 
-rename = c("X", "sample_pt", "site_id", "site_name", "type", "site_type", "transect", 
-             "latitude", "longitude", "project_co", "subsite", "geometry",
-             "iji_mix22_min", "iji_mix22_mean", "iji_mix22_max", "iji_mix23_min", 
-             "iji_mix23_mean", "iji_mix23_max", "iji_imp22_min", "iji_imp22_mean", 
-             "iji_imp22_max", "iji_imp23_min", "iji_imp23_mean", "iji_imp23_max",
-             "iji_1000", "iji_250", "sn_250", "sn_1000"
-             )
-keep = colnames(landscape_metrics)[29:ncol(landscape_metrics)]
-newcols = c(rename, keep)
-colnames(landscape_metrics) = newcols
-
 ###################################################
-### Prep data for model -- mixtus 2022
+### Prep data for model -- mixtus
 ###################################################
+mix2023$sibshipID = mix2023$sibshipID + max(mix2022$sibshipID)
+mixsibs = rbind(mix2022, mix2023)
 
 # First get colony number per transect
-pertransectm22 = mix2022 %>%
-  group_by(sample_pt) %>%
+pertransectm = mixsibs %>%
+  group_by(sample_pt, year) %>%
   summarize(num_colonies = length(unique(sibshipID)),
             num_individuals = n())
 
-# Get landscape metrics
-subset = c("sample_pt", "idwSN_mix22_mean", "iji_mix22_mean")
-pertransectm22 = pertransectm22 %>%
-  full_join(landscape_metrics[,colnames(landscape_metrics) %in% subset])
-pertransectm22$num_colonies[is.na(pertransectm22$num_colonies)] = 0
-pertransectm22$num_individuals[is.na(pertransectm22$num_individuals)] = 0
 
 # Get sample effort
-effort = sampleData2022 %>%
-  group_by(sample_point) %>%
+effort22 = sampleData2022 %>%
+  group_by(sample_point, year) %>%
   summarize(effort = 5*n())
-pertransectm22 = pertransectm22 %>%
-  full_join(effort, by = c("sample_pt" = "sample_point"))
+effort23 = sampleData2023 %>%
+  group_by(sample_point, year) %>%
+  summarize(effort = 5*n())
+effort = rbind(effort22, effort23)
+pertransectm = pertransectm %>%
+  full_join(effort, by = c("sample_pt" = "sample_point", "year"))
+
+# Add transect_id
+transectkey = data.frame(sample_pt = unique(pertransectm$sample_pt),
+                         transect_id = 1:length(unique(pertransectm$sample_pt)))
+pertransectm = left_join(pertransectm, transectkey)
+
+# Get landscape metrics
+subset = c("sample_pt", "idwSN_mix", "landscape_iji_mix_mean")
+pertransectm = pertransectm %>%
+  full_join(landscape_metrics[,colnames(landscape_metrics) %in% subset])
+pertransectm$num_colonies[is.na(pertransectm$num_colonies)] = 0
+pertransectm$num_individuals[is.na(pertransectm$num_individuals)] = 0
 
 # Get average floral abundance
 beeflowers = unique(c(specimenData2022$active_flower, specimenData2023$active_flower))
@@ -93,7 +94,7 @@ beeflowers = beeflowers[str_detect(beeflowers, "nest|N/A|flying|dipu|road|dead|g
 
 columnlist = c("sample_point", "sample_id", beeflowers)
 floral_df_wide = vegData2022[,colnames(vegData2022) %in% columnlist]
-floral_df_long = floral_df_wide %>%
+floral_df_long22 = floral_df_wide %>%
   pivot_longer(!c(sample_point, sample_id), names_to = "flower", values_to = "floral_abundance") %>%
   mutate(across(-c(sample_point, sample_id, flower),
                 ~ suppressWarnings(as.numeric(.)))) %>%
@@ -105,19 +106,41 @@ floral_df_long = floral_df_wide %>%
   summarize(floral_abundance = mean(floral_abundance, na.rm = TRUE)) %>%
   mutate(across(-c(sample_point),
                 ~ log10(.)))
+floral_df_long22$year = 2022
 
-pertransectm22 = pertransectm22 %>%
-  full_join(floral_df_long, by = c("sample_pt" = "sample_point"))
+floral_df_wide = vegData2023[,colnames(vegData2023) %in% columnlist]
+floral_df_long23 = floral_df_wide %>%
+  pivot_longer(!c(sample_point, sample_id), names_to = "flower", values_to = "floral_abundance") %>%
+  mutate(across(-c(sample_point, sample_id, flower),
+                ~ suppressWarnings(as.numeric(.)))) %>%
+  mutate(across(-c(sample_point, sample_id, flower),
+                ~ 10^(.-1))) %>%
+  group_by(sample_point, sample_id) %>%
+  summarize(floral_abundance = sum(floral_abundance, na.rm = TRUE)) %>%
+  group_by(sample_point) %>%
+  summarize(floral_abundance = mean(floral_abundance, na.rm = TRUE)) %>%
+  mutate(across(-c(sample_point),
+                ~ log10(.)))
+floral_df_long23$year = 2023
+
+
+floral_df_long = rbind(floral_df_long22, floral_df_long23)
+
+pertransectm = pertransectm %>%
+  full_join(floral_df_long, by = c("sample_pt" = "sample_point", "year"))
 
 # remove unvisited transects
-pertransectm22 = pertransectm22[!is.na(pertransectm22$effort),]
+pertransectm = pertransectm[!is.na(pertransectm$effort),]
 
 # clean up single inf value
-pertransectm22$floral_abundance[pertransectm22$floral_abundance == -Inf] = 0
+pertransectm$floral_abundance[pertransectm$floral_abundance == -Inf] = 0
+pertransectm$floral_abundance[is.na(pertransectm$floral_abundance)] = 0
 
 # convert inverse weighted m^2 to inverse weighted ha
-pertransectm22$idwSN_mix22_mean = pertransectm22$idwSN_mix22_mean/10000
+pertransectm$idwSN_mix = pertransectm$idwSN_mix/10000
 
+# change year to 0/1
+pertransectm$year = ifelse(pertransectm$year == 2022, 0, 1)
 
 ###################################################
 ### Fit stan model
@@ -125,123 +148,61 @@ pertransectm22$idwSN_mix22_mean = pertransectm22$idwSN_mix22_mean/10000
 stanfile = paste("models/cabund_transects.stan")
 
 data = list()
-data$T = nrow(pertransectm22)
-data$idw = pertransectm22$idwSN_mix22_mean
-data$iji = pertransectm22$iji_mix22_mean
-data$effort = pertransectm22$effort
-data$fq = pertransectm22$floral_abundance
-data$yobs = pertransectm22$num_colonies
+data$T = length(unique(pertransectm$sample_pt))
+data$O = nrow(pertransectm)
+data$idw = pertransectm$idwSN_mix
+data$iji = pertransectm$landscape_iji_mix_mean
+data$effort = pertransectm$effort
+data$fq = pertransectm$floral_abundance
+data$yobs = pertransectm$num_colonies
+data$year = pertransectm$year
+data$transect_id = pertransectm$transect_id
 
 fit = stan(file = stanfile,
            data = data, seed = 5838299,
            chains = 4, cores = 4,
            verbose = TRUE)
-plot(fit, pars = c("beta_idw", "beta_iji", "beta_eff"), ci_level = 0.8, outer_level = 0.95)
-
+plot(fit, pars = c("beta_idw", "beta_iji"), ci_level = 0.8, outer_level = 0.95)
+saveRDS(fit, "analysis/colony_modelfits/mixtusfit.rds")
+mixtusfit = readRDS("analysis/colony_modelfits/mixtusfit.rds")
 
 
 ###################################################
-### Prep data for model -- mixtus 2023
+### Prep data for model -- impatiens
 ###################################################
+
+imp2023$sibshipID = imp2023$sibshipID + max(imp2022$sibshipID)
+impsibs = rbind(imp2022, imp2023)
 
 # First get colony number per transect
-pertransectm23 = mix2023 %>%
-  group_by(sample_pt) %>%
+pertransecti = impsibs %>%
+  group_by(sample_pt, year) %>%
   summarize(num_colonies = length(unique(sibshipID)),
             num_individuals = n())
 
-# Get landscape metrics
-subset = c("sample_pt", "idwSN_mix23_mean", "iji_mix23_mean")
-pertransectm23 = pertransectm23 %>%
-  full_join(landscape_metrics[,colnames(landscape_metrics) %in% subset])
-pertransectm23$num_colonies[is.na(pertransectm23$num_colonies)] = 0
-pertransectm23$num_individuals[is.na(pertransectm23$num_individuals)] = 0
 
 # Get sample effort
-effort = sampleData2023 %>%
-  group_by(sample_point) %>%
+effort22 = sampleData2022 %>%
+  group_by(sample_point, year) %>%
   summarize(effort = 5*n())
-pertransectm23 = pertransectm23 %>%
-  full_join(effort, by = c("sample_pt" = "sample_point"))
+effort23 = sampleData2023 %>%
+  group_by(sample_point, year) %>%
+  summarize(effort = 5*n())
+effort = rbind(effort22, effort23)
+pertransecti = pertransecti %>%
+  full_join(effort, by = c("sample_pt" = "sample_point", "year"))
 
-# Get average floral abundance
-beeflowers = unique(c(specimenData2022$active_flower, specimenData2023$active_flower))
-beeflowers = beeflowers[str_detect(beeflowers, "nest|N/A|flying|dipu|road|dead|grass|leaf|ground", negate = T)]
-
-columnlist = c("sample_point", "sample_id", beeflowers)
-floral_df_wide = vegData2023[,colnames(vegData2023) %in% columnlist]
-floral_df_long = floral_df_wide %>%
-  pivot_longer(!c(sample_point, sample_id), names_to = "flower", values_to = "floral_abundance") %>%
-  mutate(across(-c(sample_point, sample_id, flower),
-                ~ suppressWarnings(as.numeric(.)))) %>%
-  mutate(across(-c(sample_point, sample_id, flower),
-                ~ 10^(.-1))) %>%
-  group_by(sample_point, sample_id) %>%
-  summarize(floral_abundance = sum(floral_abundance, na.rm = TRUE)) %>%
-  group_by(sample_point) %>%
-  summarize(floral_abundance = mean(floral_abundance, na.rm = TRUE)) %>%
-  mutate(across(-c(sample_point),
-                ~ log10(.)))
-
-pertransectm23 = pertransectm23 %>%
-  full_join(floral_df_long, by = c("sample_pt" = "sample_point"))
-
-# remove unvisited transects
-pertransectm23 = pertransectm23[!is.na(pertransectm23$effort),]
-
-# clean up single inf value
-pertransectm23$floral_abundance[pertransectm23$floral_abundance == -Inf] = 0
-pertransectm23 = pertransectm23[!is.na(pertransectm23$floral_abundance),]
-
-# convert inverse weighted m^2 to inverse weighted ha
-pertransectm23$idwSN_mix23_mean = pertransectm23$idwSN_mix23_mean/10000
-
-
-###################################################
-### Fit stan model
-###################################################
-stanfile = paste("models/cabund_transects.stan")
-
-data = list()
-data$T = nrow(pertransectm23)
-data$idw = pertransectm23$idwSN_mix23_mean
-data$iji = pertransectm23$iji_mix23_mean
-data$effort = pertransectm23$effort
-data$fq = pertransectm23$floral_abundance
-data$yobs = pertransectm23$num_colonies
-
-fit23 = stan(file = stanfile,
-           data = data, seed = 5838299,
-           chains = 4, cores = 4,
-           verbose = TRUE)
-plot(fit23)
-plot(fit23, pars = c("beta_idw", "beta_iji"), ci_level = 0.8, outer_level = 0.95)
-
-
-
-###################################################
-### Prep data for model -- impatiens 2022
-###################################################
-
-# First get colony number per transect
-pertransecti22 = imp2022 %>%
-  group_by(sample_pt) %>%
-  summarize(num_colonies = length(unique(sibshipID)),
-            num_individuals = n())
+# Add transect_id
+transectkey = data.frame(sample_pt = unique(pertransecti$sample_pt),
+                         transect_id = 1:length(unique(pertransecti$sample_pt)))
+pertransecti = left_join(pertransecti, transectkey)
 
 # Get landscape metrics
-subset = c("sample_pt", "idwSN_imp22_mean", "iji_imp22_mean")
-pertransecti22 = pertransecti22 %>%
+subset = c("sample_pt", "idwSN_imp", "landscape_iji_imp_mean")
+pertransecti = pertransecti %>%
   full_join(landscape_metrics[,colnames(landscape_metrics) %in% subset])
-pertransecti22$num_colonies[is.na(pertransecti22$num_colonies)] = 0
-pertransecti22$num_individuals[is.na(pertransecti22$num_individuals)] = 0
-
-# Get sample effort
-effort = sampleData2022 %>%
-  group_by(sample_point) %>%
-  summarize(effort = 5*n())
-pertransecti22 = pertransecti22 %>%
-  full_join(effort, by = c("sample_pt" = "sample_point"))
+pertransecti$num_colonies[is.na(pertransecti$num_colonies)] = 0
+pertransecti$num_individuals[is.na(pertransecti$num_individuals)] = 0
 
 # Get average floral abundance
 beeflowers = unique(c(specimenData2022$active_flower, specimenData2023$active_flower))
@@ -249,7 +210,7 @@ beeflowers = beeflowers[str_detect(beeflowers, "nest|N/A|flying|dipu|road|dead|g
 
 columnlist = c("sample_point", "sample_id", beeflowers)
 floral_df_wide = vegData2022[,colnames(vegData2022) %in% columnlist]
-floral_df_long = floral_df_wide %>%
+floral_df_long22 = floral_df_wide %>%
   pivot_longer(!c(sample_point, sample_id), names_to = "flower", values_to = "floral_abundance") %>%
   mutate(across(-c(sample_point, sample_id, flower),
                 ~ suppressWarnings(as.numeric(.)))) %>%
@@ -261,20 +222,41 @@ floral_df_long = floral_df_wide %>%
   summarize(floral_abundance = mean(floral_abundance, na.rm = TRUE)) %>%
   mutate(across(-c(sample_point),
                 ~ log10(.)))
+floral_df_long22$year = 2022
 
-pertransecti22 = pertransecti22 %>%
-  full_join(floral_df_long, by = c("sample_pt" = "sample_point"))
+floral_df_wide = vegData2023[,colnames(vegData2023) %in% columnlist]
+floral_df_long23 = floral_df_wide %>%
+  pivot_longer(!c(sample_point, sample_id), names_to = "flower", values_to = "floral_abundance") %>%
+  mutate(across(-c(sample_point, sample_id, flower),
+                ~ suppressWarnings(as.numeric(.)))) %>%
+  mutate(across(-c(sample_point, sample_id, flower),
+                ~ 10^(.-1))) %>%
+  group_by(sample_point, sample_id) %>%
+  summarize(floral_abundance = sum(floral_abundance, na.rm = TRUE)) %>%
+  group_by(sample_point) %>%
+  summarize(floral_abundance = mean(floral_abundance, na.rm = TRUE)) %>%
+  mutate(across(-c(sample_point),
+                ~ log10(.)))
+floral_df_long23$year = 2023
+
+
+floral_df_long = rbind(floral_df_long22, floral_df_long23)
+
+pertransecti = pertransecti %>%
+  full_join(floral_df_long, by = c("sample_pt" = "sample_point", "year"))
 
 # remove unvisited transects
-pertransecti22 = pertransecti22[!is.na(pertransecti22$effort),]
+pertransecti = pertransecti[!is.na(pertransecti$effort),]
 
 # clean up single inf value
-pertransecti22$floral_abundance[pertransecti22$floral_abundance == -Inf] = 0
-pertransecti22 = pertransecti22[!is.na(pertransecti22$floral_abundance),]
+pertransecti$floral_abundance[pertransecti$floral_abundance == -Inf] = 0
+pertransecti$floral_abundance[is.na(pertransecti$floral_abundance)] = 0
 
 # convert inverse weighted m^2 to inverse weighted ha
-pertransecti22$idwSN_imp22_mean = pertransecti22$idwSN_imp22_mean/10000
+pertransecti$idwSN_imp = pertransecti$idwSN_imp/10000
 
+# change year to 0/1
+pertransecti$year = ifelse(pertransecti$year == 2022, 0, 1)
 
 ###################################################
 ### Fit stan model
@@ -282,113 +264,38 @@ pertransecti22$idwSN_imp22_mean = pertransecti22$idwSN_imp22_mean/10000
 stanfile = paste("models/cabund_transects.stan")
 
 data = list()
-data$T = nrow(pertransecti22)
-data$idw = pertransecti22$idwSN_imp22_mean
-data$iji = pertransecti22$iji_imp22_mean
-data$effort = pertransecti22$effort
-data$fq = pertransecti22$floral_abundance
-data$yobs = pertransecti22$num_colonies
+data$T = length(unique(pertransecti$sample_pt))
+data$O = nrow(pertransecti)
+data$idw = pertransecti$idwSN_imp
+data$iji = pertransecti$landscape_iji_imp_mean
+data$effort = pertransecti$effort
+data$fq = pertransecti$floral_abundance
+data$yobs = pertransecti$num_colonies
+data$year = pertransecti$year
+data$transect_id = pertransecti$transect_id
 
-fiti22 = stan(file = stanfile,
+fit = stan(file = stanfile,
            data = data, seed = 5838299,
            chains = 4, cores = 4,
            verbose = TRUE)
-plot(fiti22, pars = c("beta_idw", "beta_iji"), ci_level = 0.8, outer_level = 0.95)
+plot(fit, pars = c("beta_idw", "beta_iji", "beta_yr"), ci_level = 0.8, outer_level = 0.95)
+saveRDS(fit, "analysis/colony_modelfits/impatiensfit.rds")
+impatiensfit = readRDS("analysis/colony_modelfits/impatiensfit.rds")
 
-
-###################################################
-### Prep data for model -- impatiens 2023
-###################################################
-
-# First get colony number per transect
-pertransecti23 = imp2023 %>%
-  group_by(sample_pt) %>%
-  summarize(num_colonies = length(unique(sibshipID)),
-            num_individuals = n())
-
-# Get landscape metrics
-subset = c("sample_pt", "idwSN_imp23_mean", "iji_imp23_mean")
-pertransecti23 = pertransecti23 %>%
-  full_join(landscape_metrics[,colnames(landscape_metrics) %in% subset])
-pertransecti23$num_colonies[is.na(pertransecti23$num_colonies)] = 0
-pertransecti23$num_individuals[is.na(pertransecti23$num_individuals)] = 0
-
-# Get sample effort
-effort = sampleData2023 %>%
-  group_by(sample_point) %>%
-  summarize(effort = 5*n())
-pertransecti23 = pertransecti23 %>%
-  full_join(effort, by = c("sample_pt" = "sample_point"))
-
-# Get average floral abundance
-beeflowers = unique(c(specimenData2022$active_flower, specimenData2023$active_flower))
-beeflowers = beeflowers[str_detect(beeflowers, "nest|N/A|flying|dipu|road|dead|grass|leaf|ground", negate = T)]
-
-columnlist = c("sample_point", "sample_id", beeflowers)
-floral_df_wide = vegData2023[,colnames(vegData2023) %in% columnlist]
-floral_df_long = floral_df_wide %>%
-  pivot_longer(!c(sample_point, sample_id), names_to = "flower", values_to = "floral_abundance") %>%
-  mutate(across(-c(sample_point, sample_id, flower),
-                ~ suppressWarnings(as.numeric(.)))) %>%
-  mutate(across(-c(sample_point, sample_id, flower),
-                ~ 10^(.-1))) %>%
-  group_by(sample_point, sample_id) %>%
-  summarize(floral_abundance = sum(floral_abundance, na.rm = TRUE)) %>%
-  group_by(sample_point) %>%
-  summarize(floral_abundance = mean(floral_abundance, na.rm = TRUE)) %>%
-  mutate(across(-c(sample_point),
-                ~ log10(.)))
-
-pertransecti23 = pertransecti23 %>%
-  full_join(floral_df_long, by = c("sample_pt" = "sample_point"))
-
-# remove unvisited transects
-pertransecti23 = pertransecti23[!is.na(pertransecti23$effort),]
-
-# clean up single inf value
-pertransecti23$floral_abundance[pertransecti23$floral_abundance == -Inf] = 0
-pertransecti23 = pertransecti23[!is.na(pertransecti23$floral_abundance),]
-
-# convert inverse weighted m^2 to inverse weighted ha
-pertransecti23$idwSN_imp23_mean = pertransecti23$idwSN_imp23_mean/10000
-
-
-###################################################
-### Fit stan model
-###################################################
-stanfile = paste("models/cabund_transects.stan")
-
-data = list()
-data$T = nrow(pertransecti23)
-data$idw = pertransecti23$idwSN_imp23_mean
-data$iji = pertransecti23$iji_imp23_mean
-data$effort = pertransecti23$effort
-data$fq = pertransecti23$floral_abundance
-data$yobs = pertransecti23$num_colonies
-
-fiti23 = stan(file = stanfile,
-             data = data, seed = 5838299,
-             chains = 4, cores = 4,
-             verbose = TRUE)
-plot(fiti23)
-plot(fiti23, pars = c("beta_idw", "beta_iji"), ci_level = 0.8, outer_level = 0.95)
-plot(fiti23, pars = c("beta_fq"), ci_level = 0.8, outer_level = 0.95)
 
 
 
 
 # Plot all together
 models = list(
-  mixtus2022  = fit,
-  mixtus2023  = fit23,
-  impatiens2022 = fiti22,
-  impatiens2023 = fiti23
+  mixtus= mixtusfit,
+  impatiens = impatiensfit
 )
 params = c("beta_iji", "beta_idw")
 
 df_long = lapply(names(models), function(nm) {
-  d <- as_draws_df(models[[nm]])
-  d <- posterior::subset_draws(d, variable = params)
+  d = as_draws_df(models[[nm]])
+  d = posterior::subset_draws(d, variable = params)
   as.data.frame(d) %>% 
     mutate(model = nm)
 }) %>% 
@@ -518,3 +425,13 @@ params_plot = ggplot(df_long, aes(x = value, y = parameter, fill = parameter)) +
   theme_minimal()
 ggsave("figures/manuscript_figures/individuals_per_transect.jpg",
        params_plot, units = "px", height = 3000, width = 2000)
+
+
+
+
+###################################################
+### Use hier.part for multiple landcover classes
+###################################################
+
+data(amphipod
+     )

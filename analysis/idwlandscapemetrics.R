@@ -34,9 +34,6 @@ st_crs(fv_points) = 900913
 # Make sure it's a spatrast object
 landscape_raster = rast(landscape_raster)
 
-# Get frequency of each cover type in the landscape (optional)
-freqs = freq(landscape_raster, digits = 0, value=TRUE)
-
 
 #####################################################
 # Get seminatural raster
@@ -194,11 +191,15 @@ iji_mix_mean = calculateIJI(landcover.raster = landscape_raster,
                               site.shapefile = fv_points, 
                               landcover.classification = landcover, 
                               buffer.sizes = rhom[2]*foraging_80_factor)
+colnames(iji_mix_mean) = c("sample_pt", "landscape_iji_mix_mean")
+
 # for impatiens
 iji_imp_mean = calculateIJI(landcover.raster = landscape_raster, 
                                           site.shapefile = fv_points, 
                                           landcover.classification = landcover, 
                                           buffer.sizes = rhoi[2]*foraging_80_factor)
+colnames(iji_imp_mean) = c("sample_pt", "landscape_iji_imp_mean")
+
 # for queen models
 iji_250 = calculateIJI(landcover.raster = landscape_raster, 
                              site.shapefile = fv_points, 
@@ -228,23 +229,12 @@ sn_1000 = calculateSN(landcover.raster = landscape_raster,
 # Add to landscape metrics file
 #############################################
 saved = read.csv("analysis/calculated_metrics.csv")
-colnames(saved)[colnames(saved) == "X"] = "sample_pt"
 updated = saved %>%
-  left_join(iji_mix22_min) %>%
-  left_join(iji_mix22_mean) %>%
-  left_join(iji_mix22_max) %>%
-  left_join(iji_mix23_min) %>%
-  left_join(iji_mix23_mean) %>%
-  left_join(iji_mix23_max) %>%
-  left_join(iji_imp22_min) %>%
-  left_join(iji_imp22_mean) %>%
-  left_join(iji_imp22_max) %>%
-  left_join(iji_imp23_min) %>%
-  left_join(iji_imp23_mean) %>%
-  left_join(iji_imp23_max) %>%
+  left_join(iji_mix_mean) %>%
+  left_join(iji_imp_mean) %>%
   left_join(iji_1000) %>%
   left_join(iji_250) %>%
   left_join(sn_250) %>%
   left_join(sn_1000)
 
-write.csv(updated, "analysis/calculated_metrics.csv")
+write.csv(updated, "analysis/calculated_metrics.csv", row.names = FALSE)
