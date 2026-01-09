@@ -95,86 +95,109 @@ if (task_id %in% c(1,2)){
 #############################################
 # Extract values and makes some plots
 #############################################
+mix.fit = readRDS("analysis/foraging_modelfits/simpleforaging_multinomial1.rds")
+imp.fit = readRDS("analysis/foraging_modelfits/simpleforaging_multinomial2.rds")
 
-# mixtus 2022
-# stanFitm22 = readRDS("analysis/foraging_modelfits/foragingmodel_1.rds")
-# summarym22 = rstan::summary(stanFitm22)$summary
-# 
-# rhom22 = c(summarym22["rho", "2.5%"],
-#            summarym22["rho", "mean"],
-#            summarym22["rho", "97.5%"])
-# rhom22 = rhom22*1000
-# 
-# # mixtus 2023
-# stanFitm23 = readRDS("analysis/foraging_modelfits/foragingmodel_2.rds")
-# summarym23 = rstan::summary(stanFitm23)$summary
-# 
-# rhom23 = c(summarym23["rho", "2.5%"],
-#            summarym23["rho", "mean"],
-#            summarym23["rho", "97.5%"])
-# rhom23 = rhom23*1000
-# 
-# 
-# # impatiens 2022
-# stanFiti22 = readRDS("analysis/foraging_modelfits/foragingmodel_3.rds")
-# summaryi22 = rstan::summary(stanFiti22)$summary
-# 
-# rhoi22 = c(summaryi22["rho", "2.5%"],
-#            summaryi22["rho", "mean"],
-#            summaryi22["rho", "97.5%"])
-# rhoi22 = rhoi22*1000
-# 
-# # impatiens 2023
-# stanFiti23 = readRDS("analysis/foraging_modelfits/foragingmodel_4.rds")
-# summaryi23 = rstan::summary(stanFiti23)$summary
-# 
-# rhoi23 = c(summaryi23["rho", "2.5%"],
-#            summaryi23["rho", "mean"],
-#            summaryi23["rho", "97.5%"])
-# rhoi23 = rhoi23*1000
-# 
-# 
-# # Make plot of rhos for each species/year!
-# postm22 = as.data.frame(stanFitm22)
-# postm23 = as.data.frame(stanFitm23)
-# posti22 = as.data.frame(stanFiti22)
-# posti23 = as.data.frame(stanFiti23)
-# 
-# combinedpost =  bind_rows(
-#   data.frame(model = "B. mixtus 2022", rho = postm22$rho),
-#   data.frame(model = "B. mixtus 2023", rho = postm23$rho),
-#   data.frame(model = "B. impatiens 2022", rho = posti22$rho),
-#   data.frame(model = "B. impatiens 2023", rho = posti23$rho)
-# )
-# 
-# ggplot(combinedpost, aes(x = rho, fill = model)) +
-#   geom_histogram(bins = 30) +
-#   facet_wrap(~ model) +
-#   theme_minimal()
-# 
-# ggplot(combinedpost, aes(x = rho, fill = model)) +
-#   scale_fill_manual(values = c(medium_gold, lm_gold, faded_strong, faded_green)) +
-#   stat_halfeye(point_interval = median_qi, .width = c(0.95)) +
-#   facet_wrap(~model, ncol = 1) +
-#   theme_minimal()
-# 
-# year_difference = bind_rows(
-#   data.frame(species = "mixtus", rho_diff = postm22$rho - postm23$rho),
-#   data.frame(species = "impatiens", rho_diff = posti22$rho - posti23$rho)
-# )
-# 
-# ggplot(year_difference, aes(x = rho_diff, fill = species)) +
-#   geom_histogram(alpha = 0.4) +
-#   theme_minimal()
-# 
-# mix_diff = year_difference[year_difference$species == "mixtus",]
-# bayesp = sum(mix_diff$rho_diff > 0)/nrow(mix_diff)
-# 
-# species_difference = bind_rows(
-#   data.frame(year = "2022", rho_diff = posti22$rho - postm22$rho),
-#   data.frame(year = "2023", rho_diff = posti23$rho - postm23$rho)
-# )
-# 
-# ggplot(species_difference, aes(x = rho_diff, fill = year)) +
-#   geom_histogram(alpha = 0.4) +
-#   theme_minimal()
+# mixtus
+summarym = rstan::summary(mix.fit)$summary
+
+rhom = summarym["rho", "mean"]
+
+# impatiens
+summaryi = rstan::summary(imp.fit)$summary
+
+rhoi = summaryi["rho", "mean"]
+
+
+
+# Make plot of rhos for each species/year!
+postm = as.data.frame(mix.fit)
+posti = as.data.frame(imp.fit)
+
+combinedpost =  bind_rows(
+  data.frame(model = "B. mixtus", rho = postm$rho),
+  data.frame(model = "B. impatiens", rho = posti$rho)
+)
+
+posteriors = ggplot(combinedpost, aes(x = rho, fill = model, color = model)) +
+  scale_fill_manual(values = c(lm_gold, faded_strong)) +
+  scale_color_manual(values = c(dark_gold, faded_dark)) + 
+  geom_histogram() +
+  facet_wrap(~model, ncol = 1) +
+  ylab("Posterior draws") +
+  xlab(expression(rho)) +
+  theme(legend.position = "none") +
+  guides(fill = "none", color = "none") +
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.5),
+    panel.grid = element_line()  # optional — minimal removes minor grids
+  )
+posteriors
+
+x = seq(0, 2, by = 0.0001)
+mix_y = exp(-0.5*(x/rhom)^2)
+imp_y = exp(-0.5*(x/rhoi)^2)
+df = as.data.frame(cbind(x, mix_y, imp_y))
+
+r50m = round(rhom*sqrt(-2*log(0.5)), 2)
+r50i = round(rhoi*sqrt(-2*log(0.5)), 2)
+r99m = round(rhom*sqrt(-2*log(0.01)), 2)
+r99i = round(rhoi*sqrt(-2*log(0.01)), 2)
+
+foraging_decay = ggplot(df) +
+  geom_point(aes(x = x, y = mix_y), color = faded_dark) +
+  geom_point(aes(x = x, y = imp_y), color = dark_gold) +
+  vline_at(v = r50m, color = faded_dark, linetype = "dashed") +
+  vline_at(v = r50i, color = dark_gold, linetype = "dashed") +
+  vline_at(v = r99m, color = faded_dark, linetype = "dashed") +
+  vline_at(v = r99i, color = dark_gold, linetype = "dashed") +
+  annotate("text", x = 0.49, y = 0.95, label = expression(R[50*","*mix] == 0.54 ~ km), parse = TRUE, color = faded_dark, angle = 90, size = 3) +
+  annotate("text", x = 0.63, y = 0.95, label = expression(R[50*","*imp] == 0.67 ~ km), parse = TRUE, color = dark_gold, angle = 90, size = 3) +
+  annotate("text", x = 1.35, y = 0.95, label = expression(R[99*","*mix] == 1.39 ~ km), parse = TRUE, color = faded_dark, angle = 90, size = 3) +
+  annotate("text", x = 1.66, y = 0.95, label = expression(R[99*","*imp] == 1.71 ~ km), parse = TRUE, color = dark_gold, angle = 90, size = 3) +
+  ylab("Relative visitation") +
+  xlab("Distance from nest (km)") +
+  theme_bw()
+
+
+
+#Plot the posteriors of some colonies
+#colonies = c(5, 7, 11, 18)
+i = 18
+
+delta_draws = cbind(x = rstan::extract(imp.fit, pars = "delta_x")$delta[, i],
+                      y = rstan::extract(imp.fit, pars = "delta_y")$delta[, i])
+
+p = ggplot(delta_draws, aes(x = x, y = y)) +
+    geom_density_2d_filled(alpha = 0.8, bins = 9) +
+    scale_fill_brewer(palette = "Greens") +
+
+    #plot trap locations / sizes / quality
+    geom_point(data = CKT[CKT$sibshipID ==i,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
+    scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
+    xlim(c(min(CKT[CKT$sibshipID ==i,]$trap_x)-0.5, max(CKT[CKT$sibshipID ==i,]$trap_x) + 0.5)) +
+    ylim(c(min(CKT[CKT$sibshipID ==i,]$trap_y)-0.5, max(CKT[CKT$sibshipID ==i,]$trap_y) + 0.5)) +
+           
+    #miscellaneous
+    labs(x = "Longitude",
+         y = "Latitude") +
+    guides(fill = "none", colour = "none", size = "none") +
+    theme(legend.position = "none") +
+    coord_equal() +
+    theme_bw()
+
+
+
+
+#### Make a grid plot
+
+grid2 = grid.arrange(foraging_decay, p, ncol = 1)
+grid = grid.arrange(posteriors, nullGrob(), grid2, ncol = 3, widths = c(10, 1, 10))
+grid = ggdraw() +
+  draw_plot(grid, 0, 0, 1, 1) +
+  draw_plot_label(c("A", "B", "C"), 
+                  x = c(0, 0.52, 0.52), 
+                  y = c(1, 1, 0.5))
+grid
+ggsave("figures/manuscript_figures/foraging_distance.jpg", grid, height = 3000, width = 3200, units = "px")
