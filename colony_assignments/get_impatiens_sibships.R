@@ -6,13 +6,12 @@
 
 # prep workspace
 rm(list = ls())
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+setwd("/Users/jenna1/fv_landscapeforaging")
 workingdir = getwd()
 
 # first, load in packages
-source('simulate_data/src/GeneralizedSimFunctions.R')
-source('simulate_data/src/GenotypeSimFunctions.R')
-source('colony_assignments/src/colony_assignment_functions.R')
+source('src/init.R')
+source('src/colony_assignment_functions.R')
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -135,12 +134,9 @@ impatiens2023 = filter(specimens_withdates, final_id == "B. impatiens") %>%
   filter(year == "2023") %>%
   filter((!str_detect(notes, "queen")) | julian_date > 175) %>%
   filter(!str_detect(notes, "male"))
-                          
-
-#check which bees are unscored
-specimens = full_join(microsat_scores, specsubset, by = "barcode_id")
-impatiens = filter(specimens, final_id == "B. impatiens" & barcode_id != "N/A")
-unscoredimpatiens = impatiens[rowSums(is.na(impatiens)) >14,]
+impatiens2023wq = filter(specimens_withdates, final_id == "B. impatiens") %>%
+  filter(year == "2023") %>%
+  filter(!str_detect(notes, "male"))
 
 ##################################
 # Prep genotype data for COLONY
@@ -164,6 +160,7 @@ colsToRemove = c("year",
                  "BTMS0073...2")
 impatiens2022 = impatiens2022[, !colnames(impatiens2022) %in% colsToRemove]
 impatiens2023 = impatiens2023[, !colnames(impatiens2023) %in% colsToRemove]
+impatiens2023wq = impatiens2023wq[, !colnames(impatiens2023wq) %in% colsToRemove]
 
 #relocate barcode, remove rows with more than 6 NAs (e.g., at least 8 loci scored), replace NAs with 0's
 impatiens2022 = impatiens2022 %>% relocate(barcode_id)
@@ -174,15 +171,20 @@ impatiens2023 = impatiens2023 %>% relocate(barcode_id)
 impatiens2023_forcolony = impatiens2023[rowSums(is.na(impatiens2023)) <= 6,]
 impatiens2023_forcolony[is.na(impatiens2023_forcolony)] = 0
 
+impatiens2023wq = impatiens2023wq %>% relocate(barcode_id)
+impatiens2023wq_forcolony = impatiens2023wq[rowSums(is.na(impatiens2023wq)) <= 6,]
+impatiens2023wq_forcolony[is.na(impatiens2023wq_forcolony)] = 0
+
 #write csvs for upload to colony
 column_names = colnames(impatiens2022_forcolony)
 
 write.table(impatiens2022_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2022_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 write.table(impatiens2023_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2023_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-
+write.table(impatiens2023wq_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2023wq_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 write.csv(impatiens2022_forcolony, "data/merged_by_year/csvs/impatiens_2022_scores.csv")
 write.csv(impatiens2023_forcolony, "data/merged_by_year/csvs/impatiens_2023_scores.csv")
+write.csv(impatiens2023wq_forcolony, "data/merged_by_year/csvs/impatiens_2023wq_scores.csv")
 
 
 ###########################################
@@ -224,8 +226,10 @@ write.table(impatiens_error_rates, "data/merged_by_year/error_rates/impatiens_er
 sites = c("W", "SD", "ED", "NR", "HR", "PM")
 excluded_sibships_2022 = list()
 excluded_sibships_2023 = list()
+excluded_sibships_2023wq = list()
 sample.names.2022 = impatiens2022_forcolony[,1]
 sample.names.2023 = impatiens2023_forcolony[,1]
+sample.names.2023wq = impatiens2023wq_forcolony[,1]
 
 for (i in 1:6){
   site = sites[i]
@@ -233,12 +237,15 @@ for (i in 1:6){
   # grep names for focal site
   site.names.2022 = sample.names.2022[grep(site, sample.names.2022)]
   site.names.2023 = sample.names.2023[grep(site, sample.names.2023)]
+  site.names.2023wq = sample.names.2023wq[grep(site, sample.names.2023wq)]
   
   # list of excluded siblings
   excluded.2022 = sample.names.2022[sample.names.2022 %!in% site.names.2022]
   numex_2022 = length(excluded.2022)
   excluded.2023 = sample.names.2023[sample.names.2023 %!in% site.names.2023]
   numex_2023 = length(excluded.2023)
+  excluded.2023wq = sample.names.2023wq[sample.names.2023wq %!in% site.names.2023wq]
+  numex_2023wq = length(excluded.2023wq)
   
   # make a matrix of excluded samples
   excluded.matrix.2022 <- matrix(rep(excluded.2022, times = length(site.names.2022)),
@@ -248,6 +255,10 @@ for (i in 1:6){
   excluded.matrix.2023 <- matrix(rep(excluded.2023, times = length(site.names.2023)),
                                  nrow = length(site.names.2023), byrow = TRUE)
   colnames(excluded.matrix.2023) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023)))
+  
+  excluded.matrix.2023wq <- matrix(rep(excluded.2023wq, times = length(site.names.2023wq)),
+                                 nrow = length(site.names.2023wq), byrow = TRUE)
+  colnames(excluded.matrix.2023wq) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023wq)))
   
   # create full df
   sitedf2022 = data.frame(focal = site.names.2022,
@@ -262,17 +273,26 @@ for (i in 1:6){
                           stringsAsFactors = FALSE
   )
   
+  sitedf2023wq = data.frame(focal = site.names.2023wq,
+                          num_exc = numex_2023wq,
+                          excluded.matrix.2023wq,
+                          stringsAsFactors = FALSE
+  )
+  
   # save exclusion dfs to list
   excluded_sibships_2022[[i]] = sitedf2022
   excluded_sibships_2023[[i]] = sitedf2023
+  excluded_sibships_2023wq[[i]] = sitedf2023wq
 }
 
 # make exclusion tables!
 sibexclusions_2022 = bind_rows(excluded_sibships_2022)
 sibexclusions_2023 = bind_rows(excluded_sibships_2023)
+sibexclusions_2023wq = bind_rows(excluded_sibships_2023wq)
 
 sib2022_reduced = sibexclusions_2022[,!colnames(sibexclusions_2022) %in% c("num_exc")]
 sib2023_reduced = sibexclusions_2023[,!colnames(sibexclusions_2023) %in% c("num_exc")]
+sib2023wq_reduced = sibexclusions_2023wq[,!colnames(sibexclusions_2023wq) %in% c("num_exc")]
 
 write.table(
   sib2022_reduced,
@@ -287,6 +307,16 @@ write.table(
 write.table(
   sib2023_reduced,
   file = "data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023.txt",
+  sep = ",",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = FALSE,
+  na = ""
+)
+
+write.table(
+  sib2023wq_reduced,
+  file = "data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023wq.txt",
   sep = ",",
   quote = FALSE,
   row.names = FALSE,
@@ -343,6 +373,19 @@ rcolony::build.colony.superauto(wd=workingdir,
                                 error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/impatiens_error_rates.txt"),
                                 genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/impatiens2023_forcolony.txt"),
                                 exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023.txt")
+)
+
+rcolony::build.colony.superauto(wd=workingdir, 
+                                name=paste0(workingdir, "/colony_assignments/Colony2_Linux/impatiens_2023wq.DAT"), 
+                                datasetname = "impatiens2023wq",
+                                delim=",",
+                                sample_size = 2250,
+                                num_loci = 12,
+                                sibship_prior = 0,
+                                female_monogamy = 1,
+                                error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/impatiens_error_rates.txt"),
+                                genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/impatiens2023wq_forcolony.txt"),
+                                exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023wq.txt")
 )
 
 ###################################################
