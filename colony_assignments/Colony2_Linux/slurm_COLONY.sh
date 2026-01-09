@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=colony_run
-#SBATCH --array=0-3
+#SBATCH --array=0-5
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=24G
 #SBATCH --time=24:00:00
@@ -11,7 +11,7 @@
 module load gcc
 
 # Your list of .DAT files (replace with real names or glob dynamically)
-FILES=(impatiens_2022.DAT impatiens_2023.DAT mixtus_2022.DAT mixtus_2023.DAT)
+FILES=(impatiens_2022.DAT impatiens_2023.DAT impatiens_2023wq.DAT mixtus_2022.DAT mixtus_2023.DAT mixtus_2023wq.DAT)
 
 # Run COLONY on the file for this array task
 INPUT=${FILES[$SLURM_ARRAY_TASK_ID]}

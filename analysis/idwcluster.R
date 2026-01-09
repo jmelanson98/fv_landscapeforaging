@@ -14,6 +14,7 @@ library(ggplot2)
 # Set up workspace
 setwd("~/projects/def-ckremen/melanson/fv_landscapeforaging/")
 bombus_path = "~/projects/def-ckremen/melanson/"
+#bombus_path = "/Users/jenna1/Documents/UBC/bombus_project/"
 source("src/analysis_functions.R")
 
 

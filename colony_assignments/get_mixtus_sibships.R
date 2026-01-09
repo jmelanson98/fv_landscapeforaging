@@ -6,7 +6,7 @@
 
 # prep workspace
 rm(list = ls())
-setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
+setwd("/Users/jenna1/fv_landscapeforaging")
 workingdir = getwd()
 
 # first, load in packages
@@ -139,12 +139,7 @@ specimens_withdates = joinJulianDates(specimens_withscores, sampleEffort2023)
 # julian date cutoff based on script "queen_phenology.R"
 mixtus2022 = filter(specimens_withdates, year == "2022" | (str_detect(notes, "queen") & julian_date < 160))
 mixtus2023 = filter(specimens_withdates, year == "2023" & (!str_detect(notes, "queen") | julian_date > 160))
-
-
-#check which bees are unscored
-specimens = full_join(microsat_scores, specsubset, by = "barcode_id")
-mixtus = filter(specimens, final_id == "B. mixtus" & barcode_id != "N/A")
-unscoredmixtus = mixtus[rowSums(is.na(mixtus)) >10,]
+mixtus2023_withqueens = filter(specimens_withdates, year == "2023")
 
 ##################################
 # Prep genotype data for COLONY
@@ -170,6 +165,7 @@ colsToRemove = c("year",
                  "BTMS0059...2")
 mixtus2022 = mixtus2022[, !colnames(mixtus2022) %in% colsToRemove]
 mixtus2023 = mixtus2023[, !colnames(mixtus2023) %in% colsToRemove]
+mixtus2023_withqueens = mixtus2023_withqueens[, !colnames(mixtus2023_withqueens) %in% colsToRemove]
 
 #relocate barcode, remove rows with more than 4 NAs (e.g., at least 8 scored loci), replace NAs with 0's
 mixtus2022 = mixtus2022 %>% relocate(barcode_id)
@@ -180,15 +176,21 @@ mixtus2023 = mixtus2023 %>% relocate(barcode_id)
 mixtus2023_forcolony = mixtus2023[rowSums(is.na(mixtus2023)) <= 4,]
 mixtus2023_forcolony[is.na(mixtus2023_forcolony)] = 0
 
+mixtus2023_withqueens = mixtus2023_withqueens %>% relocate(barcode_id)
+mixtus2023wq_forcolony = mixtus2023_withqueens[rowSums(is.na(mixtus2023_withqueens)) <= 4,]
+mixtus2023wq_forcolony[is.na(mixtus2023wq_forcolony)] = 0
+
 #write csvs for upload to colony
 column_names = colnames(mixtus2022_forcolony)
 
 write.table(mixtus2022_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2022_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 write.table(mixtus2023_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2023_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixtus2023wq_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2023wq_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 
 write.csv(mixtus2022_forcolony, "data/merged_by_year/csvs/mixtus_2022_scores.csv")
 write.csv(mixtus2023_forcolony, "data/merged_by_year/csvs/mixtus_2023_scores.csv")
+write.csv(mixtus2023wq_forcolony, "data/merged_by_year/csvs/mixtus_2023wq_scores.csv")
 
 ###########################################
 # Prep microsat error rates for COLONY
@@ -225,8 +227,10 @@ write.table(mixtus_error_rates, "data/merged_by_year/error_rates/mixtus_error_ra
 sites = c("W", "SD", "ED", "NR", "HR", "PM")
 excluded_sibships_2022 = list()
 excluded_sibships_2023 = list()
+excluded_sibships_2023wq = list()
 sample.names.2022 = mixtus2022_forcolony[,1]
 sample.names.2023 = mixtus2023_forcolony[,1]
+sample.names.2023wq = mixtus2023wq_forcolony[,1]
 '%!in%' <- function(x,y)!('%in%'(x,y))
 
 for (i in 1:6){
@@ -235,12 +239,15 @@ for (i in 1:6){
   # grep names for focal site
   site.names.2022 = sample.names.2022[grep(site, sample.names.2022)]
   site.names.2023 = sample.names.2023[grep(site, sample.names.2023)]
+  site.names.2023wq = sample.names.2023wq[grep(site, sample.names.2023wq)]
   
   # list of excluded siblings
   excluded.2022 = sample.names.2022[sample.names.2022 %!in% site.names.2022]
   numex_2022 = length(excluded.2022)
   excluded.2023 = sample.names.2023[sample.names.2023 %!in% site.names.2023]
   numex_2023 = length(excluded.2023)
+  excluded.2023wq = sample.names.2023wq[sample.names.2023wq %!in% site.names.2023wq]
+  numex_2023wq = length(excluded.2023wq)
   
   # make a matrix of excluded samples
   excluded.matrix.2022 <- matrix(rep(excluded.2022, times = length(site.names.2022)),
@@ -250,6 +257,10 @@ for (i in 1:6){
   excluded.matrix.2023 <- matrix(rep(excluded.2023, times = length(site.names.2023)),
                                  nrow = length(site.names.2023), byrow = TRUE)
   colnames(excluded.matrix.2023) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023)))
+  
+  excluded.matrix.2023wq <- matrix(rep(excluded.2023wq, times = length(site.names.2023wq)),
+                                 nrow = length(site.names.2023wq), byrow = TRUE)
+  colnames(excluded.matrix.2023wq) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023wq)))
   
   # create full df
   sitedf2022 = data.frame(focal = site.names.2022,
@@ -264,17 +275,26 @@ for (i in 1:6){
                           stringsAsFactors = FALSE
   )
   
+  sitedf2023wq = data.frame(focal = site.names.2023wq,
+                          num_exc = numex_2023wq,
+                          excluded.matrix.2023wq,
+                          stringsAsFactors = FALSE
+  )
+  
   # save exclusion dfs to list
   excluded_sibships_2022[[i]] = sitedf2022
   excluded_sibships_2023[[i]] = sitedf2023
+  excluded_sibships_2023wq[[i]] = sitedf2023wq
 }
 
 # make exclusion tables!
 sibexclusions_2022 = bind_rows(excluded_sibships_2022)
 sibexclusions_2023 = bind_rows(excluded_sibships_2023)
+sibexclusions_2023wq = bind_rows(excluded_sibships_2023wq)
 
 sib2022_reduced = sibexclusions_2022[,!colnames(sibexclusions_2022) %in% c("num_exc")]
 sib2023_reduced = sibexclusions_2023[,!colnames(sibexclusions_2023) %in% c("num_exc")]
+sib2023wq_reduced = sibexclusions_2023wq[,!colnames(sibexclusions_2023wq) %in% c("num_exc")]
 
 write.table(
   sib2022_reduced,
@@ -289,6 +309,16 @@ write.table(
 write.table(
   sib2023_reduced,
   file = "data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023.txt",
+  sep = ",",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = FALSE,
+  na = ""
+)
+
+write.table(
+  sib2023wq_reduced,
+  file = "data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023wq.txt",
   sep = ",",
   quote = FALSE,
   row.names = FALSE,
@@ -345,6 +375,19 @@ rcolony::build.colony.superauto(wd=workingdir,
                                 error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/mixtus_error_rates.txt"),
                                 genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/mixtus2023_forcolony.txt"),
                                 exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023.txt")
+)
+
+rcolony::build.colony.superauto(wd=workingdir, 
+                                name=paste0(workingdir, "/colony_assignments/Colony2_Linux/mixtus_2023wq.DAT"), 
+                                datasetname = "mixtus2023wq",
+                                delim=",",
+                                sample_size = 1215,
+                                num_loci = 10,
+                                sibship_prior = 0,
+                                female_monogamy = 1,
+                                error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/mixtus_error_rates.txt"),
+                                genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/mixtus2023wq_forcolony.txt"),
+                                exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023wq.txt")
 )
 
 
