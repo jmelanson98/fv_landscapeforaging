@@ -139,7 +139,7 @@ specimens_withdates = joinJulianDates(specimens_withscores, sampleEffort2023)
 # julian date cutoff based on script "queen_phenology.R"
 mixtus2022 = filter(specimens_withdates, year == "2022" | (str_detect(notes, "queen") & julian_date < 160))
 mixtus2023 = filter(specimens_withdates, year == "2023" & (!str_detect(notes, "queen") | julian_date > 160))
-mixtus2023_withqueens = filter(specimens_withdates, year == "2023")
+mixtus2023_withqueens = filter(specimens_withdates, year == "2023" & str_detect(notes, "queen") & julian_date < 160)
 
 ##################################
 # Prep genotype data for COLONY
@@ -185,7 +185,7 @@ column_names = colnames(mixtus2022_forcolony)
 
 write.table(mixtus2022_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2022_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 write.table(mixtus2023_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2023_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(mixtus2023wq_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2023wq_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(mixtus2023wq_forcolony, "data/merged_by_year/sib_scores_for_colony/mixtus2023queens.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 
 write.csv(mixtus2022_forcolony, "data/merged_by_year/csvs/mixtus_2022_scores.csv")
@@ -258,8 +258,8 @@ for (i in 1:6){
                                  nrow = length(site.names.2023), byrow = TRUE)
   colnames(excluded.matrix.2023) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023)))
   
-  excluded.matrix.2023wq <- matrix(rep(excluded.2023wq, times = length(site.names.2023wq)),
-                                 nrow = length(site.names.2023wq), byrow = TRUE)
+  excluded.matrix.2023wq <- matrix(rep(excluded.2023wq, times = length(site.names.2023)),
+                                 nrow = length(site.names.2023), byrow = TRUE)
   colnames(excluded.matrix.2023wq) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023wq)))
   
   # create full df
@@ -275,7 +275,7 @@ for (i in 1:6){
                           stringsAsFactors = FALSE
   )
   
-  sitedf2023wq = data.frame(focal = site.names.2023wq,
+  sitedf2023wq = data.frame(focal = site.names.2023,
                           num_exc = numex_2023wq,
                           excluded.matrix.2023wq,
                           stringsAsFactors = FALSE
@@ -318,7 +318,7 @@ write.table(
 
 write.table(
   sib2023wq_reduced,
-  file = "data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023wq.txt",
+  file = "data/merged_by_year/sib_exclusions/mixtus_maternalexclusions_2023.txt",
   sep = ",",
   quote = FALSE,
   row.names = FALSE,
@@ -377,18 +377,10 @@ rcolony::build.colony.superauto(wd=workingdir,
                                 exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023.txt")
 )
 
-rcolony::build.colony.superauto(wd=workingdir, 
-                                name=paste0(workingdir, "/colony_assignments/Colony2_Linux/mixtus_2023wq.DAT"), 
-                                datasetname = "mixtus2023wq",
-                                delim=",",
-                                sample_size = 1215,
-                                num_loci = 10,
-                                sibship_prior = 0,
-                                female_monogamy = 1,
-                                error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/mixtus_error_rates.txt"),
-                                genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/mixtus2023wq_forcolony.txt"),
-                                exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/mixtus_sibexclusions_2023wq.txt")
-)
+# do this one manually to include queen genotypes as potential MATERNAL relations
+rcolony::build.colony.input(wd=workingdir, 
+                      name=paste0(workingdir, "/colony_assignments/Colony2_Linux/mixtus_2023wq.DAT"),
+                      delim = ",")
 
 
 

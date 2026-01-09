@@ -136,6 +136,7 @@ impatiens2023 = filter(specimens_withdates, final_id == "B. impatiens") %>%
   filter(!str_detect(notes, "male"))
 impatiens2023wq = filter(specimens_withdates, final_id == "B. impatiens") %>%
   filter(year == "2023") %>%
+  filter((str_detect(notes, "queen")) & julian_date < 175) %>%
   filter(!str_detect(notes, "male"))
 
 ##################################
@@ -180,7 +181,7 @@ column_names = colnames(impatiens2022_forcolony)
 
 write.table(impatiens2022_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2022_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 write.table(impatiens2023_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2023_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
-write.table(impatiens2023wq_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2023wq_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
+write.table(impatiens2023wq_forcolony, "data/merged_by_year/sib_scores_for_colony/impatiens2023queens_forcolony.txt", sep= ",", col.names = FALSE, row.names = FALSE)
 
 write.csv(impatiens2022_forcolony, "data/merged_by_year/csvs/impatiens_2022_scores.csv")
 write.csv(impatiens2023_forcolony, "data/merged_by_year/csvs/impatiens_2023_scores.csv")
@@ -256,8 +257,8 @@ for (i in 1:6){
                                  nrow = length(site.names.2023), byrow = TRUE)
   colnames(excluded.matrix.2023) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023)))
   
-  excluded.matrix.2023wq <- matrix(rep(excluded.2023wq, times = length(site.names.2023wq)),
-                                 nrow = length(site.names.2023wq), byrow = TRUE)
+  excluded.matrix.2023wq <- matrix(rep(excluded.2023wq, times = length(site.names.2023)),
+                                 nrow = length(site.names.2023), byrow = TRUE)
   colnames(excluded.matrix.2023wq) <- paste0("excluded_", seq_len(ncol(excluded.matrix.2023wq)))
   
   # create full df
@@ -273,7 +274,7 @@ for (i in 1:6){
                           stringsAsFactors = FALSE
   )
   
-  sitedf2023wq = data.frame(focal = site.names.2023wq,
+  sitedf2023wq = data.frame(focal = site.names.2023,
                           num_exc = numex_2023wq,
                           excluded.matrix.2023wq,
                           stringsAsFactors = FALSE
@@ -316,7 +317,7 @@ write.table(
 
 write.table(
   sib2023wq_reduced,
-  file = "data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023wq.txt",
+  file = "data/merged_by_year/sib_exclusions/impatiens_maternalexclusions.txt",
   sep = ",",
   quote = FALSE,
   row.names = FALSE,
@@ -375,18 +376,9 @@ rcolony::build.colony.superauto(wd=workingdir,
                                 exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023.txt")
 )
 
-rcolony::build.colony.superauto(wd=workingdir, 
-                                name=paste0(workingdir, "/colony_assignments/Colony2_Linux/impatiens_2023wq.DAT"), 
-                                datasetname = "impatiens2023wq",
-                                delim=",",
-                                sample_size = 2250,
-                                num_loci = 12,
-                                sibship_prior = 0,
-                                female_monogamy = 1,
-                                error_rates_path = paste0(workingdir, "/data/merged_by_year/error_rates/impatiens_error_rates.txt"),
-                                genotypes_path = paste0(workingdir, "/data/merged_by_year/sib_scores_for_colony/impatiens2023wq_forcolony.txt"),
-                                exclusion_path = paste0(workingdir, "/data/merged_by_year/sib_exclusions/impatiens_sibexclusions_2023wq.txt")
-)
+rcolony::build.colony.input(wd=workingdir, 
+                                name=paste0(workingdir, "/colony_assignments/Colony2_Linux/impatiens_2023wq.DAT"),
+                                delim=",")
 
 ###################################################
 ## Load in results from colony and get sibships
