@@ -294,9 +294,21 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
                                               effort1,
                                               effort2,
                                               samplepoints){
+  # Remove queens and males from sibships
+  sibships1 = filter(sibships1, !str_detect(notes, "queen") & 
+                       !str_detect(notes, "male"))
+  sibships2 = filter(sibships2, !str_detect(notes, "queen") & 
+                       !str_detect(notes, "male"))
+
   
   # Adjust sibship IDs
+  sibships1$sibshipID = as.numeric(sibships1$sibshipID)
+  sibships2$sibshipID = as.numeric(sibships2$sibshipID)
   sibships2$sibshipID = sibships2$sibshipID + max(sibships1$sibshipID)
+  stansibkeys = data.frame(sibshipID = unique(c(sibships1$sibshipID, sibships2$sibshipID)),
+                           stansibkey = 1:length(unique(c(sibships1$sibshipID, sibships2$sibshipID))))
+  sibships1 = left_join(sibships1, stansibkeys)
+  sibships2 = left_join(sibships2, stansibkeys)
   
   # Create site ids
   sibships1$site = as.factor(sibships1$site)
@@ -339,9 +351,9 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   
   # Make sibships x sites df
   cxl1 = sibships1 %>%
-    distinct(site, sibshipID, year)
+    distinct(site, stansibkey, year)
   cxl2 = sibships2 %>%
-    distinct(site, sibshipID, year)
+    distinct(site, stansibkey, year)
   cxl = rbind(cxl1, cxl2)
   
   # Join sibships x sites with traps
@@ -350,12 +362,12 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   # Get counts of bees in traps
   counts1 = sibships1 %>%
     filter(notes != "male") %>%
-    group_by(site, sample_pt, year, sibshipID) %>%
+    group_by(site, sample_pt, year, stansibkey) %>%
     summarize(count=n()) %>%
     ungroup()
   counts2 = sibships2 %>%
     filter(notes != "male") %>%
-    group_by(site, sample_pt, year, sibshipID) %>%
+    group_by(site, sample_pt, year, stansibkey) %>%
     summarize(count=n()) %>%
     ungroup()
   counts = rbind(counts1, counts2)
@@ -364,27 +376,27 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   filled_counts = cxl %>%
     full_join(counts) %>%
     mutate(count = replace_na(count, 0)) %>%
-    arrange(sibshipID)
+    arrange(stansibkey)
   filled_counts$yn = ifelse(filled_counts$count > 0, 1, 0)
   filled_counts$pointyear = paste0(filled_counts$year, filled_counts$sample_pt)
   
   # Get the start indices for observations of each siblingship
   lengths = filled_counts %>%
-    group_by(sibshipID) %>%
+    group_by(stansibkey) %>%
     summarize(length = n()) %>%
-    arrange(sibshipID)
+    arrange(stansibkey)
   starts = cumsum(c(1, lengths$length))[1:length(lengths$length)]
   
   # Make data list for stan
   # DISTANCES IN KM, NOT METERS
   stan_data <- list(
-    C = length(unique(filled_counts$sibshipID)),
+    C = length(unique(filled_counts$stansibkey)),
     K = length(unique(filled_counts$pointyear)),
     O = nrow(filled_counts),
     starts = starts,
     lengths = lengths$length,
     trap_pos = cbind(filled_counts$trap_x, filled_counts$trap_y),
-    colony_id = filled_counts$sibshipID,
+    colony_id = filled_counts$stansibkey,
     trap_id = filled_counts$trap_id,
     sample_effort = filled_counts$total_effort,
     y_obs = filled_counts$count,
