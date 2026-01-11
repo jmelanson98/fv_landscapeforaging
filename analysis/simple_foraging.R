@@ -19,10 +19,12 @@ library(tidyr)
 library(gridExtra)
 library(tibble)
 library(sf)
+library(terra)
+library(stringr)
 
 ##### Set Environment #####
-#setwd("/Users/jenna1/fv_landscapeforaging")
-#bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
+setwd("/Users/jenna1/fv_landscapeforaging")
+bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
 
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 bombus_path = "/home/melanson/projects/def-ckremen/melanson"
@@ -85,11 +87,13 @@ if (task_id %in% c(1,2)){
   stanFit = stan(file = stanfile,
                  data = data, seed = 5838299,
                  chains = 4, cores = 4,
-                 control = list(max_treedepth = 15),
-                 iter = 4000,
+                 control = list(max_treedepth = 15, adapt_delta = 0.99),
+                 iter = 2000,
                  verbose = TRUE)
   saveRDS(stanFit, paste0("analysis/foraging_modelfits/simpleforaging_ZINB", task_id, ".rds"))
 }
+
+#saveRDS(stanFit, "analysis/foraging_modelfits/mix.simpleforaging.rds")
 
 
 #############################################
@@ -187,9 +191,6 @@ p = ggplot(delta_draws, aes(x = x, y = y)) +
     coord_equal() +
     theme_bw()
 
-
-
-
 #### Make a grid plot
 
 grid2 = grid.arrange(foraging_decay, p, ncol = 1)
@@ -201,3 +202,26 @@ grid = ggdraw() +
                   y = c(1, 1, 0.5))
 grid
 ggsave("figures/manuscript_figures/foraging_distance.jpg", grid, height = 3000, width = 3200, units = "px")
+
+
+
+#################################################
+# Compute raster layer of all colony posteriors
+#################################################
+all_delta_mix = as.data.frame(cbind(lon = 1000*unlist(rstan::extract(mix.fit, pars = "delta_x")),
+                    lat = 1000*unlist(rstan::extract(mix.fit, pars = "delta_y"))))
+all_delta_imp = as.data.frame(cbind(long = 1000*unlist(rstan::extract(imp.fit, pars = "delta_x")),
+                                    lat = 1000*unlist(rstan::extract(imp.fit, pars = "delta_y"))))
+
+landscape_raster = raster(paste0(bombus_path, "/landscape/rasters/FValley_lc_1res.tif"))
+landscape_raster = rast(landscape_raster)
+
+# convert posterior draws to spatvector
+deltavector_mix = terra::vect(all_delta_mix, geom=c("lon", "lat"), crs=crs(landscape_raster), keepgeom=FALSE)
+deltavector_imp = terra::vect(all_delta_imp, geom=c("lon", "lat"), crs=crs(landscape_raster), keepgeom=FALSE)
+
+# make new raster and fill with counts of draws per cell
+deltaraster_mix = rasterize(deltavector_mix, landscape_raster, field = 1, fun = "sum", background = 0)
+deltaraster_imp = rasterize(deltavector_imp, landscape_raster, field = 1, fun = "sum", background = 0)
+
+writeRaster(out, "posterior_density.tif", overwrite=TRUE)
