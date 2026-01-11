@@ -20,6 +20,7 @@ library(gridExtra)
 library(tibble)
 library(sf)
 library(terra)
+library(stringr)
 
 ##### Set Environment #####
 setwd("/Users/jenna1/fv_landscapeforaging")
@@ -86,8 +87,8 @@ if (task_id %in% c(1,2)){
   stanFit = stan(file = stanfile,
                  data = data, seed = 5838299,
                  chains = 4, cores = 4,
-                 control = list(max_treedepth = 15),
-                 iter = 4000,
+                 control = list(max_treedepth = 15, adapt_delta = 0.99),
+                 iter = 2000,
                  verbose = TRUE)
   saveRDS(stanFit, paste0("analysis/foraging_modelfits/simpleforaging_ZINB", task_id, ".rds"))
 }

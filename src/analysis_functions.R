@@ -391,7 +391,7 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   # DISTANCES IN KM, NOT METERS
   stan_data <- list(
     C = length(unique(filled_counts$stansibkey)),
-    K = length(unique(filled_counts$pointyear)),
+    K = length(unique(filled_counts$trap_id)),
     O = nrow(filled_counts),
     starts = starts,
     lengths = lengths$length,
