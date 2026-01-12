@@ -387,24 +387,36 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
     arrange(stansibkey)
   starts = cumsum(c(1, lengths$length))[1:length(lengths$length)]
   
+  # Get the site id for each colony
+  colony_sites = distinct(cxl[c("stansibkey", "site_id")]) %>%
+    arrange(stansibkey)
+  
+  # Get spatial bounds for each site
+  sitebounds = traps_m %>%
+    group_by(site_id) %>%
+    summarize(lowerx = min(trap_x) -2,
+              upperx = max(trap_x) +2,
+              lowery = min(trap_y) -2,
+              uppery = max(trap_y) +2) %>%
+    arrange(site_id)
+  
   # Make data list for stan
   # DISTANCES IN KM, NOT METERS
   stan_data <- list(
     C = length(unique(filled_counts$stansibkey)),
     K = length(unique(filled_counts$trap_id)),
     O = nrow(filled_counts),
+    L = length(unique(filled_counts$site_id)),
     starts = starts,
     lengths = lengths$length,
+    col_site = colony_sites$site_id,
     trap_pos = cbind(filled_counts$trap_x, filled_counts$trap_y),
     colony_id = filled_counts$stansibkey,
     trap_id = filled_counts$trap_id,
     sample_effort = filled_counts$total_effort,
     y_obs = filled_counts$count,
     yn = filled_counts$yn,
-    lower_x = (min(filled_counts$trap_x) - 5),
-    upper_x = (max(filled_counts$trap_x) + 5),
-    lower_y = (min(filled_counts$trap_y) - 5),
-    upper_y = (max(filled_counts$trap_y) + 5)
+    bounds = cbind(sitebounds[c("lowerx", "upperx", "lowery", "uppery")])
   )
   
   out = list(stan_data, filled_counts)

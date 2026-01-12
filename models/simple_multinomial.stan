@@ -4,24 +4,17 @@ data {
   int<lower=1> C;                // # colonies
   int<lower=1> K;                // # traps
   int<lower=1> O;                // # observations
+  int<lower=1> L;                // # landscapes
   int starts[C];                 // start indices for each colony
   int lengths[C];                // lengths for each colony
+  int col_site[C];               // site id of each colony
   matrix[O, 2] trap_pos;         // trap coordinates
-  vector[O] sample_effort;          // sampling effort for each obs
+  vector[O] sample_effort;      // sampling effort for each obs
   int colony_id[O];              // colony id for each obs
   int trap_id[O];                // trap id for each obs
   int y_obs[O];                  // concatenated counts for all colonies
-  vector[O] yn;                     // are there any bees from that colony at that trap? 0/1
-  real upper_y; // hard bound on colony locations
-  real upper_x; // hard bound on colony locations
-  real lower_y; // hard bound on colony locations
-  real lower_x; // hard bound on colony locations
-}
-
-transformed data {
-  real Rmax = 2.0;     // max distance of colonies from traps where they observed
-  real steepness = 10;    // steepness of penalty function
-  real penalty = 10;     // penalty scale
+  vector[O] yn;                 // are there any bees from that colony at that trap? 0/1
+  matrix[L,4] bounds;            // hard bounds on colony locations
 }
 
 parameters {
@@ -31,8 +24,21 @@ parameters {
   vector[K] eps;
   
   // using hard bounds here so that init doesn't fail with - inf
-  array[C] real<lower=lower_x, upper=upper_x> delta_x;
-  array[C] real<lower=lower_y, upper=upper_y> delta_y;
+  array[C] real<lower=0, upper=1> delta_x_raw;
+  array[C] real<lower=0, upper=1> delta_y_raw;
+}
+
+transformed parameters {
+  // get scaled parameters
+  array[C] real delta_x;
+  array[C] real delta_y;
+  for (i in 1:C) {
+    int landscape = col_site[i];
+    delta_x[i] = bounds[landscape,1] + (bounds[landscape,2] - bounds[landscape,1]) * delta_x_raw[i];
+    delta_y[i] = bounds[landscape,3] + (bounds[landscape,4] - bounds[landscape,3]) * delta_y_raw[i];
+  }
+  
+  vector[K] eps_scale = eps*sqrt(sigma);
 }
 
 model {
@@ -43,8 +49,6 @@ model {
   eps ~ normal(0, 1);
   
   {
-  // get eps_scale
-  vector[K] eps_scale = eps*sqrt(sigma);
   
   // calculate likelihood
   for (c in 1:C) {
@@ -68,11 +72,6 @@ model {
     // compute multinomial probabilities and add to target likelihood
     vector[length] multi_probs = softmax(lambda_ik);
     y_ik ~ multinomial(multi_probs);
-
-    // penalize distances that are outside Rmax
-    // a bit like a soft indicator function, to maintain differentiability for HMC
-    target += yn_ik .* (-penalty * log1p_exp((dis-Rmax)*steepness));
-      
     }
   }
 }
