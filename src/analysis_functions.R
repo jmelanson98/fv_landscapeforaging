@@ -406,17 +406,21 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
     C = length(unique(filled_counts$stansibkey)),
     K = length(unique(filled_counts$trap_id)),
     O = nrow(filled_counts),
-    L = length(unique(filled_counts$site_id)),
+    #L = length(unique(filled_counts$site_id)),
     starts = starts,
     lengths = lengths$length,
-    col_site = colony_sites$site_id,
+    #col_site = colony_sites$site_id,
     trap_pos = cbind(filled_counts$trap_x, filled_counts$trap_y),
     colony_id = filled_counts$stansibkey,
     trap_id = filled_counts$trap_id,
     sample_effort = filled_counts$total_effort,
     y_obs = filled_counts$count,
     yn = filled_counts$yn,
-    bounds = cbind(sitebounds[c("lowerx", "upperx", "lowery", "uppery")])
+    lower_x = min(traps_m$trap_x) - 2,
+    upper_x = max(traps_m$trap_x) + 2,
+    lower_y = min(traps_m$trap_y) - 2,
+    upper_y = max(traps_m$trap_y) + 2
+    #bounds = cbind(sitebounds[c("lowerx", "upperx", "lowery", "uppery")])
   )
   
   out = list(stan_data, filled_counts)

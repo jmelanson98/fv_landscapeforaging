@@ -23,8 +23,8 @@ library(terra)
 library(stringr)
 
 ##### Set Environment #####
-#setwd("/Users/jenna1/fv_landscapeforaging")
-#bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
+setwd("/Users/jenna1/fv_landscapeforaging")
+bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
 
 setwd("/home/melanson/projects/def-ckremen/melanson/fv_landscapeforaging")
 bombus_path = "/home/melanson/projects/def-ckremen/melanson"
@@ -64,20 +64,46 @@ data = data_list[[task_id]]
 
 
 #select stan model to fit
-stanfile = "models/simple_multinomial.stan"
+stanfile = "models/simple_multinomial_uniformdisprior.stan"
   
 #fit and save model
 stanFit = stan(file = stanfile,
                  data = data, seed = 5838299,
                  chains = 4, cores = 4,
                  #control = list(max_treedepth = 15),
-                 iter = 4000,
+                 iter = 2000,
                  verbose = TRUE)
+#saveRDS(stanFit, "analysis/foraging_modelfits/simpleforaging_mixtus_steepgradient.rds")
 saveRDS(stanFit, paste0("analysis/foraging_modelfits/simpleforaging_multinomial", task_id, ".rds"))
-
-
 #saveRDS(stanFit, "analysis/foraging_modelfits/mix.simpleforaging.rds")
 
+
+# probability density for log1p_exp
+x = seq(from = 0, to = 3, by = 0.01)
+Rmax = 2
+steepness = 100
+flog1p = function(x) {
+  return(exp(-log(1+exp((x-Rmax)*steepness))))
+}
+likelihood = flog1p(x)
+defintegral = integrate(flog1p, lower = 0, upper = Inf)
+prob_density = likelihood/Rmax
+plot(x, likelihood)
+plot(x,prob_density)
+
+# likelihood for exponential
+loglik2 = -exp(steepness*(x-Rmax))
+lik2 = exp(loglik2)
+plot(x, lik2)
+
+# likelihood for half normal
+library(fdrtool)
+prob_density = dhalfnorm(x, theta=sqrt(pi/2)/(Rmax/3), log = FALSE)
+plot(x, prob_density)
+hn = function(x) {
+  return(dhalfnorm(x, theta=sqrt(pi/2)/(Rmax/3), log = FALSE))
+}
+defintegral = integrate(hn, lower = 0, upper = Inf)
 
 #############################################
 # Extract values and makes some plots
@@ -151,20 +177,23 @@ foraging_decay = ggplot(df) +
 
 #Plot the posteriors of some colonies
 #colonies = c(5, 7, 11, 18)
-i = 18
+i = 1024
+i = 1373
 
-delta_draws = cbind(x = rstan::extract(imp.fit, pars = "delta_x")$delta[, i],
-                      y = rstan::extract(imp.fit, pars = "delta_y")$delta[, i])
+delta_draws = cbind(x = rstan::extract(mixlandscapeboundFit, pars = "delta_x")$delta[, i],
+                      y = rstan::extract(mixlandscapeboundFit, pars = "delta_y")$delta[, i])
+delta_draws = cbind(x = rstan::extract(mix_steepgradientFit, pars = "delta_x")$delta[, i],
+                    y = rstan::extract(mix_steepgradientFit, pars = "delta_y")$delta[, i])
 
-p = ggplot(delta_draws, aes(x = x, y = y)) +
+ggplot(delta_draws, aes(x = x, y = y)) +
     geom_density_2d_filled(alpha = 0.8, bins = 9) +
     scale_fill_brewer(palette = "Greens") +
 
     #plot trap locations / sizes / quality
-    geom_point(data = CKT[CKT$sibshipID ==i,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
+    geom_point(data = CKT[CKT$stansibkey ==i,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
     scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
-    xlim(c(min(CKT[CKT$sibshipID ==i,]$trap_x)-0.5, max(CKT[CKT$sibshipID ==i,]$trap_x) + 0.5)) +
-    ylim(c(min(CKT[CKT$sibshipID ==i,]$trap_y)-0.5, max(CKT[CKT$sibshipID ==i,]$trap_y) + 0.5)) +
+    xlim(c(min(CKT[CKT$stansibkey ==i,]$trap_x)-2, max(CKT[CKT$stansibkey ==i,]$trap_x) + 2)) +
+    ylim(c(min(CKT[CKT$stansibkey ==i,]$trap_y)-2, max(CKT[CKT$stansibkey ==i,]$trap_y) + 2)) +
            
     #miscellaneous
     labs(x = "Longitude",
