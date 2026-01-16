@@ -199,3 +199,34 @@ fit.imp.behaviour = brm(bf, queens[queens$final_id == "B. impatiens",],
 )
 
 imp = as_draws_df(fit.imp.behaviour)
+
+
+
+
+###############################################
+# LINEAGE TURNOVER
+##############################################
+summary = impatiens_sibs2022 %>%
+  group_by(sibshipID) %>%
+  summarize(num_workers = sum(!str_detect(notes, "queen")),
+            num_queens = sum(str_detect(notes, "queen"))) %>%
+  filter(num_workers > 0)
+
+springqueens_summary = impatiens_sibs2022 %>% 
+  filter(str_detect(notes, "queen")) %>%
+  group_by(sibshipID) %>%
+  summarize(numqueens = n(),
+            numsites = length(unique(sample_pt)))
+
+
+data = list()
+data$C = nrow(summary)
+data$y = summary$num_queens
+
+stanfile = "models/lineage.stan"
+
+stanFit = stan(file = stanfile,
+               data = data, seed = 5838299,
+               chains = 4, cores = 4,
+               iter = 2000,
+               verbose = TRUE)

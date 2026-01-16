@@ -64,18 +64,29 @@ data = data_list[[task_id]]
 
 
 #select stan model to fit
-stanfile = "models/simple_multinomial_uniformdisprior.stan"
+stanfile = "models/simple_multinomial_gradientRmax.stan"
   
 #fit and save model
 stanFit = stan(file = stanfile,
                  data = data, seed = 5838299,
                  chains = 4, cores = 4,
-                 #control = list(max_treedepth = 15),
                  iter = 2000,
                  verbose = TRUE)
-#saveRDS(stanFit, "analysis/foraging_modelfits/simpleforaging_mixtus_steepgradient.rds")
-saveRDS(stanFit, paste0("analysis/foraging_modelfits/simpleforaging_multinomial", task_id, ".rds"))
-#saveRDS(stanFit, "analysis/foraging_modelfits/mix.simpleforaging.rds")
+saveRDS(stanFit, "analysis/foraging_modelfits/simpleforaging_impatiens_steepgradient.rds")
+
+
+#select stan model to fit
+stanfile = "models/simple_multinomial_normaldisprior.stan"
+
+#fit and save model
+stanFit = stan(file = stanfile,
+               data = data, seed = 5838299,
+               chains = 4, cores = 4,
+               iter = 2000,
+               verbose = TRUE)
+saveRDS(stanFit, "analysis/foraging_modelfits/simpleforaging_impatiens_normalRmax.rds")
+
+
 
 
 # probability density for log1p_exp
@@ -222,18 +233,38 @@ ggsave("figures/manuscript_figures/foraging_distance.jpg", grid, height = 3000, 
 #################################################
 all_delta_mix = as.data.frame(cbind(lon = 1000*unlist(rstan::extract(mix.fit, pars = "delta_x")),
                     lat = 1000*unlist(rstan::extract(mix.fit, pars = "delta_y"))))
-all_delta_imp = as.data.frame(cbind(long = 1000*unlist(rstan::extract(imp.fit, pars = "delta_x")),
-                                    lat = 1000*unlist(rstan::extract(imp.fit, pars = "delta_y"))))
 
 landscape_raster = raster(paste0(bombus_path, "/landscape/rasters/FValley_lc_1res.tif"))
 landscape_raster = rast(landscape_raster)
 
 # convert posterior draws to spatvector
-deltavector_mix = terra::vect(all_delta_mix, geom=c("lon", "lat"), crs=crs(landscape_raster), keepgeom=FALSE)
-deltavector_imp = terra::vect(all_delta_imp, geom=c("lon", "lat"), crs=crs(landscape_raster), keepgeom=FALSE)
+deltavector_mix = terra::vect(all_delta_mix[,], geom=c("lon", "lat"), crs=crs(landscape_raster), keepgeom=FALSE)
 
-# make new raster and fill with counts of draws per cell
-deltaraster_mix = rasterize(deltavector_mix, landscape_raster, field = 1, fun = "sum", background = 0)
-deltaraster_imp = rasterize(deltavector_imp, landscape_raster, field = 1, fun = "sum", background = 0)
 
-writeRaster(out, "posterior_density.tif", overwrite=TRUE)
+r <- rast(
+  xmin = xmin(deltavector_mix),
+  xmax = xmax(deltavector_mix),
+  ymin = ymin(deltavector_mix),
+  ymax = ymax(deltavector_mix),
+  resolution = 50,   # choose cell size in map units
+  crs = crs(deltavector_mix)
+)
+
+values(r) <- 0
+deltavector_mix$count <- 1
+r_out <- rasterize(
+  deltavector_mix,
+  r,                 
+  field = "count",
+  fun = "sum",       
+  background = 0
+)
+
+
+plot(r_out)
+
+plot(landscape_raster,
+     xlim = c(xmin(deltavector_mix), xmax(deltavector_mix)),
+     ylim= c(ymin(deltavector_mix), ymax(deltavector_mix)))
+
+
