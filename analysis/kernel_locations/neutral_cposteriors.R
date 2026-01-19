@@ -116,3 +116,7 @@ write.csv(sim_tokeep, paste0(dir, "/simulation", task_id, ".csv"), row.names = F
 ################################################################################
 ###############                  FIT MODELS                  ###################
 ################################################################################
+
+dir = paste0("analysis/kernel_locations/neutral_data/", species, "_dataset", task_id)
+dataset = read.csv(paste0(dir, "/simulation", task_id, ".csv"))
+stan_data = prep_stan_simpleforaging_neutraldata(dataset)

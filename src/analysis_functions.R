@@ -406,10 +406,8 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
     C = length(unique(filled_counts$stansibkey)),
     K = length(unique(filled_counts$trap_id)),
     O = nrow(filled_counts),
-    #L = length(unique(filled_counts$site_id)),
     starts = starts,
     lengths = lengths$length,
-    #col_site = colony_sites$site_id,
     trap_pos = cbind(filled_counts$trap_x, filled_counts$trap_y),
     colony_id = filled_counts$stansibkey,
     trap_id = filled_counts$trap_id,
@@ -420,7 +418,6 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
     upper_x = max(traps_m$trap_x) + 2,
     lower_y = min(traps_m$trap_y) - 2,
     upper_y = max(traps_m$trap_y) + 2
-    #bounds = cbind(sitebounds[c("lowerx", "upperx", "lowery", "uppery")])
   )
   
   out = list(stan_data, filled_counts, traps_m)
@@ -430,7 +427,46 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
 
 
 
+# function to neutral simulated data for stan
+prep_stan_simpleforaging_neutraldata = function(filledcounts,
+                                              samplepoints){
 
+  # Make indicator for whether counts_ik > 0
+  filledcounts$yn = ifelse(filled_counts$count > 0, 1, 0)
+  filledcounts = filledcounts %>%
+    arrange(colonyid)
+  
+  # Get the start indices for observations of each siblingship
+  lengths = filled_counts %>%
+    group_by(colonyid) %>%
+    summarize(length = n()) %>%
+    arrange(colonyid)
+  starts = cumsum(c(1, lengths$length))[1:length(lengths$length)]
+
+  # Make data list for stan
+  # DISTANCES IN KM, NOT METERS
+  stan_data <- list(
+    C = length(unique(filled_counts$colonyid)),
+    K = length(unique(filled_counts$trap_id)),
+    O = nrow(filled_counts),
+    starts = starts,
+    lengths = lengths$length,
+    trap_pos = cbind(filled_counts$trap_x, filled_counts$trap_y),
+    colony_id = filled_counts$colonyid,
+    trap_id = filled_counts$trap_id,
+    sample_effort = filled_counts$total_effort,
+    y_obs = filled_counts$count,
+    yn = filled_counts$yn,
+    lower_x = min(filled_counts$trap_x) - 2,
+    upper_x = max(filled_counts$trap_x) + 2,
+    lower_y = min(filled_counts$trap_y) - 2,
+    upper_y = max(filled_counts$trap_y) + 2
+  )
+  
+  out = list(stan_data)
+  
+  return(out)
+}
 
 #############################################
 # Functions to simulate neutral datasets
