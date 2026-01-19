@@ -427,3 +427,111 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   
   return(out)
 }
+
+
+
+
+
+#############################################
+# Functions to simulate neutral datasets
+#############################################
+
+##### Simulate multiple landscapes, simple kernel #####
+draw_simple_true_sites = function(sample_size, # number of bees to sample
+                                  number_colonies, # positive integer, total
+                                  colony_sizes, #vector of length number_colonies
+                                  trap_data, # data frame of true traps
+                                  rho, # set param value
+                                  distance_decay # current options: "exponentiated_quadratic" and "exponential"
+){
+  ##### Define colony characteristics #####
+  colonyid = 1:number_colonies
+  N = sum(colony_sizes)
+  colony_data = as.data.frame(cbind(colonyid, colony_sizes))
+  colony_data$colony_x = NA
+  colony_data$colony_y = NA
+  colony_data$site = NA
+  
+  
+  ##### Simulate colony locations #####
+  count = 0
+  for(s in unique(trap_data$site)){
+    start = (count*number_colonies/6)+1
+    end = (count+1)*number_colonies/6
+    colony_data$colony_x[start:end] = runif(number_colonies/6, min(trap_data$trap_x[trap_data$site == s]) -2, max(trap_data$trap_x[trap_data$site == s]) +2)
+    colony_data$colony_y[start:end] = runif(number_colonies/6, min(trap_data$trap_y[trap_data$site == s]) -2, max(trap_data$trap_y[trap_data$site == s]) +2)
+    colony_data$site[start:end] = s
+    count = count + 1
+  }
+  print("Colony simulation complete.")
+  
+  
+  # optional plotting step to visualize traps and colonies
+  a=ggplot() +
+    geom_point(data = colony_data, aes(x = colony_x, y = colony_y), colour = "lightblue", size = 0.2) +
+    geom_point(data = trap_data, aes(x = trap_x, y = trap_y), colour = "black", size = 1) +
+    ylab("Northing") +
+    xlab("Easting") +
+    theme_minimal()
+  
+  ##### Compute distance-based visitation #####
+  matrix2022 = full_join(colony_data[seq(nrow(colony_data)) %% 2 != 0,], trap_data[trap_data$year == 2022,], relationship = "many-to-many")
+  matrix2023 = full_join(colony_data[seq(nrow(colony_data)) %% 2 == 0,], trap_data[trap_data$year == 2023,], relationship = "many-to-many")
+  full_matrix = rbind(matrix2022, matrix2023)
+  full_matrix$dist_ik = sqrt((full_matrix$trap_x-full_matrix$colony_x)^2 + (full_matrix$trap_y-full_matrix$colony_y)^2)
+
+  # compute visitation rate of colony at each trap
+  if (distance_decay == "exponentiated_quadratic"){
+    full_matrix$lambda_ik <- exp(-0.5 * (full_matrix$dist_ik / rho)^2 + log(full_matrix$total_effort))
+  } else if (distance_decay == "exponential"){
+    full_matrix$lambda_ik <- exp((-full_matrix$dist_ik / rho) + log(full_matrix$total_effort))
+  } else {
+    print("Sorry, not a valid decay function.")
+  }
+  
+  ##### Start sampling #####
+  full_matrix$counts = 0
+  
+  while(sum(full_matrix$counts) < sample_size){
+
+    # set weights based on colony sizes
+    full_matrix$w_i = full_matrix$colony_sizes/N
+
+    # calculate Pr(s = k | s in kappa)
+
+    #  first compute Pr(s = k)
+    # to do this, sum over C:
+    #### lambda_ik * w_i / D_i # without underlying resource landscape, D_i is a constant and can be dropped
+    full_matrix$lambda_ik_scaled <- full_matrix$lambda_ik*full_matrix$w_i
+    trap_probs = full_matrix %>%
+      group_by(trap_id) %>%
+      summarize(intensity = sum(lambda_ik_scaled))
+
+    # calculate intensity at all traps
+    kappa = sum(trap_probs$intensity)
+
+    # prob of sampling from a particular trap given k in kappa
+    trap_probs$prob = trap_probs$intensity/kappa
+
+    # sample trap
+    trap = sample(trap_probs$trap_id, size = 1, replace = TRUE, prob = trap_probs$prob)
+
+    # calculate Pr(c = i | s = k)
+    partial = full_matrix[full_matrix$trap_id==trap,]
+    partial$colony_prob = partial$lambda_ik_scaled/trap_probs$intensity[trap_probs$trap_id==trap]
+
+    colony = sample(partial$colonyid, size = 1, prob = partial$colony_prob)
+
+    # record visitation event to yik
+    full_matrix$counts[(full_matrix$colonyid == colony & full_matrix$trap_id == trap)] = full_matrix$counts[(full_matrix$colonyid == colony & full_matrix$trap_id == trap)] + 1
+
+
+    #update ni and N
+    N = N-1
+    full_matrix$colony_sizes[full_matrix$colonyid == colony] = full_matrix$colony_sizes[full_matrix$colonyid == colony] - 1
+    print(paste0("Now sampled ", sum(full_matrix$counts), " of ", sample_size, " bees."))
+  }
+
+  return(full_matrix)
+  }
+  
