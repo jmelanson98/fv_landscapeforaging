@@ -423,7 +423,7 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
     #bounds = cbind(sitebounds[c("lowerx", "upperx", "lowery", "uppery")])
   )
   
-  out = list(stan_data, filled_counts)
+  out = list(stan_data, filled_counts, traps_m)
   
   return(out)
 }

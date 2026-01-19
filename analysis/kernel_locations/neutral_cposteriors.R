@@ -45,40 +45,24 @@ effort1 = read.csv(paste0(bombus_path, "/raw_data/2022sampledata.csv"))
 effort2 = read.csv(paste0(bombus_path, "/raw_data/2023sampledata.csv"))
 samplepoints = read.csv(paste0(bombus_path, "/raw_data/allsamplepoints.csv"), header = FALSE)
 
+# Get colony counts (real data)
+mixtus_data = prep_stan_simpleforaging_bothyears(mixtus_sibs2022,
+                                                 mixtus_sibs2023,
+                                                 effort1,
+                                                 effort2,
+                                                 samplepoints)
+impatiens_data = prep_stan_simpleforaging_bothyears(impatiens_sibs2022,
+                                                    impatiens_sibs2023,
+                                                    effort1,
+                                                    effort2,
+                                                    samplepoints)
+
 
 ##### Simulate datasets #####
-# Make trap locations into correct format for calculating distance
-colnames(samplepoints)[1:2] = c("sample_pt", "coord")
-samplepoints$lat = rapply(strsplit(gsub("\\(|\\).*", "", samplepoints$coord), split = " "), function(x) tail(x, 1))
-samplepoints$long = rapply(strsplit(gsub("\\(|\\).*", "", samplepoints$coord), split = " "), function(x) head(x, 3)[2])
-samplepoints$site <- stringr::str_extract(samplepoints$sample_pt, "^[A-Za-z]{1,2}")
-samplepoints = samplepoints[,colnames(samplepoints) %in% c("site", "sample_pt", "lat", "long")]
 
-# convert to meter based crs
-traps_sf = st_as_sf(samplepoints, coords = c("long", "lat"), crs = 4326)
-traps_sf_m = st_transform(traps_sf, 900913)
-traps_m = as.data.frame(cbind(traps_sf_m$sample_pt, traps_sf_m$site, st_coordinates(traps_sf_m)))
-colnames(traps_m) = c("sample_pt", "site", "trap_x", "trap_y")
-traps_m$site = as.factor(traps_m$site)
-
-# calculate sample effort per trap and year
-effort_sum1 = effort1 %>%
-  filter(round %in% sibships1$round | round %in% sibships2$round) %>%
-  group_by(sample_point, year) %>%
-  summarize(total_effort = 5*n())
-effort_sum2 = effort2 %>%
-  filter(round %in% sibships1$round | round %in% sibships2$round) %>%
-  group_by(sample_point, year) %>%
-  summarize(total_effort = 5*n())
-effort_sum = rbind(effort_sum1, effort_sum2)
-traps_m = traps_m %>%
-  left_join(effort_sum, by = c("sample_pt" = "sample_point")) %>%
-  left_join(site_keys, by = "site") %>%
-  arrange(site_id)
-traps_m = traps_m[!is.na(traps_m$total_effort),]
-traps_m$trap_x = as.numeric(traps_m$trap_x)/1000
-traps_m$trap_y = as.numeric(traps_m$trap_y)/1000
-traps_m$trap_id = 1:nrow(traps_m)
+# Get trap data
+traps_m_mixtus = mixtus_data[[3]]
+traps_m_impatiens = impatiens_data[[3]]
 
 
 # Get rho draws from fitted model
@@ -91,28 +75,17 @@ imp_rho = rhodraws_imp[task_id*4000/100]
 mixsim = draw_simple_true_sites(sample_size = 6000,
                           number_colonies = 18000,
                           colony_sizes = rep(20,18000),
-                          trap_data = traps_m,
+                          trap_data = traps_m_mixtus,
                           rho = mix_rho,
                           distance_decay = "exponentiated_quadratic")
 impsim = draw_simple_true_sites(sample_size = 6000,
                                number_colonies = 18000,
                                colony_sizes = rep(20,18000),
-                               trap_data = traps_m,
+                               trap_data = traps_m_impatiens,
                                rho = imp_rho,
                                distance_decay = "exponentiated_quadratic")
 
-# Get colony counts (real data)
-samplepoints = read.csv(paste0(bombus_path, "/raw_data/allsamplepoints.csv"), header = FALSE)
-mixtus_data = prep_stan_simpleforaging_bothyears(mixtus_sibs2022,
-                                                 mixtus_sibs2023,
-                                                 effort1,
-                                                 effort2,
-                                                 samplepoints)
-impatiens_data = prep_stan_simpleforaging_bothyears(impatiens_sibs2022,
-                                                    impatiens_sibs2023,
-                                                    effort1,
-                                                    effort2,
-                                                    samplepoints)
+
 # Draw colonies from simulated dataset to match real data
 mixcounts_summary = mixtus_data[[2]] %>% 
   group_by(stansibkey) %>%
