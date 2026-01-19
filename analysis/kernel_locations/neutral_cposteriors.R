@@ -23,6 +23,7 @@ library(tibble)
 library(sf)
 library(terra)
 library(stringr)
+library(purrr)
 
 ##### Set Environment #####
 #setwd("/Users/jenna1/fv_landscapeforaging")
