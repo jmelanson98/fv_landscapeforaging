@@ -2,7 +2,7 @@
 ##SBATCH --job-name=workersim
 #SBATCH --output=logs/workersim_%A_%a.out
 #SBATCH --error=logs/workersim_%A_%a.err
-#SBATCH --array=1-100
+#SBATCH --array=1-200
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
