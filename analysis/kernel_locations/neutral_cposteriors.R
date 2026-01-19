@@ -24,6 +24,7 @@ library(sf)
 library(terra)
 library(stringr)
 
+
 ##### Set Environment #####
 #setwd("/Users/jenna1/fv_landscapeforaging")
 #bombus_path = "/Users/jenna1/Documents/UBC/bombus_project"
@@ -120,3 +121,50 @@ write.csv(sim_tokeep, paste0(dir, "/simulation", task_id, ".csv"), row.names = F
 dir = paste0("analysis/kernel_locations/neutral_data/", species, "_dataset", task_id)
 dataset = read.csv(paste0(dir, "/simulation", task_id, ".csv"))
 stan_data = prep_stan_simpleforaging_neutraldata(dataset)
+
+#select stan model to fit
+stanfile = "models/simple_multinomial_gradientRmax.stan"
+
+#fit and save model
+neutralfit = stan(file = stanfile,
+               data = stan_data, seed = 5838299,
+               chains = 4, cores = 4,
+               iter = 2000,
+               verbose = TRUE)
+saveRDS(neutralfit, paste0(dir, "/modelfit.rds"))
+
+
+################################################################################
+###############        CREATE COLONY POSTERIOR RASTER        ###################
+################################################################################
+# get landscape raster
+landscape_raster = raster(paste0(bombus_path, "landscape/rasters/FValley_lc_1res.tif"))
+
+# get posterior draws
+all_delta = as.data.frame(cbind(lon = 1000*unlist(rstan::extract(neutralfit, pars = "delta_x")),
+                                    lat = 1000*unlist(rstan::extract(neutralfit, pars = "delta_y"))))
+
+# convert posterior draws to spatvector
+deltavector = terra::vect(all_delta[,], geom=c("lon", "lat"), crs=crs(landscape_raster), keepgeom=FALSE)
+
+# create and fill raster
+r_empty = rast(
+  xmin = xmin(deltavector),
+  xmax = xmax(deltavector),
+  ymin = ymin(deltavector),
+  ymax = ymax(deltavector),
+  resolution = 5,
+  crs = crs(deltavector))
+
+values(r_empty) = 0
+deltavector$count = 1
+
+posterior = rasterize(
+  deltavector,
+  r_empty,                 
+  field = "count",
+  fun = "sum",       
+  background = 0)
+
+# save raster
+writeRaster(posterior, filename = paste0(dir, "/colonyposterior.tif"), overwrite = TRUE)
