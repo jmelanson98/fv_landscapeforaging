@@ -428,31 +428,35 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
 
 
 # function to neutral simulated data for stan
-prep_stan_simpleforaging_neutraldata = function(filledcounts,
-                                              samplepoints){
+prep_stan_simpleforaging_neutraldata = function(filled_counts){
 
+  # Adjust sibship IDs
+  stansibkeys = data.frame(colonyid = unique(filled_counts$colonyid),
+                           stansibkey = 1:length(unique(filled_counts$colonyid)))
+  filled_counts = left_join(filled_counts, stansibkeys)
+  
   # Make indicator for whether counts_ik > 0
-  filledcounts$yn = ifelse(filled_counts$count > 0, 1, 0)
-  filledcounts = filledcounts %>%
-    arrange(colonyid)
+  filled_counts$yn = ifelse(filled_counts$count > 0, 1, 0)
+  filled_counts = filled_counts %>%
+    arrange(stansibkey)
   
   # Get the start indices for observations of each siblingship
   lengths = filled_counts %>%
-    group_by(colonyid) %>%
+    group_by(stansibkey) %>%
     summarize(length = n()) %>%
-    arrange(colonyid)
+    arrange(stansibkey)
   starts = cumsum(c(1, lengths$length))[1:length(lengths$length)]
 
   # Make data list for stan
   # DISTANCES IN KM, NOT METERS
   stan_data <- list(
-    C = length(unique(filled_counts$colonyid)),
+    C = length(unique(filled_counts$stansibkey)),
     K = length(unique(filled_counts$trap_id)),
     O = nrow(filled_counts),
     starts = starts,
     lengths = lengths$length,
     trap_pos = cbind(filled_counts$trap_x, filled_counts$trap_y),
-    colony_id = filled_counts$colonyid,
+    colony_id = filled_counts$stansibkey,
     trap_id = filled_counts$trap_id,
     sample_effort = filled_counts$total_effort,
     y_obs = filled_counts$count,
@@ -463,9 +467,7 @@ prep_stan_simpleforaging_neutraldata = function(filledcounts,
     upper_y = max(filled_counts$trap_y) + 2
   )
   
-  out = list(stan_data)
-  
-  return(out)
+  return(stan_data)
 }
 
 #############################################

@@ -23,6 +23,7 @@ library(tibble)
 library(sf)
 library(terra)
 library(stringr)
+library(purrr)
 
 
 ##### Set Environment #####
@@ -45,12 +46,14 @@ if (task_id < 101){
   fit = readRDS("analysis/kernel_locations/foraging_modelfits/simpleforaging_mixtus_steepgradient.rds")
   sibs1 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
   sibs2 = read.csv("data/siblingships/mixtus_sibships_2023.csv")
+  col_size = 20
   draw_index = task_id
 } else {
   species = "impatiens"
   fit = readRDS("analysis/kernel_locations/foraging_modelfits/simpleforaging_impatiens_steepgradient.rds")
   sibs1 = read.csv("data/siblingships/impatiens_sibships_2022.csv")
   sibs2 = read.csv("data/siblingships/impatiens_sibships_2023.csv")
+  col_size = 50
   draw_index = task_id -100
 }
 
@@ -78,7 +81,7 @@ iterrho = rhodraws[draw_index*4000/100]
 # Simulate one dataset
 sim = draw_simple_true_sites(sample_size = 6000,
                           number_colonies = 18000,
-                          colony_sizes = rep(20,18000),
+                          colony_sizes = rep(col_size,18000),
                           trap_data = traps_m,
                           rho = iterrho,
                           distance_decay = "exponentiated_quadratic")
@@ -118,6 +121,7 @@ write.csv(sim_tokeep, paste0(dir, "/simulation", task_id, ".csv"), row.names = F
 ###############                  FIT MODELS                  ###################
 ################################################################################
 
+# load in dataset
 dir = paste0("analysis/kernel_locations/neutral_data/", species, "_dataset", task_id)
 dataset = read.csv(paste0(dir, "/simulation", task_id, ".csv"))
 stan_data = prep_stan_simpleforaging_neutraldata(dataset)
@@ -168,3 +172,4 @@ posterior = rasterize(
 
 # save raster
 writeRaster(posterior, filename = paste0(dir, "/colonyposterior.tif"), overwrite = TRUE)
+

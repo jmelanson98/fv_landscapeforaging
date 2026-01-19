@@ -109,7 +109,7 @@ stanFit = stan(file = stanfile,
                  chains = 4, cores = 4,
                  iter = 2000,
                  verbose = TRUE)
-saveRDS(stanFit, "analysis/foraging_modelfits/simpleforaging_impatiens_steepgradient.rds")
+saveRDS(stanFit, "analysis/kernel_locations/foraging_modelfits/simpleforaging_impatiens_steepgradient.rds")
 
 
 #select stan model to fit
