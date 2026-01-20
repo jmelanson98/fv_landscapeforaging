@@ -16,12 +16,8 @@ data {
   real upper_x;                 // hard bounds on colony locations
   real lower_y;                 // hard bounds on colony locations
   real upper_y;                 // hard bounds on colony locations
-}
-
-transformed data{
-  real Rmax = 2.0;
-  real steepness = 100;
-  real penalty = 10;
+  real Rmax;
+  real steepness;
 }
 
 parameters {
@@ -63,7 +59,7 @@ model {
     y_obs[start:start+length-1] ~ multinomial(softmax(lambda_ik));
     
     // Penalize for Rmax
-    target += to_vector(yn[start:start+length-1]) .* (-penalty * log1p_exp((dis-Rmax)*steepness));
+    target += to_vector(yn[start:start+length-1]) .* (-log1p_exp((dis-Rmax)*steepness));
     }
   }
 }
