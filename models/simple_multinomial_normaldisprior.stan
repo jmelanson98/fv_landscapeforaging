@@ -16,11 +16,9 @@ data {
   real upper_x;                 // hard bounds on colony locations
   real lower_y;                 // hard bounds on colony locations
   real upper_y;                 // hard bounds on colony locations
+  real Rmax;
 }
 
-transformed data{
-  real Rmax = 2.0;
-}
 
 parameters {
   real<lower=0> rho;
@@ -57,7 +55,7 @@ model {
                        square(delta_y[colony_id[start]] - trap_pos[start:start+length-1,2]) );
     for (l in 1:length){
       if(yn[start+l-1] == 1){
-        target += normal_lpdf(dis[l] | 0, Rmax/3);
+        target += normal_lpdf(dis[l] | 0, Rmax/2.58);
       }
     }
     

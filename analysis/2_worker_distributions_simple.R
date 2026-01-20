@@ -11,9 +11,8 @@ rm(list = ls())
 setwd("/Users/jenna1/Documents/UBC/bombus_project/fv_landscapeforaging")
 
 # first, load in packages
-source('colony_assignments/src/init.R')
-source('colony_assignments/src/joinFunctions.R')
-source('colony_assignments/src/makeSibMaps.R')
+source('src/init.R')
+source('src/makeSibMaps.R')
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -27,7 +26,7 @@ library(ggplot2)
 library(viridis)
 library(ggspatial)
 library(geodist)
-
+bombus_path = "/Users/jenna1/Documents/UBC/bombus_project/"
 
 ###########################
 ### Load in data
@@ -41,10 +40,154 @@ samplePoints = as.data.frame(read.table("/Users/jenna1/Documents/UBC/bombus_proj
 colnames(samplePoints) = c("sample_pt", "gps","landowner","subsite")
 
 # sibships
-mix2022 = read.csv("data/siblingships/mix_sibships_final_2022.csv")
-mix2023 = read.csv("data/siblingships/mix_sibships_final_2023.csv")
-imp2022 = read.csv("data/siblingships/imp_sibships_final_2022.csv")
-imp2023 = read.csv("data/siblingships/imp_sibships_preliminary_2023.csv")
+mix2022 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
+mix2023 = read.csv("data/siblingships/mixtus_sibships_2023.csv")
+imp2022 = read.csv("data/siblingships/impatiens_sibships_2022.csv")
+imp2023 = read.csv("data/siblingships/impatiens_sibships_2023.csv")
+
+##########################################################
+### Calculate pairwise distance between traps
+##########################################################
+
+# Get trap data
+fv_points = st_read(paste0(bombus_path, "landscape/fvbombus/fvbombus_points.shp"))
+traps_sf_m = st_transform(fv_points, 32610)
+traps_m = data.frame(sample_point = traps_sf_m$site_id,
+                     trap_x = st_coordinates(traps_sf_m)[,1],
+                      trap_y = st_coordinates(traps_sf_m)[,2])
+
+sampleEffort2022 = left_join(sampleEffort2022, traps_m, relationship = "many-to-one")
+sampleEffort2023 = left_join(sampleEffort2023, traps_m, relationship = "many-to-one")
+
+# get pairwise distance matrix 2022
+dmat22 = as.matrix(dist(sampleEffort2022[, c("trap_x", "trap_y")]))
+idx22 = upper.tri(dmat, diag = TRUE)
+
+pairwise_distances22 = data.frame(trap_1 = sampleEffort2022$sample_id[row(dmat22)[idx22]],
+                                 trap_2 = sampleEffort2022$sample_id[col(dmat22)[idx22]],
+                                 site_1 = sampleEffort2022$site[row(dmat22)[idx22]],
+                                 site_2 = sampleEffort2022$site[col(dmat22)[idx22]],
+                                 distance = dmat22[idx22])
+
+pairwise_distances22 = pairwise_distances22 %>% filter(site_1 == site_2)
+pairwise_distances22$group = "Trap pairs"
+
+# get pairwise distance matrix 2023
+dmat23 = as.matrix(dist(sampleEffort2023[, c("trap_x", "trap_y")]))
+idx23 = upper.tri(dmat, diag = TRUE)
+
+pairwise_distances23 = data.frame(trap_1 = sampleEffort2023$sample_id[row(dmat23)[idx23]],
+                                  trap_2 = sampleEffort2023$sample_id[col(dmat23)[idx23]],
+                                  site_1 = sampleEffort2023$site[row(dmat23)[idx23]],
+                                  site_2 = sampleEffort2023$site[col(dmat23)[idx23]],
+                                  distance = dmat23[idx23])
+
+pairwise_distances23 = pairwise_distances23 %>% filter(site_1 == site_2)
+pairwise_distances23$group = "Trap pairs"
+
+
+
+##########################################################
+### Calculate pairwise distance between siblings
+##########################################################
+
+mix2022_filtered = mix2022 %>% 
+  left_join(traps_m, by = c("sample_pt" = "sample_point")) %>%
+  filter(!str_detect(notes, "queen")) %>%
+  filter(!str_detect(notes, "male")) %>%
+  group_by(sibshipID) %>%
+  filter(n() > 1)
+dmat_msibs22 = as.matrix(dist(mix2022_filtered[, c("trap_x", "trap_y")]))
+idx = upper.tri(dmat_msibs22, diag = FALSE)
+
+sib_distances_m22 = data.frame(sib1 = mix2022_filtered$barcode_id[row(dmat_msibs22)[idx]],
+                           sib2 = mix2022_filtered$barcode_id[col(dmat_msibs22)[idx]],
+                          sibship_1 = mix2022_filtered$sibshipID[row(dmat_msibs22)[idx]],
+                          sibship_2 = mix2022_filtered$sibshipID[col(dmat_msibs22)[idx]],
+                          distance = dmat_msibs22[idx])
+
+sib_distances_m22 = sib_distances_m22 %>% filter(sibship_1 == sibship_2)
+sib_distances_m22$group = "B. mixtus sib-pairs"
+
+mix2023_filtered = mix2023 %>% 
+  left_join(traps_m, by = c("sample_pt" = "sample_point")) %>%
+  filter(!str_detect(notes, "queen")) %>%
+  filter(!str_detect(notes, "male")) %>%
+  group_by(sibshipID) %>%
+  filter(n() > 1)
+dmat_msibs23 = as.matrix(dist(mix2023_filtered[, c("trap_x", "trap_y")]))
+idx = upper.tri(dmat_msibs23, diag = FALSE)
+
+sib_distances_m23 = data.frame(sib1 = mix2023_filtered$barcode_id[row(dmat_msibs23)[idx]],
+                               sib2 = mix2023_filtered$barcode_id[col(dmat_msibs23)[idx]],
+                               sibship_1 = mix2023_filtered$sibshipID[row(dmat_msibs23)[idx]],
+                               sibship_2 = mix2023_filtered$sibshipID[col(dmat_msibs23)[idx]],
+                               distance = dmat_msibs23[idx])
+
+sib_distances_m23 = sib_distances_m23 %>% filter(sibship_1 == sibship_2)
+sib_distances_m23$group = "B. mixtus sib-pairs"
+
+imp2022_filtered = imp2022 %>% 
+  left_join(traps_m, by = c("sample_pt" = "sample_point")) %>%
+  filter(!str_detect(notes, "queen")) %>%
+  filter(!str_detect(notes, "male")) %>%
+  group_by(sibshipID) %>%
+  filter(n() > 1)
+dmat_isibs22 = as.matrix(dist(imp2022_filtered[, c("trap_x", "trap_y")]))
+idx = upper.tri(dmat_isibs22, diag = FALSE)
+
+sib_distances_i22 = data.frame(sib1 = imp2022_filtered$barcode_id[row(dmat_isibs22)[idx]],
+                               sib2 = imp2022_filtered$barcode_id[col(dmat_isibs22)[idx]],
+                               sibship_1 = imp2022_filtered$sibshipID[row(dmat_isibs22)[idx]],
+                               sibship_2 = imp2022_filtered$sibshipID[col(dmat_isibs22)[idx]],
+                               distance = dmat_isibs22[idx])
+
+sib_distances_i22 = sib_distances_i22 %>% filter(sibship_1 == sibship_2)
+sib_distances_i22$group = "B. impatiens sib-pairs"
+
+imp2023_filtered = imp2023 %>% 
+  left_join(traps_m, by = c("sample_pt" = "sample_point")) %>%
+  filter(!str_detect(notes, "queen")) %>%
+  filter(!str_detect(notes, "male")) %>%
+  group_by(sibshipID) %>%
+  filter(n() > 1)
+dmat_isibs23 = as.matrix(dist(imp2023_filtered[, c("trap_x", "trap_y")]))
+idx = upper.tri(dmat_isibs23, diag = FALSE)
+
+sib_distances_i23 = data.frame(sib1 = imp2023_filtered$barcode_id[row(dmat_isibs23)[idx]],
+                               sib2 = imp2023_filtered$barcode_id[col(dmat_isibs23)[idx]],
+                               sibship_1 = imp2023_filtered$sibshipID[row(dmat_isibs23)[idx]],
+                               sibship_2 = imp2023_filtered$sibshipID[col(dmat_isibs23)[idx]],
+                               distance = dmat_isibs23[idx])
+
+sib_distances_i23 = sib_distances_i23 %>% filter(sibship_1 == sibship_2)
+sib_distances_i23$group = "B. impatiens sib-pairs"
+
+
+
+##########################################################
+### Make figure of pairwise distances
+##########################################################
+
+df2022 = rbind(pairwise_distances22[,c("distance", "group")], 
+               sib_distances_i22[,c("distance", "group")], 
+               sib_distances_m22[,c("distance", "group")])
+df2022$year = 2022
+df2023 = rbind(pairwise_distances23[,c("distance", "group")], 
+               sib_distances_i23[,c("distance", "group")], 
+               sib_distances_m23[,c("distance", "group")])
+df2023$year = 2023
+full_df = rbind(df2022, df2023)
+
+ggplot(full_df, aes(x = distance)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 15,
+                 color = "black") +
+  facet_grid(group~year) +
+  ylab("Density") +
+  xlab("Distance (meters)") +
+  theme_bw()
+
 
 
 ######################

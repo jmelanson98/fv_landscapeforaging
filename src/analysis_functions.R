@@ -310,25 +310,23 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   sibships1 = left_join(sibships1, stansibkeys)
   sibships2 = left_join(sibships2, stansibkeys)
   
+  # Make trap locations into correct format for calculating distance
+  # convert to meter based crs
+  fv_points = st_read(paste0(bombus_path, "/landscape/fvbombus/fvbombus_points.shp"))
+  fv_points$site_name[fv_points$site_name == "pit_meadows"] = "pitt_meadows"
+  traps_sf_m = st_transform(fv_points, 32610)
+  traps_m = data.frame(sample_pt = traps_sf_m$site_id,
+                       site_name = traps_sf_m$site_name,
+                       trap_x = st_coordinates(traps_sf_m)[,1],
+                        trap_y = st_coordinates(traps_sf_m)[,2])
+  traps_m$site_name = as.factor(traps_m$site_name)
+  
   # Create site ids
   sibships1$site = as.factor(sibships1$site)
   sibships2$site = as.factor(sibships2$site)
   site_keys = data.frame(site = levels(sibships1$site),
+                         site_name = levels(traps_m$site_name),
                          site_id = 1:length(unique(sibships1$site)))
-  
-  # Make trap locations into correct format for calculating distance
-  colnames(samplepoints)[1:2] = c("sample_pt", "coord")
-  samplepoints$lat = rapply(strsplit(gsub("\\(|\\).*", "", samplepoints$coord), split = " "), function(x) tail(x, 1))
-  samplepoints$long = rapply(strsplit(gsub("\\(|\\).*", "", samplepoints$coord), split = " "), function(x) head(x, 3)[2])
-  samplepoints$site <- stringr::str_extract(samplepoints$sample_pt, "^[A-Za-z]{1,2}")
-  samplepoints = samplepoints[,colnames(samplepoints) %in% c("site", "sample_pt", "lat", "long")]
-  
-  # convert to meter based crs
-  traps_sf = st_as_sf(samplepoints, coords = c("long", "lat"), crs = 4326)
-  traps_sf_m = st_transform(traps_sf, 900913)
-  traps_m = as.data.frame(cbind(traps_sf_m$sample_pt, traps_sf_m$site, st_coordinates(traps_sf_m)))
-  colnames(traps_m) = c("sample_pt", "site", "trap_x", "trap_y")
-  traps_m$site = as.factor(traps_m$site)
   
   # calculate sample effort per trap and year
   effort_sum1 = effort1 %>%
@@ -342,7 +340,7 @@ prep_stan_simpleforaging_bothyears = function(sibships1,
   effort_sum = rbind(effort_sum1, effort_sum2)
   traps_m = traps_m %>%
     left_join(effort_sum, by = c("sample_pt" = "sample_point")) %>%
-    left_join(site_keys, by = "site") %>%
+    left_join(site_keys, by = "site_name") %>%
     arrange(site_id)
   traps_m = traps_m[!is.na(traps_m$total_effort),]
   traps_m$trap_x = as.numeric(traps_m$trap_x)/1000
