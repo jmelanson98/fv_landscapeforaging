@@ -1,12 +1,12 @@
 #!/bin/bash
-##SBATCH --job-name=workersim
+#SBATCH --job-name=workersim
 #SBATCH --output=logs/workersim_%A_%a.out
 #SBATCH --error=logs/workersim_%A_%a.err
 #SBATCH --array=1-200
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=12G
-#SBATCH --time=12:00:00
+#SBATCH --time=30:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
