@@ -61,7 +61,7 @@ if (task_id %in% 1:5){
   stan_data = data[[1]]
   CKT = data[[2]]
   
-} else {
+} else if (task_id %in% 6:10) {
   species = "impatiens"
   data = prep_stan_simpleforaging_bothyears(impatiens_sibs2022,
                                                  impatiens_sibs2023,
@@ -148,7 +148,7 @@ if (task_id %in% c(1,6)){
              verbose = TRUE)
   modelname = paste0(species, "_normalRmax2")
   saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", species, "_normalRmax2.rds"))
-} else if (task_id %in% c(4,9)) {
+} else if (task_id %in% c(5,10)) {
   stanfile = "models/simple_multinomial_normaldisprior.stan"
   stan_data$Rmax = 3
   fit = stan(file = stanfile,
