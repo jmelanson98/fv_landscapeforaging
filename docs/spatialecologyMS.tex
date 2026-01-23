@@ -1,0 +1,550 @@
+\documentclass[12pt]{article}
+\usepackage{iftex}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage[style=apa, backend=biber]{biblatex}
+\addbibresource{phd_bombus.bib}
+\setcounter{maxnames}{20}
+\setcounter{minnames}{1}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[export]{adjustbox}
+\usepackage{verbatim}
+\usepackage{mathpazo}
+\usepackage{setspace}
+\usepackage{multirow}
+\usepackage{lscape}
+\usepackage{fancyhdr}
+\usepackage[normalem]{ulem}
+\usepackage{rotating}
+\usepackage{chngcntr}
+\usepackage[parfill]{parskip}
+\usepackage[tiny,compact]{titlesec}
+\usepackage{longtable}
+\usepackage{textcomp}
+\usepackage{rotating}
+\usepackage{xr}
+\usepackage{caption}
+\usepackage{siunitx}
+\usepackage[T1]{fontenc}
+\usepackage{gensymb}
+\usepackage{float}
+\sisetup{round-mode=places, round-precision=2, detect-all}
+%\externaldocument{supplementary_methods}
+
+\newcommand{\flagged}[1] {
+  \textcolor{blue}{#1}
+}
+
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black}
+\RequirePackage{lineno}
+
+\def\title{\emph{Bombus spp.} show different responses to agricultural intensification...I hope?}
+
+\def\author{Jenna B. Melanson$^{1*}$, Tyler T. Kelly$^{2}$, Natalia Clermont$^{2}$, \\
+Jonathan B. Koch$^{3}$, Claire Kremen$^{1,2}$}
+
+\def\keywords{keyword1, keyword2, keyword3}
+
+\def\extras{
+\begin{itemize}
+  \item Type of article: 
+  \item Abstract word count: 
+  \item Word count:
+  \item Number of figures and tables: 
+  \item Number of references: 
+  \item Author contributions: 
+\end{itemize}
+
+}
+\clearpage
+\def\affiliation{
+  \begin{enumerate}
+  \item Biodiversity Research Center\\
+  Department of Zoology \\
+  University of British Columbia \\
+  2212 Main Mall \\
+  Vancouver, BC, Canada, V6T 1Z4
+  \item Institute for Resources, Environment, and Sustainability \\
+  University of British Columbia \\
+  2202 Main Mall \\
+  Vancouver, BC, Canada, V6T 1Z4
+  \item USDA
+  \end{enumerate}
+}
+
+\def\runninghead{}
+
+\def\corr{\noindent
+  $\star$ Corresponding author: jenna.melanson@ubc.ca \\
+  }
+
+\newcommand{\mstitlepage}{
+  \paragraph{Running head:} \textsc{\runninghead}
+  \parindent=0pt
+  \begin{center}
+    {\LARGE \title \par}
+    \vskip 3em
+    {\large
+      \lineskip .75em
+      \begin{tabular}[t]{c}
+        \author
+      \end{tabular}\par}
+    \vskip 1.5em
+  \end{center}\par
+  \affiliation
+  \corr
+  \extras
+}
+
+\begin{document}
+\mstitlepage
+\doublespacing
+\linenumbers
+\clearpage
+\begin{abstract} 
+abstract text
+\end{abstract} 
+
+\textbf{Keywords:} \keywords
+\clearpage
+\section{Introduction}
+\section{Methods}
+
+\subsection{Study system}
+Our study took place in the Lower Fraser Valley in southwestern British Columbia, Canada, in an agricultural system dominated by mixed vegetable, hay, and perennial berry production. From 1984-2018 the Lower Fraser Valley underwent a 13\% decrease in forest patch area, mainly resulting from conversion to urban or agricultural land use \parencite{paulTrackingChangesSoil2020a}. .... \emph{decide what else needs to be said in this section later on!}
+
+Field surveys were conducted across six replicate landscapes distributed throughout the Lower Fraser Valley. Each landscape encompassed roughly 3 sq km of farmland interspersed with rural/suburban residence. Landscapes were initially chosen to span a gradient of configurational and composition diversity metrics, including Shannon's diversity, edge density, and the ratio of annual to perennial crop cultivation. 
+
+\subsection{\textit{Bombus} collections and floral surveys}
+Each landscape was surveyed during 10 sampling rounds in 2022 (May-August) and 17 sampling rounds in 2023 (March-August). We initially established thirty sampling transects (50 meters x 2 meters) in each landscape, spaced as evenly as possible based on land-access and the availability of foraging resources on which to observe bees. Transect turnover occurred within and between years due to changes in land access. However, the number of surveys per landscape per sampling round remained consistent (28.1 $\pm$ 1.9 (mean $\pm$ SD) in 2022, 30.2 $\pm$ 0.9 in 2023). Throughout the analyses we incorporate offset variables to account for differences in survey effort per transect.  %We did not survey in active crop fields except for high-bush blueberry, which offers floral resources during its spring bloom and can sometimes host other flowers such as clovers (\textit{Trifolium spp.}) and flatweed (\textit{Hypochaeris radicata}) later in the season. 
+A total of 289 transects (28,900$m^2$) were visited over the course of study.
+
+\textit{Bombus} surveys at each transect entailed 5 minutes of active search time (totaling 140 hours in 2022 and 255 hours in 2023), during which the stopwatch was paused whenever a foraging bumble bee was sighted. Specimens were captured by netting, placed into sterile 15 mL tubes, and immediately placed on ice before transfer to a -80\degree C freezer at the end of the day.  Surveys were conducted on days when the temperature was above 12\degree C (10\degree C for queen surveys) and wind speeds below 2.5 m/s. In 2022, all \textit{Bombus} species were collected; in 2023 only the focal species (\textit{B. mixtus} and \textit{B. impatiens} were collected.
+
+We identified all flowering plants within each 50 m x 2 m transect to species or genus using the iNaturalist Seek mobile application. Seek applies an internal confidence threshold for species-level identifications; in a validation study of 857 professionally identified plant images, it produced no false species-level identifications above this threshold, and flower presence significantly improved genus-level accuracy \parencite{hartAssessingAccuracyFree2023}. We classified plants to species when the confidence threshold was exceeded---which occurred in most cases---or to genus when it was not, with rare instances achieving only family-level identification. Inflorescence abundance was visually estimated in the field for each species along each transect. Estimates were assigned to one of five log-scale abundance categories (0-4: 0 = 1-10, 1 = 11-100, 2 = 101=1,000, 3 = 1,001-10,000, 4 = >10,000) \parencite{cariveauStandardizedProtocolsCollecting2024}. We selected these categories to reflect the floral abundances that bumblebees were likely to encounter and respond to in our study landscapes, which included both rare resources (< 10) and highly abundant resources such as mass-flowering crops and flowering trees. Floral surveys were later filtered to exclude species that bumble bees were never observed visiting. This filtering step was included to reduce the noise introduced by several herbaceous weeds with flowers too small to attract or support bumble bee foragers that were frequently observed on the transects in high abundance.
+
+
+\subsection{Landscape characterization}
+Land cover maps were developed for each study site based on manual classification of Google Earth satellite imagery. Raster files were downloaded into QGIS \parencite{QGIS_software}, and a polygon-based vector layer denoting land classes was created via visual inspection by a single observer familiar with the study system. Classification was at 2-meter resolution and utilized 17 categories: annual row crops, blueberry, cranberry, other perennials, polyculture, hay meadows, pasture, fallow, grassy field margins, hedgerows (tree-dominated), hedgerows (blackberry-dominated), seminatural grassland, forest, wetlands, urban/suburban, roads, and water). These land cover categories were chosen based on their hypothesized provisioning of floral resources and differences in disturbance regimes (e.g., tilling/flooding/mowing) which could impact survival of subterranean or surface-level bumble bee nests. The vector layer was converted into a raster file and subsequent analyses were performed in R \parencite{R}. 
+
+
+\emph{INSERT EXPLANATION OF LANDSCAPE METRICS AND HOW WE CALCULATED THEM}
+
+
+\subsection{PCR Amplification and Fragment Analysis}
+DNA was extracted from the mid-leg basitarsus and tarsus (distal tarsus only for queens) using the HOTSHOT protocol \parencite{truettPreparationPCRqualityMouse2000}. Specimens were microsatellite genotyped at loci BT10, BTERN01, BL13, BL15, B126, BTMS0057, BTMS0059, BTMS0062, BTMS0083 (both species), BTMS0066, BTMS0086, BTMS0104, BTMS0126, BTMS0136 (\textit{B. mixtus} only), BT28, BT30, B10, B96, B124, BTMS0073, and BTMS0081 (\textit{B. impatiens} only) \parencite{estoupMonoandryPolyandryBumble1995, estoupGeneticDifferentiationContinental1996, reberfunkMicrosatelliteLociBombus2006, stolleNovelMicrosatelliteDNA2009}. One primer for each locus was individually dye-labelled using 6FAM, NED, PET, or VIC, and loci were amplified in two multiplex reactions per individual. Each multiplex reaction contained 4$\mu$L of template DNA, 1$\mu$L of 10X primer mix, and 5$\mu$L of Qiagen 2X Multiplex PCR Master Mix (Qiagen, Hilden, Germany). See Appendix 1, Section A1.1 for details on primer modifications, plexes, and thermocycling conditions. Diluted PCR products were submitted for automated fragment sizing at the UBC Sequencing and Bioinformatics Consortium (\textit{B. mixtus}) and the Utah State Center for Integrated Biosystems (\textit{B. impatiens}). 1$\mu$L of each sample was added to 8.85$\mu$L of Hi-Di formamide and 0.15$\mu$L of LIZ500 size standard; \textit{B. mixtus} fragments were analyzed on an Applied Biosystems 3730XL 96-capillary DNA Analyzer and \textit{B. impatiens} fragments were analyzed on an Applied Biosystems 3730 DNA Analyzer (Applied Biosystems, Foster City, CA, USA). Microsatellite peaks were assigned manually using the software Geneious Prime 2024.0.5 (https://www.geneious.com). Scoring error rates were assessed by re-genotyping a panel of 96 individuals per species, and loci with observed error rates $\geq$3\% were discarded from further analyses (BL15 for both species).
+
+\subsection{Colony Assignments}
+We used an iterative approach to assign workers and queens to their natal colonies. First, using the pedigree reconstruction software COLONY2.0.6.5 \parencite{jonesCOLONYProgramParentage2010} (hereafter, COLONY), we assigned full siblingships based on all available microsatellite data, assuming male and female monogamy and no inbreeding. A single run was carried out for each species and year, using the software's full-likelihood approach and no siblingship size scaling or priors. Sibling pairs were maintained when $P_{fullsib dyad} = 1$. A single individual from each putative colony (including non-circular colonies, described below) was maintained for downstream analyses of locus quality.
+
+While COLONY can account for inbreeding at the population level, locus-specific estimates of $F_{is}$ should generally be similar to one another for a given population, reflecting their shared evolutionary history. Loci with $F_{is}$ estimates that deviate significantly from the species mean (across loci) may suffer from null alleles or other types of scoring errors that can bias siblingship assignment. We therefore tested individual locus deviations from population mean $F_{is}$ as a criterion for marker inclusion/exclusion. Single locus $F_{is}$ estimates were computed for all site, year, species groups following \parencite{weirEstimatingFStatisticsAnalysis1984} in the package \emph{genepop} \parencite{roussetGenepop007CompleteReimplementation2008} (Fig. \ref{fig:Fis}). We then fit linear models to $F_{is}$ estimates with locus and site as fixed predictors. We used sum-to-zero coding so that model intercepts represented mean $F_{is}$ across all loci, and calculated the estimated marginal mean of each locus using the \emph{emmeans} package \parencite{lenthEmmeansEstimatedMarginal2024} (Fig. \ref{fig:marginalmeans}A-B). We iteratively removed loci with $F_{is}$ significantly different from the species mean $F_{is}$, starting with the locus with the greatest deviation, and re-running the model after each removal. We did not apply an adjustment for multiple-hypothesis testing, but instead utilized a relatively stringent p-value ($\alpha$ = 0.01) for removal of loci. This process resulted in the removal of loci BTERN01, BTMS0104, and BTMS0059 from downstream analyses for \emph{B. mixtus} and removal of BTMS0073 and BT28 for \emph{B. impatiens}. $F_{is}$ estimates for the remaining loci (n = 10 for \emph{B. mixtus}, n = 13 for \emph{B. impatiens}) can be found in Appendix 1, Fig. \ref{fig:marginalmeans}C-D.
+
+Next, we checked locus pairs for linkage disequilibrium (LD). Marker linkage can lead to non-independent assortment, a condition which violates the assumptions of most parentage reconstruction software and can result in overconfidence in estimated sibling pairs. LD was calculated for each locus pair in each population (site, year, species groups) in \emph{genepop}. We applied a Bonferroni correction for multiple hypothesis testing, and flagged locus pairs which showed significant deviations in $>2$ populations. For \emph:{B. mixtus}, four locus pairs showed signs of LD, but each occurred at only a single site in a single year, so we chose to maintain all loci. For \emph{B. impatiens}, there was strong evidence for linkage disequilibrium between BTMS0057 and BL13 (7 out of 12 populations showed significant LD following Bonferroni correction). To determine which locus to maintain, we calculated the polymorphic information content (PIC) using the package \emph{PopGenUtils} \parencite{tourvasPopGenUtilsCollectionUseful2025}. We found that BTMS0057 had higher PIC in both years (PIC = 0.78) compared to BL13 (PIC = 0.47 in 2022 and 0.45 in 2023). We therefore maintained BTMS0057 and removed BL13 from further analyses for \emph{B. impatiens}.
+
+After locus quality screening, we calculated global and pairwise $F_{st}$ following CITE NEIL 1987 in the package \emph{hierfstat} \parencite{goudetHierfstatPackageCompute2005}. For both species and years, estimates of global $F_{st}$ were less than 0.005. Pairwise $F_{st}$ ranged from -0.002 to 0.01, indicating little or no genetic differentiation between surveyed sub-populations. Finally, we computed the marginal mean $F_{is}$ for each site to determine whether there was evidence for inbreeding following locus removal, and whether it varied between sites (Appendix 1, \ref{fig:siteFis}).
+Because we found evidence for only minor inbreeding (e.g., $F_{is} < 0.05$) we ran all final colony assignments using the no-inbreeding model. Given the very low estimates of global and pairwise $F_{st}$, we chose to combine sites for siblingship assignments to maximize the accuracy of allele frequency estimation.
+
+We performed final colony assignments using separate COLONY runs for each species-year combination. We included spring queens (2023) in the 2022 run, as these queens were putative siblings of 2022 workers. The long duration of sampling in 2023 (March-August) provided the opportunity to observe both spring (originating in 2022) and summer (originating in 2023) queens; to establish a cutoff between these groups, we visually inspected histograms of queen counts per day and chose thresholds of 9 June and 24 June for \emph{B. mixtus} and \emph{B. impatiens}, respectively. To determine optimal software settings, we tested COLONY performance on simulated datasets using allele frequencies derived from our true data. For support of the following settings, see Appendix 1, Section A1.2 "Testing COLONY on simulated data". Colony assignments were performed using a single COLONY run for each species-year combination. We used exclusion tables to prevent the assignment of siblingships between individuals originating from different sites. Each run assumed male and female monogamy and no inbreeding, and utilized no prior on siblingship size and no siblingship size scaling. All runs were performed using the Linux command line version of the software, with run length set to "long", likelihood set to "full-likelihood" and precision set to "high precision." Sibling pairs were maintained with $P_{fullsib dyad} = 0.995$. Because we used full sibling dyad probabilities rather than sibling cluster probabilities to perform assignments, we resolved non-circular families (e.g., individual A related to individual B, B related to C, but A \emph{not} related to C) as described in A1.2.3. Overall, the results of our simulation suggest that previous studies of fine-scale lineage in bumblebees using similar genetic datasets may suffer from high false positive rates due to insufficiently stringent probability thresholds for siblingship assignment. %We acknowledge that violations to the assumption of male and female monogamy may result in a heightened number of false-negatives while using the monogamous specification in COLONY---however, our simulations showed clearly that our dataset was not sufficient to distinguish half-sib relationships, and allowing for polyandry resulted in a very high rate of falsely-inferred sibling pairs.
+
+\subsection{Statistical Analyses}
+
+
+
+\section{Results}
+\section{Discussion}
+
+\printbibliography
+\clearpage
+
+
+%\section*{Acknowledgements}
+
+%\section*{Conflict of Interest}
+%You may be asked to provide a conflict of interest statement during the submission process. Please check the journal's author guidelines for details on what to include in this section. Please ensure you liaise with all co-authors to confirm agreement with the final statement.
+
+
+
+
+
+\appendix  % mark the start of appendices
+
+\renewcommand{\thesection}{A\arabic{section}} % section labels like A1, A2, ...
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{figure}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{table}{0}
+
+\section{Population Genetics \& Colony Assignments}
+
+\subsection{Marker information and thermocycling conditions}
+See Table \ref{tab:microsatloci} for primer sequences, size ranges, rarified allelic richness (RAR), multiplexing information, and locus retention status following quality screening. The majority of reverse primers were modified with 5' PIG-tails (GTT or GTTT) to reduce stuttering. We added a 5' cytosine (C) residue to 6FAM-labelled primers beginning with a 5' guanidine (G) residue (e.g., BTM0126, B96, B124) to reduce 6FAM quenching. Thermocycling was carried out following the manufacturer's protocol for Qiagen Multiplex PCR Master Mix with the following cycling conditions: initial denaturation at 95\degree C for 5 minutes; 35 cycles of denaturation at 95\degree C for 30 seconds, annealing at 57\degree C for 90 seconds, and extension at 72\degree C for 30 seconds; final extension at 68\degree C for 30 minutes; hold at 4\degree C.
+
+Rarified allelic richness was calculated for a single pooled population using rarefaction to the locus-specific number of observed gene copies (i.e., accounting for missing genotypes) following Hurlbert's formulation as implemented in \emph{hierfstat} \parencite{goudetHierfstatPackageCompute2005}. The number of individuals genotyped per population was 3588 for \emph{B. mixtus} and 5012 for \emph{B. impatiens}.
+
+\begin{sidewaystable}[p]
+    \centering
+    \caption{Description of loci used for microsatellite genotyping of \emph{B. mixtus} and \emph{B. impatiens}. \textbf{RAR} = rarified allelic richness, \textbf{GTTT} = addition of PIG-tail.}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l|l|l|l|l|l|l|l|l}
+    
+        \textbf{Locus} & \textbf{Forward Sequence} & \textbf{Reverse Sequence} & \textbf{Species} & \textbf{Size Range} & \textbf{RAR} & \textbf{Plex} & \textbf{Dye Tag} & \textbf{Maintained} \\ \hline
+        \textbf{BTMS0086} & CTCGCGCTTGTCGAATCAAT & \textbf{GTTT}AGAGAAATTGCATGCGGTCG & \emph{B. mixtus} & 266-277 & 3 & 1 & VIC & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & - & - & - & - & - \\ \hline
+        \textbf{BTMS0057} & TGCTTGAACCGAAATAGAGGG & \textbf{GTTT}CACCGGCATTTTACACACCA & \emph{B. mixtus} & 116-136 & 11 & 1 & VIC & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 106-136 & 14.6 & 2 & VIC & yes \\ \hline
+        \textbf{BTMS0136} & GCATTCGGGTATTGCGTTCTTTAG & \textbf{GTTT}CGTTTATCTGCTTCTCTCGTTCG & \emph{B. mixtus} & 154-196 & 20 & 1 & PET & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & - & - & - & - & - \\ \hline
+        \textbf{BTMS0066} & TTAACGCCCAATGCCTTTCC & CATGATGACACCACCCAACG & \emph{B. mixtus} & 113-197 & 26.9 & 1 & NED & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & - & - & - & - & - \\ \hline
+        \textbf{BTMS0062} & CTGGGCGTGATTCGATGAAC & \textbf{GTTT}CTGTCGCATTATTCGCGGTT & \emph{B. mixtus} & 229-289 & 28 & 1 & NED & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 230-330 & 34.9 & 1 & NED & yes \\ \hline
+        \textbf{BT10} & TCTTGCTATCCACCACCCGC & \textbf{GTTT}GGACAGAAGCATAGACGCACCG & \emph{B. mixtus} & 128-172 & 22 & 1 & 6FAM & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 119-157 & 27.8 & 1 & 6FAM & yes \\ \hline
+        \textbf{BTMS0104} & TCCTCTGTTCAGCACACGAT & \textbf{GTTT}TTCGAAGCCTCGATGTCGT & \emph{B. mixtus} & 266-268 & 2 & 1 & 6FAM & no ($F_{is}$) \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & - & - & - & - & - \\ \hline
+        \textbf{BL15} & CGAACGAAAACGAAAAAGAGC & TCTTCTGCTCCTTTCTCCATTC & \emph{B. mixtus} & 124-172 & - & 2 & VIC & no (error rate) \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 137-173 & - & 1 & VIC & no (error rate) \\ \hline
+        \textbf{B126} & CGATTCTCTCGTGTACTCC & \textbf{GTTT}GCTTGCTGGTGAATTGTGC & \emph{B. mixtus} & 143-151 & 7 & 2 & PET & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 142-200 & 17.5 & 1 & PET & yes \\ \hline
+        \textbf{BL13} & CGAATGTTGGGATTTTCGTG & \textbf{GTTT}GCGAGTACGTGTACGTGTTCTATG & \emph{B. mixtus} & 158-214 & 23 & 2 & NED & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 148-184 & 8.9 & 1 & NED & no (LD) \\ \hline
+        \textbf{BTMS0083} & CGACTCGTTCGAGCGAAATTA & GTTTTTGCCAGGCTCCGAAT & \emph{B. mixtus} & 266-304 & 20 & 2 & NED & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 276-320 & 21 & 2 & NED & yes \\ \hline
+        \textbf{BTERN01} & CGTGTTTAGGGTACTGGTGGTC & \textbf{GTTT}GGAGCAAGAGGGCTAGACAAAAG & \emph{B. mixtus} & 104-120 & 10 & 2 & 6FAM & no ($F_{is}$) \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 101-151 & 15.9 & 2 & 6FAM & yes \\ \hline
+        \textbf{BTMS0059} & AGTTCGACAGACCAAGCTGT & \textbf{GTTT}GGCTAGGAAAGATTAGCACTACC & \emph{B. mixtus} & 342-362 & 6 & 2 & 6FAM & no ($F_{is}$) \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 339-367 & 8.9 & 1 & 6FAM & yes \\ \hline
+        \textbf{BTMS0126} & \textbf{C}GGTGATCGCTTAAAGCTC & \textbf{GTTT}GCCAACTACGTTCAATATCG & \emph{B. mixtus} & 163-195 & 18 & 2 & 6FAM & yes \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & - & - & - & - & - \\ \hline
+        \textbf{B96} & \textbf{C}GGGAGAGAAAGACCAAG & \textbf{GTTT}GATCGTAATGACTCGATATG & \emph{B. mixtus} & - & - & - & - & - \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 236-278 & 18 & 1 & PET & yes \\ \hline
+        \textbf{BTMS0081} & ACGCGCGCCTTCTACTATC & \textbf{GTT}AGGGACACGCGAACAGAC & \emph{B. mixtus} & - & - & - & - & - \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 292-320 & 6.8 & 1 & VIC & yes \\ \hline
+        \textbf{B10} & GTGTAACTTTCTCTCGACAG & \textbf{GTTT}GGGAGATGGATATAGATGAG & \emph{B. mixtus} & - & - & - & - & - \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 184-256 & 22.5 & 2 & NED & yes \\ \hline
+        \textbf{BT28} & TTGCTGACGTTGCTGTGACTGAGG & \textbf{GTT}TCCTCTGTGTGTTCTCTTACTTGGC & \emph{B. mixtus} & - & - & - & - & - \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 177-207 & 10.7 & 2 & PET & no ($F_{is}$) \\ \hline
+        \textbf{BT30} & ATCGTATTATTGCCACCAACCG & \textbf{GTT}CAGCAACAGTCACAACAAACGC & \emph{B. mixtus} & - & - & - & - & - \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 173-206 & 9.8 & 2 & VIC & yes \\ \hline
+        \textbf{B124} & \textbf{C}GCAACAGGTCGGGTTAGAG & \textbf{GTTT}CAGGATAGGGTAGGTAAGCAG & \emph{B. mixtus} & - & - & - & - & - \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 233-303 & 19.8 & 2 & 6FAM & yes \\ \hline
+        \textbf{BTMS0073} & CGATATCGCGATCTTCGTACAC & \textbf{GTT}GTAGCATGCTCTCCGTGTTG & \emph{B. mixtus} & - & - & - & - & - \\ 
+        \textbf{} & ~ & ~ & \emph{B. impatiens} & 112-136 & 7.9 & 2 & PET & no ($F_{is}$) \\ 
+      \end{tabular}}
+      \label{tab:microsatloci}
+\end{sidewaystable}
+
+\clearpage
+\subsection{Assessing locus $F_{is}$, $F_{st}$ and linkage disequilibrium}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/Fis.jpg}
+    \caption{Estimates of $F_{is}$ for each locus in each subpopulation. Estimates from 2022 and 2023 were calculated separately but are shown together for each site x species combination. Blue dotted lines indicates $F_{is} = 0$ and red dotted lines indicate $F_{is} = \pm 0.1$.}
+    \label{fig:Fis}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/marginalmeans.jpg}
+    \caption{Locus-specific $F_{is}$ marginal means. A) \emph{B. mixtus} all loci; B) \emph{B. impatiens} all loci; C) \emph{B. mixtus} loci following iterative removal of loci which differed significantly from global mean $F_{is}$; D) \emph{B. impatiens} loci following iterative removal of loci which differed significantly from global mean $F_{is}$. Dashed black line denotes $F_{is} = 0$, dashed red line denotes global mean $F_{is}$ for each species.}
+    \label{fig:marginalmeans}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/siteFis.jpg}
+    \caption{Site-specific $F_{is}$ marginal means following removal of low-quality loci for A) \emph{B. mixtus} and B) \emph{B. impatiens}. Dashed black line denotes $F_{is} = 0$, dashed red line denotes global mean $F_{is}$ for each species.}
+    \label{fig:siteFis}
+\end{figure}
+
+
+\subsection{Testing COLONY on simulated data}
+To test the informativeness of our genetic loci and validate the accuracy of COLONY version 2.0.6.5 \parencite{jonesCOLONYProgramParentage2010} for detecting siblingships amongst our specimens, we performed colony assignments on multiple simulated datasets using realistic family sizes, spatial distributions, and allelic frequencies.
+
+We approached these simulations with four objectives:
+
+(i) To determine false positive and false negative siblingship assignment rates, given the informativeness of our microsatellite datasets, 
+
+(ii) To inform an appropriate strategy (probability threshold, number of runs of the software) for maintaining or rejecting each sibling pair;
+
+(iii) To select suitable software parameters, and in particular to evaluate the usefulness of siblingship size priors and exclusion of between-site siblingships for reducing false positive rates;
+
+(iv) To assess whether our dataset(s) are sufficiently informative to support identification of female polygamy, which has been observed in North American \emph{Pyrobombus} \parencite{payneFrequencyMultiplePaternity2003, owenMonandryPolyandryThree2013}. \\
+
+\subsubsection{Simulation strategy}
+
+\paragraph{Spatially explicit siblingships}
+We first simulated spatially explicit siblingships following \textcite{popeInferringForagingRanges2017}. 
+
+We began by simulating six 5 x 5 trapping grids (e.g., 25 traps total at locations $k \in \kappa$) on a single raster surface comprised of cells $j \in \mathbb{J}$. Colonies $i \in \mathbb{C}$ were distributed uniformly at random throughout the ``landscape" (Fig. \ref{fig:simulations} A-B).
+
+We then sampled individuals from colonies $i \in \mathbb{C}$ captured at traps $k \in \mathbb{K}$ from the joint distribution $\Pr(s, c \mid s \in \kappa)$, where $\{s,c\}$ are the indices of a random visitation event of an individual from colony $c \in \mathbb{C}$ to grid cell $s \in \mathbb{J}$.
+
+To do this, we first sampled a trap ($k$) from
+
+\[
+\Pr(s = k \mid s \in \kappa) \;=\; \frac{\Pr(s = k)}{\Pr(s \in \kappa)} \tag{1}
+\]
+
+where
+
+\[
+\Pr(s = k) \;=\; \sum_{i \in C} \Pr(s = k \mid c = i)\,\Pr(c = i)
+\]
+
+and
+
+\begin{align*}
+\Pr(s \in \kappa) 
+    &= \sum_{i \in \mathbb{C}} \Pr(s \in \kappa \mid c = i)\,\Pr(c = i) \\[0.5em]
+    &= \sum_{i \in \mathbb{C}} \sum_{k \in \kappa} \Pr(s = k \mid c = i)\,\Pr(c = i)
+\end{align*}
+
+
+Combining these statements gives a probability of sampling from trap $k$ of:
+
+\[
+\Pr(s = k \mid s \in \kappa) \;=\; \frac{\sum_{i \in C} \Pr(s = k \mid c = i)\,\Pr(c = i)}{\sum_{i \in \mathbb{C}} \sum_{k \in \kappa} \Pr(s = k \mid c = i)\,\Pr(c = i)} \tag{2}
+\]
+
+We then sampled a colony ($i$) from
+
+\begin{align*}
+\Pr(c = i \mid s = k)
+  &= \frac{\Pr(s = k \mid c = i) \Pr(c = i)}{\Pr(s = k)} \\[0.5em]
+  &= \frac{\Pr(s = k \mid c = i) \Pr(c = i)}{\sum_{i \in \mathbb{C}} \Pr(s = k \mid c = i)\,\Pr(c = i)} \tag{3}
+\end{align*}
+
+
+We define the foraging kernel of workers from colony $i$ as
+
+\[
+\Pr(s = k \mid c = i)
+\;=\; 
+\frac{\lambda_i(k)}{\sum_{j \in J} \lambda_i(j)} \tag{4}
+\]
+
+where the visitation intensity of individuals from colony $i$ to location $j$ is 
+
+\[
+ln(\lambda_i(j)) = \frac{- \lVert x_j - \delta_i \rVert}{\rho} \tag{5}
+\]
+
+$x_j$ are the spatial coordinates of any grid cell in the raster, and $\delta_i$ are the spatial coordinates of colony $i$. The foraging kernel in this example is therefore symmetrical and exponentially decaying as a function of distance from the colony location. This means that the total visitation rate of each colony across the landscape ($\sum_{j \in J} \lambda_i(j)$) is the same for all colonies, and can be represented using the constant $\mathbb{D}$. $\Pr(c = i)$ is the proportion of all bees in the landscape originating from colony $i$, e.g., $\Pr(c = i) = \frac{n_i}{N}$ where $n_i$ is the number of bees from colony $i$, and $N = \sum_{i \in \mathbb{C}} n_i$ is the total number of bees in the landscape.
+
+Combining (4) with (2) and (3) gives the probability of sampling an individual from trap $k$
+
+% with variable foraging kernels
+%\[
+%\Pr(s = k \mid s \in \kappa) \;=\; \frac{\sum_{i \in \mathbb{C}} \frac{\lambda_i(k)}{\sum_{j \in %J} \lambda_i(j)}\,\frac{n_i}{N}}{\sum_{k \in \kappa} \sum_{i \in \mathbb{C}} \frac{\lambda_i(k%)}{\sum_{j \in J} \lambda_i(j)}\,\frac{n_i}{N}}
+%\]
+
+% with identical foraging kernels
+\[
+\Pr(s = k \mid s \in \kappa) \;=\; \frac{\sum_{i \in \mathbb{C}} \lambda_i(k) \frac{n_i}{N}}{\sum_{k \in \kappa} \sum_{i \in \mathbb{C}} \lambda_i(k) \frac{n_i}{N}}
+\]
+
+and the probability that the individual originates from colony $i$
+
+% with variable foraging kernels
+% \[
+% \Pr(c = i \mid s = k) \;=\;  \frac{\frac{\lambda_i(k)}{\sum_{j \in J} \lambda_i(j)} \frac{n_i}{N}}{\sum_{i \in \mathbb{C}} \frac{\lambda_i(k)}{\sum_{j \in J} \lambda_i(j)} \frac{n_i}{N}}
+% \]
+
+% with identical foraging kernels
+\[
+\Pr(c = i \mid s = k) \;=\; \frac{\lambda_i(k) \frac{n_i}{N}}{\sum_{i \in \mathbb{C}} \lambda_i(k) \frac{n_i}{N}}
+\]
+
+For each simulation, samples are drawn from $\Pr(s, c \mid s \in \kappa)$ until a stopping point (desired number of samples) is reached. $n_i$ is updated after each ``sampling event" to prevent oversampling from colonies located very close to traps.
+
+To verify that the size of sampled siblingships (e.g., number of siblings per sibling group) accurately mirrors the distribution of siblingship sizes in real data, we compared our simulated distributions to the distribution of siblingshp sizes in our real data (Fig. \ref{fig:simulations} C-D).
+%%%NOTE: make this into a proper comparison!!
+We found that moderating the background density of colonies (i.e., the total number of colonies simulated on the landscape) was the most effective strategy for controlling average siblingship size. A higher background density of simulated colonies results in a higher proportion of singleton colonies (colonies represented by only a single individual).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/simulations.jpg}
+    \caption{Simulations of spatially explicit siblingships. (A-B) Spatial distribution of traps (black points) and simulated colonies (light blue points). (C-D) Distribution of siblingship sizes in final simulated datasets. (A,C) Simulations using 10,000 background colonies. (B,D) Simulations using 2,000 background colonies. In general, a higher background density of colonies results in a smaller average family size; in both cases, some colonies are not observed in the final dataset. Each map unit in our simulation represents 5 meters (e.g., 1000 map units = 5000 meters). The background colony densities represented here therefore equate to 0.26 colonies per hectare and 0.06 colonies per hectare; we use the former value, as it is in line with previous estimates of landscape-wide colony densities and creates a more realistic distribution of siblingship sizes (C).}
+    \label{fig:simulations}
+\end{figure}
+
+
+\paragraph{Multilocus genotypes}
+We simulated multilocus genotypes for each sampled individual under several mating scenarios. In the simplest case, we assume monogamy for both males and queens. The majority of the simulation results presented below follow this assumption. In a second set of simulations, we assumed varying rates of polyandry (e.g., queen polygamy) to assess the impact of this paradigm on siblingship inference. For each simulation we used the following heuristic:
+
+\begin{enumerate}
+\item Simulate parental genotypes for each siblingship based on the allele frequencies present in our real data. These frequencies were inferred from an earlier run of COLONY, which provides estimated frequencies after accounting for heightened frequency of alleles present in large families; because average family size was small in our dataset (< 2 individuals) and large families were rare (Fig \ref{fig:simulations} C), raw allele frequencies would have likely been sufficient.
+
+\item Randomly draw offspring genotypes from the set of possible parental alleles at each locus. For simulations involving monogamous mating, father haplotypes are assigned directly to all offspring in the siblingship; in colonies with multiple paternity, we assume two fathers and assign inheritance of paternal haplotypes from $\Pr(father_1, father_2) = (0.7, 0.3)$ following the proportions observed for \emph{B. impatiens} in \textcite{birdMatingFrequencyEstimation2024}.
+
+\item Introduce errors and data missingness based on observed rates for our real datasets. To introduce errors, we mutate each allele with a probability equal to the rate of errors for that locus and species; we assume that most errors are due to contamination, rather than allele dropout, and therefore draw new (erroneous) alleles from the allele frequency distribution for each species. We observed that individuals which were missing data for \emph{one} copy of a locus were more likely to be missing data for \emph{both} copies than if missingness were distributed uniformly at random. This is likely because there were two primary missingness-generating processes in real data: amplification failure (both alleles missing for an individual) and binning failure (one or both alleles missing for an individual). (In cases where only one copy of a locus failed to amplify, heterozygous individuals would be falsely classified as homozygous---an error, rather than missing data). To mimic the observed distribution of missingness, we first calculate the proportion of missing data for each marker ($P_{missing}$) and then remove data for (1) both alleles, with probability $1/3 * P_{missing}$ and for (2) a single allele, with probability $1/3 * P_{missing}$.
+\end{enumerate}
+
+This method allows us to draw conclusions based on the informativeness of our specific genetic datasets, rather than an idealized situation with perfect data. We performed simulations based on allele frequencies for both species (\emph{B. mixtus} and \emph{B. impatiens}) because variation in marker number and/or polymorphic information content could lead to differing results.
+
+\subsubsection{Determining an appropriate heuristic for maintaining or rejecting inferred siblingships}
+
+Like any software for family reconstruction, COLONY can produce erroneous siblingships (false positives) or fail to identify kinship when it exists (false negatives). Our preliminary analyses resulted in a high number of inferred siblingships between individuals separated by >20 km when individuals from all study sites were permitted to form siblingships. While the biology of bumblebee foraging/dispersal does not unilaterally exclude the possibility of such distant relationships, the likelihood of observing such separation distances is extremely small, and unlikely to represent biological reality except in very rare cases.
+
+A common strategy in studies performing \emph{Bombus} colony assignment is to repeat multiple "runs" (usually 2-5) of the COLONY software on the dataset, and maintain family groups which are inferred in all runs at or above some confidence threshhold (usually $P \ge 0.95$, but sometimes $P \ge 0.8$). See, for example, \textcite{carvellMolecularSpatialAnalyses2012, raoBumbleBeeHymenoptera2012, dreierFinescaleSpatialGenetic2014a, geibBumbleBeeNest2015a, carvellBumblebeeFamilyLineage2017a, molaWildfireRevealsTransient2020a}. However, we are not aware of any studies which give support for a particular threshhold probability or number of runs necessary to reach a particular confidence level in assignments, nor to achieve a satisfactory balance between false positive siblingships and false negative siblingships. Indeed, the desirable threshhold is likely to vary as a function of the number and informativeness of markers for a given population.
+
+To overcome these limitations, we tested probability exclusion criteria from $P = 0.95$ to $P = 1$, for 1 or 5 runs of COLONY version 2.0.6.5. Further, we compared the use of family cluster probabilities (COLONY output file .BestCluster---hereafter referred to as the family method) and full sibling dyad probabilities (COLONY output .FullSibDyad---hereafter referred to as the dyad method).
+
+We began by simulating 5 datasets (e.g., different siblingship arrangements with unique parental genotypes) consisting of n = 1200 individuals each, which was roughly the midpoint of population sizes for our real data. For each dataset we performed 5 runs of COLONY (see Table \ref{tab:softwarespecs} for a summary of COLONY software settings).
+
+Based on our results, we conclude that the software converges reliably for datasets like ours, and that repeated runs of the software have little or no effect on conclusions drawn. In most cases, false positive and false negative rates are either identical or nearly overlapping, regardless of the numbers of runs (Fig \ref{fig:fpr_repetition}, \ref{fig:fnr_repetition}). We therefore recommend that to save time and computational resources, researchers should check for convergence for each microsatellite dataset using 2-3 runs of the software, and if convergence is achieved they should feel confident that a single run is sufficient to identify siblingships.
+
+For both species we found that increasing the probability threshhold from 0.95 to 1 more effectively reduced false positives for the dyad method than for the family method, although in general a probability threshold $\ge$ 0.99 was necessary to maintain false positive rates at around 5\% using the dyad method. For $P = 1$ the dyad method led to a high proportion of false negatives ($\ge 5\%$) (Fig \ref{fig:fnr_repetition}). For this reason, we would not recommend using this maximal stringency unless a very low rate of false positives is required.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/fpr_repetition.jpg}
+    \caption{False positive rates produced by COLONY 2.0.6.5 when assigning siblingships to simulated data based on \emph{B. mixtus} (A-B) and \emph{B. impatiens} (C-D) allele frequencies and marker numbers. Shown here as a function of the probability threshold used to maintain siblingships. (A, C): False positive rates when siblingships are assigned via the ``family" method (using .BestCluster output), (B, D): False positive rates when siblingships are assigned via the ``dyad" method (using .FullSibDyad output). Color denotes the number of replicated runs of the software used to establish siblingships; in most cases, points are perfectly overlapping.}
+    \label{fig:fpr_repetition}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/fnr_repetition.jpg}
+    \caption{False negative rates produced by COLONY 2.0.6.5 when assigning siblingships to simulated data based on \emph{B. mixtus} (A-B) and \emph{B. impatiens} (C-D) allele frequencies and marker numbers. Shown here as a function of the probability threshold used to maintain siblingships. (A, C): False negative rates when siblingships are assigned via the ``family" method (using .BestCluster output), (B, D): False negative rates when siblingships are assigned via the ``dyad" method (using .FullSibDyad output). Color denotes the number of replicated runs of the software used to establish siblingships; in most cases, points are perfectly overlapping.}
+    \label{fig:fnr_repetition}
+\end{figure}
+
+
+\subsubsection{Handling ``non-circular" families}
+
+To fully assess utility of the family method versus the dyad method, we need a method for resolving ``non-circular" families. They families arise when some (but not all) individuals in a group are inferred to be full siblings (e.g., A related to B, B related to C, A not related to C). Such cases are rare, and handled internally by COLONY to create \emph{family clusters} that are circular. If we make assignments based on probabilities of each dyad pair, we are left the task of deciding how to resolve these non-circular families. Indeed, resolution of non-circular families could be one process which leads to the higher false positive rates previously observed when using the family method (Fig \ref{fig:fpr_repetition}).
+
+We first explored the structure of non-circular families in our simulated datasets, to determine whether non-circularity is more frequently the result of false positives (e.g., a third individual being erroneously added to a sibling pair) or false negatives (e.g., failure to detect a sibling relationship between any pair of siblings in a triad).
+
+To do this, we identified non-circular families from five simulations of 2000 individuals each, using a threshold of $P = 0.995$ for inclusion of pairwise relationships. When then classified each missing link as either a false negative (a true siblingship that was not inferred by our method) or a true negative (a false siblingship that was correctly excluded, meaning that at least one of the other siblingships in the non-circular family was a false positive). Fig \ref{fig:noncircularity} shows the distribution of false negatives and true negatives in simulated datasets based on \emph{B. mixtus} and \emph{B. impatiens} allele frequencies.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/noncircularity.jpg}
+    \caption{Frequency of false negative and true negative ``missing links" in non-circular siblingships. The x-axis shows the probability assigned to each missing link by the COLONY full sib dyad method (maximum probability for missing links = 0.994, probability threshold for initial acceptance of sibling pairs = 0.995).}
+    \label{fig:noncircularity}
+\end{figure}
+
+While there does not appear to be a convenient threshold at which we are able to exclude all true negatives while accepting all false negatives, it is comforting that the majority of missed links appear to be false negatives, meaning that we can select a lower probability threshold (e.g., $P = 0.95$) at which to accept these relationships and circularize families without introducing a large number of false positives.
+
+After this step, we are left with a small number of remaining non-circular families (e.g., missing links rejected even at a lower probability threshold). We resolve these families by maintaining the largest ``clique" (e.g., group in which all siblings are connected) or by randomly selecting one complete clique, if there are multiple of equal size.
+
+
+\subsection{Performance of family and dyad methods with and without siblingship size priors}
+
+When comparing the family method to the dyad method for siblingship assignment, we found that results were strongly dependent on whether a siblingship size prior was used. The siblingship prior allows researchers to set a prior on the harmonic mean family size, based on their previous understanding of the expected family sizes in their dataset or similar datasets. Based on our preliminary analyses, about 70-80\% of individuals in our true dataset originated from ``singleton" colonies (no siblings in the dataset), so we set our siblingship priors to 1 individual per family.
+
+For this analysis, we simulated datasets of N = 2000 individuals and subsampled 20\%, 40\%, 60\%, 80\%, or 100\% of individuals to test the use of siblingship priors across datasets of multiple sizes. Our probability threshold was $P = 0.995$. 
+
+When not utilizing a prior, we found that the family method was much less reliable than the dyad method for excluding erroneous siblingships (Fig \ref{fig:sibprior_families}); false negative rates were similar for both strategies. For the family method, 10-60\% of all inferred pairwise relationships were false positives when not using a size prior. False positive rates were consistently $\le 0.2$ when a prior was used (Fig \ref{fig:sibprior_families}). The dyad method, in contrast, resulted in $\le 12\%$ false positives for all conditions tested, and was typically $\le 5\%$ (Fig \ref{fig:sibprior_dyads}). Interestingly, we found that when we assigned siblingships based on the dyads method, the use of a siblingship size prior has little effect on the false positive or false negative rates for \emph{B. mixtus}, but caused a marginal increase in false positives and a marginal decrease in false negatives for \emph{B. impatiens} (Fig \ref{fig:sibprior_dyads}). 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/sibprior_families.jpg}
+    \caption{False positive (A-B) and false negative (C-D) rates of siblingship assignment in \emph{B. mixtus} (A, C) and \emph{B. impatiens} (B, D) using the family assignment method. Dark purple denotes family assignments without the use of a prior on siblingship size, pink denotes family assignments \emph{with} the use of a prior on siblingship size (harmonic mean of siblingship sizes = 1).}
+    \label{fig:sibprior_families}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/sibprior_dyads.jpg}
+    \caption{False positive (A-B) and false negative (C-D) rates of siblingship assignment in \emph{B. mixtus} (A, C) and \emph{B. impatiens} (B, D) using the dyad assignment method. Dark purple denotes family assignments without the use of a prior on siblingship size, pink denotes family assignments \emph{with} the use of a prior on siblingship size (harmonic mean of siblingship sizes = 1).}
+    \label{fig:sibprior_dyads}
+\end{figure}
+
+
+We did not test for statistical significance, but given the qualitative results we decided to utilize the dyad method with a probability threshold of $P = 0.995$ and no siblingship size prior for our final analysis of real data. 
+
+
+\subsubsection{Assessing the use of between-site sibling exclusion for reducing false positive rates}
+
+We next evaluated the use of a sibling exclusion criteria to determine whether this software specifications improves accuracy of siblingship inference. 
+
+Previous studies on \emph{Bombus} have varied in their approaches to the spatial scale at which possible siblingships are permitted. Some studies perform separate runs of the software for populations sampled at different sites/regions \parencite{jhaResourceDiversityLandscapelevel2013} while others group populations at larger scales, permitting the discovery of long distance foraging or dispersal events between sites \parencite{lepaisEstimationBumblebeeQueen2010a, molaWildfireRevealsTransient2020, raoBumbleBeeHymenoptera2012}. While identifying the maximum foraging or dispersal range for different species or landscape contexts is an important goal, we consider two challenges to this method, related to (i) the improbability of capturing individuals engaged in such long distance events, and (ii) the statistical challenges introduced by a very high number of pairwise comparisons. For a more thorough discussion of both points, we direct the reader to \textcite{lepaisEstimationBumblebeeQueen2010a}. 
+
+Ultimately, we posit that the rate at which long distance foraging events should be captured in the dataset is much lower than both the false positive and false negative rates of the COLONY software. This is due in part to the quadratically increasing search area over which foragers will be dispersed as distance from their nest increases (see discussion in \textcite{osborneBumblebeeFlightDistances2008}). Secondarily, given our large sample size and the spatial structure of our collections, a very high number of pairwise comparisons will occur between individuals at different sites (without exclusion). We therefore hypothesized that allowing for siblingship assignments between all individuals would result in a high percentage of false positive relationships that would severely bias estimates of colony locations and foraging behaviour (which are the primary goals of our research).
+
+To test this hypothesis, and to determine whether total sample size had an effect on the utility of excluding between-site siblingships, we simulated five datasets of n = 2000 individuals, and subsetted each data set to contain 20, 40, 60, 80, or 100\% of the initial samples. These data were simulated to reflect trapping grids which were arranged in a 3 x 2 grid with traps in adjacent grids at least 6km apart (Fig \ref{fig:simulations} A-B). The minimum distance between adjacent trapping grids in our real data was 5km (also separated by a large river, expected to limit dispersal), and all other sites were at least 7km apart. The mean foraging distance of colonies in our simulation was set to 1km (99\% of all visitations within 3.32km). This would allow for colonies located midway between trapping grids to sampled at two sites, while reflecting the fact that the majority of bumblebee foraging is thought to occur within a few kilometers of the nest. We therefore believe that the simulated data would represent a relatively optimistic view of the number of between-site siblingships which could be present in the real data.
+
+We created siblingship exclusion tables for COLONY by excluding (for each individual) all potential siblingships with individuals captured at different trapping grids (sites). We ran COLONY on each dataset with and without incorporation of the siblingship exclusion table. Further software specifications for these runs can be found in Table \ref{tab:softwarespecs}. We used the dyad method and an exclusion threshold of $P = 0.995$ as described in the previous section.
+
+We found that for both species (\emph{B. mixtus} and \emph{B. impatiens}) and for all tested sample sizes (n = 400-2000 individuals), between-site sibling exclusion resulted in a lower false positive rate (Fig \ref{fig:excl_size} A-B). The variation in false positive rates between independent simulations decreased with increasing sample size. When using between-site exclusion, mean false positive rates were fairly consistent across sample sizes, but without between-site exclusion, the mean false positive rate tended to decrease with increasing sample size.
+
+False negative rates were similar for both methods, indicating that between-site exclusion did not cause us to lose a high proportion of real between-site siblingships (Fig \ref{fig:excl_size} C-D). Indeed, manual inspection of datasets revealed that between-site sampling was extremely rare or non-existent, given our parameterization and sample size.
+
+Based on these results, we elected to incorporate a between-site sibling exclusion criteria (e.g., only ``look" for siblingships between individuals captured on the same trapping grid) in all further analyses. This includes the section above (e.g., Fig \ref{fig:fpr_repetition}, \ref{fig:fnr_repetition}, \ref{fig:sibprior_families}, \ref{fig:sibprior_dyads}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/excl_size.jpg}
+    \caption{Comparison of between-site siblingship exclusion (dark purple) or no exclusion (pink) for minimizing false positive (A-B) and false negative (C-D) rates for \emph{B. mixtus} (A,C) and \emph{B. impatiens} (B,D). Colony assignments were made using the dyad method, with probability threshold = 0.995.}
+    \label{fig:excl_size}
+\end{figure}
+
+
+\subsubsection{Evaluating the effects of multiple paternity on siblingship inference}
+Multiple studies have reported low lates of polyandry (queen polygamy) in the North American subgenus \emph{Pyrobombus} \parencite{payneFrequencyMultiplePaternity2003, owenMonandryPolyandryThree2013}, which contains both \emph{B. mixtus} and \emph{B. impatiens}. We therefore tested whether our loci are sufficiently informative to identify maternal siblingships (e.g., siblings sharing a mother, but different fathers). Maternal siblings would be colony mates, making them ecologically/behaviourally similar to full siblings, unlike paternal siblings, which would originate from distinct colonies in potentially very different locations. Unfortunately, maternal siblings share on average only 25\% of their genomes, in contrast to paternal siblings (50\%) and full siblings (75\%), making identification of maternal siblingships more challenging that identification of full siblingships.
+
+To test our ability to do so, we simulated datasets of n = 1000 individuals and assigned genotypes under varying assumptions about polyandry rates (0\%, 20\%, 40\%, 60\%, 80\% and 100\% of colonies experience polyandry). We then performed runs of COLONY 2.0.6.5 under both female monogamy and polygamy, to test how these assumptions influence inference. For these analyses, we did not introduce errors or missingness to our simulated genotypes. All colony assignments were made with the family method, as the introduction of half-siblings make the full sibling dyad approach intractable.
+
+When we enforce queen monogamy in COLONY, an increase in the polyandry rate has little or no effect on false positive rates in either species (Fig \ref{fig:multiplepaternity} A-B); increasing the polyandry rate does lead to a steady increase in false negative rates, up to nearly 50\% for both species (Fig \ref{fig:multiplepaternity} C-D). This is unsurprising given that enfrocing monogamy prevents us from identifying maternal siblingships. Unfortunately, allowing for queen polygamy in our modelling process does little to alleviate these false negatives (Fig \ref{fig:multiplepaternity} C-D), but results in a substantial increase in the number of false positives (Fig \ref{fig:multiplepaternity} A-B). Around 50-80\% of all inferred siblingships are erroneous when we allow for queen polygamy, suggesting that we lack the inferential power to accurately distinguish these relationships.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/multiplepaternity.jpg}
+    \caption{False positive (A-B) and false negative (C-D) from COLONY runs assuming queen monogamy (dark purple) and queen polygamy (pink). A total of 6 datasets were generated for each species (\emph{B. mixtus} (A, C) and \emph{B. impatiens} (C, D)); colony assignments were made twice for each dataset (once under monogamy and once under polygamy).}
+    \label{fig:multiplepaternity}
+\end{figure}
+
+To further explore this failure, we asked whether a more informative genetic dataset would have allowed us to distinguish maternal siblings. We simulated datasets under varying degrees of polyandry (as above), but this time with a dataset containing 22 loci (e.g., using real allele frequencies from the combined locus sets for \emph{B. mixtus} and \emph{B. impatiens}). With this augmented dataset, we repeated the analyses above and found that while false positive rates were lower for the augmented dataset (Fig \ref{fig:augmentedpaternity} A) they were still far above the acceptable range. False negative rates were kept to 10\% or less when assuming female polygamy (Fig \ref{fig:augmentedpaternity} B), suggesting that while a more informative dataset could help us to identify true maternal siblings, this information would still come at the cost of a very high false positive rate. Further exploration of the accuracy of larger datasets (e.g., SNPs, \parencite{molaWildfireRevealsTransient2020}) for determining maternal siblingships is warranted.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{appendix_figures/augmentedpaternity.jpg}
+    \caption{False positive (A-B) and false negative (C-D) from COLONY runs assuming queen monogamy (dark purple) and queen polygamy (pink). A total of 6 datasets were generated for each species (\emph{B. mixtus} (A, C) and \emph{B. impatiens} (C, D)); colony assignments were made twice for each dataset (once under monogamy and once under polygamy).}
+    \label{fig:multiplepaternity}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Description of software settings (COLONY 2.0.6.5 \parencite{jonesCOLONYProgramParentage2010}) for simulations.}
+\label{tab:softwarespecs}
+\footnotesize
+\begin{tabular}{ p{2cm}  p{3.5cm} p{2cm} p{2.5cm} p{2cm} p{1.5cm}}
+\hline
+\textbf{Simulation}& \textbf{Comparison}&\textbf{Sample Size}& \textbf{Sibship Size Prior}& \textbf{Between-site Exclusion}& \textbf{Runs}\\
+\hline
+\textbf{section 2.2} & Number of COLONY runs& 1200 & yes& yes& 1-5\\
+\hline
+\textbf{section 2.2} & Probability threshold& 1200 & yes & yes & 1-5\\
+\hline
+\textbf{section 2.4} & Siblingship size prior & 400-2000 & yes/no & yes/no& 1\\
+\hline
+\textbf{section 2.2, 2.4} & Families vs dyads & 400-2000 & yes/no & yes& 1-5\\
+\hline
+\textbf{section 2.5} & Between-site exclusion & 400-2000 & yes/no & yes/no& 1\\
+\hline
+\textbf{section 2.6} & Mating system& 1000 & no & no& 1\\
+   \hline  
+\textbf{section 2.6} & Mating system (augmented data)& 1000 & yes & no& 1 \\
+   \hline  
+\end{tabular}
+\end{table}
+
+
+
+\end{document}
+
+
+%\input{supplement}
+
