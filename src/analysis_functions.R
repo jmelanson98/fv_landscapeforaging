@@ -478,6 +478,7 @@ draw_simple_true_sites = function(sample_size, # number of bees to sample
                                   colony_sizes, #vector of length number_colonies
                                   trap_data, # data frame of true traps
                                   rho, # set param value
+                                  theta, # floral attractiveness
                                   distance_decay # current options: "exponentiated_quadratic" and "exponential"
 ){
   ##### Define colony characteristics #####
@@ -510,17 +511,20 @@ draw_simple_true_sites = function(sample_size, # number of bees to sample
     xlab("Easting") +
     theme_minimal()
   
+  # Add floral data to traps
+  trap_data$fq = rnorm(nrow(trap_data), 0, 1)
+  
   ##### Compute distance-based visitation #####
   matrix2022 = full_join(colony_data[seq(nrow(colony_data)) %% 2 != 0,], trap_data[trap_data$year == 2022,], relationship = "many-to-many")
   matrix2023 = full_join(colony_data[seq(nrow(colony_data)) %% 2 == 0,], trap_data[trap_data$year == 2023,], relationship = "many-to-many")
   full_matrix = rbind(matrix2022, matrix2023)
   full_matrix$dist_ik = sqrt((full_matrix$trap_x-full_matrix$colony_x)^2 + (full_matrix$trap_y-full_matrix$colony_y)^2)
-
+  
   # compute visitation rate of colony at each trap
   if (distance_decay == "exponentiated_quadratic"){
-    full_matrix$lambda_ik <- exp(-0.5 * (full_matrix$dist_ik / rho)^2 + log(full_matrix$total_effort))
+    full_matrix$lambda_ik <- exp(-0.5 * (full_matrix$dist_ik / rho)^2 + theta*full_matrix$fq + log(full_matrix$total_effort))
   } else if (distance_decay == "exponential"){
-    full_matrix$lambda_ik <- exp((-full_matrix$dist_ik / rho) + log(full_matrix$total_effort))
+    full_matrix$lambda_ik <- exp((-full_matrix$dist_ik / rho) + theta*full_matrix$fq + log(full_matrix$total_effort))
   } else {
     print("Sorry, not a valid decay function.")
   }
@@ -529,12 +533,12 @@ draw_simple_true_sites = function(sample_size, # number of bees to sample
   full_matrix$counts = 0
   
   while(sum(full_matrix$counts) < sample_size){
-
+    
     # set weights based on colony sizes
     full_matrix$w_i = full_matrix$colony_sizes/N
-
+    
     # calculate Pr(s = k | s in kappa)
-
+    
     #  first compute Pr(s = k)
     # to do this, sum over C:
     #### lambda_ik * w_i / D_i # without underlying resource landscape, D_i is a constant and can be dropped
@@ -542,32 +546,32 @@ draw_simple_true_sites = function(sample_size, # number of bees to sample
     trap_probs = full_matrix %>%
       group_by(trap_id) %>%
       summarize(intensity = sum(lambda_ik_scaled))
-
+    
     # calculate intensity at all traps
     kappa = sum(trap_probs$intensity)
-
+    
     # prob of sampling from a particular trap given k in kappa
     trap_probs$prob = trap_probs$intensity/kappa
-
+    
     # sample trap
     trap = sample(trap_probs$trap_id, size = 1, replace = TRUE, prob = trap_probs$prob)
-
+    
     # calculate Pr(c = i | s = k)
     partial = full_matrix[full_matrix$trap_id==trap,]
     partial$colony_prob = partial$lambda_ik_scaled/trap_probs$intensity[trap_probs$trap_id==trap]
-
+    
     colony = sample(partial$colonyid, size = 1, prob = partial$colony_prob)
-
+    
     # record visitation event to yik
     full_matrix$counts[(full_matrix$colonyid == colony & full_matrix$trap_id == trap)] = full_matrix$counts[(full_matrix$colonyid == colony & full_matrix$trap_id == trap)] + 1
-
-
+    
+    
     #update ni and N
     N = N-1
     full_matrix$colony_sizes[full_matrix$colonyid == colony] = full_matrix$colony_sizes[full_matrix$colonyid == colony] - 1
     print(paste0("Now sampled ", sum(full_matrix$counts), " of ", sample_size, " bees."))
   }
-
+  
   return(full_matrix)
-  }
+}
   

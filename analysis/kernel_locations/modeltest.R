@@ -39,40 +39,40 @@ source("src/analysis_functions.R")
 ###############               SIMULATE DATA                 ###################
 ################################################################################
 
-# # Load in data
-sibs1 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
-sibs2 = read.csv("data/siblingships/mixtus_sibships_2023.csv")
-effort1 = read.csv(paste0(bombus_path, "/raw_data/2022sampledata.csv"))
-effort2 = read.csv(paste0(bombus_path, "/raw_data/2023sampledata.csv"))
-samplepoints = read.csv(paste0(bombus_path, "/raw_data/allsamplepoints.csv"), header = FALSE)
-
-# Get colony counts (real data)
-data = prep_stan_simpleforaging_bothyears(sibs1,
-                                          sibs2,
-                                          effort1,
-                                          effort2,
-                                          samplepoints)
-
-# Get trap data
-traps_m = data[[3]]
-
-##### Simulate datasets #####
-
-for (i in 1:3){
-  for (rho in c(0.25,0.375, 0.5, 0.625, 0.75)){
-    sim = draw_simple_true_sites(sample_size = 2000,
-                                 number_colonies = 11700,
-                                 colony_sizes = rep(20,11700),
-                                 trap_data = traps_m,
-                                 rho = rho,
-                                 theta = 0.5,
-                                 distance_decay = "exponentiated_quadratic")
-    sim = sim %>% group_by(colonyid) %>% filter(sum(counts)>0)
-    write.csv(sim, paste0("analysis/kernel_locations/modeltest/simulation", i, "_rho", rho, ".csv"))
-
-
-  }
-}
+# # # Load in data
+# sibs1 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
+# sibs2 = read.csv("data/siblingships/mixtus_sibships_2023.csv")
+# effort1 = read.csv(paste0(bombus_path, "/raw_data/2022sampledata.csv"))
+# effort2 = read.csv(paste0(bombus_path, "/raw_data/2023sampledata.csv"))
+# samplepoints = read.csv(paste0(bombus_path, "/raw_data/allsamplepoints.csv"), header = FALSE)
+# 
+# # Get colony counts (real data)
+# data = prep_stan_simpleforaging_bothyears(sibs1,
+#                                           sibs2,
+#                                           effort1,
+#                                           effort2,
+#                                           samplepoints)
+# 
+# # Get trap data
+# traps_m = data[[3]]
+# 
+# ##### Simulate datasets #####
+# 
+# for (i in 1:3){
+#   for (rho in c(0.25,0.375, 0.5, 0.625, 0.75)){
+#     sim = draw_simple_true_sites(sample_size = 2000,
+#                                  number_colonies = 11700,
+#                                  colony_sizes = rep(20,11700),
+#                                  trap_data = traps_m,
+#                                  rho = rho,
+#                                  theta = 0.5,
+#                                  distance_decay = "exponentiated_quadratic")
+#     sim = sim %>% group_by(colonyid) %>% filter(sum(counts)>0)
+#     write.csv(sim, paste0("analysis/kernel_locations/modeltest/simulation", i, "_rho", rho, ".csv"))
+# 
+# 
+#   }
+# }
 
 ################################################################################
 ###############                  FIT MODELS                  ###################
