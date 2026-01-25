@@ -63,7 +63,7 @@ model {
                       log(sample_effort[i]);
     
     // add to target likelihood
-    y_obs[i] ~ poisson_log_lpmf(lambda_ik);
+    y_obs[i] ~ poisson_log(lambda_ik);
   }
 }
 }
