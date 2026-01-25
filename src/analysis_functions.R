@@ -434,7 +434,7 @@ prep_stan_simpleforaging_neutraldata = function(filled_counts){
   filled_counts = left_join(filled_counts, stansibkeys)
   
   # Make indicator for whether counts_ik > 0
-  filled_counts$yn = ifelse(filled_counts$count > 0, 1, 0)
+  filled_counts$yn = ifelse(filled_counts$counts > 0, 1, 0)
   filled_counts = filled_counts %>%
     arrange(stansibkey)
   
@@ -457,7 +457,7 @@ prep_stan_simpleforaging_neutraldata = function(filled_counts){
     colony_id = filled_counts$stansibkey,
     trap_id = filled_counts$trap_id,
     sample_effort = filled_counts$total_effort,
-    y_obs = filled_counts$count,
+    y_obs = filled_counts$counts,
     yn = filled_counts$yn,
     lower_x = min(filled_counts$trap_x) - 2,
     upper_x = max(filled_counts$trap_x) + 2,

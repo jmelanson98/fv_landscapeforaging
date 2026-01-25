@@ -61,7 +61,7 @@ sampleEffort2023 = left_join(sampleEffort2023, traps_m, relationship = "many-to-
 
 # get pairwise distance matrix 2022
 dmat22 = as.matrix(dist(sampleEffort2022[, c("trap_x", "trap_y")]))
-idx22 = upper.tri(dmat, diag = TRUE)
+idx22 = upper.tri(dmat22, diag = TRUE)
 
 pairwise_distances22 = data.frame(trap_1 = sampleEffort2022$sample_id[row(dmat22)[idx22]],
                                  trap_2 = sampleEffort2022$sample_id[col(dmat22)[idx22]],
@@ -74,7 +74,7 @@ pairwise_distances22$group = "Trap pairs"
 
 # get pairwise distance matrix 2023
 dmat23 = as.matrix(dist(sampleEffort2023[, c("trap_x", "trap_y")]))
-idx23 = upper.tri(dmat, diag = TRUE)
+idx23 = upper.tri(dmat23, diag = TRUE)
 
 pairwise_distances23 = data.frame(trap_1 = sampleEffort2023$sample_id[row(dmat23)[idx23]],
                                   trap_2 = sampleEffort2023$sample_id[col(dmat23)[idx23]],
@@ -178,17 +178,66 @@ df2023 = rbind(pairwise_distances23[,c("distance", "group")],
                sib_distances_m23[,c("distance", "group")])
 df2023$year = 2023
 full_df = rbind(df2022, df2023)
+full_df$distance = full_df$distance/2
 
 ggplot(full_df, aes(x = distance)) +
   geom_histogram(aes(y = after_stat(density)),
-                 bins = 15,
+                 binwidth = 75,
                  color = "black") +
   facet_grid(group~year) +
   ylab("Density") +
   xlab("Distance (meters)") +
   theme_bw()
 
+# Assign data to bins
+breaks = 25 + 100*(0:13)
 
+full_df$distance[full_df$distance < 25] = 25
+full_df$dist_bins = cut(full_df$distance, 
+                       breaks = breaks, 
+                       right = FALSE, 
+                       include.lowest = TRUE)
+summary = full_df %>%
+  group_by(group, dist_bins) %>%
+  summarize(count = n())
+sibs = summary %>% filter(group != "Trap pairs")
+traps = summary %>% filter(group == "Trap pairs")
+colnames(traps) = c("group", "dist_bins", "trap_count")
+sibs = left_join(sibs, traps[,c("dist_bins", "trap_count")])
+sibs$modified_count = sibs$count / sibs$trap_count
+
+sibs = sibs %>%
+  group_by(group) %>%
+  mutate(prop = modified_count/sum(modified_count))
+
+# Now get expected values based on 1/r^3 decay
+int_r <- function(a, b) {
+    log(b) - log(a)
+  }
+  
+total = int_r(25, 1225)
+perbin =  data.frame(r_start = breaks[-length(breaks)], r_end = breaks[-1])
+perbin$integral = mapply(int_r, perbin$r_start, perbin$r_end)
+perbin$proportion = perbin$integral / total
+perbin$dist_bins = as.factor(paste0("[", perbin$r_start, ",", perbin$r_end, ")"))
+perbin$dist_bins <- as.factor(
+  paste0(
+    "[",
+    ifelse(perbin$r_start >= 1000,
+           format(perbin$r_start, scientific = TRUE, digits = 3),
+           perbin$r_start),
+    ",",
+    ifelse(perbin$r_end >= 1000,
+           format(perbin$r_end, scientific = TRUE, digits = 3),
+           perbin$r_end),
+    ")"
+  )
+)
+
+ggplot() +
+  geom_point(data = sibs, aes(x = dist_bins, y = prop, color = group)) +
+  geom_point(data = perbin, aes(x = dist_bins, y = proportion)) +
+  theme_bw()
 
 ######################
 ### Make sib maps

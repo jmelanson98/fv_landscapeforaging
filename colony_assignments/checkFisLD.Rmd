@@ -1214,6 +1214,11 @@ file.copy("data/genepop/ms_genepop_format_impatiens2023.txt",
 genind_imp2022 <- read.genepop("data/genepop/ms_genepop_format_impatiens2022.gen", ncode = 3)
 genind_imp2023 <- read.genepop("data/genepop/ms_genepop_format_impatiens2023.gen", ncode = 3)
 
+# get total allelic richness
+hf_imp = genind2hierfstat(repool(genind_imp2022, genind_imp2023))
+hf_imp$pop = factor(1)
+ar_imp = allelic.richness(hf_imp)
+
 # calculate PIC
 pic_values_2022 <- pic_calc(genind_imp2022, ploidy = 2, bypop = FALSE)
 pic_values_2023 <- pic_calc(genind_imp2023, ploidy = 2, bypop = FALSE)
@@ -1230,6 +1235,11 @@ file.copy("data/genepop/ms_genepop_format_mixtus2023.txt",
 
 genind_mix2022 <- read.genepop("data/genepop/ms_genepop_format_mixtus2022.gen", ncode = 3)
 genind_mix2023 <- read.genepop("data/genepop/ms_genepop_format_mixtus2023.gen", ncode = 3)
+
+# get total allelic richness
+hf_mix = genind2hierfstat(repool(genind_mix2022, genind_mix2023))
+hf_mix$pop = factor(1)
+ar_mix = allelic.richness(hf_mix)
 
 # calculate PIC
 pic_values_2022 <- pic_calc(genind_mix2022, ploidy = 2, bypop = FALSE)
