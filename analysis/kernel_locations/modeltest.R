@@ -84,7 +84,8 @@ Rmax = c(2,3, 100)
 stanfile = c("models/simple_multinomial_normaldisprior.stan",
           "models/simple_multinomial_normaldisprior_floral.stan",
           "models/poisson_normaldisprior_floral.stan")
-params = expand.grid(rho = rho, sim = sim, Rmax = Rmax, stanfile = stanfile)
+inclusion = c("all", "doubletons")
+params = expand.grid(rho = rho, sim = sim, Rmax = Rmax, stanfile = stanfile, inclusion = inclusion)
 
 stanfilekey = data.frame(stanfile = c("models/simple_multinomial_normaldisprior.stan",
                            "models/simple_multinomial_normaldisprior_floral.stan",
@@ -95,8 +96,15 @@ params = left_join(params, stanfilekey)
 # load in dataset
 dir = paste0("analysis/kernel_locations/modeltest/simulation",params$sim[task_id], "_rho", params$rho[task_id], ".csv")
 dataset = read.csv(dir)
+
+# filter out singletons for one condition
+if (params$inclusion[task_id] == "doubletons"){
+  dataset = dataset %>% group_by(colonyid) %>% filter(sum(counts)>0)
+}
+
 stan_data = prep_stan_simpleforaging_neutraldata(dataset)
 stan_data$Rmax = params$Rmax[task_id]
+
 if (params$key[task_id] != "multinomial_notheta"){
   stan_data$fq = dataset$fq}
 
@@ -116,23 +124,25 @@ saveRDS(fit,
                params$key[task_id], 
                "_rho", params$rho[task_id], 
                "_Rmax", params$Rmax[task_id], 
-               "_sim", params$sim[task_id], ".rds"))
+               "_sim", params$sim[task_id],
+               "_", params$inclusion[task_id], ".rds"))
 
 
 # get model summary statistics
 params$rho2.5 = NA
-params$rho50 = NA
-param$rho97.5 = NA
+params$rho50 = NA=
 params$rho97.5 = NA
 params$theta2.5 = NA
 params$theta50 = NA
 params$theta97.5 = NA
 
 for (i in 1:nrow(params)){
-  fit = readRDS(paste0(params$key[i], 
-                       "_rho", params$rho[i], 
-                       "_Rmax", params$Rmax[i], 
-                       "_sim", params$sim[i], ".rds"))
+  fit = readRDS(paste0("analysis/kernel_locations/modeltest/", 
+                       params$key[task_id], 
+                       "_rho", params$rho[task_id], 
+                       "_Rmax", params$Rmax[task_id], 
+                       "_sim", params$sim[task_id],
+                       "_", params$inclusion[task_id], ".rds"))
   summar = summary(fit)$summary
   params$rho2.5[i] = summar["rho", "2.5%"]
   params$rho50[i] = summar["rho", "50%"]
@@ -150,7 +160,6 @@ write.csv(params, "params.csv")
 # # plot comparisons
 # result = read.csv("analysis/kernel_locations/modeltest/params.csv")
 # result$Rmax = as.factor(result$Rmax)
-# results$rho = as.factor(rho)
 # 
 # 
 # pd = position_dodge(width = 0.03)

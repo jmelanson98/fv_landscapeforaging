@@ -2,7 +2,7 @@
 #SBATCH --job-name=fit
 #SBATCH --output=logs/fit_%A_%a.out
 #SBATCH --error=logs/fit_%A_%a.err
-#SBATCH --array=1-135
+#SBATCH --array=1-270
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=12G
