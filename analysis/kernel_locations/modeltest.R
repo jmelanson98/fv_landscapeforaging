@@ -80,7 +80,7 @@ source("src/analysis_functions.R")
 # make params table
 rho = c(0.25,0.375, 0.5, 0.625, 0.75)
 sim = c(1,2,3)
-Rmax = c(2,3)
+Rmax = c(2,3, 100)
 stanfile = c("models/simple_multinomial_normaldisprior.stan",
           "models/simple_multinomial_normaldisprior_floral.stan",
           "models/poisson_normaldisprior_floral.stan")
@@ -118,3 +118,48 @@ saveRDS(fit,
                "_Rmax", params$Rmax[task_id], 
                "_sim", params$sim[task_id], ".rds"))
 
+
+# get model summary statistics
+params$rho2.5 = NA
+params$rho50 = NA
+param$rho97.5 = NA
+params$rho97.5 = NA
+params$theta2.5 = NA
+params$theta50 = NA
+params$theta97.5 = NA
+
+for (i in 1:nrow(params)){
+  fit = readRDS(paste0(params$key[i], 
+                       "_rho", params$rho[i], 
+                       "_Rmax", params$Rmax[i], 
+                       "_sim", params$sim[i], ".rds"))
+  summar = summary(fit)$summary
+  params$rho2.5[i] = summar["rho", "2.5%"]
+  params$rho50[i] = summar["rho", "50%"]
+  params$rho97.5[i] = summar["rho", "97.5%"]
+  if(params$key[i] != "multinomial_notheta"){
+    params$theta2.5[i] = summar["theta", "2.5%"]
+    params$theta50[i] = summar["theta", "50%"]
+    params$theta97.5[i] = summar["theta", "97.5%"]
+  }
+  print(paste0("Done with ", i))
+}
+write.csv(params, "params.csv")
+
+
+# # plot comparisons
+# result = read.csv("analysis/kernel_locations/modeltest/params.csv")
+# result$Rmax = as.factor(result$Rmax)
+# results$rho = as.factor(rho)
+# 
+# 
+# pd = position_dodge(width = 0.03)
+# 
+# ggplot(result, aes(x = rho, y = rho50, color = Rmax, group = sim)) +
+#   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey40") +
+#   geom_point(position = pd, size = 1) +
+#   geom_errorbar(aes(ymin = rho2.5, ymax = rho97.5),
+#                 position = pd,
+#                 width = 0) +
+#   facet_grid(~key) +
+#   theme_bw()
