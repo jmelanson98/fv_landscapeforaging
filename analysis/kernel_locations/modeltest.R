@@ -130,7 +130,7 @@ saveRDS(fit,
 
 # get model summary statistics
 params$rho2.5 = NA
-params$rho50 = NA=
+params$rho50 = NA
 params$rho97.5 = NA
 params$theta2.5 = NA
 params$theta50 = NA
