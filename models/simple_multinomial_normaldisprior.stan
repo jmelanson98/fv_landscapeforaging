@@ -91,7 +91,7 @@ generated quantities {
                       log(sample_effort[start:start+length-1]);
     
     // generate ypred values
-    loglik[c] = multinomial_lpmf(y_obs[start:start+length-1] | lambda_ik);
+    loglik[c] = multinomial_lpmf(y_obs[start:start+length-1] | softmax(lambda_ik));
   }
 }
   
