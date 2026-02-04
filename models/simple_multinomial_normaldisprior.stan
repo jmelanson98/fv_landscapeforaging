@@ -55,7 +55,7 @@ model {
                        square(delta_y[colony_id[start]] - trap_pos[start:start+length-1,2]) );
     for (l in 1:length){
       if(yn[start+l-1] == 1){
-        target += normal_lpdf(dis[l] | 0, Rmax/2.58);
+        dis[l] ~ normal(0, Rmax/2.58);
       }
     }
     
@@ -69,4 +69,32 @@ model {
   }
 }
 }
+
+generated quantities {
+  vector[C] loglik;
+    {
+  
+  // calculate likelihood
+  for (c in 1:C) {
+    
+    // get some indices
+    int start = starts[c]; // index start
+    int length = lengths[c]; // index length
+    
+    // put prior on distance to traps where we find bees
+    vector[length] dis = sqrt( square(delta_x[colony_id[start]] - trap_pos[start:start+length-1,1]) +
+                       square(delta_y[colony_id[start]] - trap_pos[start:start+length-1,2]) );
+
+    // compute visitation intensity lambda for each trap in that landscape
+    vector[length] lambda_ik = -0.5*(dis / rho)^2 +
+                      eps_scale[trap_id[start:start+length-1]] + 
+                      log(sample_effort[start:start+length-1]);
+    
+    // generate ypred values
+    loglik[c] = multinomial_lpmf(y_obs[start:start+length-1] | lambda_ik);
+  }
+}
+  
+}
+
 
