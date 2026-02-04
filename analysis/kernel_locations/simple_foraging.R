@@ -48,29 +48,34 @@ samplepoints = read.csv(paste0(bombus_path, "/raw_data/allsamplepoints.csv"), he
 # Get task ID from slurm manager
 task_id = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
+# Create params table
+Rmax = c(1.23, 2.68, 4.14)
+species = c("mixtus", "impatiens")
+model = c("normal", "uniform")
+params = expand.grid(Rmax = Rmax, species = species, model = model)
+params$task_id = 1:nrow(params)
+
 #################################################################
 # Prepare data for Stan
 #################################################################
-if (task_id %in% 1:5){
-  species = "mixtus"
+
+if (params$species[task_id] == "mixtus"){
   data = prep_stan_simpleforaging_bothyears(mixtus_sibs2022,
-                                                 mixtus_sibs2023,
-                                                 effort2022,
-                                                 effort2023,
-                                                 samplepoints)
-  stan_data = data[[1]]
-  CKT = data[[2]]
-  
-} else if (task_id %in% 6:10) {
-  species = "impatiens"
+                                            mixtus_sibs2023,
+                                            effort2022,
+                                            effort2023,
+                                            samplepoints)
+} else if (params$species[task_id] == "impatiens"){
   data = prep_stan_simpleforaging_bothyears(impatiens_sibs2022,
-                                                 impatiens_sibs2023,
-                                                 effort2022,
-                                                 effort2023,
-                                                 samplepoints)
-  stan_data = data[[1]]
-  CKT = data[[2]]
+                                            impatiens_sibs2023,
+                                            effort2022,
+                                            effort2023,
+                                            samplepoints)
 }
+
+stan_data = data[[1]]
+CKT = data[[2]]
+
 
 #################################################################
 # Think about different likelihood distributions for distance
@@ -106,58 +111,27 @@ if (task_id %in% 1:5){
 # Fit models
 #################################################################
 
-if (task_id %in% c(1,6)){
-  stanfile = "models/simple_multinomial_gradientRmax.stan"
-  stan_data$Rmax = 2
-  stan_data$steepness = 10
+if (params$model[task_id] == "normal"){
+  stanfile = "models/simple_multinomial_normaldisprior.stan"
+  stan_data$Rmax = params$Rmax[task_id]
   fit = stan(file = stanfile,
              data = stan_data, seed = 5838299,
              chains = 4, cores = 4,
              iter = 2000,
              verbose = TRUE)
-  modelname = paste0(species, "_gradient10")
-  saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", species, "_gradient10.rds"))
-} else if (task_id %in% c(2,7)) {
-  stanfile = "models/simple_multinomial_gradientRmax.stan"
-  stan_data$Rmax = 2
+  modelname = paste0(params$species[task_id], "_normal_Rmax", params$Rmax[task_id])
+  saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", modelname, ".rds"))
+} else if (params$model[task_id] == "uniform") {
+  stanfile = "models/simple_multinomial_uniformdisprior.stan"
+  stan_data$Rmax = params$Rmax[task_id]
   stan_data$steepness = 100
   fit = stan(file = stanfile,
              data = stan_data, seed = 5838299,
              chains = 4, cores = 4,
              iter = 2000,
              verbose = TRUE)
-  modelname = paste0(species, "_gradient100")
-  saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", species, "_gradient100.rds"))
-} else if (task_id %in% c(3,8)) {
-  stanfile = "models/simple_multinomial_normaldisprior.stan"
-  stan_data$Rmax = 1
-  fit = stan(file = stanfile,
-             data = stan_data, seed = 5838299,
-             chains = 4, cores = 4,
-             iter = 2000,
-             verbose = TRUE)
-  modelname = paste0(species, "_normalRmax1")
-  saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", species, "_normalRmax1.rds"))
-} else if (task_id %in% c(4,9)) {
-  stanfile = "models/simple_multinomial_normaldisprior.stan"
-  stan_data$Rmax = 2
-  fit = stan(file = stanfile,
-             data = stan_data, seed = 5838299,
-             chains = 4, cores = 4,
-             iter = 2000,
-             verbose = TRUE)
-  modelname = paste0(species, "_normalRmax2")
-  saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", species, "_normalRmax2.rds"))
-} else if (task_id %in% c(5,10)) {
-  stanfile = "models/simple_multinomial_normaldisprior.stan"
-  stan_data$Rmax = 3
-  fit = stan(file = stanfile,
-             data = stan_data, seed = 5838299,
-             chains = 4, cores = 4,
-             iter = 2000,
-             verbose = TRUE)
-  modelname = paste0(species, "_normalRmax3")
-  saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", species, "_normalRmax3.rds"))
+  modelname = paste0(params$species[task_id], "_uniform_Rmax", params$Rmax[task_id])
+  saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", modelname,".rds"))
 }
 
 

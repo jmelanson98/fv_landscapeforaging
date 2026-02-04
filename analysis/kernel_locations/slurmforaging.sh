@@ -2,11 +2,11 @@
 ##SBATCH --job-name=simpleforaging
 #SBATCH --output=logs/simpleforaging_%A_%a.out
 #SBATCH --error=logs/simpleforaging_%A_%a.err
-#SBATCH --array=1-10
+#SBATCH --array=1-12
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=12G
-#SBATCH --time=24:00:00
+#SBATCH --time=12:00:00
 
 module load StdEnv/2023 gcc r/4.3.1 gdal proj
 
