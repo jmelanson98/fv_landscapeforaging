@@ -4,7 +4,6 @@
 
 # Load packages and source data
 library(sf)
-source("~/projects/def-ckremen/melanson/landscape/tyler_code/Load_Packages.R")
 source("src/analysis_functions.R")
 load.packages()
 
