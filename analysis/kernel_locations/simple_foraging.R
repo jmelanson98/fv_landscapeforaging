@@ -124,11 +124,11 @@ if (params$model[task_id] == "normal"){
 } else if (params$model[task_id] == "uniform") {
   stanfile = "models/simple_multinomial_uniformdisprior.stan"
   stan_data$Rmax = params$Rmax[task_id]
-  stan_data$steepness = 100
+  stan_data$steepness = 10
   fit = stan(file = stanfile,
              data = stan_data, seed = 5838299,
              chains = 4, cores = 4,
-             iter = 2000,
+             iter = 4000,
              verbose = TRUE)
   modelname = paste0(params$species[task_id], "_uniform_Rmax", params$Rmax[task_id])
   saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", modelname,".rds"))

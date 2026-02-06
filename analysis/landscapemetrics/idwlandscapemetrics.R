@@ -24,15 +24,14 @@ source("src/analysis_functions.R")
 #####################################################
 # Load and prep landcover data
 #####################################################
-landscape_raster = raster(paste0(bombus_path, "landscape/full_rasters/FValley_lc_1res.tif"))
+landscape_raster = raster(paste0(bombus_path, "landscape/full_rasters/FValley_2res.tif"))
 fv_points = st_read(paste0(bombus_path, "landscape/fvbombus/fvbombus_points.shp"))
 landcover = read.csv(paste0(bombus_path, "landscape/landcover.csv"))
 
 #Change CRS to meters
 fv_points = st_transform(fv_points, 32610)
 landscape_raster = rast(landscape_raster)
-crs(landscape_raster) = "EPSG:3857"
-landscape_raster = project(landscape_raster, terra::crs(fv_points))
+crs(landscape_raster) = "EPSG:32610"
 
 
 #####################################################
@@ -44,15 +43,15 @@ composition_df = sample_lsm(landscape_raster,
                             shape = "circle",
                             size = 1000,
                             what = "lsm_c_ca")
-composition_df = composition1500
+composition_df = composition1000
 composition_df = left_join(composition_df, landcover)
 
 # get complete dataframe
 complete_composition = composition_df %>%
   complete(plot_id, class, fill = list(value = 0))
 
-ed06 = fv_points[fv_points$site_id == "ED06", ]
-ed06_buf = st_buffer(ed06, dist = 1100)
+ed06 = fv_points[fv_points$site_id == "ED10", ]
+ed06_buf = st_buffer(ed06, dist = 1200)
 ed06_circle = mask(landscape_raster, vect(ed06_buf))
 plot(ed06_circle)
 plot(vect(ed06), add = TRUE, col = "red", pch = 16)
