@@ -334,4 +334,34 @@ ggsave(paste0("figures/colonyposteriors", modelname, ".jpg"), grid, height = 300
 # plot(rimp)
 
 
+#################################################################
+# Check out log-predictive density and perform LOOCV
+#################################################################
 
+mixnormmin = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax1.23.rds")
+mixnormmed = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax2.68.rds")
+mixnormmax = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax4.14.rds")
+
+log_lik_draws1 = rstan::extract(mixnormmin, pars = "loglik")$loglik[,]
+log_lik_1 = data.frame(iter = 1:4000,
+                           log_lik = rowSums(log_lik_draws),
+                       model = "min")
+log_lik_draws2 = rstan::extract(mixnormmed, pars = "loglik")$loglik[,]
+log_lik_2 = data.frame(iter = 1:4000,
+                       log_lik = rowSums(log_lik_draws),
+                       model = "med")
+log_lik_draws3 = rstan::extract(mixnormmax, pars = "loglik")$loglik[,]
+log_lik_3 = data.frame(iter = 1:4000,
+                       log_lik = rowSums(log_lik_draws),
+                       model = "max")
+
+log_lik_df = rbind(log_lik_1, log_lik_2, log_lik_3)
+
+
+ggplot(log_lik_df, aes(x = iter, y = log_lik, color = model)) +
+  geom_line() +
+  theme_bw()
+
+min = loo(mixnormmin, pars = "loglik")
+med = loo(mixnormmed, pars = "loglik")
+max = loo(mixnormmax, pars = "loglik")
