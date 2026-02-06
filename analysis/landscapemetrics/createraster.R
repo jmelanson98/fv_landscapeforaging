@@ -4,8 +4,10 @@
 
 # Load packages and source data
 library(sf)
+library(raster)
+library(terra)
+setwd("~/projects/def-ckremen/melanson/fv_landscapeforaging")
 source("src/analysis_functions.R")
-load.packages()
 
 
 # Load the landscape data

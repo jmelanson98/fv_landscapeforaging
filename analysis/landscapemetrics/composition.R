@@ -25,14 +25,15 @@ source("src/analysis_functions.R")
 #####################################################
 # Load and prep landcover data
 #####################################################
-landscape_raster = raster(paste0(bombus_path, "landscape/rasters/FValley_lc_1res.tif"))
+landscape_raster = raster(paste0(bombus_path, "landscape/full_rasters/FValley_2res.tif"))
 fv_points = st_read(paste0(bombus_path, "landscape/fvbombus/fvbombus_points.shp"))
 
 #Change CRS to meters
 fv_points = st_transform(fv_points, 32610)
 landscape_raster = rast(landscape_raster)
-crs(landscape_raster) = "EPSG:3857"
-landscape_raster = project(landscape_raster, terra::crs(fv_points))
+crs(landscape_raster) = "EPSG:32610"
+#crs(landscape_raster) = "EPSG:3857"
+#landscape_raster = project(landscape_raster, terra::crs(fv_points))
 
 
 #####################################################
@@ -44,7 +45,7 @@ composition_df = sample_lsm(landscape_raster,
                             shape = "circle",
                             size = 1500,
                             what = "lsm_c_ca")
-write.csv(composition_df, "analysis/landscapemetrics/composition1500.csv")
+write.csv(composition_df, "analysis/landscapemetrics/composition1500_delta.csv")
 
 
 
