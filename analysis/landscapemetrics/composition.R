@@ -8,11 +8,12 @@ library(terra)
 library(sf)
 library(raster)
 library(data.table)
-library(dbscan)
+#library(dbscan)
 library(tidyr)
 library(dplyr)
-library(bayesplot)
+#library(bayesplot)
 library(ggplot2)
+library(landscapemetrics)
 
 # Set up workspace
 #setwd("/Users/jenna1/fv_landscapeforaging")
@@ -42,7 +43,6 @@ composition_df = sample_lsm(landscape_raster,
                             plot_id = fv_points$site_id,
                             shape = "circle",
                             size = 1500,
-                            return_raster = TRUE,
                             what = "lsm_c_ca")
 write.csv(composition_df, "analysis/landscapemetrics/composition1500.csv")
 
