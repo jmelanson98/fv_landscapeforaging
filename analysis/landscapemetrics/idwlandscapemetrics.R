@@ -13,6 +13,7 @@ library(tidyr)
 library(dplyr)
 library(bayesplot)
 library(ggplot2)
+library(landscapemetrics)
 
 # Set up workspace
 setwd("/Users/jenna1/fv_landscapeforaging")
@@ -41,15 +42,20 @@ composition_df = sample_lsm(landscape_raster,
                             y = fv_points,
                             plot_id = fv_points$site_id,
                             shape = "circle",
-                            size = 1500,
-                            return_raster = TRUE,
+                            size = 1000,
                             what = "lsm_c_ca")
+composition_df = composition1500
+composition_df = left_join(composition_df, landcover)
 
 # get complete dataframe
 complete_composition = composition_df %>%
-  complete(sample_pt, landcover, fill = list(value = 0))
+  complete(plot_id, class, fill = list(value = 0))
 
-
+ed06 = fv_points[fv_points$site_id == "ED06", ]
+ed06_buf = st_buffer(ed06, dist = 1100)
+ed06_circle = mask(landscape_raster, vect(ed06_buf))
+plot(ed06_circle)
+plot(vect(ed06), add = TRUE, col = "red", pch = 16)
 
 
 #####################################################

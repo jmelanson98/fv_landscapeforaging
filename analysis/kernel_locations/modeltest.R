@@ -155,7 +155,7 @@ for (i in 1:nrow(params)){
   }
   print(paste0("Done with ", i))
 }
-write.csv(params, "params.csv")
+write.csv(params, "analysis/kernel_locations/modeltest/params.csv")
 
 
 # plot comparisons
@@ -165,11 +165,11 @@ result$Rmax = as.factor(result$Rmax)
 
 pd = position_dodge(width = 0.03)
 
-ggplot(result[result$Rmax != 100,], aes(x = rho, y = rho50, color = Rmax, group = sim)) +
+ggplot(result[result$key != "poisson_theta",], aes(x = rho, y = rho50, color = Rmax, group = sim)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey40") +
   geom_point(position = pd, size = 1) +
   geom_errorbar(aes(ymin = rho2.5, ymax = rho97.5),
                 position = pd,
                 width = 0) +
-  facet_grid(~key) +
+  facet_grid(key~inclusion) +
   theme_bw()

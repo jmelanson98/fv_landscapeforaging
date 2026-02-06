@@ -3,6 +3,53 @@
 #### J. Melanson
 
 
+
+###################################################
+# Function for creating raster from shapefile
+##################################################
+create.raster <- function(sf_object,
+                          lc_types, 
+                          resolution
+) {
+  #PREP WORK
+  # make sure the  sf object doesn't have empty geometries
+  sf_object <- sf_object[!st_is_empty(sf_object),]
+  sf_object[[lc_types]] <- as.factor(sf_object[[lc_types]])
+  
+  # get unique list of covertypes from lc_types column
+  covertypes = unique(sf_object[[lc_types]])
+  
+  # Create a data.frame for lc landcover types and number attributes
+  lc_df <- data.frame(lc_num = 1:length(covertypes), lc_name = covertypes)
+  
+  # Place IDs
+  sf_object$lc_num <- lc_df$lc_num[match(sf_object[[lc_types]], lc_df$lc_name)]
+  
+  # RASTER CREATION
+  # create a blank raster at the correct extent and resolution
+  raster_data <- raster(extent(sf_object), resolution = resolution)
+  
+  # Rasterize the SpatialPolygonsDataFrame : longer time for smaller resolution value
+  rasterized <- terra::rasterize(sf_object, field = "lc_num", raster_data) 
+  
+  # ratify raster
+  raster_ratif <- ratify(rasterized)
+  
+  # Create levels
+  rat <- levels(raster_ratif)[[1]]
+  rat$lc_type <- lc_df$lc_name
+  rat$ID <- lc_df$lc_num
+  
+  levels(raster_ratif) <- rat
+  
+  plot <- rasterVis::levelplot(raster_ratif)
+  writeRaster(raster_ratif, paste0("~/projects/def-ckremen/melanson/landscape/full_rasters/FValley_", resolution, "res.tif"))
+  print(plot)
+  return(raster_ratif)
+}
+
+
+
 ###################################################
 # Functions for calculating landscape metrics
 ##################################################
