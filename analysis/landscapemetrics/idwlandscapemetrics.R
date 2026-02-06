@@ -23,16 +23,33 @@ source("src/analysis_functions.R")
 #####################################################
 # Load and prep landcover data
 #####################################################
-landscape_raster = raster(paste0(bombus_path, "landscape/rasters/FValley_lc_1res.tif"))
+landscape_raster = raster(paste0(bombus_path, "landscape/full_rasters/FValley_lc_1res.tif"))
 fv_points = st_read(paste0(bombus_path, "landscape/fvbombus/fvbombus_points.shp"))
 landcover = read.csv(paste0(bombus_path, "landscape/landcover.csv"))
 
 #Change CRS to meters
-crs(landscape_raster) = 900913
-st_crs(fv_points) = 900913
-
-# Make sure it's a spatrast object
+fv_points = st_transform(fv_points, 32610)
 landscape_raster = rast(landscape_raster)
+crs(landscape_raster) = "EPSG:3857"
+landscape_raster = project(landscape_raster, terra::crs(fv_points))
+
+
+#####################################################
+# Check composition of all landcover classes
+#####################################################
+composition_df = sample_lsm(landscape_raster,
+                            y = fv_points,
+                            plot_id = fv_points$site_id,
+                            shape = "circle",
+                            size = 1500,
+                            return_raster = TRUE,
+                            what = "lsm_c_ca")
+
+# get complete dataframe
+complete_composition = composition_df %>%
+  complete(sample_pt, landcover, fill = list(value = 0))
+
+
 
 
 #####################################################
