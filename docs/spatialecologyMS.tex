@@ -149,7 +149,34 @@ Because we found evidence for only minor inbreeding (e.g., $F_{is} < 0.05$) we r
 
 We performed final colony assignments using separate COLONY runs for each species-year combination. We included spring queens (2023) in the 2022 run, as these queens were putative siblings of 2022 workers. The long duration of sampling in 2023 (March-August) provided the opportunity to observe both spring (originating in 2022) and summer (originating in 2023) queens; to establish a cutoff between these groups, we visually inspected histograms of queen counts per day and chose thresholds of 9 June and 24 June for \emph{B. mixtus} and \emph{B. impatiens}, respectively. To determine optimal software settings, we tested COLONY performance on simulated datasets using allele frequencies derived from our true data. For support of the following settings, see Appendix 1, Section A1.2 "Testing COLONY on simulated data". Colony assignments were performed using a single COLONY run for each species-year combination. We used exclusion tables to prevent the assignment of siblingships between individuals originating from different sites. Each run assumed male and female monogamy and no inbreeding, and utilized no prior on siblingship size and no siblingship size scaling. All runs were performed using the Linux command line version of the software, with run length set to "long", likelihood set to "full-likelihood" and precision set to "high precision." Sibling pairs were maintained with $P_{fullsib dyad} = 0.995$. Because we used full sibling dyad probabilities rather than sibling cluster probabilities to perform assignments, we resolved non-circular families (e.g., individual A related to individual B, B related to C, but A \emph{not} related to C) as described in A1.2.3. Overall, the results of our simulation suggest that previous studies of fine-scale lineage in bumblebees using similar genetic datasets may suffer from high false positive rates due to insufficiently stringent probability thresholds for siblingship assignment. %We acknowledge that violations to the assumption of male and female monogamy may result in a heightened number of false-negatives while using the monogamous specification in COLONY---however, our simulations showed clearly that our dataset was not sufficient to distinguish half-sib relationships, and allowing for polyandry resulted in a very high rate of falsely-inferred sibling pairs.
 
-\subsection{Statistical Analyses}
+\subsection{Modelling Foraging Distance}
+
+To compare foraging distance of the two species, we fitted spatially explicit genetic mark-recapture models following \textcite{popeSeasonalFoodScarcity2018}. These models attempt to parametrize the distance decay rate of foraging activity, conditional on the observation frequency of workers from each colony ($i \in C$) at each trap ($k \in K$). For the purposes of this study, which takes place across multiple sites and timepoints, we sum visitation events across sampling rounds and, consistent with our exclusion of siblingships between individuals at different sites, we consider visitation events only within the site where a colony was observed (e.g., traps $k \in K_l$, where $K_l$ is itself a subset of $K$). The joint likelihood for a simple model where visitation intensity decays with the square of distance is:
+
+\[
+\mathbf{y}_i \sim \text{Multinomial}\big(n_i, \mathbf{p}_i \big)
+\]
+\[
+p_{ik} = \frac{\lambda_{ik}}{\sum_{j=1}^{K_l} \lambda_{ij}}, 
+    n_i = \sum_{j=1}^{K_l} y_{ij}
+\]
+\[
+log(\lambda_{ik}) = -\frac{1}{2}\left(\frac{\lVert x_k - \delta_i \rVert}{\rho}\right)^2 + \epsilon_k
+\]
+\[
+\rho \sim lognormal(log(0.5), 0.5)
+\]
+\[
+\epsilon \sim normal(0, \sigma^2)
+\]
+\[
+\sigma \sim exponential(1)
+\]
+
+where $y_{ij}$ is the number of individuals from colony $i$ captured at transect $j$, $\delta_i$ is a nuisance parameter governing the location of colony $i$, $\lVert x_k - \delta_i \rVert$ is the Euclidean distance between transect $k$ and colony $i$ (hereafter referred to as $d{ik}$), $\rho$ is the length scale of foraging activity, and $\epsilon_k$ are transect-specific intercepts drawn from a common distribution. We incur a sampling offset by adding the log-transformed sampling effort per transect on the linear predictor scale for each $\lambda_{ik}$.
+
+As noted by \textcite{popeSeasonalFoodScarcity2018}, capture records of siblings along transects contain more information regarding \emph{relative} foraging distance (e.g., comparisons between landscapes or species) than \emph{absolute} foraging distance, likely due to the low recapture rate of each colony. Indeed, estimates of the absolute foraging length scale, $\rho$, are sensitive to priors on colony locations $\delta_i$; to constrain $\rho$ to biologically realistic scales, we must select a prior for $\delta_i$ which enforces a maximum distance between estimated colony location ($delta_i$) and the traps where colony $i$ is observed. A naive approach would be to use a uniform prior based on maximum and minimum latitudinal and longitudinal coordinates computed based on the trapping grid extent, but this prior interacts differently with colonies that are observed at the center of the trapping grid versus those which are observed on the trapping grid periphery (it is more restrictive in the latter case). A more biologically-informed approach is to apply a pseudo-prior that places a maximum bound ($R_{max}$) on the distance between each colony and the transect(s) where it is observed. We say ``psuedo-prior'' because a proper Bayesian prior should be a distribution over a parameter, and must be applied before observing the data. Here, $d{ik}$ is a derived quantity of data ($x_k$) and parameters ($\delta_i$), and our pseudo-prior is only applied for distances between colony $i$ and the transect(s) where it is observed (i.e., we also must observe $\mathbf{y}_i$ to determine which distances should be constrained). It is therefore more properly referred to as a \emph{penalization term} and is part of the likelihood, rather than a prior. However, we emphasize that this penalization is grounded in our prior biological knowledge of the system (i.e., workers are restricted to foraging within some maximal distance of their colonies). The term is functionally similar to the ``prior'' on foraging distance applied in \textcite{popeInferringForagingRanges2017}, but we choose a quasi-uniform distribution (no penalty applied while $d{ik} \leq R_{max}$, and a strong penalty applied thereafter) rather than an exponential distribution (penalty increases exponentially with $d{ik}$). Because a strict uniform penalization leads to numerical issues in Stan, we substitute a continuous penalization with a steep gradient at $R_{max}$, which is added directly to the target log density: $-log(1 + e^{\alpha (d_{ik} - R_{max})})$. The steepness of the penalization is controlled by $\alpha$ (see Fig. \ref{fig:Rmaxgradient} for illustration of the penalization and log likelihood of this functional form with respect to distance).
+
 
 
 
@@ -333,7 +360,7 @@ We define the foraging kernel of workers from colony $i$ as
 where the visitation intensity of individuals from colony $i$ to location $j$ is 
 
 \[
-ln(\lambda_i(j)) = \frac{- \lVert x_j - \delta_i \rVert}{\rho} \tag{5}
+log(\lambda_i(j)) = \frac{- \lVert x_j - \delta_i \rVert}{\rho} \tag{5}
 \]
 
 $x_j$ are the spatial coordinates of any grid cell in the raster, and $\delta_i$ are the spatial coordinates of colony $i$. The foraging kernel in this example is therefore symmetrical and exponentially decaying as a function of distance from the colony location. This means that the total visitation rate of each colony across the landscape ($\sum_{j \in J} \lambda_i(j)$) is the same for all colonies, and can be represented using the constant $\mathbb{D}$. $\Pr(c = i)$ is the proportion of all bees in the landscape originating from colony $i$, e.g., $\Pr(c = i) = \frac{n_i}{N}$ where $n_i$ is the number of bees from colony $i$, and $N = \sum_{i \in \mathbb{C}} n_i$ is the total number of bees in the landscape.

@@ -34,6 +34,23 @@ bombus_path = "/home/melanson/projects/def-ckremen/melanson"
 source("src/analysis_functions.R")
 
 
+# Set color scheme for plots
+faded_pale = "#D2E4D4"
+faded_light = "#B6D3B8"
+faded_medium = "#609F65"
+faded_strong = "#4E8353"
+faded_green = "#355938"
+faded_dark = "#1B2D1C"
+
+
+light_gold = "#F7EAC0"
+lm_gold = "#F2DC97"
+medium_gold = "#ECCF6F"
+gold = "#E2B41D"
+dark_gold = "#B99318"
+darker_gold = "#907313"
+
+
 # Load in data
 mixtus_sibs2022 = read.csv("data/siblingships/mixtus_sibships_2022.csv")
 mixtus_sibs2023 = read.csv("data/siblingships/mixtus_sibships_2023.csv")
@@ -116,19 +133,19 @@ if (params$model[task_id] == "normal"){
   stan_data$Rmax = params$Rmax[task_id]
   fit = stan(file = stanfile,
              data = stan_data, seed = 5838299,
-             chains = 4, cores = 4,
-             iter = 2000,
+             chains = 8, cores = 8,
+             iter = 3000, warmup = 1000,
              verbose = TRUE)
   modelname = paste0(params$species[task_id], "_normal_Rmax", params$Rmax[task_id])
   saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", modelname, ".rds"))
 } else if (params$model[task_id] == "uniform") {
   stanfile = "models/simple_multinomial_uniformdisprior.stan"
   stan_data$Rmax = params$Rmax[task_id]
-  stan_data$steepness = 10
+  stan_data$steepness = 100
   fit = stan(file = stanfile,
              data = stan_data, seed = 5838299,
-             chains = 4, cores = 4,
-             iter = 4000,
+             chains = 8, cores = 8,
+             iter = 3000, warmup = 1000,
              verbose = TRUE)
   modelname = paste0(params$species[task_id], "_uniform_Rmax", params$Rmax[task_id])
   saveRDS(fit, paste0("analysis/kernel_locations/foraging_modelfits/", modelname,".rds"))
@@ -138,34 +155,46 @@ if (params$model[task_id] == "normal"){
 #############################################
 # Extract values and makes some plots
 #############################################
-# mix.fit = readRDS("analysis/foraging_modelfits/simpleforaging_multinomial1.rds")
-# imp.fit = readRDS("analysis/foraging_modelfits/simpleforaging_multinomial2.rds")
+# mix.fit.min = readRDS("analysis/kernel_locations/foraging_modelfits/mixtus_uniform_Rmax1.23.rds")
+# imp.fit.min = readRDS("analysis/kernel_locations/foraging_modelfits/impatiens_uniform_Rmax1.23.rds")
+# mix.fit.med = readRDS("analysis/kernel_locations/foraging_modelfits/mixtus_uniform_Rmax2.68.rds")
+# imp.fit.med = readRDS("analysis/kernel_locations/foraging_modelfits/impatiens_uniform_Rmax2.68.rds")
+# mix.fit.max = readRDS("analysis/kernel_locations/foraging_modelfits/mixtus_uniform_Rmax4.14.rds")
+# imp.fit.max = readRDS("analysis/kernel_locations/foraging_modelfits/impatiens_uniform_Rmax4.14.rds")
 # 
 # # mixtus
-# summarym = rstan::summary(mix.fit)$summary
+# summarym = rstan::summary(mix.fit.med)$summary
 # 
 # rhom = summarym["rho", "mean"]
 # 
 # # impatiens
-# summaryi = rstan::summary(imp.fit)$summary
+# summaryi = rstan::summary(imp.fit.med)$summary
 # 
 # rhoi = summaryi["rho", "mean"]
 # 
 # # Make plot of rhos for each species/year!
-# postm = as.data.frame(mix.fit)
-# posti = as.data.frame(imp.fit)
+# postm_min = as.data.frame(mix.fit.min)
+# postm_med = as.data.frame(mix.fit.med)
+# postm_max = as.data.frame(mix.fit.max)
+# posti_min = as.data.frame(imp.fit.min)
+# posti_med = as.data.frame(imp.fit.med)
+# posti_max = as.data.frame(imp.fit.max)
 # 
 # combinedpost =  bind_rows(
-#   data.frame(model = "B. mixtus", rho = postm$rho),
-#   data.frame(model = "B. impatiens", rho = posti$rho)
+#   data.frame(model = "B. mixtus", rho = postm_min$rho, Rmax = 1.23),
+#   data.frame(model = "B. mixtus", rho = postm_med$rho, Rmax = 2.68),
+#   data.frame(model = "B. mixtus", rho = postm_max$rho, Rmax = 4.14),
+#   data.frame(model = "B. impatiens", rho = posti_min$rho, Rmax = 1.23),
+# data.frame(model = "B. impatiens", rho = posti_med$rho, Rmax = 2.68),
+#   data.frame(model = "B. impatiens", rho = posti_max$rho, Rmax = 4.14)
 # )
 # 
 # posteriors = ggplot(combinedpost, aes(x = rho, fill = model, color = model)) +
 #   scale_fill_manual(values = c(lm_gold, faded_strong)) +
-#   scale_color_manual(values = c(dark_gold, faded_dark)) + 
-#   geom_histogram() +
-#   facet_wrap(~model, ncol = 1) +
-#   ylab("Posterior draws") +
+#   scale_color_manual(values = c(dark_gold, faded_dark)) +
+#   geom_histogram(aes(y = after_stat(count / sum(count))), alpha = 0.5) +
+#   facet_wrap(~Rmax, ncol = 3) +
+#   ylab("Posterior draw frequency") +
 #   xlab(expression(rho)) +
 #   theme(legend.position = "none") +
 #   guides(fill = "none", color = "none") +
@@ -176,6 +205,9 @@ if (params$model[task_id] == "normal"){
 #   )
 # posteriors
 # 
+# 
+# # Make plots of foraging decay with distance
+# # Incorporate posterior uncertainty, for each Rmax!
 # x = seq(0, 2, by = 0.0001)
 # mix_y = exp(-0.5*(x/rhom)^2)
 # imp_y = exp(-0.5*(x/rhoi)^2)
@@ -200,84 +232,84 @@ if (params$model[task_id] == "normal"){
 #   ylab("Relative visitation") +
 #   xlab("Distance from nest (km)") +
 #   theme_bw()
-
-
-#Plot the posteriors of some colonies
-#colonies = c(5, 7, 11, 18)
-
-delta_draws1 = as.data.frame(cbind(x = rstan::extract(fit, pars = "delta_x")$delta[, 1024],
-                      y = rstan::extract(fit, pars = "delta_y")$delta[, 1024]))
-delta_draws1$colony = "Colony 1024"
-delta_draws2 = as.data.frame(cbind(x = rstan::extract(fit, pars = "delta_x")$delta[, 1373],
-                     y = rstan::extract(fit, pars = "delta_y")$delta[, 1373]))
-delta_draws2$colony = "Colony 1373"
-delta_draws3 = as.data.frame(cbind(x = rstan::extract(fit, pars = "delta_x")$delta[, 1399],
-                     y = rstan::extract(fit, pars = "delta_y")$delta[, 1399]))
-delta_draws3$colony = "Colony 1399"
-
-plot1 = ggplot(delta_draws1, aes(x = x, y = y)) +
-    geom_density_2d_filled(alpha = 0.8, bins = 9) +
-    scale_fill_brewer(palette = "Greens") +
-
-    #plot trap locations / sizes / quality
-    geom_point(data = CKT[CKT$stansibkey ==1024,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
-    scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
-    xlim(c(min(CKT[CKT$stansibkey ==1024,]$trap_x)-1, max(CKT[CKT$stansibkey ==1024,]$trap_x) + 1)) +
-    ylim(c(min(CKT[CKT$stansibkey ==1024,]$trap_y)-1, max(CKT[CKT$stansibkey ==1024,]$trap_y) + 1)) +
-           
-    #miscellaneous
-    labs(x = "",
-         y = "Latitude",
-         title = "Colony 1024") +
-    guides(fill = "none", colour = "none", size = "none") +
-    theme(legend.position = "none") +
-    coord_equal() +
-    theme_bw()
-
-plot2 = ggplot(delta_draws2, aes(x = x, y = y)) +
-  geom_density_2d_filled(alpha = 0.8, bins = 9) +
-  scale_fill_brewer(palette = "Greens") +
-  
-  #plot trap locations / sizes / quality
-  geom_point(data = CKT[CKT$stansibkey ==1373,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
-  scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
-  xlim(c(min(CKT[CKT$stansibkey ==1373,]$trap_x)-1, max(CKT[CKT$stansibkey ==1373,]$trap_x) + 1)) +
-  ylim(c(min(CKT[CKT$stansibkey ==1373,]$trap_y)-1, max(CKT[CKT$stansibkey ==1373,]$trap_y) + 1)) +
-  
-  #miscellaneous
-  labs(x = "Longitude",
-       y = "",
-       title = "Colony 1373") +
-  guides(fill = "none", colour = "none", size = "none") +
-  theme(legend.position = "none") +
-  coord_equal() +
-  theme_bw()
-
-plot3 = ggplot(delta_draws3, aes(x = x, y = y)) +
-  geom_density_2d_filled(alpha = 0.8, bins = 9) +
-  scale_fill_brewer(palette = "Greens") +
-  
-  #plot trap locations / sizes / quality
-  geom_point(data = CKT[CKT$stansibkey ==1399,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
-  scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
-  xlim(c(min(CKT[CKT$stansibkey ==1399,]$trap_x)-1, max(CKT[CKT$stansibkey ==1399,]$trap_x) + 1)) +
-  ylim(c(min(CKT[CKT$stansibkey ==1399,]$trap_y)-1, max(CKT[CKT$stansibkey ==1399,]$trap_y) + 1)) +
-  
-  #miscellaneous
-  labs(x = "",
-       y = "",
-       title = "Colony 1399") +
-  guides(fill = "none", colour = "none", size = "none") +
-  theme(legend.position = "none") +
-  coord_equal() +
-  theme_bw()
-
-#### Make a grid plot
-grid = grid.arrange(plot1, nullGrob(), plot2, nullGrob(), plot3,
-                    ncol = 5, widths = c(10, 1, 10,1,10))
-
-ggsave(paste0("figures/colonyposteriors", modelname, ".jpg"), grid, height = 3000, width = 3200, units = "px")
-
+# 
+# 
+# #Plot the posteriors of some colonies
+# #colonies = c(5, 7, 11, 18)
+# 
+# delta_draws1 = as.data.frame(cbind(x = rstan::extract(fit, pars = "delta_x")$delta[, 1024],
+#                       y = rstan::extract(fit, pars = "delta_y")$delta[, 1024]))
+# delta_draws1$colony = "Colony 1024"
+# delta_draws2 = as.data.frame(cbind(x = rstan::extract(fit, pars = "delta_x")$delta[, 1373],
+#                      y = rstan::extract(fit, pars = "delta_y")$delta[, 1373]))
+# delta_draws2$colony = "Colony 1373"
+# delta_draws3 = as.data.frame(cbind(x = rstan::extract(fit, pars = "delta_x")$delta[, 1399],
+#                      y = rstan::extract(fit, pars = "delta_y")$delta[, 1399]))
+# delta_draws3$colony = "Colony 1399"
+# 
+# plot1 = ggplot(delta_draws1, aes(x = x, y = y)) +
+#     geom_density_2d_filled(alpha = 0.8, bins = 9) +
+#     scale_fill_brewer(palette = "Greens") +
+# 
+#     #plot trap locations / sizes / quality
+#     geom_point(data = CKT[CKT$stansibkey ==1024,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
+#     scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
+#     xlim(c(min(CKT[CKT$stansibkey ==1024,]$trap_x)-1, max(CKT[CKT$stansibkey ==1024,]$trap_x) + 1)) +
+#     ylim(c(min(CKT[CKT$stansibkey ==1024,]$trap_y)-1, max(CKT[CKT$stansibkey ==1024,]$trap_y) + 1)) +
+#            
+#     #miscellaneous
+#     labs(x = "",
+#          y = "Latitude",
+#          title = "Colony 1024") +
+#     guides(fill = "none", colour = "none", size = "none") +
+#     theme(legend.position = "none") +
+#     coord_equal() +
+#     theme_bw()
+# 
+# plot2 = ggplot(delta_draws2, aes(x = x, y = y)) +
+#   geom_density_2d_filled(alpha = 0.8, bins = 9) +
+#   scale_fill_brewer(palette = "Greens") +
+#   
+#   #plot trap locations / sizes / quality
+#   geom_point(data = CKT[CKT$stansibkey ==1373,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
+#   scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
+#   xlim(c(min(CKT[CKT$stansibkey ==1373,]$trap_x)-1, max(CKT[CKT$stansibkey ==1373,]$trap_x) + 1)) +
+#   ylim(c(min(CKT[CKT$stansibkey ==1373,]$trap_y)-1, max(CKT[CKT$stansibkey ==1373,]$trap_y) + 1)) +
+#   
+#   #miscellaneous
+#   labs(x = "Longitude",
+#        y = "",
+#        title = "Colony 1373") +
+#   guides(fill = "none", colour = "none", size = "none") +
+#   theme(legend.position = "none") +
+#   coord_equal() +
+#   theme_bw()
+# 
+# plot3 = ggplot(delta_draws3, aes(x = x, y = y)) +
+#   geom_density_2d_filled(alpha = 0.8, bins = 9) +
+#   scale_fill_brewer(palette = "Greens") +
+#   
+#   #plot trap locations / sizes / quality
+#   geom_point(data = CKT[CKT$stansibkey ==1399,], aes(x = trap_x, y = trap_y, size = count), colour = "black") +
+#   scale_size_continuous(limits = c(0,10), range = c(1, 5)) +
+#   xlim(c(min(CKT[CKT$stansibkey ==1399,]$trap_x)-1, max(CKT[CKT$stansibkey ==1399,]$trap_x) + 1)) +
+#   ylim(c(min(CKT[CKT$stansibkey ==1399,]$trap_y)-1, max(CKT[CKT$stansibkey ==1399,]$trap_y) + 1)) +
+#   
+#   #miscellaneous
+#   labs(x = "",
+#        y = "",
+#        title = "Colony 1399") +
+#   guides(fill = "none", colour = "none", size = "none") +
+#   theme(legend.position = "none") +
+#   coord_equal() +
+#   theme_bw()
+# 
+# #### Make a grid plot
+# grid = grid.arrange(plot1, nullGrob(), plot2, nullGrob(), plot3,
+#                     ncol = 5, widths = c(10, 1, 10,1,10))
+# 
+# ggsave(paste0("figures/colonyposteriors", modelname, ".jpg"), grid, height = 3000, width = 3200, units = "px")
+# 
 
 
 #################################################################
@@ -338,30 +370,30 @@ ggsave(paste0("figures/colonyposteriors", modelname, ".jpg"), grid, height = 300
 # Check out log-predictive density and perform LOOCV
 #################################################################
 
-mixnormmin = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax1.23.rds")
-mixnormmed = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax2.68.rds")
-mixnormmax = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax4.14.rds")
-
-log_lik_draws1 = rstan::extract(mixnormmin, pars = "loglik")$loglik[,]
-log_lik_1 = data.frame(iter = 1:4000,
-                           log_lik = rowSums(log_lik_draws),
-                       model = "min")
-log_lik_draws2 = rstan::extract(mixnormmed, pars = "loglik")$loglik[,]
-log_lik_2 = data.frame(iter = 1:4000,
-                       log_lik = rowSums(log_lik_draws),
-                       model = "med")
-log_lik_draws3 = rstan::extract(mixnormmax, pars = "loglik")$loglik[,]
-log_lik_3 = data.frame(iter = 1:4000,
-                       log_lik = rowSums(log_lik_draws),
-                       model = "max")
-
-log_lik_df = rbind(log_lik_1, log_lik_2, log_lik_3)
-
-
-ggplot(log_lik_df, aes(x = iter, y = log_lik, color = model)) +
-  geom_line() +
-  theme_bw()
-
-min = loo(mixnormmin, pars = "loglik")
-med = loo(mixnormmed, pars = "loglik")
-max = loo(mixnormmax, pars = "loglik")
+# mixnormmin = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax1.23.rds")
+# mixnormmed = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax2.68.rds")
+# mixnormmax = readRDS("~/fv_landscapeforaging/analysis/kernel_locations/foraging_modelfits/mixtus_normal_Rmax4.14.rds")
+# 
+# log_lik_draws1 = rstan::extract(mixnormmin, pars = "loglik")$loglik[,]
+# log_lik_1 = data.frame(iter = 1:4000,
+#                            log_lik = rowSums(log_lik_draws),
+#                        model = "min")
+# log_lik_draws2 = rstan::extract(mixnormmed, pars = "loglik")$loglik[,]
+# log_lik_2 = data.frame(iter = 1:4000,
+#                        log_lik = rowSums(log_lik_draws),
+#                        model = "med")
+# log_lik_draws3 = rstan::extract(mixnormmax, pars = "loglik")$loglik[,]
+# log_lik_3 = data.frame(iter = 1:4000,
+#                        log_lik = rowSums(log_lik_draws),
+#                        model = "max")
+# 
+# log_lik_df = rbind(log_lik_1, log_lik_2, log_lik_3)
+# 
+# 
+# ggplot(log_lik_df, aes(x = iter, y = log_lik, color = model)) +
+#   geom_line() +
+#   theme_bw()
+# 
+# min = loo(mixnormmin, pars = "loglik")
+# med = loo(mixnormmed, pars = "loglik")
+# max = loo(mixnormmax, pars = "loglik")
